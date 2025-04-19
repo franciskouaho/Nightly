@@ -34,22 +34,12 @@ export class GameStateHelper {
       // Méthode 1: Utiliser Socket.IO
       try {
         const socket = await socketService.getInstanceAsync(true);
-        
         return new Promise((resolve) => {
-          const timeout = setTimeout(() => {
-            console.warn(`⚠️ [GameStateHelper] Timeout lors de la demande de transition de phase par socket`);
-            resolve(false);
-          }, 5000);
-          
           socket.emit('game:force_phase', { gameId, targetPhase }, (response: any) => {
-            clearTimeout(timeout);
-            
             if (response && response.success) {
               console.log(`✅ [GameStateHelper] Phase ${targetPhase} forcée avec succès via Socket.IO`);
-              
               // Invalider le cache après une transition réussie
               gameService.invalidateGameState(gameId);
-              
               resolve(true);
             } else {
               console.warn(`⚠️ [GameStateHelper] Échec de forçage de phase via Socket.IO:`, response?.error || 'Raison inconnue');
@@ -229,8 +219,6 @@ export class GameStateHelper {
             const socket = await SocketService.getInstanceAsync(true);
             
             success = await new Promise<boolean>((resolve) => {
-              const timeout = setTimeout(() => resolve(false), 3000);
-              
               socket.emit('game:force_phase', { 
                 gameId,
                 targetPhase,
@@ -238,7 +226,6 @@ export class GameStateHelper {
                 force: true,
                 emergency: true
               }, (response: any) => {
-                clearTimeout(timeout);
                 resolve(response?.success || false);
               });
             });
@@ -331,15 +318,11 @@ export class GameStateHelper {
         const socket = await socketService.getInstanceAsync(true);
         
         return new Promise((resolve) => {
-          const timeout = setTimeout(() => resolve(false), 5000);
-          
           socket.emit('game:target_vote_ready', { 
             gameId, 
             targetId: userId,
             forceVotePhase: true
           }, (response: any) => {
-            clearTimeout(timeout);
-            
             if (response && response.success) {
               console.log(`✅ [GameStateHelper] Phase vote forcée pour la cible avec succès`);
               resolve(true);
@@ -401,23 +384,17 @@ export class GameStateHelper {
     try {
       // Activer l'auto-init pour les sockets
       SocketService.setAutoInit(true);
-      
       try {
         // Essayer d'obtenir le socket avec initialisation forcée
         const socket = await SocketService.getInstanceAsync(true);
         if (socket.connected) {
           return true;
         }
-        
         // Si le socket existe mais n'est pas connecté, tenter de le connecter
         socket.connect();
-        
-        // Attendre jusqu'à 3 secondes pour la connexion
+        // SUPPRESSION DU TIMEOUT : on attend la connexion sans limite arbitraire
         return await new Promise<boolean>((resolve) => {
-          const timeout = setTimeout(() => resolve(false), 3000);
-          
           socket.once('connect', () => {
-            clearTimeout(timeout);
             resolve(true);
           });
         });

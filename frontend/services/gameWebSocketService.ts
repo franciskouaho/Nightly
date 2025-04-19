@@ -2,8 +2,6 @@ import { Socket } from 'socket.io-client';
 import SocketService from './socketService';
 import UserIdManager from '@/utils/userIdManager';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { WebSocketResponse } from '@/types/gameTypes';
-import { PhaseManager } from '../utils/phaseManager';
 import api, { API_URL } from '@/config/axios';
 
 class GameWebSocketService {
@@ -27,31 +25,68 @@ class GameWebSocketService {
     return GameWebSocketService.instance;
   }
 
+  protected constructor() {
+    // Initialisation des Maps et Sets
+    this.pendingRequests = new Map();
+    this.gameStateCache = new Map();
+    this.joinedGames = new Set();
+    this.pendingJoinRequests = new Map();
+    this.cacheData = new Map();
+    this.phaseChangeTimestamps = new Map();
+  }
+
+  /**
+   * Attend que le socket soit défini et connecté (timeout 5s)
+   */
+  private async waitForSocketReady(socket: Socket | undefined, timeoutMs = 5000): Promise<Socket> {
+    const startTime = Date.now();
+    while (!socket || !socket.connected) {
+      if (Date.now() - startTime > timeoutMs) {
+        throw new Error('Timeout waiting for socket to be ready');
+      }
+      
+      try {
+        socket = await SocketService.getInstanceAsync(true);
+        if (socket && socket.connected) {
+          return socket;
+        }
+      } catch (error) {
+        console.warn(`⚠️ [GameWebSocket] Erreur lors de l'attente du socket:`, error);
+      }
+      
+      await new Promise(res => setTimeout(res, 100));
+    }
+    return socket;
+  }
+
   /**
    * S'assure que la connexion Socket est établie et que l'utilisateur a rejoint le canal du jeu
    */
-  async ensureSocketConnection(gameId: string): Promise<boolean> {
+  async ensureSocketConnection(gameId: string): Promise<Socket> {
     try {
-      // Activer l'initialisation automatique pour les jeux
       SocketService.setAutoInit(true);
+      let socket = await SocketService.getInstanceAsync(true);
       
-      // Vérifier si un socket est déjà disponible et connecté
-      const socket = await SocketService.getInstanceAsync(true);
-      
-      if (!socket.connected) {
-        console.log(`⚠️ [GameWebSocket] Socket non connecté, tentative de reconnexion...`);
-        
-        // Tentative de reconnexion immédiate (sans délai)
-        const reconnected = await this.reconnect();
-        if (!reconnected) {
-          console.error(`❌ [GameWebSocket] Échec de reconnexion`);
-          return false;
-        }
+      if (!socket) {
+        console.log(`⚠️ [GameWebSocket] Socket non initialisé, tentative d'initialisation...`);
+        socket = await SocketService.initialize(true);
       }
       
-      // S'assurer que l'utilisateur a rejoint le canal du jeu si ce n'est pas déjà fait
+      // Attendre que le socket soit prêt avec un timeout
+      try {
+        socket = await this.waitForSocketReady(socket);
+      } catch (error) {
+        console.error(`❌ [GameWebSocket] Échec de l'attente du socket:`, error);
+        // Tenter une reconnexion
+        const reconnected = await SocketService.reconnect();
+        if (!reconnected) {
+          throw new Error('Impossible de rétablir la connexion socket');
+        }
+        socket = await SocketService.getInstanceAsync(true);
+      }
+      
+      // S'assurer que l'utilisateur a rejoint le canal du jeu
       if (!this.joinedGames.has(gameId)) {
-        // Vérifier si une requête de jointure est déjà en cours
         if (this.pendingJoinRequests.has(gameId)) {
           console.log(`🔄 [GameWebSocket] Jointure déjà en cours pour ${gameId}, attente...`);
           try {
@@ -59,29 +94,27 @@ class GameWebSocketService {
           } catch (timeoutError) {
             console.warn(`⚠️ [GameWebSocket] Erreur lors de l'attente d'une jointure en cours`);
             this.pendingJoinRequests.delete(gameId);
-            return false;
+            throw timeoutError;
           }
         } else {
-          // Stocker la promesse pour la jointure
           const joinPromise = this.joinGameChannel(gameId);
           this.pendingJoinRequests.set(gameId, joinPromise);
-          
           try {
             await joinPromise;
           } catch (error) {
             console.error(`❌ [GameWebSocket] Erreur lors de la jointure au canal:`, error);
-            return false;
+            this.pendingJoinRequests.delete(gameId);
+            throw error;
           } finally {
-            // Supprimer la requête en attente
             this.pendingJoinRequests.delete(gameId);
           }
         }
       }
       
-      return true;
+      return socket;
     } catch (error) {
       console.error(`❌ [GameWebSocket] Erreur lors de la vérification de la connexion:`, error);
-      return false;
+      throw error;
     }
   }
 
@@ -267,27 +300,22 @@ class GameWebSocketService {
   async joinGameChannel(gameId: string): Promise<void> {
     try {
       console.log(`🎮 [GameWebSocket] Tentative de rejoindre le jeu ${gameId}`);
-      
-      // S'assurer que la connexion socket est établie
-      const socket = await SocketService.getInstanceAsync();
-      
-      if (!socket.connected) {
-        console.warn(`⚠️ [GameWebSocket] Socket non connecté, tentative de reconnexion...`);
-        await this.reconnect();
-      }
-      
-      // Récupérer l'ID utilisateur
+      let socket = await SocketService.getInstanceAsync(true);
+      socket = await this.waitForSocketReady(socket);
       const userId = await UserIdManager.getUserId();
-      
+      if (!userId) {
+        throw new Error('ID utilisateur non disponible');
+      }
       return new Promise<void>((resolve, reject) => {
-        // Émettre immédiatement l'événement pour rejoindre le jeu
+        if (!socket || !socket.connected) {
+          reject(new Error('Socket non disponible pour la jointure'));
+          return;
+        }
         socket.emit('join-game', { 
           gameId,
           userId,
           timestamp: Date.now()
         });
-        
-        // Écouter la confirmation
         socket.once('game:joined', (data) => {
           if (data && data.gameId === gameId) {
             console.log(`✅ [GameWebSocket] Jeu ${gameId} rejoint avec succès`);
@@ -297,11 +325,12 @@ class GameWebSocketService {
             reject(new Error('Données de confirmation incorrectes'));
           }
         });
-        
-        console.log(`📤 [GameWebSocket] Demande de rejoindre le jeu ${gameId} envoyée`);
-        
-        // Résoudre immédiatement pour ne pas bloquer
-        resolve();
+        const timeout = setTimeout(() => {
+          reject(new Error('Timeout de jointure au jeu'));
+        }, 5000);
+        socket.once('game:joined', () => {
+          clearTimeout(timeout);
+        });
       });
     } catch (error) {
       console.error(`❌ [GameWebSocket] Erreur lors de la tentative de rejoindre le jeu ${gameId}:`, error);
@@ -359,7 +388,18 @@ class GameWebSocketService {
       }
       
       // Assurer que le socket est connecté
-      await this.ensureSocketConnection(gameId);
+      let socket: Socket;
+      try {
+        socket = await this.ensureSocketConnection(gameId);
+      } catch (error) {
+        console.error(`❌ [GameWebSocket] Échec de la connexion socket, tentative de récupération via REST`);
+        // Fallback to REST API
+        const response = await api.get(`/games/${gameId}`);
+        if (response.data && response.data.status === 'success') {
+          return response.data.data;
+        }
+        throw new Error('Échec de la récupération de l\'état du jeu');
+      }
       
       // Récupérer l'ID utilisateur
       const userId = await UserIdManager.getUserId();
@@ -369,15 +409,12 @@ class GameWebSocketService {
       
       // Émettre une requête pour obtenir l'état du jeu
       return new Promise((resolve, reject) => {
-        const socket = SocketService.getSocketInstance();
+        const timeout = setTimeout(() => {
+          reject(new Error('Timeout de récupération de l\'état du jeu'));
+        }, this.REQUEST_TIMEOUT);
         
-        if (!socket) {
-          reject(new Error("Socket non disponible"));
-          return;
-        }
-        
-        // Émettre la requête
         socket.emit('game:get_state', { gameId, userId }, (response: any) => {
+          clearTimeout(timeout);
           if (response && response.success) {
             // Sauvegarder dans le cache
             this.gameStateCache.set(gameId, {
@@ -472,234 +509,41 @@ class GameWebSocketService {
       console.warn(`⚠️ [GameWebSocket] Erreur lors du stockage des infos d'hôte:`, error);
     }
   }
+
+  /**
+   * Quitte un canal de jeu
+   */
+  async leaveGameChannel(gameId: string): Promise<void> {
+    try {
+      console.log(`🎮 [GameWebSocket] Tentative de quitter le canal de jeu ${gameId}`);
+      
+      const socket = await this.ensureSocketConnection(gameId);
+      
+      return new Promise<void>((resolve, reject) => {
+        socket.emit('leave-game', { gameId }, (response: any) => {
+          if (response && response.success) {
+            console.log(`✅ [GameWebSocket] Jeu ${gameId} quitté avec succès`);
+            this.joinedGames.delete(gameId);
+            resolve();
+          } else {
+            reject(new Error(response?.error || 'Échec de quitter le jeu'));
+          }
+        });
+      });
+    } catch (error) {
+      console.error(`❌ [GameWebSocket] Erreur lors de la tentative de quitter le jeu ${gameId}:`, error);
+      throw error;
+    }
+  }
 }
 
 // Modification de l'export pour utiliser à la fois l'instance et les méthodes statiques
-const gameWebSocketService = new GameWebSocketService();
+const gameWebSocketService = GameWebSocketService.getInstance();
 
 // Ajout des fonctions statiques pour maintenir la compatibilité avec le code existant
 export const isUserHost = async (gameId: string): Promise<boolean> => {
   return await gameWebSocketService.isUserHost(gameId);
 };
 
-class InstantGameWebSocketService {
-  // Singleton
-  private static instance: InstantGameWebSocketService;
-  
-  // Paramètres optimisés pour un jeu instantané
-  private readonly REQUEST_TIMEOUT = 1000; // 1 seconde max pour les requêtes
-  private readonly CACHE_TTL = 1000; // 1 seconde de cache
-  
-  // Cache des états de jeu
-  private gameStateCache: Map<string, { state: any, timestamp: number }> = new Map();
-  
-  // Cache des jointures de jeu
-  private joinedGames: Set<string> = new Set();
-  
-  // Requêtes en attente
-  private pendingRequests: Map<string, { promise: Promise<any>, timestamp: number }> = new Map();
-  
-  constructor() {
-    // Nettoyage périodique du cache et des requêtes en attente
-    setInterval(() => this.cleanupCache(), 60000);
-  }
-  
-  public static getInstance(): InstantGameWebSocketService {
-    if (!InstantGameWebSocketService.instance) {
-      InstantGameWebSocketService.instance = new InstantGameWebSocketService();
-    }
-    return InstantGameWebSocketService.instance;
-  }
-  
-  /**
-   * Nettoie le cache et les requêtes en attente
-   */
-  private cleanupCache(): void {
-    const now = Date.now();
-    
-    // Nettoyer le cache des états
-    for (const [key, value] of this.gameStateCache.entries()) {
-      if (now - value.timestamp > 60000) { // 1 minute
-        this.gameStateCache.delete(key);
-      }
-    }
-    
-    // Nettoyer les requêtes en attente
-    for (const [key, value] of this.pendingRequests.entries()) {
-      if (now - value.timestamp > 10000) { // 10 secondes
-        this.pendingRequests.delete(key);
-      }
-    }
-  }
-  
-  /**
-   * Rejoint le canal de jeu immédiatement
-   */
-  public async joinGameChannel(gameId: string): Promise<boolean> {
-    try {
-      // Si déjà joint, retourner true immédiatement
-      if (this.joinedGames.has(gameId)) {
-        return true;
-      }
-      
-      const socket = await SocketService.getInstanceAsync();
-      
-      return new Promise<boolean>((resolve) => {
-        socket.emit('join-game', { gameId }, (response: any) => {
-          if (response?.success) {
-            this.joinedGames.add(gameId);
-            resolve(true);
-          } else {
-            resolve(false);
-          }
-        });
-        
-        // Même sans confirmation, considérer comme joint 
-        // pour ne pas bloquer l'expérience utilisateur
-        this.joinedGames.add(gameId);
-      });
-    } catch (error) {
-      console.error(`❌ Erreur lors de la jointure au jeu ${gameId}:`, error);
-      return false;
-    }
-  }
-  
-  /**
-   * Quitte le canal de jeu
-   */
-  public async leaveGameChannel(gameId: string): Promise<boolean> {
-    try {
-      if (!this.joinedGames.has(gameId)) {
-        return true; // Déjà quitté
-      }
-      
-      const socket = await SocketService.getInstanceAsync();
-      
-      return new Promise<boolean>((resolve) => {
-        socket.emit('leave-game', { gameId }, () => {
-          this.joinedGames.delete(gameId);
-          resolve(true);
-        });
-        
-        // Supprimer du cache de toute façon
-        this.joinedGames.delete(gameId);
-      });
-    } catch (error) {
-      console.error(`❌ Erreur lors du départ du jeu ${gameId}:`, error);
-      this.joinedGames.delete(gameId);
-      return false;
-    }
-  }
-  
-  /**
-   * Vérifie si l'utilisateur est l'hôte du jeu (optimisé)
-   */
-  public async isUserHost(gameId: string, userId?: string): Promise<boolean> {
-    try {
-      // Utiliser l'ID utilisateur fourni ou le récupérer
-      const effectiveUserId = userId || await UserIdManager.getUserId();
-      
-      if (!effectiveUserId) {
-        console.error('❌ ID utilisateur non disponible');
-        return false;
-      }
-      
-      // Vérifier dans le cache d'hôte
-      const cacheKey = `host:${gameId}:${effectiveUserId}`;
-      const cachedStatus = this.gameStateCache.get(cacheKey);
-      
-      if (cachedStatus && Date.now() - cachedStatus.timestamp < this.CACHE_TTL) {
-        return cachedStatus.state;
-      }
-      
-      // Vérifier via le socket
-      const socket = await SocketService.getInstanceAsync();
-      
-      // Créer une promesse avec timeout
-      const isHost = await new Promise<boolean>((resolve) => {
-        socket.emit('game:check_host', { gameId, userId: effectiveUserId }, (response: any) => {
-          resolve(!!response?.isHost);
-        });
-      });
-      
-      // Mettre en cache
-      this.gameStateCache.set(cacheKey, { state: isHost, timestamp: Date.now() });
-      
-      return isHost;
-    } catch (error) {
-      console.error(`❌ Erreur lors de la vérification d'hôte:`, error);
-      return false;
-    }
-  }
-  
-  /**
-   * Force la vérification de la phase (instantané)
-   */
-  public async forcePhaseCheck(gameId: string): Promise<boolean> {
-    try {
-      const socket = await SocketService.getInstanceAsync();
-      
-      // Rejoindre le canal si nécessaire
-      if (!this.joinedGames.has(gameId)) {
-        await this.joinGameChannel(gameId);
-      }
-      
-      return new Promise<boolean>((resolve) => {
-        socket.emit('game:force_check', { gameId }, (response: any) => {
-          resolve(!!response?.success);
-        });
-        
-        // Envoyer aussi un event direct pour plus de réactivité
-        socket.emit('game:get_state', { gameId });
-      });
-    } catch (error) {
-      console.error(`❌ Erreur lors du forçage de la vérification de phase:`, error);
-      return false;
-    }
-  }
-  
-  /**
-   * Soumission instantanée de réponse
-   */
-  public async submitAnswer(gameId: string, questionId: string, content: string): Promise<boolean> {
-    try {
-      const socket = await SocketService.getInstanceAsync();
-      
-      return new Promise<boolean>((resolve) => {
-        socket.emit('game:submit_answer', { gameId, questionId, content }, (response: any) => {
-          resolve(!!response?.success);
-        });
-      });
-    } catch (error) {
-      console.error(`❌ Erreur lors de la soumission de réponse:`, error);
-      return false;
-    }
-  }
-  
-  /**
-   * Soumission instantanée de vote
-   */
-  public async submitVote(gameId: string, answerId: string, questionId: string): Promise<boolean> {
-    try {
-      const socket = await SocketService.getInstanceAsync();
-      
-      return new Promise<boolean>((resolve) => {
-        socket.emit('game:submit_vote', { gameId, answerId, questionId }, (response: any) => {
-          resolve(!!response?.success);
-        });
-      });
-    } catch (error) {
-      console.error(`❌ Erreur lors de la soumission de vote:`, error);
-      return false;
-    }
-  }
-}
-
-// Création d'une instance du service instantané
-const instantGameWebSocketService = new InstantGameWebSocketService();
-
 // Exporter l'instance principale comme exportation par défaut
 export default gameWebSocketService;
-
-// Exporter le service instantané avec un nom spécifique
-export { instantGameWebSocketService as InstantGameWebSocketService };

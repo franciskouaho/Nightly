@@ -4,9 +4,10 @@ export enum GamePhase {
   QUESTION = 'question',
   ANSWER = 'answer',
   VOTE = 'vote',
+  RESULTS = 'results',
   WAITING = 'waiting',
   WAITING_FOR_VOTE = 'waiting_for_vote',
-  RESULTS = 'results',
+  TRANSITIONING = 'transitioning',
   FINISHED = 'finished',
   ERROR = 'error'
 }
@@ -30,37 +31,35 @@ export enum GameStatus {
 // Interface pour un joueur
 export interface Player {
   id: string | number;
-  username?: string;
+  username: string;
   displayName?: string;
-  name?: string;
   avatar?: string;
-  score?: number;
   isHost?: boolean;
-  isOnline?: boolean;
-  userId?: string | number;
+  score?: number;
 }
 
 // Interface pour une question
 export interface Question {
   id: string | number;
   text: string;
-  theme?: string;
   roundNumber?: number;
   targetPlayer?: Player;
-  gameId?: string | number;
-  createdAt?: string;
+  targetPlayerId?: string | number;
 }
 
 // Interface pour une réponse
 export interface Answer {
   id: string | number;
   content: string;
-  playerId: string | number;
-  questionId?: string | number;
-  gameId?: string | number;
+  playerId?: string | number;
+  playerName?: string;
   votesCount?: number;
   isOwnAnswer?: boolean;
-  createdAt?: string;
+  userId?: string | number;
+  user?: {
+    displayName?: string;
+    username?: string;
+  };
 }
 
 // Interface pour un vote
@@ -76,19 +75,35 @@ export interface Vote {
 export interface Room {
   id: string | number;
   code: string;
-  name?: string;
+  name: string;
   hostId: string | number;
-  players?: Player[];
-  createdAt?: string;
-  maxPlayers?: number;
-  gameMode?: GameMode;
   status?: string;
+  players?: Player[];
+}
+
+// Interface pour le timer
+export interface Timer {
+  duration: number;
+  startTime: number;
+}
+
+// Interface pour un jeu
+export interface Game {
+  id: string | number;
+  roomId?: string | number;
+  hostId?: string | number;
+  status: string;
+  gameMode?: string;
+  currentPhase: string;
+  currentRound: number;
+  totalRounds: number;
+  scores: Record<string, number>;
+  createdAt?: string;
 }
 
 // Interface pour l'état d'un jeu
 export interface GameState {
-  phase: GamePhase | string;
-  currentPhase?: string;
+  phase: GamePhase;
   currentRound: number;
   totalRounds: number;
   targetPlayer: Player | null;
@@ -96,30 +111,14 @@ export interface GameState {
   answers: Answer[];
   players: Player[];
   scores: Record<string, number>;
-  theme?: string;
-  timer?: {
-    duration: number;
-    startTime: number;
-  } | null;
-  currentUserState?: {
-    hasAnswered?: boolean;
-    hasVoted?: boolean;
-    isTargetPlayer?: boolean;
+  timer: Timer | null;
+  room: Room | null;
+  currentUserState: {
+    hasAnswered: boolean;
+    hasVoted: boolean;
+    isTargetPlayer: boolean;
   };
-  game?: {
-    id: string | number;
-    roomId?: string | number;
-    hostId?: string | number;
-    status: string;
-    gameMode?: string;
-    currentPhase: string;
-    currentRound: number;
-    totalRounds: number;
-    scores?: Record<string, number>;
-    createdAt?: string;
-  };
-  room?: Room | null;
-  lastRefreshed?: number;
+  game: Game;
   error?: string;
   allPlayersVoted?: boolean;
 }

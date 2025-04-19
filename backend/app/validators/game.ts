@@ -15,8 +15,10 @@ export const answerValidator = vine.compile(
  */
 export const voteValidator = vine.compile(
   vine.object({
-    answer_id: vine.number().positive(),
-    question_id: vine.number().positive(),
+    answer_id: vine.any(),
+    question_id: vine.any(),
+    voter_id: vine.any(),
+    prevent_auto_progress: vine.boolean().optional(),
   })
 )
 

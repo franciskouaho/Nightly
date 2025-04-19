@@ -511,7 +511,7 @@ export default class RoomsController {
           text: questionText,
           theme: game.gameMode,
           gameId: game.id,
-          roundNumber: 1,
+          roundNumber: game.currentRound,
           targetPlayerId: targetPlayer.id,
         })
 
@@ -524,10 +524,10 @@ export default class RoomsController {
         const answerPhaseDuration = 1 // Réduit à 1s
         const io = socketService.getInstance()
 
-        // Notifier les clients du début de la phase question
+        // Notifier tous les joueurs du nouveau tour immédiatement
         io.to(`game:${game.id}`).emit('game:update', {
           type: 'new_round',
-          round: 1,
+          round: game.currentRound,
           phase: 'question',
           question: {
             id: question.id,
@@ -538,76 +538,16 @@ export default class RoomsController {
               displayName: targetPlayer.displayName,
             },
           },
+          // Supprimer le timer pour rendre le jeu instantané
           instantTransition: true,
-          // Supprimer le timer
         })
 
-        // Passer immédiatement à la phase de réponse (après 1 seconde)
-        setTimeout(async () => {
-          game.currentPhase = 'answer'
-          await game.save()
-
-          // Notifier les joueurs du changement de phase
-          io.to(`game:${game.id}`).emit('game:update', {
-            type: 'phase_change',
-            phase: 'answer',
-            instantTransition: true,
-          })
-
-          console.log(`✅ Passage à la phase 'answer' pour le jeu ${game.id}`)
-
-          // Attendre que toutes les réponses soient reçues avant de passer à vote
-          const checkAnswersInterval = setInterval(async () => {
-            const currentGame = await Game.find(game.id)
-            if (!currentGame) {
-              clearInterval(checkAnswersInterval)
-              return
-            }
-
-            const gameId = currentGame.id
-            const currentRound = currentGame.currentRound
-
-            const answersQuery = await Answer.query()
-              .join('questions', 'questions.id', 'answers.question_id')
-              .where('questions.game_id', gameId)
-              .where('questions.round_number', currentRound)
-              .count('* as count')
-
-            const answersCount = Number(answersQuery[0].$extras.count)
-            const currentRoom = await Room.find(currentGame.roomId)
-            if (!currentRoom) {
-              clearInterval(checkAnswersInterval)
-              return
-            }
-            const roomPlayersQuery = await currentRoom
-              .related('players')
-              .query()
-              .count('* as count')
-            const totalPlayers = Number(roomPlayersQuery[0].$extras.count)
-            const expectedAnswers = totalPlayers - 1 // -1 pour la cible
-
-            if (answersCount >= expectedAnswers) {
-              clearInterval(checkAnswersInterval)
-
-              currentGame.currentPhase = 'vote'
-              await currentGame.save()
-
-              // Notifier les joueurs du changement de phase
-              io.to(`game:${gameId}`).emit('game:update', {
-                type: 'phase_change',
-                phase: 'vote',
-                instantTransition: true,
-              })
-
-              console.log(`✅ Passage à la phase 'vote' pour le jeu ${gameId}`)
-            }
-          }, 1000) // Vérifier toutes les secondes
-
-          // Arrêter la vérification après 2 minutes
-          setTimeout(() => {
-            clearInterval(checkAnswersInterval)
-          }, 120000)
-        }, 1000)
+        // Notification avec confirmation
+        io.to(`game:${game.id}`).emit('game:update', {
+          type: 'phase_changed',
+          newPhase: 'question',
+          round: game.currentRound,
+        })
       } catch (questionError) {
         console.error('❌ Erreur lors de la génération de la première question:', questionError)
       }

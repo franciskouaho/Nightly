@@ -59,7 +59,7 @@ class SocketService {
 
         // Initialiser le socket avec le SOCKET_URL configuré
         this.socket = io(SOCKET_URL, {
-          transports: ['websocket', 'polling'],
+          transports: ['websocket'],
           timeout: 10000,
           reconnection: true,
           reconnectionAttempts: 5,
@@ -67,20 +67,29 @@ class SocketService {
           reconnectionDelayMax: 5000,
           autoConnect: true,
           auth: userId ? { userId } : undefined,
+          forceNew: true, // Forcer une nouvelle connexion
         });
 
         // Écouter les événements de connexion
         this.socket.on('connect', () => {
           console.log(`✅ Socket.IO connecté avec ID: ${this.socket?.id}`);
           this.reconnectAttempts = 0;
+          this.isInitializing = false;
+          resolve(this.socket!);
         });
 
         this.socket.on('connect_error', (error) => {
           console.error(`❌ Erreur de connexion Socket.IO:`, error);
+          this.isInitializing = false;
+          this.initPromise = null;
+          reject(error);
         });
 
         this.socket.on('error', (error) => {
           console.error(`❌ Erreur Socket (non gérée):`, error);
+          this.isInitializing = false;
+          this.initPromise = null;
+          reject(error);
         });
 
         // Écouter les événements de déconnexion
@@ -98,24 +107,16 @@ class SocketService {
         // Définir un délai pour attendre la connexion
         const connectionTimeout = setTimeout(() => {
           if (!this.socket?.connected) {
-            console.warn('⚠️ Délai d\'attente de connexion dépassé, mais on continue');
-            
-            // Ne pas rejeter la promesse, résoudre avec le socket non connecté
-            // Le système essaiera plus tard de le reconnecter
-            if (this.socket) {
-              resolve(this.socket);
-            } else {
-              reject(new Error('Socket non créé après timeout'));
-            }
+            console.warn('⚠️ Délai d\'attente de connexion dépassé');
+            this.isInitializing = false;
+            this.initPromise = null;
+            reject(new Error('Timeout de connexion'));
           }
         }, 5000);
 
-        // Attendre l'événement de connexion
+        // Nettoyer le timeout si la connexion réussit
         this.socket.once('connect', () => {
           clearTimeout(connectionTimeout);
-          console.log('✅ Socket.IO connecté avec succès');
-          this.isInitializing = false;
-          resolve(this.socket!);
         });
 
       } catch (error) {
@@ -126,12 +127,7 @@ class SocketService {
       }
     });
 
-    try {
-      return await this.initPromise;
-    } catch (error) {
-      this.initPromise = null;
-      throw error;
-    }
+    return this.initPromise;
   }
 
   /**
