@@ -198,33 +198,37 @@ class GameService {
     try {
       console.log(`🎮 [GameService] Début de la soumission du vote pour le jeu ${gameId}, réponse ${answerId}`);
       
-      const socket = await gameWebSocketService.ensureSocketConnection(gameId);
       const userId = await UserIdManager.getUserId();
       
       if (!userId) {
         throw new Error("ID utilisateur non disponible");
       }
+
+      // Récupérer l'état du jeu pour obtenir l'ID de la question actuelle
+      const gameState = await this.getGameState(gameId);
+      const currentQuestion = gameState.currentQuestion;
       
-      return new Promise((resolve, reject) => {
-        console.log(`⏱️ [GameService] Démarrage du timeout de ${this.REQUEST_TIMEOUT}ms pour le vote`);
-        
-        const timeout = setTimeout(() => {
-          console.error(`❌ [GameService] Timeout de soumission du vote après ${this.REQUEST_TIMEOUT}ms`);
-          reject(new Error('Timeout de soumission du vote'));
-        }, this.REQUEST_TIMEOUT);
-        
-        console.log(`📤 [GameService] Émission du vote via WebSocket`);
-        socket.emit('game:submit_vote', { gameId, answerId, userId }, (response: { success: boolean; error?: string }) => {
-          clearTimeout(timeout);
-          if (response?.success) {
-            console.log(`✅ [GameService] Vote soumis avec succès`);
-            resolve();
-          } else {
-            console.error(`❌ [GameService] Échec de la soumission du vote:`, response?.error);
-            reject(new Error(response?.error || "Échec de la soumission du vote"));
-          }
-        });
+      if (!currentQuestion || !currentQuestion.id) {
+        throw new Error("Question actuelle non trouvée");
+      }
+      
+      console.log('🌐 Envoi du vote via HTTP REST...');
+      
+      const response = await api.post(`/games/${gameId}/vote`, {
+        answer_id: answerId,
+        question_id: currentQuestion.id,
+        voter_id: userId,
+      }, {
+        timeout: 5000
       });
+      
+      if (response.data?.status === 'success') {
+        console.log('✅ Vote soumis avec succès via HTTP');
+        return;
+      } else {
+        console.error('❌ Réponse du serveur inattendue:', response.data);
+        throw new Error(response.data?.error || 'Échec de la soumission du vote');
+      }
     } catch (error) {
       console.error(`❌ [GameService] Erreur lors de la soumission du vote:`, error);
       throw error;

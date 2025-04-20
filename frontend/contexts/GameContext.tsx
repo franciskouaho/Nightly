@@ -44,9 +44,9 @@ const determineEffectivePhase = (
 
     case 'vote':
       if (isTarget) {
-        return hasVoted ? GamePhase.WAITING : GamePhase.VOTE;
+        return hasVoted ? GamePhase.RESULTS : GamePhase.VOTE;
       }
-      return GamePhase.WAITING_FOR_VOTE;
+      return hasAnswered ? GamePhase.VOTE : GamePhase.WAITING_FOR_VOTE;
 
     case 'results':
       return GamePhase.RESULTS;
