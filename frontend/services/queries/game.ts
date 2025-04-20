@@ -25,7 +25,7 @@ class GameService {
   private readonly MAX_SOCKET_FAILS = 3;
   private readonly SOCKET_RESET_INTERVAL = 30000; // 30 secondes
   private readonly CACHE_TTL = 1000; // 1 seconde
-  private readonly REQUEST_TIMEOUT = 2000; // 2 secondes
+  private readonly REQUEST_TIMEOUT = 5000; // 5 secondes au lieu de 2
 
   // Liste des phases valides du jeu
   private readonly VALID_PHASES = ['question', 'answer', 'vote', 'results', 'waiting'] as const;
@@ -196,6 +196,8 @@ class GameService {
    */
   async submitVote(gameId: string, answerId: string): Promise<void> {
     try {
+      console.log(`🎮 [GameService] Début de la soumission du vote pour le jeu ${gameId}, réponse ${answerId}`);
+      
       const socket = await gameWebSocketService.ensureSocketConnection(gameId);
       const userId = await UserIdManager.getUserId();
       
@@ -204,20 +206,27 @@ class GameService {
       }
       
       return new Promise((resolve, reject) => {
+        console.log(`⏱️ [GameService] Démarrage du timeout de ${this.REQUEST_TIMEOUT}ms pour le vote`);
+        
         const timeout = setTimeout(() => {
+          console.error(`❌ [GameService] Timeout de soumission du vote après ${this.REQUEST_TIMEOUT}ms`);
           reject(new Error('Timeout de soumission du vote'));
         }, this.REQUEST_TIMEOUT);
         
+        console.log(`📤 [GameService] Émission du vote via WebSocket`);
         socket.emit('game:submit_vote', { gameId, answerId, userId }, (response: { success: boolean; error?: string }) => {
           clearTimeout(timeout);
           if (response?.success) {
+            console.log(`✅ [GameService] Vote soumis avec succès`);
             resolve();
           } else {
+            console.error(`❌ [GameService] Échec de la soumission du vote:`, response?.error);
             reject(new Error(response?.error || "Échec de la soumission du vote"));
           }
         });
       });
     } catch (error) {
+      console.error(`❌ [GameService] Erreur lors de la soumission du vote:`, error);
       throw error;
     }
   }
