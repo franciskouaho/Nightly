@@ -9,10 +9,10 @@ class GameWebSocketService {
   private gameStateCache: Map<string, { state: any, timestamp: number }> = new Map();
   private joinedGames: Set<string> = new Set();
   private pendingJoinRequests: Map<string, Promise<void>> = new Map();
-  private readonly CACHE_TTL = 3000; // 3 secondes
-  private readonly REQUEST_TIMEOUT = 5000; // 5 secondes
-  private readonly RECONNECT_DELAY = 1000; // 1 seconde
-  private cacheTimeout = 2000; // 2 secondes de cache
+  private readonly CACHE_TTL = 1000; // 1 seconde
+  private readonly REQUEST_TIMEOUT = 2000; // 2 secondes
+  private readonly RECONNECT_DELAY = 200; // 0.2 seconde
+  private cacheTimeout = 1000; // 1 seconde au lieu de 2
   private cacheData: Map<string, { data: any, timestamp: number }> = new Map();
   private phaseChangeTimestamps: Map<string, { phase: string, timestamp: number }> = new Map();
   private static instance: GameWebSocketService;
@@ -36,9 +36,9 @@ class GameWebSocketService {
   }
 
   /**
-   * Attend que le socket soit défini et connecté (timeout 5s)
+   * Attend que le socket soit défini et connecté (timeout 2s)
    */
-  private async waitForSocketReady(socket: Socket | undefined, timeoutMs = 5000): Promise<Socket> {
+  private async waitForSocketReady(socket: Socket | undefined, timeoutMs = 2000): Promise<Socket> {
     const startTime = Date.now();
     while (!socket || !socket.connected) {
       if (Date.now() - startTime > timeoutMs) {
@@ -51,10 +51,10 @@ class GameWebSocketService {
           return socket;
         }
       } catch (error) {
-        console.warn(`⚠️ [GameWebSocket] Erreur lors de l'attente du socket:`, error);
+        // Ignorer les erreurs silencieusement
       }
       
-      await new Promise(res => setTimeout(res, 100));
+      await new Promise(res => setTimeout(res, 50));
     }
     return socket;
   }
@@ -68,16 +68,12 @@ class GameWebSocketService {
       let socket = await SocketService.getInstanceAsync(true);
       
       if (!socket) {
-        console.log(`⚠️ [GameWebSocket] Socket non initialisé, tentative d'initialisation...`);
         socket = await SocketService.initialize(true);
       }
       
-      // Attendre que le socket soit prêt avec un timeout
       try {
         socket = await this.waitForSocketReady(socket);
       } catch (error) {
-        console.error(`❌ [GameWebSocket] Échec de l'attente du socket:`, error);
-        // Tenter une reconnexion
         const reconnected = await SocketService.reconnect();
         if (!reconnected) {
           throw new Error('Impossible de rétablir la connexion socket');
@@ -85,14 +81,11 @@ class GameWebSocketService {
         socket = await SocketService.getInstanceAsync(true);
       }
       
-      // S'assurer que l'utilisateur a rejoint le canal du jeu
       if (!this.joinedGames.has(gameId)) {
         if (this.pendingJoinRequests.has(gameId)) {
-          console.log(`🔄 [GameWebSocket] Jointure déjà en cours pour ${gameId}, attente...`);
           try {
             await this.pendingJoinRequests.get(gameId);
           } catch (timeoutError) {
-            console.warn(`⚠️ [GameWebSocket] Erreur lors de l'attente d'une jointure en cours`);
             this.pendingJoinRequests.delete(gameId);
             throw timeoutError;
           }
@@ -102,7 +95,6 @@ class GameWebSocketService {
           try {
             await joinPromise;
           } catch (error) {
-            console.error(`❌ [GameWebSocket] Erreur lors de la jointure au canal:`, error);
             this.pendingJoinRequests.delete(gameId);
             throw error;
           } finally {
@@ -113,7 +105,6 @@ class GameWebSocketService {
       
       return socket;
     } catch (error) {
-      console.error(`❌ [GameWebSocket] Erreur lors de la vérification de la connexion:`, error);
       throw error;
     }
   }
@@ -123,10 +114,8 @@ class GameWebSocketService {
    */
   async reconnect(): Promise<boolean> {
     try {
-      console.log(`⚡ [GameWebSocket] Tentative de reconnexion...`);
       return await SocketService.reconnect();
     } catch (error) {
-      console.error(`❌ [GameWebSocket] Erreur lors de la reconnexion:`, error);
       return false;
     }
   }
@@ -156,13 +145,13 @@ class GameWebSocketService {
       
       // Différents seuils selon la phase
       const thresholds: Record<string, number> = {
-        'answer': 60000,   // 1 minute en phase réponse
-        'vote': 45000,     // 45 secondes en phase vote
-        'results': 30000,  // 30 secondes en phase résultats
-        'question': 20000  // 20 secondes en phase question
+        'answer': 30000,   // 30 secondes
+        'vote': 20000,     // 20 secondes
+        'results': 15000,  // 15 secondes
+        'question': 10000  // 10 secondes
       };
       
-      const threshold = thresholds[currentPhase] || 60000;
+      const threshold = thresholds[currentPhase] || 30000;
       
       if (timeSinceLastChange > threshold) {
         console.warn(`⚠️ [GameWebSocket] Blocage potentiel détecté: phase ${currentPhase} active depuis ${Math.floor(timeSinceLastChange / 1000)} secondes`);
@@ -183,24 +172,14 @@ class GameWebSocketService {
    */
   async forceTransitionToAnswer(gameId: string): Promise<boolean> {
     try {
-      console.log(`🔄 [GameWebSocket] Tentative de forcer la phase answer pour le jeu ${gameId}`);
-      
-      // Attendre que le socket soit connecté
       const socket = await this.ensureSocketConnection(gameId);
       
-      return new Promise((resolve, reject) => {
-        // Émettre immédiatement l'événement pour forcer la phase answer
+      return new Promise((resolve) => {
         socket.emit('game:force_phase', {
           gameId,
           targetPhase: 'answer'
         }, (response: any) => {
-          if (response && response.success) {
-            console.log(`✅ [GameWebSocket] Transition forcée réussie vers phase answer`);
-            resolve(true);
-          } else {
-            console.error(`❌ [GameWebSocket] Échec de la transition forcée:`, response?.error || 'Raison inconnue');
-            resolve(false);
-          }
+          resolve(response?.success || false);
         });
       });
     } catch (error) {
@@ -327,7 +306,7 @@ class GameWebSocketService {
         });
         const timeout = setTimeout(() => {
           reject(new Error('Timeout de jointure au jeu'));
-        }, 5000);
+        }, 3000);
         socket.once('game:joined', () => {
           clearTimeout(timeout);
         });

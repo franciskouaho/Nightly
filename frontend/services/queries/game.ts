@@ -23,11 +23,13 @@ class GameService {
   private socketEnabled: boolean = true;
   private socketFailCounter: number = 0;
   private readonly MAX_SOCKET_FAILS = 3;
-  private readonly SOCKET_RESET_INTERVAL = 60000; // 1 minute
+  private readonly SOCKET_RESET_INTERVAL = 30000; // 30 secondes
+  private readonly CACHE_TTL = 1000; // 1 seconde
+  private readonly REQUEST_TIMEOUT = 2000; // 2 secondes
 
   // Liste des phases valides du jeu
   private readonly VALID_PHASES = ['question', 'answer', 'vote', 'results', 'waiting'] as const;
-  private readonly PHASE_TRANSITIONS = {
+  private readonly PHASE_TRANSITIONS: Record<string, string[]> = {
     'question': ['answer'],
     'answer': ['vote', 'waiting'],
     'vote': ['results'],
@@ -80,8 +82,8 @@ class GameService {
   }
 
   // Récupérer l'état actuel du jeu, priorité au WebSocket
-  async getGameState(gameId: string, retryCount = 0, maxRetries = 3, forceWebSocket = true) {
-    console.log(`🎮 GameService: Récupération de l'état du jeu ${gameId}${forceWebSocket ? ' (WebSocket forcé)' : ''}`);
+  async getGameState(gameId: string, retryCount = 0, maxRetries = 3): Promise<GameState> {
+    console.log(`🎮 GameService: Récupération de l'état du jeu ${gameId} via API REST`);
 
     // Récupérer l'ID utilisateur
     const userId = await UserIdManager.getUserId();
@@ -89,95 +91,28 @@ class GameService {
       throw new Error("ID utilisateur non disponible");
     }
 
-    // Fallback REST immédiat si WebSocket désactivé
-    if (!this.socketEnabled && !forceWebSocket) {
-      console.warn("⚠️ WebSocket désactivé, fallback immédiat à l'API REST");
-      return this.fetchGameStateViaRest(gameId, userId);
-    }
-
-    // Vérifier si on a des données en cache récentes avant de passer à l'API REST
+    // Vérifier si on a des données en cache récentes
     const cachedData = this.gameStateCache.get(gameId);
-    if (cachedData && Date.now() - cachedData.timestamp < 5000 && !forceWebSocket) { // Cache très récent (5 secondes)
-      console.log(`🗄️ GameService: Utilisation du cache récent pour ${gameId} au lieu de l'API REST`);
+    if (cachedData && Date.now() - cachedData.timestamp < this.CACHE_TTL) {
+      console.log(`🗄️ GameService: Utilisation du cache récent pour ${gameId}`);
       return cachedData.state;
     }
 
-    // Essayer d'abord via WebSocket (nouvelle méthode préférée) si le socket est activé
-    if (this.socketEnabled || forceWebSocket) {
-      try {
-        // Vérifier que la connexion WebSocket est bien établie avant de continuer
-        const socket = await gameWebSocketService.ensureSocketConnection(gameId);
-        
-        console.log(`🔌 Tentative de récupération via WebSocket pour ${gameId}`);
-        const gameData = await gameWebSocketService.getGameState(gameId);
-        
-        // Réinitialiser le compteur d'échecs puisque ça a fonctionné
-        this.socketFailCounter = 0;
-        this.socketEnabled = true;
-        
-        // Correction du statut isTargetPlayer si nécessaire
-        if (gameData.currentQuestion?.targetPlayer && userId) {
-          const targetId = String(gameData.currentQuestion.targetPlayer.id);
-          const userIdStr = String(userId);
-          
-          const isReallyTarget = targetId === userIdStr;
-          
-          if (gameData.currentUserState && gameData.currentUserState.isTargetPlayer !== isReallyTarget) {
-            console.log(`🔧 Correction d'incohérence isTargetPlayer: ${gameData.currentUserState.isTargetPlayer} => ${isReallyTarget}`);
-            gameData.currentUserState.isTargetPlayer = isReallyTarget;
-          }
-        }
+    // Récupérer l'état via API REST
+    try {
+      const gameData = await this.fetchGameStateViaRest(gameId, userId);
+      
+      // Mettre à jour le cache
+      this.gameStateCache.set(gameId, {
+        state: gameData,
+        timestamp: Date.now()
+      });
 
-        // Mettre à jour le cache
-        this.gameStateCache.set(gameId, {
-          state: gameData,
-          timestamp: Date.now()
-        });
-
-        return gameData;
-      } catch (wsError) {
-        console.error(`❌ Erreur lors de la récupération via WebSocket:`, wsError);
-        
-        // Incrémenter le compteur d'échecs du WebSocket
-        this.socketFailCounter++;
-        
-        // Si on a dépassé le nombre maximum de échecs, désactiver temporairement le WebSocket
-        if (this.socketFailCounter >= this.MAX_SOCKET_FAILS) {
-          console.warn(`⚠️ Trop d'échecs WebSocket (${this.socketFailCounter}). WebSocket temporairement désactivé.`);
-          this.socketEnabled = false;
-        }
-        
-        // Si forceWebSocket est activé, on réessaie encore une fois sans forcage avant de passer au REST
-        if (forceWebSocket) {
-          console.log('🔄 Nouvelle tentative sans forcage WebSocket...');
-          return this.getGameState(gameId, retryCount, maxRetries, false);
-        }
-      }
+      return gameData;
+    } catch (error) {
+      console.error(`❌ Erreur lors de la récupération via API REST:`, error);
+      throw error;
     }
-    
-    // Fallback via REST API comme avant
-    console.log(`🔄 Fallback à l'API REST pour récupérer l'état du jeu ${gameId}`);
-    
-    // Le reste du code reste le même
-    const url = `/games/${gameId}`;
-    console.log('🔐 API Request: GET', url);
-    
-    // Appliquer l'ID utilisateur aux headers de manière sécurisée
-    if (userId && api && api.defaults) {
-      api.defaults.headers.userId = String(userId);
-    }
-    
-    const response = await api.get(url);
-    const gameData = response.data.data;
-    
-    // Mettre à jour le cache
-    this.gameStateCache.set(gameId, {
-      state: gameData,
-      timestamp: Date.now()
-    });
-    
-    console.log('✅ GameService: État du jeu', gameId, 'récupéré avec succès');
-    return gameData;
   }
 
   /**
@@ -237,7 +172,7 @@ class GameService {
         content: content,
         user_id: userId,
       }, {
-        timeout: 8000  // Augmenter le timeout pour assurer la réception
+        timeout: 5000
       });
       
       if (response.data?.status === 'success') {
@@ -261,19 +196,28 @@ class GameService {
    */
   async submitVote(gameId: string, answerId: string): Promise<void> {
     try {
-      console.log(`🗳️ Soumission du vote pour la réponse ${answerId} dans le jeu ${gameId}`);
+      const socket = await gameWebSocketService.ensureSocketConnection(gameId);
+      const userId = await UserIdManager.getUserId();
       
-      // Tenter d'abord via WebSocket
-      try {
-        const socket = await gameWebSocketService.ensureSocketConnection(gameId);
-        socket.emit('game:vote', { gameId, answerId });
-        return;
-      } catch (error) {
-        console.error(`❌ Erreur lors de la soumission du vote via WebSocket:`, error);
-        throw new Error('Impossible de soumettre le vote : connexion WebSocket indisponible');
+      if (!userId) {
+        throw new Error("ID utilisateur non disponible");
       }
+      
+      return new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          reject(new Error('Timeout de soumission du vote'));
+        }, this.REQUEST_TIMEOUT);
+        
+        socket.emit('game:submit_vote', { gameId, answerId, userId }, (response: { success: boolean; error?: string }) => {
+          clearTimeout(timeout);
+          if (response?.success) {
+            resolve();
+          } else {
+            reject(new Error(response?.error || "Échec de la soumission du vote"));
+          }
+        });
+      });
     } catch (error) {
-      console.error(`❌ Erreur lors de la soumission du vote:`, error);
       throw error;
     }
   }
@@ -285,29 +229,21 @@ class GameService {
    */
   async waitForResultsPhase(gameId: string): Promise<void> {
     try {
-      console.log(`⏳ Attente de la phase 'results' pour le jeu ${gameId}`);
+      const startTime = Date.now();
+      const maxWaitTime = 10000; // 10 secondes au lieu de 15
       
-      // Tenter d'abord via WebSocket
-      try {
-        const socket = await gameWebSocketService.ensureSocketConnection(gameId);
-        return new Promise((resolve, reject) => {
-          const timeout = setTimeout(() => {
-            reject(new Error('Timeout en attente de la phase results'));
-          }, 30000);
-
-          socket.once('game:phase_changed', (data: { phase: string }) => {
-            if (data.phase === 'results') {
-              clearTimeout(timeout);
-              resolve();
-            }
-          });
-        });
-      } catch (error) {
-        console.error(`❌ Erreur lors de l'attente de la phase via WebSocket:`, error);
-        throw new Error('Impossible d\'attendre la phase results : connexion WebSocket indisponible');
+      while (Date.now() - startTime < maxWaitTime) {
+        const gameState = await this.getGameState(gameId, true);
+        
+        if (gameState?.game?.currentPhase === 'results') {
+          return;
+        }
+        
+        await new Promise(res => setTimeout(res, 500)); // 500ms au lieu de 1000ms
       }
+      
+      throw new Error('Timeout en attendant la phase de résultats');
     } catch (error) {
-      console.error(`❌ Erreur lors de l'attente de la phase results:`, error);
       throw error;
     }
   }
@@ -354,14 +290,14 @@ class GameService {
         headers: {
           'X-Direct-Method': 'true'
         },
-        timeout: 12000 // timeout plus long pour assurer une chance de succès
+        timeout: 8000 // timeout plus long pour assurer une chance de succès
       });
       
       console.log(`✅ Réponse du serveur pour passage au tour suivant:`, response.data);
       
       if (response.data?.status === 'success') {
         // Forcer un rafraîchissement des données après un court délai
-        setTimeout(() => this.getGameState(gameId, 0, 1, true), 800);
+        setTimeout(() => this.getGameState(gameId, 0, 1, true), 500);
         return response.data;
       } else {
         throw new Error(response.data?.message || "Échec du passage au tour suivant");
@@ -377,7 +313,7 @@ class GameService {
    */
   async forcePhaseTransition(gameId: string, targetPhase: string): Promise<boolean> {
     try {
-      console.log(`🔄 [GameService] Tentative de forcer la phase ${targetPhase} pour le jeu ${gameId}`);
+      console.log(`🎯 [GameService] Tentative de forcer la phase ${targetPhase} pour le jeu ${gameId}`);
       
       // Utiliser notre utilitaire de transition de phase
       const success = await GameStateHelper.forcePhaseTransition(gameId, targetPhase);
@@ -421,9 +357,47 @@ class GameService {
   }
 
   // Ressynchroniser la connection WebSocket si nécessaire
-  async ensureSocketConnection(gameId: string) {
+  async ensureSocketConnection(gameId: string): Promise<boolean> {
     try {
-      return await gameWebSocketService.ensureSocketConnection(gameId);
+      // Vérifier d'abord la connexion internet
+      const netInfo = await NetInfo.fetch();
+      if (!netInfo.isConnected) {
+        console.error('❌ Pas de connexion internet disponible');
+        return false;
+      }
+
+      // Tenter la connexion WebSocket
+      let connected = false;
+      let attempts = 0;
+      const maxAttempts = 3;
+
+      while (!connected && attempts < maxAttempts) {
+        attempts++;
+        console.log(`🔄 Tentative de connexion WebSocket ${attempts}/${maxAttempts}`);
+
+        try {
+          const socket = await gameWebSocketService.ensureSocketConnection(gameId);
+          connected = socket && socket.connected;
+          if (connected) {
+            console.log('✅ Connexion WebSocket établie avec succès');
+            return true;
+          }
+        } catch (error) {
+          console.error(`❌ Erreur lors de la tentative ${attempts}:`, error);
+          
+          // Attendre avant la prochaine tentative
+          if (attempts < maxAttempts) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
+        }
+      }
+
+      if (!connected) {
+        console.error('❌ Échec de la connexion WebSocket après plusieurs tentatives');
+        return false;
+      }
+
+      return true;
     } catch (error) {
       console.error('❌ Erreur lors de la vérification de la connexion WebSocket:', error);
       return false;
@@ -458,11 +432,11 @@ class GameService {
       // Utiliser directement socketService au lieu de GameWebSocketService
       const socket = await SocketService.getInstanceAsync();
       
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         // Définir un timeout de 5 secondes
         const timeout = setTimeout(() => {
-          reject(new Error('Timeout dépassé pour la transition forcée'));
-        }, 5000);
+          resolve(false);
+        }, this.REQUEST_TIMEOUT);
         
         // Émettre l'événement pour forcer la phase answer
         safeEmit(socket, 'game:force_phase', {
@@ -470,14 +444,7 @@ class GameService {
           targetPhase: 'answer'
         }, (response: any) => {
           clearTimeout(timeout);
-          
-          if (response && response.success) {
-            console.log(`✅ [GameService] Transition forcée réussie vers phase answer`);
-            resolve(true);
-          } else {
-            console.error(`❌ [GameService] Échec de la transition forcée:`, response?.error || 'Raison inconnue');
-            resolve(false);
-          }
+          resolve(response?.success || false);
         });
       });
     } catch (error) {

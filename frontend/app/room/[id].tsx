@@ -12,6 +12,7 @@ import { useUser } from '@/hooks/useAuth';
 import api from '@/config/axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SocketService from '@/services/socketService';
+import NetInfo from '@react-native-community/netinfo';
 
 // Type pour les joueurs
 type Player = {
@@ -107,13 +108,25 @@ export default function Room() {
         try {
           console.log(`🔌 Configuration de la connexion WebSocket pour la salle ${id}`);
           
+          // Vérifier la connexion internet
+          const netInfo = await NetInfo.fetch();
+          if (!netInfo.isConnected) {
+            console.error('❌ Pas de connexion internet disponible');
+            return;
+          }
+          
           // Activer l'initialisation automatique des sockets pour la durée de la salle
           SocketService.setAutoInit(true);
           
           // Forcer l'initialisation du socket pour la salle
-          const socket = await SocketService.getInstanceAsync(true);
-          
-          console.log(`✅ Socket initialisé avec succès pour la salle ${id}`);
+          let socket;
+          try {
+            socket = await SocketService.getInstanceAsync(true);
+            console.log(`✅ Socket initialisé avec succès pour la salle ${id}`);
+          } catch (socketError) {
+            console.error(`❌ Erreur lors de l'initialisation du socket:`, socketError);
+            return;
+          }
           
           // Essayer de rejoindre la salle avec des nouvelles tentatives automatiques
           try {
@@ -194,8 +207,7 @@ export default function Room() {
             }
           });
         } catch (error) {
-          console.error(`❌ Erreur lors de la configuration WebSocket pour la salle ${id}:`, error);
-          // Éventuellement afficher un message d'erreur à l'utilisateur
+          console.error(`❌ Erreur lors de la configuration WebSocket:`, error);
         }
       };
       

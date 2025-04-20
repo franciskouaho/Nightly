@@ -60,14 +60,14 @@ class SocketService {
         // Initialiser le socket avec le SOCKET_URL configuré
         this.socket = io(SOCKET_URL, {
           transports: ['websocket'],
-          timeout: 10000,
+          timeout: 15000, // Augmenté à 15 secondes
           reconnection: true,
-          reconnectionAttempts: 5,
+          reconnectionAttempts: 10, // Augmenté à 10 tentatives
           reconnectionDelay: 1000,
           reconnectionDelayMax: 5000,
           autoConnect: true,
           auth: userId ? { userId } : undefined,
-          forceNew: true, // Forcer une nouvelle connexion
+          forceNew: true,
         });
 
         // Écouter les événements de connexion
@@ -82,6 +82,18 @@ class SocketService {
           console.error(`❌ Erreur de connexion Socket.IO:`, error);
           this.isInitializing = false;
           this.initPromise = null;
+          
+          // Tenter une reconnexion automatique
+          if (this.reconnectAttempts < this.MAX_RECONNECT_ATTEMPTS) {
+            this.reconnectAttempts++;
+            console.log(`🔄 Tentative de reconnexion ${this.reconnectAttempts}/${this.MAX_RECONNECT_ATTEMPTS}`);
+            setTimeout(() => {
+              this.reconnect().catch(err => {
+                console.error('❌ Échec de reconnexion automatique:', err);
+              });
+            }, this.RECONNECT_DELAY);
+          }
+          
           reject(error);
         });
 
@@ -98,9 +110,15 @@ class SocketService {
           
           // Essayer de se reconnecter automatiquement si la déconnexion n'est pas volontaire
           if (reason === 'io server disconnect' || reason === 'transport close') {
-            this.reconnect().catch(err => {
-              console.error('❌ Échec de reconnexion automatique:', err);
-            });
+            if (this.reconnectAttempts < this.MAX_RECONNECT_ATTEMPTS) {
+              this.reconnectAttempts++;
+              console.log(`🔄 Tentative de reconnexion ${this.reconnectAttempts}/${this.MAX_RECONNECT_ATTEMPTS}`);
+              setTimeout(() => {
+                this.reconnect().catch(err => {
+                  console.error('❌ Échec de reconnexion automatique:', err);
+                });
+              }, this.RECONNECT_DELAY);
+            }
           }
         });
 
@@ -110,9 +128,21 @@ class SocketService {
             console.warn('⚠️ Délai d\'attente de connexion dépassé');
             this.isInitializing = false;
             this.initPromise = null;
+            
+            // Tenter une reconnexion avant de rejeter
+            if (this.reconnectAttempts < this.MAX_RECONNECT_ATTEMPTS) {
+              this.reconnectAttempts++;
+              console.log(`🔄 Tentative de reconnexion ${this.reconnectAttempts}/${this.MAX_RECONNECT_ATTEMPTS}`);
+              setTimeout(() => {
+                this.reconnect().catch(err => {
+                  console.error('❌ Échec de reconnexion automatique:', err);
+                });
+              }, this.RECONNECT_DELAY);
+            }
+            
             reject(new Error('Timeout de connexion'));
           }
-        }, 5000);
+        }, 10000); // Augmenté à 10 secondes
 
         // Nettoyer le timeout si la connexion réussit
         this.socket.once('connect', () => {
@@ -153,7 +183,7 @@ class SocketService {
         // Si une initialisation est déjà en cours, attendre son résultat
         if (this.initPromise) {
           const socket = await this.initPromise;
-          if (socket.connected) {
+          if (socket && socket.connected) {
             console.log(`✅ Connexion socket réussie à la tentative ${attempts}`);
             return socket;
           }
@@ -163,8 +193,11 @@ class SocketService {
         this.initPromise = null; // Réinitialiser pour forcer une nouvelle tentative
         const socket = await this.initialize(true);
         
-        // Si le socket existe mais n'est pas connecté, tenter de le connecter
-        if (socket && !socket.connected) {
+        if (!socket) {
+          throw new Error('Socket non initialisé');
+        }
+
+        if (!socket.connected) {
           console.log(`🔌 Socket créé mais pas connecté, tentative de connexion...`);
           socket.connect();
           
@@ -185,6 +218,8 @@ class SocketService {
         if (socket.connected) {
           console.log(`✅ Connexion socket établie avec succès`);
           return socket;
+        } else {
+          throw new Error('Socket non connecté après tentative de connexion');
         }
       } catch (error) {
         console.warn(`⚠️ Échec de la tentative ${attempts}:`, error);
@@ -193,13 +228,6 @@ class SocketService {
         // Attendre avant la prochaine tentative
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
-    }
-
-    if (this.socket) {
-      // Retourner le socket même s'il n'est pas connecté
-      // comme dernier ressort
-      console.warn(`⚠️ Retourne le socket non connecté comme dernier ressort`);
-      return this.socket;
     }
 
     throw lastError || new Error('Impossible d\'établir une connexion socket après plusieurs tentatives');
@@ -755,7 +783,6 @@ socketServiceInstance.setAutoInit(false);
 
 // Export des méthodes pour maintenir la compatibilité avec le code existant
 export default {
-  // Méthodes d'instance
   initialize: (forceInit?: boolean) => socketServiceInstance.initialize(forceInit),
   getSocketInstance: () => socketServiceInstance.getSocketInstance(),
   getInstanceAsync: (forceInit?: boolean) => socketServiceInstance.getInstanceAsync(forceInit),

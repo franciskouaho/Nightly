@@ -6,7 +6,6 @@ import { useAuth } from './AuthContext';
 import { Alert } from 'react-native';
 import Toast from '@/components/common/Toast';
 import { PhaseManager } from '@/utils/phaseManager';
-import HostChecker from '../utils/hostChecker';
 import axios from 'axios';
 import { API_URL } from '../config/axios';
 import UserIdManager from '../utils/userIdManager';
@@ -44,11 +43,10 @@ const determineEffectivePhase = (
       return hasAnswered ? GamePhase.WAITING : GamePhase.ANSWER;
 
     case 'vote':
-      if (isTarget && !hasVoted) {
-        return GamePhase.VOTE;
-      } else {
-        return GamePhase.WAITING;
+      if (isTarget) {
+        return hasVoted ? GamePhase.WAITING : GamePhase.VOTE;
       }
+      return GamePhase.WAITING_FOR_VOTE;
 
     case 'results':
       return GamePhase.RESULTS;
@@ -471,6 +469,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                   return {
                     ...prevState,
                     phase: GamePhase.VOTE,
+                    currentPhase: 'vote',
                     timer: data.timer || prevState.timer,
                     answers: updatedAnswers,
                     currentUserState: {
@@ -481,7 +480,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                   };
                 });
                 
-                loadGame(gameState.game.id);
+                loadGame(gameState?.game?.id || '');
               } else {
                 setGameState(prevState => {
                   if (!prevState) return prevState;
@@ -489,6 +488,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                   return {
                     ...prevState,
                     phase: GamePhase.WAITING_FOR_VOTE,
+                    currentPhase: 'vote',
                     timer: data.timer || prevState.timer,
                     currentUserState: {
                       ...prevState.currentUserState,

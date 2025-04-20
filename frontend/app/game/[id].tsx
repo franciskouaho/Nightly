@@ -512,6 +512,7 @@ export default function GameScreen() {
       
       Alert.alert("Vote enregistré", "En attente des résultats...");
       
+      // Mettre à jour l'état local immédiatement
       setGameState(prev => ({
         ...prev,
         phase: GamePhase.WAITING,
@@ -520,6 +521,26 @@ export default function GameScreen() {
           hasVoted: true
         }
       }));
+      
+      // Rafraîchir les données du jeu après un court délai
+      setTimeout(async () => {
+        try {
+          const updatedGameState = await gameService.getGameState(id as string);
+          console.log("🔄 État du jeu mis à jour après vote:", updatedGameState);
+          
+          setGameState(prev => ({
+            ...prev,
+            ...updatedGameState,
+            currentUserState: {
+              ...prev.currentUserState,
+              hasVoted: true
+            }
+          }));
+        } catch (error) {
+          console.error("❌ Erreur lors de la mise à jour de l'état après vote:", error);
+        }
+      }, 1000);
+      
     } catch (error) {
       console.error("❌ Erreur lors du vote:", error);
       
@@ -533,9 +554,6 @@ export default function GameScreen() {
       Alert.alert("Erreur", errorMessage);
     } finally {
       setIsSubmitting(false);
-      
-      // Rafraîchir les données après un court délai pour refléter les changements
-      fetchGameData();
     }
   };
   
@@ -741,10 +759,44 @@ export default function GameScreen() {
         
         const isTargetPlayer = Boolean(gameState.currentUserState?.isTargetPlayer);
         const hasVoted = Boolean(gameState.currentUserState?.hasVoted);
+        const allPlayersVoted = gameState.allPlayersVoted || false;
         
-        console.log(`🎯 Phase VOTE - Utilisateur ${user?.id} ${isTargetPlayer ? 'EST' : "n'est pas"} la cible. hasVoted=${hasVoted}`);
+        console.log(`🎯 Phase VOTE - Utilisateur ${user?.id} ${isTargetPlayer ? 'EST' : "n'est pas"} la cible. hasVoted=${hasVoted}, allPlayersVoted=${allPlayersVoted}`);
         
-        if (isTargetPlayer && !hasVoted) {
+        // Si tous les joueurs ont voté, passer à la phase de résultats
+        if (allPlayersVoted) {
+          console.log(`🎮 Tous les votes sont enregistrés, passage à la phase résultats`);
+          return (
+            <ResultsPhase 
+              answers={gameState.answers}
+              scores={gameState.scores}
+              players={gameState.players}
+              question={gameState.currentQuestion}
+              targetPlayer={gameState.targetPlayer}
+              onNextRound={handleNextRound}
+              isLastRound={gameState.currentRound >= gameState.totalRounds}
+              timer={null}
+              gameId={id}
+            />
+          );
+        }
+        
+        if (isTargetPlayer) {
+          if (hasVoted) {
+            return (
+              <View style={styles.waitingContainer}>
+                <Text style={styles.waitingTitle}>Votre vote a été enregistré !</Text>
+                <Text style={styles.waitingText}>
+                  En attente des autres joueurs...
+                </Text>
+                <LoadingOverlay 
+                  message="Attente des autres votes..."
+                  showSpinner={true}
+                />
+              </View>
+            );
+          }
+          
           return (
             <View style={{ flex: 1 }}>
               <Text style={{ color: 'white', fontSize: 18, textAlign: 'center', marginTop: 10, marginBottom: 10 }}>
@@ -757,22 +809,24 @@ export default function GameScreen() {
                 timer={null}
                 isTargetPlayer={true}
                 hasVoted={false}
-                allPlayersVoted={gameState.allPlayersVoted}
+                allPlayersVoted={allPlayersVoted}
               />
             </View>
           );
         }
         
+        // Pour les non-cibles
         return (
-          <VotePhase 
-            answers={gameState.answers.filter(answer => !answer.isOwnAnswer)}
-            question={gameState.currentQuestion}
-            onVote={handleVote}
-            timer={null}
-            isTargetPlayer={gameState.currentUserState?.isTargetPlayer || false}
-            hasVoted={gameState.currentUserState?.hasVoted || false}
-            allPlayersVoted={gameState.allPlayersVoted}
-          />
+          <View style={styles.waitingContainer}>
+            <Text style={styles.waitingTitle}>C'est au tour de {gameState.targetPlayer?.name} de voter !</Text>
+            <Text style={styles.waitingText}>
+              {gameState.targetPlayer?.name} est en train de choisir sa réponse préférée.
+            </Text>
+            <LoadingOverlay 
+              message="Attente du vote..."
+              showSpinner={true}
+            />
+          </View>
         );
           
       case GamePhase.WAITING_FOR_VOTE:

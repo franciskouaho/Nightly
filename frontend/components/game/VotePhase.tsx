@@ -33,10 +33,13 @@ const VotePhase: React.FC<VotePhaseProps> = ({
   // Log de débogage pour tracer les états
   useEffect(() => {
     console.log(`🎯 VotePhase: isTargetPlayer=${isTargetPlayer}, hasVoted=${hasVoted}, allPlayersVoted=${allPlayersVoted}, réponses disponibles=${answers.length}`);
-  }, [isTargetPlayer, hasVoted, allPlayersVoted, answers.length]);
+    console.log(`🎯 Détails des réponses:`, answers.map(a => ({ id: a.id, content: a.content, playerId: a.playerId })));
+  }, [isTargetPlayer, hasVoted, allPlayersVoted, answers]);
   
   // Filtrer les réponses pour ne pas afficher les propres réponses du joueur
   const votableAnswers = answers.filter(answer => !answer.isOwnAnswer);
+  
+  console.log(`🎯 Réponses votables: ${votableAnswers.length} sur ${answers.length} réponses totales`);
   
   // Si tout le monde a voté, afficher un message d'attente
   if (allPlayersVoted) {

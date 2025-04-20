@@ -62,15 +62,15 @@ export class SocketService {
           methods: ['GET', 'POST'],
           credentials: true,
         },
-        transports: ['websocket', 'polling'],
+        transports: ['websocket'],
         allowEIO3: true,
-        pingTimeout: 1000, // Réduit à 1s
-        pingInterval: 1000, // Réduit à 1s
-        connectTimeout: 1000, // Réduit à 1s
-        retries: 1, // Réduit à 1 seul essai
-        reconnectionDelayMax: 100, // Réduit à 100ms
-        reconnectionDelay: 100, // Réduit à 100ms
-        maxHttpBufferSize: 1e8, // 100 MB
+        pingTimeout: 60000,
+        pingInterval: 25000,
+        connectTimeout: 45000,
+        retries: 1,
+        reconnectionDelayMax: 100,
+        reconnectionDelay: 100,
+        maxHttpBufferSize: 1e8,
       })
 
       // S'assurer que Redis est connecté avant de configurer l'adaptateur
