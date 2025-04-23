@@ -1,10 +1,19 @@
 import QuestionBank from '#models/question_bank'
 
+type QuestionTheme =
+  | 'standard'
+  | 'crazy'
+  | 'fun'
+  | 'dark'
+  | 'personal'
+  | 'action-verite'
+  | 'on-ecoute-mais-on-ne-juge-pas'
+
 class QuestionService {
   /**
    * Récupère une question aléatoire par thème
    */
-  async getRandomQuestionByTheme(theme: string): Promise<QuestionBank | null> {
+  async getRandomQuestionByTheme(theme: QuestionTheme): Promise<QuestionBank | null> {
     try {
       // Obtenir une question aléatoire du thème spécifié qui est active
       const query = QuestionBank.query()
@@ -40,7 +49,24 @@ class QuestionService {
    * Formatte une question en remplaçant les placeholders
    */
   formatQuestion(questionText: string, playerName: string): string {
+    // Si c'est une question Action ou Vérité, ne pas remplacer le placeholder
+    // car ces questions n'ont pas de joueur cible
+    if (questionText.startsWith('ACTION:') || questionText.startsWith('VÉRITÉ:')) {
+      return questionText
+    }
     return questionText.replace('{playerName}', playerName)
+  }
+
+  /**
+   * Détermine le type de question pour le mode Action ou Vérité
+   */
+  getActionVeriteType(questionText: string): 'action' | 'verite' | null {
+    if (questionText.startsWith('ACTION:')) {
+      return 'action'
+    } else if (questionText.startsWith('VÉRITÉ:')) {
+      return 'verite'
+    }
+    return null
   }
 
   // Pour l'API admin
@@ -52,7 +78,7 @@ class QuestionService {
     return QuestionBank.find(id)
   }
 
-  async createQuestion(data: { text: string; theme: string; createdByUserId?: number }) {
+  async createQuestion(data: { text: string; theme: QuestionTheme; createdByUserId?: number }) {
     return QuestionBank.create({
       text: data.text,
       theme: data.theme,
@@ -62,7 +88,10 @@ class QuestionService {
     })
   }
 
-  async updateQuestion(id: number, data: { text?: string; theme?: string; isActive?: boolean }) {
+  async updateQuestion(
+    id: number,
+    data: { text?: string; theme?: QuestionTheme; isActive?: boolean }
+  ) {
     const question = await QuestionBank.find(id)
     if (!question) return null
 

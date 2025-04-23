@@ -633,4 +633,126 @@ export default class GamesController {
       })
     }
   }
+
+  /**
+   * Démarre un nouveau tour de jeu
+   */
+  async startNewRound(gameId: number): Promise<{ success: boolean; error?: string }> {
+    const lockKey = `game:${gameId}:startNewRound`
+    if (!(await this.acquireLock(lockKey, 5))) {
+      return { success: false, error: 'Une autre opération est en cours' }
+    }
+
+    try {
+      const game = await Game.find(gameId)
+      if (!game) return { success: false, error: 'Partie non trouvée' }
+
+      // Incrémenter le numéro du tour
+      game.currentRound += 1
+
+      // Vérifier si la partie est terminée
+      if (game.currentRound > game.totalRounds) {
+        game.status = 'completed'
+        game.currentPhase = 'results'
+        game.completedAt = DateTime.now()
+        await game.save()
+
+        // Notifier tous les joueurs de la salle
+        socketService.emitToRoom(`room:${game.roomId}`, 'gameEnded', {
+          gameId,
+          scores: game.scores,
+        })
+
+        return { success: true }
+      }
+
+      // Changer la phase actuelle du jeu
+      game.currentPhase = 'question'
+
+      // Sélectionner un joueur cible aléatoire
+      // Pour le mode action-verite, pas besoin de joueur cible
+      let targetPlayer = null
+      if (game.gameMode !== 'action-verite') {
+        targetPlayer = await selectRandomTargetPlayer(gameId, game.currentTargetPlayerId)
+        if (!targetPlayer) {
+          return { success: false, error: 'Impossible de sélectionner un joueur cible' }
+        }
+        game.currentTargetPlayerId = targetPlayer.id
+      } else {
+        // Pour action-verite, on met le currentTargetPlayerId à null
+        game.currentTargetPlayerId = null
+      }
+
+      await game.save()
+
+      // Obtenir une question aléatoire en fonction du thème du jeu
+      const randomQuestion = await questionService.getRandomQuestionByTheme(game.gameMode)
+      if (!randomQuestion) {
+        return { success: false, error: 'Aucune question disponible' }
+      }
+
+      // Formatage de la question
+      let questionText = randomQuestion.text
+      if (game.gameMode !== 'action-verite' && targetPlayer) {
+        questionText = questionService.formatQuestion(
+          randomQuestion.text,
+          targetPlayer.displayName || targetPlayer.username
+        )
+      }
+
+      // Créer une nouvelle question pour ce tour
+      const question = await Question.create({
+        text: questionText,
+        gameId,
+        roundNumber: game.currentRound,
+        theme: game.gameMode,
+        targetPlayerId: targetPlayer ? targetPlayer.id : null,
+      })
+
+      // Pour le mode action-verite, déterminer le type (action ou vérité)
+      let actionVeriteType = null
+      if (game.gameMode === 'action-verite') {
+        actionVeriteType = questionService.getActionVeriteType(questionText)
+      }
+
+      // Notifier tous les joueurs du nouveau tour
+      socketService.emitToRoom(`room:${game.roomId}`, 'newRound', {
+        gameId,
+        roundNumber: game.currentRound,
+        question: {
+          id: question.id,
+          text: question.text,
+          targetPlayer: targetPlayer
+            ? {
+                id: targetPlayer.id,
+                username: targetPlayer.username,
+                displayName: targetPlayer.displayName,
+              }
+            : null,
+          actionVeriteType,
+        },
+      })
+
+      // Pour action-verite, passer directement à la phase de réponse puisqu'il n'y a pas d'attente de réponses des autres joueurs
+      if (game.gameMode === 'action-verite') {
+        // Mettre à jour directement la phase du jeu
+        game.currentPhase = 'vote'
+        await game.save()
+
+        // Notifier les joueurs du changement de phase
+        socketService.emitToRoom(`room:${game.roomId}`, 'phaseChanged', {
+          gameId,
+          phase: 'vote',
+          questionId: question.id,
+        })
+      }
+
+      return { success: true }
+    } catch (error) {
+      console.error("Erreur lors du démarrage d'un nouveau tour:", error)
+      return { success: false, error: error.message }
+    } finally {
+      await this.releaseLock(lockKey)
+    }
+  }
 }

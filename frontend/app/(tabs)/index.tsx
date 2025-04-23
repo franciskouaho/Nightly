@@ -10,115 +10,142 @@ import NetInfo from '@react-native-community/netinfo';
 import { useCreateRoom } from '@/hooks/useCreateRoom';
 import LoadingOverlay from '@/components/common/LoadingOverlay';
 
-const gameModes = [
-  {
-    id: 'on-ecoute-mais-on-ne-juge-pas',
-    name: 'On écoute mais on ne juge pas',
-    description: 'Un mode gratuit pour rigoler tranquillement entre potes.',
-    image: require('@/assets/images/taupeTranspa.png'),
-    colors: ["rgba(42, 59, 181, 0.30)", "rgba(67, 89, 224, 0.40)"],
-    borderColor: "#5D6DFF",
-    shadowColor: "#5D6DFF",
-    tag: 'NEW !',
-    tagColor: "#4CAF50",
-    premium: false
-  },
-  {
-    id: 'soit-tu-sais-soit-tu-bois',
-    name: 'Soit tu sais soit tu bois',
-    description: 'Un mode ludique avec un niveau de difficulté progressif.',
-    image: require('@/assets/images/cochon.png'),
-    colors: ["rgba(156, 39, 176, 0.30)", "rgba(186, 104, 200, 0.40)"],
-    borderColor: "#BA68C8",
-    shadowColor: "#BA68C8",
-    tag: 'PREMIUM',
-    tagColor: "rgba(255, 193, 7, 0.8)",
-    premium: true
-  },
-  {
-    id: 'action-ou-verite',
-    name: 'Action ou vérité',
-    description: 'Le classique revisité avec des défis exclusifs.',
-    image: require('@/assets/images/snake_vs_fox.png'),
-    colors: ["rgba(0, 150, 136, 0.30)", "rgba(77, 182, 172, 0.40)"],
-    borderColor: "#26A69A",
-    shadowColor: "#26A69A", 
-    tag: 'NEW !',
-    tagColor: "#4CAF50",
-    premium: false
-  },
-  {
-    id: 'spicy',
-    name: 'Hot',
-    description: 'Pour pimenter vos soirées avec des questions osées.',
-    image: require('@/assets/images/vache.png'),
-    colors: ["rgba(211, 47, 47, 0.30)", "rgba(229, 115, 115, 0.40)"],
-    borderColor: "#E57373",
-    shadowColor: "#E57373",
-    tag: 'PREMIUM',
-    tagColor: "rgba(255, 193, 7, 0.8)",
-    premium: true
-  },
-  {
-    id: 'connais-tu-vraiment',
-    name: 'Connais-tu vraiment ?',
-    description: 'Testez votre connaissance de vos amis.',
-    image: require('@/assets/images/taupeTranspa.png'),
-    colors: ["rgba(63, 81, 181, 0.30)", "rgba(121, 134, 203, 0.40)"],
-    borderColor: "#7986CB",
-    shadowColor: "#7986CB",
-    tag: 'NEW !',
-    tagColor: "#4CAF50",
-    premium: false
-  },
-  {
-    id: 'blind-test',
-    name: 'Blind Test',
-    description: 'Devinez des titres à partir d\'extraits musicaux.',
-    image: require('@/assets/images/cochon.png'), // À remplacer par une image appropriée
-    colors: ["rgba(255, 87, 34, 0.30)", "rgba(255, 138, 101, 0.40)"],
-    borderColor: "#FF8A65",
-    shadowColor: "#FF8A65",
-    tag: 'COMING SOON',
-    tagColor: "#9C27B0",
-    premium: true
-  }
-];
+// Définition des interfaces
+interface GameMode {
+  id: string;
+  name: string;
+  description: string;
+  image: any;
+  colors: string[];
+  borderColor: string;
+  shadowColor: string;
+  tag: string;
+  tagColor: string;
+  premium: boolean;
+  interactive?: 'write' | 'choice' | 'action';
+}
 
-// Configuration des packs thématiques
-const themePacks = [
+interface GameCategory {
+  id: string;
+  title: string;
+  subtitle: string;
+  games: GameMode[];
+}
+
+// Configuration des catégories de jeu
+const gameCategories: GameCategory[] = [
   {
-    id: 'peches-mignons',
-    title: 'PÉCHÉS MIGNONS',
-    colors: ["rgba(30, 59, 141, 0.3)", "rgba(59, 95, 217, 0.3)"],
-    borderColor: "#3B5FD9",
-    shadowColor: "#3B5FD9",
-    illustrations: 3,
+    id: 'insight_modes',
+    title: 'INSIGHT MODES',
+    subtitle: 'Plusieurs téléphones',
+    games: [
+      {
+        id: 'on-ecoute-mais-on-ne-juge-pas',
+        name: 'ON ÉCOUTE MAIS ON NE JUGE PAS',
+        description: 'Un mode gratuit pour rigoler tranquillement entre potes.',
+        image: require('@/assets/images/taupeTranspa.png'),
+        colors: ["rgba(17, 34, 78, 0.8)", "rgba(38, 56, 120, 0.9)"],
+        borderColor: "#3B5FD9",
+        shadowColor: "#3B5FD9",
+        tag: 'GRATUIT',
+        tagColor: "#8E24AA",
+        premium: false,
+        interactive: 'write'
+      },
+      {
+        id: 'spicy',
+        name: 'HOT',
+        description: 'Questions coquines et déplacées... Prêts à assumer ?',
+        image: require('@/assets/images/vache.png'),
+        colors: ["rgba(90, 10, 50, 0.8)", "rgba(130, 20, 80, 0.9)"],
+        borderColor: "#D81B60",
+        shadowColor: "#D81B60",
+        tag: 'PREMIUM',
+        tagColor: "#D81B60",
+        premium: true,
+        interactive: 'write'
+      },
+      {
+        id: 'soit-tu-sais-soit-tu-bois',
+        name: 'SOIT TU SAIS SOIT TU BOIS',
+        description: 'Un mode ludique avec un niveau de difficulté progressif.',
+        image: require('@/assets/images/snake_vs_fox.png'),
+        colors: ["rgba(20, 20, 40, 0.8)", "rgba(40, 40, 80, 0.9)"],
+        borderColor: "#212121",
+        shadowColor: "#212121",
+        tag: 'PREMIUM',
+        tagColor: "#D81B60",
+        premium: true,
+        interactive: 'write'
+      },
+    ]
   },
   {
-    id: 'souvenirs-enfance',
-    title: 'SOUVENIRS D\'ENFANCE',
-    colors: ["rgba(106, 27, 154, 0.3)", "rgba(156, 39, 176, 0.3)"],
-    borderColor: "#9C27B0",
-    shadowColor: "#9C27B0",
-    singleIllustration: true,
+    id: 'jeu_de_soiree',
+    title: 'JEU DE SOIRÉE',
+    subtitle: 'Plusieurs téléphones',
+    games: [
+      {
+        id: 'connais-tu-vraiment',
+        name: 'CONNAIS-TU VRAIMENT ?',
+        description: 'Testez votre connaissance de vos amis.',
+        image: require('@/assets/images/cochon.png'),
+        colors: ["rgba(80, 20, 100, 0.8)", "rgba(120, 40, 160, 0.9)"],
+        borderColor: "#9C27B0",
+        shadowColor: "#9C27B0",
+        tag: 'NEW !',
+        tagColor: "#F06292",
+        premium: false,
+        interactive: 'choice'
+      },
+      {
+        id: 'blind-test',
+        name: 'BLIND TEST',
+        description: 'Devinez des titres à partir d\'extraits musicaux.',
+        image: require('@/assets/images/taupeTranspa.png'),
+        colors: ["rgba(0, 100, 130, 0.8)", "rgba(0, 150, 180, 0.9)"],
+        borderColor: "#0097A7",
+        shadowColor: "#0097A7",
+        tag: 'COMING SOON',
+        tagColor: "#F06292",
+        premium: true,
+        interactive: 'choice'
+      }
+    ]
   },
   {
-    id: 'saint-valentin',
-    title: 'SAINT-VALENTIN',
-    colors: ["rgba(196, 26, 95, 0.3)", "rgba(255, 82, 82, 0.3)"],
-    borderColor: "#FF5252",
-    shadowColor: "#FF5252",
-    illustrations: 1,
-  },
-  {
-    id: 'soiree-hot',
-    title: 'SOIRÉE HOT',
-    colors: ["rgba(21, 101, 192, 0.3)", "rgba(66, 165, 245, 0.3)"],
-    borderColor: "#42A5F5",
-    shadowColor: "#42A5F5",
-    illustrations: 1,
-  },
+    id: 'packs',
+    title: 'NOS PACKS LES PLUS JOUÉS',
+    subtitle: '',
+    games: [
+      {
+        id: 'action-verite',
+        name: 'ACTION OU VÉRITÉ',
+        description: 'Le classique revisité avec des défis exclusifs.',
+        image: require('@/assets/images/snake_vs_fox.png'),
+        colors: ["rgba(50, 90, 150, 0.8)", "rgba(80, 120, 200, 0.9)"],
+        borderColor: "#3F51B5",
+        shadowColor: "#3F51B5",
+        tag: '',
+        tagColor: "",
+        premium: false,
+        interactive: 'action'
+      },
+      {
+        id: 'apero',
+        name: 'APÉRO',
+        description: 'Pour animer vos soirées entre amis.',
+        image: require('@/assets/images/taupeTranspa.png'),
+        colors: ["rgba(0, 100, 130, 0.8)", "rgba(0, 150, 180, 0.9)"],
+        borderColor: "#0097A7",
+        shadowColor: "#0097A7",
+        tag: '',
+        tagColor: "",
+        premium: false,
+        interactive: 'choice'
+      }
+    ]
+  }
 ];
 
 export default function HomeScreen() {
@@ -147,16 +174,12 @@ export default function HomeScreen() {
       // On active l'initialisation automatique seulement à partir de ce moment
       SocketService.setAutoInit(true);
       
-      // On n'a pas besoin d'attendre le socket pour créer la salle via HTTP
-      // Le traitement de createRoom s'occupera de rejoindre le socket si nécessaire
-      
       // S'assurer que toutes les propriétés sont correctement définies et nommées
       createRoom({
         name: `Salle de ${user?.username || 'Joueur'}`,
         game_mode: modeId,
         max_players: 6,
         total_rounds: 5,
-        // Ne pas envoyer is_private si undefined
       });
     } catch (error: any) {
       console.error('❌ Erreur lors de la création de la salle:', error);
@@ -180,49 +203,13 @@ export default function HomeScreen() {
     );
   }
   
-  // Rendu des cartes thématiques
-  const renderThemeCard = (theme: any) => (
-    <TouchableOpacity key={theme.id} style={styles.categoryCard}>
-      <LinearGradient
-        colors={theme.colors}
-        style={[
-          styles.cardGradient, 
-          { 
-            borderColor: theme.borderColor,
-            shadowColor: theme.shadowColor,
-          },
-          styles.glowingCategoryBorder
-        ]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      >
-        <View style={styles.cardContent}>
-          <View style={styles.illustrationsContainer}>
-            {theme.singleIllustration ? (
-              <Image source={{ uri: "/placeholder.svg?height=120&width=120" }} style={styles.memoriesImage} />
-            ) : (
-              Array.from({ length: theme.illustrations || 1 }).map((_, index) => (
-                <View key={index} style={styles.illustration}>
-                  <Image
-                    source={{ uri: "/placeholder.svg?height=60&width=60" }}
-                    style={styles.illustrationImage}
-                  />
-                </View>
-              ))
-            )}
-          </View>
-          <Text style={styles.cardTitle}>{theme.title}</Text>
-        </View>
-      </LinearGradient>
-    </TouchableOpacity>
-  );
-  
   // Rendu des cartes de mode de jeu
-  const renderGameModeCard = (game: any) => (
+  const renderGameModeCard = (game: GameMode) => (
     <TouchableOpacity 
       key={game.id}
       style={styles.modeCard} 
       onPress={() => createGameRoom(game.id)}
+      activeOpacity={0.9}
     >
       <LinearGradient
         colors={game.colors}
@@ -231,12 +218,10 @@ export default function HomeScreen() {
           { 
             borderColor: game.borderColor,
             shadowColor: game.shadowColor
-          },
-          styles.glowingBorder
+          }
         ]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        borderRadius={8}
       >
         <View style={styles.modeContent}>
           <View style={styles.characterContainer}>
@@ -250,12 +235,37 @@ export default function HomeScreen() {
             <Text style={styles.modeName}>{game.name}</Text>
             <Text style={styles.modeDescription}>{game.description}</Text>
           </View>
-          <View style={[styles.freeTagContainer, { backgroundColor: game.tagColor }]}>
-            <Text style={styles.freeTag}>{game.tag}</Text>
-          </View>
+          {game.tag ? (
+            <View style={[styles.modeTagContainer, { backgroundColor: game.tagColor }]}>
+              <Text style={styles.modeTagText}>{game.tag}</Text>
+            </View>
+          ) : null}
         </View>
       </LinearGradient>
     </TouchableOpacity>
+  );
+  
+  // Rendu d'une catégorie de jeu avec ses modes
+  const renderGameCategory = (category: GameCategory) => (
+    <View key={category.id} style={styles.categorySection}>
+      <View style={styles.categoryHeader}>
+        <View>
+          <Text style={styles.categoryTitle}>{category.title}</Text>
+          {category.subtitle ? (
+            <Text style={styles.categorySubtitle}>{category.subtitle}</Text>
+          ) : null}
+        </View>
+        {category.id !== 'packs' && (
+          <TouchableOpacity style={styles.rulesButton}>
+            <Text style={styles.rulesText}>règles</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+      
+      <View style={styles.gameModesColumn}>
+        {category.games.map((game: GameMode) => renderGameModeCard(game))}
+      </View>
+    </View>
   );
   
   return (
@@ -264,31 +274,18 @@ export default function HomeScreen() {
         colors={["#1A0938", "#2D1155"]}
         style={styles.background}
       >
+        {/* TopBar */}
+        <TopBar />
+        
         <ScrollView 
           style={styles.scrollView}
+          showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollViewContent}
         >
-          {/* Header avec position ajustée */}
-          <TopBar />
-
-          {/* Game Categories */}
-          <View style={styles.categoriesContainer}>
-            {/* Category Slider */}
-            <Text style={styles.sectionTitle}>LES PACKS DU MOIS</Text>
-            
-            <ScrollView 
-              horizontal 
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.categorySlider}
-            >
-              {themePacks.map(renderThemeCard)}
-            </ScrollView>
-
-            {/* Game Modes */}
-            <Text style={styles.sectionTitle}>MODES DE JEU</Text>
-            
-            {/* Game Mode Cards */}
-            {gameModes.map(renderGameModeCard)}
+          {/* Content Container */}
+          <View style={styles.contentContainer}>
+            {/* Sections de jeu */}
+            {gameCategories.map(renderGameCategory)}
           </View>
         </ScrollView>
         
@@ -312,170 +309,112 @@ const styles = StyleSheet.create({
   scrollViewContent: {
     paddingBottom: 20,
   },
-  categoriesContainer: {
+  contentContainer: {
     padding: 20,
+    paddingBottom: 100,
   },
-  sectionTitle: {
+  categorySection: {
+    marginBottom: 30,
+  },
+  categoryHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  categoryTitle: {
+    color: 'white',
     fontSize: 16,
-    fontWeight: "bold",
-    color: "white",
-    marginBottom: 15,
-    letterSpacing: 0.5,
+    fontWeight: 'bold',
   },
-  categorySlider: {
-    paddingRight: 20,
-    paddingBottom: 10,
-    marginBottom: 25,
+  categorySubtitle: {
+    color: '#CCCCCC',
+    fontSize: 12,
   },
-  categoryCard: {
-    borderRadius: 12,
-    overflow: "visible", 
-    height: 150, 
-    width: 150, 
-    marginRight: 15,
+  rulesButton: {
+    borderWidth: 1,
+    borderColor: 'white',
+    borderRadius: 16,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    marginLeft: 8,
   },
-  cardGradient: {
-    flex: 1,
-    padding: 15,
-    borderRadius: 12,
-    borderWidth: 1.5,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 4,
-    elevation: 8,
+  rulesText: {
+    color: 'white',
+    fontSize: 10,
   },
-  glowingCategoryBorder: {
-    // Propriétés spécifiques déplacées à l'inline style dans renderThemeCard
-  },
-  cardContent: {
-    flex: 1,
-    justifyContent: "space-between",
-  },
-  illustrationsContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    flex: 1,
-    flexWrap: "wrap",
-  },
-  illustration: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    margin: 5,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  illustrationImage: {
-    width: 40,
-    height: 40,
-  },
-  memoriesImage: {
-    width: 120,
-    height: 120,
-  },
-  cardTitle: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginTop: 10,
+  gameModesColumn: {
+    width: '100%',
   },
   modeCard: {
+    width: '100%',
+    marginBottom: 16,
+    borderRadius: 20,
+    overflow: 'hidden',
     height: 120,
-    borderRadius: 12,
-    marginBottom: 20,
-    overflow: "visible", 
   },
   modeGradient: {
-    flex: 1,
-    borderRadius: 12,
-    borderWidth: 1.5,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
+    borderRadius: 20,
+    height: '100%',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
     shadowRadius: 5,
-    elevation: 8,
-  },
-  glowingBorder: {
-    // Propriétés spécifiques déplacées à l'inline style dans renderGameModeCard
+    elevation: 5,
   },
   modeContent: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 15,
-    position: "relative",
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    height: '100%',
   },
   characterContainer: {
     width: 90,
     height: 90,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
   },
   characterImage: {
-    width: 110,
-    height: 110,
+    width: '100%',
+    height: '100%',
   },
   modeTextContainer: {
     flex: 1,
-    paddingHorizontal: 15,
-    maxWidth: "60%",
-    paddingRight: 40,
+    paddingRight: 10,
   },
   modeName: {
-    color: "white",
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 5,
+    color: 'white',
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginBottom: 4,
+    fontFamily: 'System',
+    letterSpacing: 0.5,
   },
   modeDescription: {
-    color: "rgba(255, 255, 255, 0.8)",
-    fontSize: 9,
-  },
-  freeTagContainer: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-    position: "absolute",
-    right: 10,
-    top: 10,
-    zIndex: 10,
-    elevation: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
-  },
-  freeTag: {
-    color: "white",
-    fontWeight: "bold",
+    color: 'white',
     fontSize: 10,
-    textAlign: 'center',
+    lineHeight: 14,
   },
-  profileButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.2)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  headerButtons: {
-    flexDirection: 'row',
+  modeTagContainer: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 4,
     alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 50,
   },
-  iconButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.2)",
-    justifyContent: "center",
-    alignItems: "center",
-    marginLeft: 10,
+  modeTagText: {
+    color: 'white',
+    fontSize: 8,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   loadingContainer: {
     justifyContent: 'center',
     alignItems: 'center',
   },
-})
+});

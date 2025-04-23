@@ -11,13 +11,23 @@ export default class QuestionBank extends BaseModel {
   declare text: string
 
   @column()
-  declare theme: 'standard' | 'fun' | 'dark' | 'personal' | 'crazy'
+  declare theme:
+    | 'standard'
+    | 'crazy'
+    | 'fun'
+    | 'dark'
+    | 'personal'
+    | 'action-verite'
+    | 'on-ecoute-mais-on-ne-juge-pas'
 
-  @column()
+  @column({ columnName: 'is_active' })
   declare isActive: boolean
 
-  @column()
+  @column({ columnName: 'usage_count' })
   declare usageCount: number
+
+  @column({ columnName: 'created_by_user_id' })
+  declare createdByUserId: number | null
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

@@ -32,6 +32,7 @@ export default class Game extends BaseModel {
     | 'fun'
     | 'dark'
     | 'personal'
+    | 'action-verite'
     | 'on-ecoute-mais-on-ne-juge-pas'
 
   @column({ columnName: 'current_target_player_id' })

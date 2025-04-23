@@ -21,6 +21,7 @@ export default class Question extends BaseModel {
     | 'fun'
     | 'dark'
     | 'personal'
+    | 'action-verite'
     | 'on-ecoute-mais-on-ne-juge-pas'
     | undefined
 

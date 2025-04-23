@@ -11,6 +11,19 @@ import { API_URL } from '../config/axios';
 import UserIdManager from '../utils/userIdManager';
 import { GameEvent } from '../types/gameTypes';
 
+export type CurrentQuestion = {
+  id: number;
+  text: string;
+  roundNumber: number;
+  targetPlayer?: {
+    id: number;
+    username: string;
+    displayName: string;
+    avatar?: string;
+  } | null;
+  actionVeriteType?: 'action' | 'verite' | null;
+};
+
 type GameContextType = {
   gameState: GameState | null;
   isLoading: boolean;
