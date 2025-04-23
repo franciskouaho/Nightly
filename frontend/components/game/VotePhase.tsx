@@ -4,6 +4,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Answer } from '@/types/gameTypes';
 import GameTimer from './GameTimer';
+import { useLocalSearchParams } from 'expo-router';
+import { GamePhaseManager } from '@/utils/gamePhaseManager';
 
 type VotePhaseProps = {
   answers: Answer[];
@@ -30,11 +32,32 @@ const VotePhase: React.FC<VotePhaseProps> = ({
   hasVoted = false,
   allPlayersVoted = false
 }: VotePhaseProps) => {
+  // Récupérer l'ID du jeu
+  const { id } = useLocalSearchParams();
+  
   // Log de débogage pour tracer les états
   useEffect(() => {
     console.log(`🎯 VotePhase: isTargetPlayer=${isTargetPlayer}, hasVoted=${hasVoted}, allPlayersVoted=${allPlayersVoted}, réponses disponibles=${answers.length}`);
     console.log(`🎯 Détails des réponses:`, answers.map(a => ({ id: a.id, content: a.content, playerId: a.playerId })));
   }, [isTargetPlayer, hasVoted, allPlayersVoted, answers]);
+  
+  // Effet pour gérer la transition automatique vers les résultats quand tous ont voté
+  useEffect(() => {
+    if (allPlayersVoted && id) {
+      console.log('🔄 Tous les joueurs ont voté, transition automatique vers résultats');
+      
+      // Forcer la transition vers la phase résultats après un court délai
+      const timer = setTimeout(async () => {
+        try {
+          await GamePhaseManager.checkAndTransitionToResults(id.toString());
+        } catch (error) {
+          console.error('❌ Erreur lors de la transition automatique:', error);
+        }
+      }, 1500); // Délai avant la transition
+      
+      return () => clearTimeout(timer);
+    }
+  }, [allPlayersVoted, id]);
   
   // Filtrer les réponses pour ne pas afficher les propres réponses du joueur
   const votableAnswers = answers.filter(answer => !answer.isOwnAnswer);

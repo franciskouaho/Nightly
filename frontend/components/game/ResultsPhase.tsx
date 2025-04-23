@@ -5,6 +5,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Answer, Player, Question } from '@/types/gameTypes';
 import GameWebSocketService from '@/services/gameWebSocketService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import gameService from '@/services/queries/game';
 
 interface ResultsPhaseProps {
   answers: Answer[];
@@ -103,6 +104,27 @@ const ResultsPhase: React.FC<ResultsPhaseProps> = ({
       // Nettoyage
     };
   }, [gameId, answers, isSynchronizing]);
+  
+  // Effet pour garantir les résultats à jour
+  useEffect(() => {
+    if (gameId) {
+      const fetchLatestResults = async () => {
+        try {
+          console.log(`🔍 ResultsPhase: Vérification des résultats les plus récents pour le jeu ${gameId}`);
+          const latestGameState = await gameService.getGameState(gameId.toString());
+          
+          if (latestGameState && latestGameState.game?.currentPhase === 'results') {
+            console.log(`✅ ResultsPhase: Résultats mis à jour disponibles`);
+            // Les données sont automatiquement mises à jour par le refresh de l'écran principal
+          }
+        } catch (error) {
+          console.error(`❌ ResultsPhase: Erreur lors de la récupération des résultats:`, error);
+        }
+      };
+      
+      fetchLatestResults();
+    }
+  }, [gameId]);
   
   const handleNextRound = useCallback(() => {
     if (isButtonDisabled || isSynchronizing) return;

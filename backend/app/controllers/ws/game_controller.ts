@@ -131,6 +131,18 @@ export default class GamesController {
 
       const isTargetPlayer = currentQuestion ? currentQuestion.targetPlayerId === user.id : false
 
+      // Calculate if all players have voted (similar to checkAndProgressToResults method)
+      let allPlayersVoted = false
+      if (currentQuestion && game.currentPhase === 'vote') {
+        // In this game, only the target player needs to vote
+        const targetHasVoted = await Vote.query()
+          .where('question_id', currentQuestion.id)
+          .where('voter_id', currentQuestion.targetPlayerId)
+          .first()
+
+        allPlayersVoted = targetHasVoted !== null
+      }
+
       const gameData = {
         status: 'success',
         data: {
@@ -187,6 +199,7 @@ export default class GamesController {
             hasVoted,
             isTargetPlayer,
           },
+          allPlayersVoted,
         },
       }
 
@@ -448,21 +461,14 @@ export default class GamesController {
     try {
       const game = await Game.findOrFail(gameId)
       const question = await Question.findOrFail(questionId)
-      const room = await Room.findOrFail(game.roomId)
 
-      const [players, votes] = await Promise.all([
-        room.related('players').query(),
-        Vote.query().where('question_id', questionId),
-      ])
+      // Check if the target player has voted
+      const targetHasVoted = await Vote.query()
+        .where('question_id', questionId)
+        .where('voter_id', question.targetPlayerId)
+        .first()
 
-      // Exclure la cible des votants attendus
-      const expectedVotersIds = players
-        .filter((p) => String(p.id) !== String(question.targetPlayerId))
-        .map((p) => String(p.id))
-
-      const receivedVotersIds = votes.map((v) => String(v.voterId))
-
-      const allPlayersVoted = expectedVotersIds.every((id) => receivedVotersIds.includes(id))
+      const allPlayersVoted = targetHasVoted !== null
 
       if (allPlayersVoted) {
         game.currentPhase = 'results'

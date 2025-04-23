@@ -18,6 +18,7 @@ import GameTimer from '@/components/game/GameTimer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import UserIdManager from '@/utils/userIdManager';
 import { PhaseManager } from '@/utils/phaseManager';
+import { GamePhaseManager } from '@/utils/gamePhaseManager';
 
 export default function GameScreen() {
   const router = useRouter();
@@ -389,6 +390,29 @@ export default function GameScreen() {
             console.log(`🔄 Blocage potentiel corrigé, rafraîchissement des données...`);
             fetchGameData();
           }
+          
+          // Vérifier si tous les joueurs ont voté dans la phase vote
+          if (gameState.game?.currentPhase === 'vote') {
+            console.log(`🔍 Vérification si tous les votes sont soumis...`);
+            try {
+              // Récupérer les données actuelles du jeu pour vérifier l'état des votes
+              const latestGameState = await gameService.getGameState(id as string);
+              const allVoted = latestGameState?.allPlayersVoted;
+              
+              if (allVoted) {
+                console.log(`✅ Tous les joueurs ont voté, tentative de transition vers les résultats`);
+                // Forcer la transition vers la phase résultats
+                const success = await gameService.forcePhaseTransition(id as string, 'results');
+                
+                if (success) {
+                  console.log(`✅ Transition vers la phase résultats réussie`);
+                  fetchGameData();
+                }
+              }
+            } catch (error) {
+              console.error(`❌ Erreur lors de la vérification des votes:`, error);
+            }
+          }
         }
       } catch (error) {
         console.error(`❌ Erreur lors de la vérification de progression:`, error);
@@ -404,6 +428,23 @@ export default function GameScreen() {
     checkGameProgress();
     
   }, [isReady, gameState, id, fetchGameData]);
+
+  // Effet pour gérer la transition automatique entre les phases vote et résultats
+  useEffect(() => {
+    if (!gameState || !id) return;
+    
+    // Si le jeu est en phase vote, démarrer les vérifications automatiques
+    if (gameState.game?.currentPhase === 'vote') {
+      console.log(`🔄 Démarrage des vérifications automatiques pour la transition vote -> résultats`);
+      
+      // Arrêter les vérifications précédentes au nettoyage
+      const stopChecking = GamePhaseManager.startAutoTransitionToResults(id.toString());
+      
+      return () => {
+        stopChecking();
+      };
+    }
+  }, [gameState?.game?.currentPhase, id]);
 
   const handleSubmitAnswer = async (answer: string) => {
     // Vérifier l'ID utilisateur avant de soumettre
