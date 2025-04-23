@@ -546,10 +546,10 @@ export default function GameScreen() {
       await new Promise(resolve => setTimeout(resolve, 300));
       
       // Ajout d'un log pour vérifier ce qui est envoyé
-      console.log(`🔍 Paramètres de vote - gameId: ${id}, answerId: ${answerId}, questionId: ${gameState.currentQuestion.id}`);
+      console.log(`🔍 Paramètres de vote - gameId: ${id}, answerId: ${answerId}`);
       
-      // Utiliser la méthode WebSocket optimisée
-      await gameService.submitVote(id as string, answerId, gameState.currentQuestion.id.toString());
+      // Utiliser la méthode WebSocket optimisée (avec seulement 2 arguments)
+      await gameService.submitVote(id as string, answerId);
       
       Alert.alert("Vote enregistré", "En attente des résultats...");
       
@@ -563,32 +563,51 @@ export default function GameScreen() {
         }
       }));
       
-      // Rafraîchir les données du jeu après un court délai
-      setTimeout(async () => {
-        try {
-          const updatedGameState = await gameService.getGameState(id as string);
-          console.log("🔄 État du jeu mis à jour après vote:", updatedGameState);
-          
-          setGameState(prev => ({
-            ...prev,
-            ...updatedGameState,
-            currentUserState: {
-              ...prev.currentUserState,
-              hasVoted: true
+      // Vérifier si la cible a voté (donc tous les votes sont soumis) et forcer la transition
+      if (gameState.currentUserState?.isTargetPlayer) {
+        console.log("🎯 Vote de la cible enregistré, préparation de la transition automatique vers résultats");
+        
+        // Attendre un court instant pour que le serveur traite le vote
+        setTimeout(async () => {
+          try {
+            // Forcer directement la transition vers les résultats
+            const success = await gameService.forcePhaseTransition(id as string, 'results');
+            
+            if (success) {
+              console.log("✅ Transition vers les résultats réussie");
+              
+              // Mettre à jour l'état local pour afficher immédiatement les résultats
+              setGameState(prev => ({
+                ...prev,
+                phase: GamePhase.RESULTS,
+                game: {
+                  ...prev.game,
+                  currentPhase: 'results'
+                }
+              }));
+              
+              // Recharger complètement les données
+              setTimeout(() => loadGame(id as string), 500);
+            } else {
+              console.warn("⚠️ Échec de la transition automatique, rafraîchissement standard");
+              loadGame(id as string);
             }
-          }));
-        } catch (error) {
-          console.error("❌ Erreur lors de la mise à jour de l'état après vote:", error);
-        }
-      }, 1000);
-      
+          } catch (error) {
+            console.error("❌ Erreur lors de la transition:", error);
+            loadGame(id as string);
+          }
+        }, 1000);
+      } else {
+        // Pour les joueurs standard, simplement rafraîchir après un court délai
+        setTimeout(() => loadGame(id as string), 800);
+      }
     } catch (error) {
       console.error("❌ Erreur lors du vote:", error);
       
       // Analyse détaillée de l'erreur
       let errorMessage = "Impossible d'enregistrer votre vote. Veuillez réessayer.";
       
-      if (error.message) {
+      if (error instanceof Error && error.message) {
         errorMessage = error.message;
       }
       
@@ -708,6 +727,57 @@ export default function GameScreen() {
     console.log(`🎮 Rendu de la phase: ${gameState.phase} (serveur: ${gameState.game?.currentPhase})`);
     console.log(`👤 État joueur: isTarget=${gameState.currentUserState?.isTargetPlayer}, hasVoted=${gameState.currentUserState?.hasVoted}`);
 
+    // Si la phase du serveur est 'results', afficher toujours l'écran de résultats indépendamment des autres conditions
+    if (gameState.game?.currentPhase === 'results' || gameState.phase === GamePhase.RESULTS) {
+      console.log(`🎮 Phase de résultats détectée, affichage des résultats pour tous les joueurs`);
+      return (
+        <ResultsPhase 
+          answers={gameState.answers}
+          scores={gameState.scores}
+          players={gameState.players}
+          question={gameState.currentQuestion}
+          targetPlayer={gameState.targetPlayer}
+          onNextRound={handleNextRound}
+          isLastRound={gameState.currentRound >= gameState.totalRounds}
+          timer={null}
+          gameId={id}
+        />
+      );
+    }
+    
+    // Vérifier si tous les joueurs ont voté - transition automatique vers les résultats
+    if (gameState.game?.currentPhase === 'vote' && gameState.allPlayersVoted) {
+      console.log(`🎮 Tous les joueurs ont voté, affichage des résultats`);
+      
+      // Tenter de forcer la transition vers les résultats
+      setTimeout(() => {
+        gameService.forcePhaseTransition(id as string, 'results')
+          .then(success => {
+            if (success) {
+              console.log("✅ Transition vers résultats forcée avec succès");
+            } else {
+              console.warn("⚠️ Impossible de forcer la transition vers résultats");
+            }
+          })
+          .catch(err => console.error("❌ Erreur lors de la transition:", err));
+      }, 300);
+      
+      // Afficher les résultats immédiatement sans attendre
+      return (
+        <ResultsPhase 
+          answers={gameState.answers}
+          scores={gameState.scores}
+          players={gameState.players}
+          question={gameState.currentQuestion}
+          targetPlayer={gameState.targetPlayer}
+          onNextRound={handleNextRound}
+          isLastRound={gameState.currentRound >= gameState.totalRounds}
+          timer={null}
+          gameId={id}
+        />
+      );
+    }
+    
     // Vérifier si la phase est valide
     const validPhases = Object.values(GamePhase);
     if (!validPhases.includes(gameState.phase as GamePhase)) {

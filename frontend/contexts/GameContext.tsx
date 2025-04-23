@@ -9,6 +9,7 @@ import { PhaseManager } from '@/utils/phaseManager';
 import axios from 'axios';
 import { API_URL } from '../config/axios';
 import UserIdManager from '../utils/userIdManager';
+import { GameEvent } from '../types/gameTypes';
 
 type GameContextType = {
   gameState: GameState | null;
@@ -248,22 +249,28 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return;
       }
 
-      await gameService.ensureSocketConnection(gameId);
+      await gameService.ensureSocketConnection(String(gameState.game.id));
       success = await gameService.submitAnswer(
-        gameId,
-        gameState.currentQuestion.id,
+        String(gameId),
+        String(gameState.currentQuestion.id),
         answer
       );
 
       if (success) {
-        setGameState(prev => ({
-          ...prev,
-          currentUserState: {
-            ...prev.currentUserState,
-            hasAnswered: true
-          },
-          phase: GamePhase.WAITING
-        }));
+        setGameState(prev => {
+          if (!prev) return prev;
+          
+          return {
+            ...prev,
+            currentUserState: {
+              ...prev.currentUserState,
+              hasAnswered: true
+            },
+            phase: GamePhase.WAITING,
+            currentRound: prev.currentRound || 1,
+            totalRounds: prev.totalRounds || 5
+          };
+        });
         
         showToast("Réponse soumise avec succès", "success");
         
@@ -271,7 +278,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         
         try {
           const { checkPhaseAfterAnswer } = await import('@/utils/socketTester');
-          checkPhaseAfterAnswer(gameId).catch(console.error);
+          checkPhaseAfterAnswer(String(gameState.game.id)).catch(console.error);
           fetchGameData();
         } catch (error) {
           console.error('❌ Erreur lors de la vérification post-réponse:', error);
@@ -297,16 +304,22 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       
       showToast("Envoi de votre vote en cours...", "info");
       
-      await gameService.submitVote(gameId, answerId, gameState.currentQuestion.id.toString());
+      await gameService.submitVote(String(gameState.game.id), answerId);
       
-      setGameState(prev => ({
-        ...prev,
-        currentUserState: {
-          ...prev.currentUserState,
-          hasVoted: true,
-        },
-        phase: GamePhase.WAITING,
-      }));
+      setGameState(prev => {
+        if (!prev) return prev;
+        
+        return {
+          ...prev,
+          currentUserState: {
+            ...prev.currentUserState,
+            hasVoted: true,
+          },
+          phase: GamePhase.WAITING,
+          currentRound: prev.currentRound || 1,
+          totalRounds: prev.totalRounds || 5
+        };
+      });
       
       showToast("Vote enregistré avec succès", "success");
       console.log('✅ GameContext: Vote soumis avec succès');
@@ -327,7 +340,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setIsSubmitting(true);
       
       try {
-        await gameService.nextRound(gameId as string);
+        await gameService.nextRound(String(gameState.game.id));
         
         console.log("✅ Passage au tour suivant initié avec succès via HTTP");
         showToast("Tour suivant initié avec succès", "success");
@@ -340,7 +353,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           console.log("🔄 Nouvelle tentative via méthode alternative...");
           const userId = await UserIdManager.getUserId();
           
-          const response = await axios.post(`${API_URL}/games/${gameId}/next-round`, {
+          const response = await axios.post(`${API_URL}/games/${String(gameState.game.id)}/next-round`, {
             user_id: userId,
             force_advance: true,
             retry: true
@@ -373,10 +386,17 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const setTimer = (timer: { duration: number; startTime: number }) => {
-    setGameState(prevState => ({
-      ...prevState,
-      timer,
-    }));
+    setGameState(prevState => {
+      if (!prevState) return prevState;
+      
+      return {
+        ...prevState,
+        timer,
+        currentRound: prevState.currentRound || 1,
+        totalRounds: prevState.totalRounds || 5,
+        phase: prevState.phase
+      };
+    });
   };
 
   useEffect(() => {
@@ -386,16 +406,57 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const setupSocketConnection = async () => {
       try {
-        await gameService.ensureSocketConnection(gameState.game.id);
+        await gameService.ensureSocketConnection(String(gameState.game.id));
         
         const socket = await SocketService.getInstanceAsync();
         
-        const handleGameUpdate = (data: any) => {
+        const handleGameUpdate = (data: GameEvent) => {
           console.log(`🎮 Mise à jour du jeu reçue:`, data.type);
           
           switch (data.type) {
             case 'phase_change':
               console.log(`🔄 Changement de phase: ${data.phase}`);
+              
+              if (data.phase === 'vote') {
+                const userId = user?.id;
+                const targetId = data.targetPlayerId;
+                
+                console.log(`🎯 Phase vote - Vérification cible: userId=${userId}, targetId=${targetId}`);
+                
+                const isUserTarget = userId && targetId && String(userId) === String(targetId);
+                
+                if (isUserTarget) {
+                  console.log(`🎯 DÉTECTION CIBLE: L'utilisateur ${userId} est bien la cible du vote`);
+                  
+                  setGameState(prevState => {
+                    if (!prevState) return prevState;
+                    
+                    console.log(`🔄 Transition forcée vers la phase VOTE pour la cible`);
+                    
+                    return {
+                      ...prevState,
+                      phase: GamePhase.VOTE,
+                      game: {
+                        ...prevState.game,
+                        currentPhase: 'vote'
+                      },
+                      timer: data.timer || prevState.timer,
+                      currentUserState: {
+                        ...prevState.currentUserState,
+                        isTargetPlayer: true,
+                        hasVoted: false
+                      }
+                    };
+                  });
+                  
+                  setTimeout(() => {
+                    loadGame(String(gameState.game.id));
+                  }, 500);
+                  
+                  return;
+                }
+              }
+              
               setGameState(prevState => {
                 if (!prevState) return prevState;
                 
@@ -403,7 +464,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                   const isTarget = String(data.targetPlayerId) === String(user.id);
                   if (isTarget) {
                     console.log("🎯 Utilisateur cible détecté, passage direct en phase de vote");
-                    loadGame(gameState.game.id);
+                    loadGame(String(gameState.game.id));
                     return {
                       ...prevState,
                       phase: GamePhase.VOTE,
@@ -443,23 +504,25 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                   String(data.targetPlayerId) === String(user.id)) {
                 console.log("🎯 Cible détectée en phase answer, préparation pour phase vote...");
                 setTimeout(async () => {
-                  const needTransition = await gameService.forceVotePhaseForTarget(gameState.game.id);
+                  const needTransition = await gameService.forceVotePhaseForTarget(String(gameState.game.id));
                   if (needTransition) {
                     console.log("🎯 Transition vers phase vote forcée pour la cible");
-                    loadGame(gameState.game.id);
+                    loadGame(String(gameState.game.id));
                   }
                 }, 1500);
               }
               
-              loadGame(gameState.game.id);
+              loadGame(String(gameState.game.id));
               break;
             
             case 'target_player_vote':
               const userId = user?.id;
               console.log(`🎯 Notification de vote pour joueur cible reçue. UserId: ${userId}, TargetId: ${data.targetPlayerId}`);
               
-              if (userId && String(userId) === String(data.targetPlayerId)) {
-                console.log("✅ Utilisateur identifié comme cible, affichage immédiat écran de vote");
+              const isTarget = userId && data.targetPlayerId && String(userId) === String(data.targetPlayerId);
+              
+              if (isTarget) {
+                console.log("✅ Utilisateur formellement identifié comme CIBLE, transition IMMÉDIATE vers écran de vote");
                 
                 setGameState(prevState => {
                   if (!prevState) return prevState;
@@ -469,8 +532,6 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                   return {
                     ...prevState,
                     phase: GamePhase.VOTE,
-                    currentPhase: 'vote',
-                    timer: data.timer || prevState.timer,
                     answers: updatedAnswers,
                     currentUserState: {
                       ...prevState.currentUserState,
@@ -480,16 +541,15 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                   };
                 });
                 
-                loadGame(gameState?.game?.id || '');
+                setTimeout(() => loadGame(String(gameState.game.id)), 300);
               } else {
+                console.log("🕒 Joueur standard: attente pendant que la cible vote");
                 setGameState(prevState => {
                   if (!prevState) return prevState;
                   
                   return {
                     ...prevState,
                     phase: GamePhase.WAITING_FOR_VOTE,
-                    currentPhase: 'vote',
-                    timer: data.timer || prevState.timer,
                     currentUserState: {
                       ...prevState.currentUserState,
                       isTargetPlayer: false
@@ -500,8 +560,52 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               break;
               
             case 'new_answer':
+              loadGame(String(gameState.game.id));
+              break;
+              
             case 'new_vote':
-              loadGame(gameState.game.id);
+              console.log(`🗳️ Nouveau vote détecté, vérification des transitions possibles`);
+              
+              // Vérifier automatiquement si tous les joueurs ont voté
+              setTimeout(async () => {
+                try {
+                  const gameData = await gameService.getGameState(String(gameState.game.id));
+                  
+                  if (gameData.allPlayersVoted) {
+                    console.log(`🎯 Tous les votes sont enregistrés (y compris la cible), transition vers résultats`);
+                    
+                    // Forcer la transition vers la phase résultats
+                    const transitionSuccess = await gameService.forcePhaseTransition(String(gameState.game.id), 'results');
+                    
+                    if (transitionSuccess) {
+                      console.log(`✅ Transition vers résultats réussie après votes`);
+                      loadGame(String(gameState.game.id));
+                    } else {
+                      console.warn(`⚠️ Échec de la transition automatique, tentative alternative...`);
+                      // Tenter une mise à jour d'état locale en attendant la synchronisation
+                      setGameState(prevState => {
+                        if (!prevState) return prevState;
+                        
+                        return {
+                          ...prevState,
+                          phase: GamePhase.RESULTS,
+                          currentRound: prevState.currentRound || 1,
+                          totalRounds: prevState.totalRounds || 5,
+                          game: {
+                            ...prevState.game,
+                            currentPhase: 'results'
+                          }
+                        };
+                      });
+                    }
+                  } else {
+                    loadGame(String(gameState.game.id)); // Rafraîchir les données sans forcer la transition
+                  }
+                } catch (error) {
+                  console.error(`❌ Erreur lors de la vérification post-vote:`, error);
+                  loadGame(String(gameState.game.id)); // Rafraîchir quand même les données en cas d'erreur
+                }
+              }, 1000);
               break;
               
             case 'new_round':
@@ -537,7 +641,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 };
               });
               
-              loadGame(gameState.game.id);
+              loadGame(String(gameState.game.id));
               break;
           }
         };
@@ -553,21 +657,75 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     };
     
-    const cleanupFunction = setupSocketConnection();
+    const cleanup = setupSocketConnection();
     
     return () => {
-      if (typeof cleanupFunction === 'function') {
-        cleanupFunction();
-      }
+      cleanup && typeof cleanup === 'function' && cleanup();
     };
   }, [gameState?.game?.id, user]);
 
   const forceCheckPhase = async (gameId: string) => {
     try {
       console.log(`🔄 Tentative de vérification forcée de phase pour le jeu ${gameId}`);
-      await SocketService.forcePhaseCheck(gameId);
       
-      loadGame(gameId);
+      // Récupérer l'état actuel du jeu pour analyse
+      const currentGameState = await gameService.getGameState(gameId);
+      const currentPhase = currentGameState?.game?.currentPhase;
+      const userId = user?.id;
+      const targetId = currentGameState?.currentQuestion?.targetPlayer?.id;
+      
+      // Vérifier si l'utilisateur est la cible et si nous sommes en phase de vote
+      const isUserTarget = targetId && userId && String(targetId) === String(userId);
+      
+      console.log(`🔍 Vérification de phase - Phase: ${currentPhase}, UserId: ${userId}, TargetId: ${targetId}, isTarget: ${isUserTarget}`);
+      
+      // Si l'utilisateur est la cible et en phase vote, mais n'a pas l'écran de vote
+      if (isUserTarget && currentPhase === 'vote' && currentGameState?.phase !== GamePhase.VOTE) {
+        console.log(`🎯 Correction: l'utilisateur est la cible mais n'a pas l'écran de vote`);
+        
+        // Forcer la mise à jour de l'état pour afficher l'écran de vote
+        setGameState(prevState => {
+          if (!prevState) return prevState;
+          
+          return {
+            ...prevState,
+            phase: GamePhase.VOTE,
+            currentRound: prevState.currentRound || 1,
+            totalRounds: prevState.totalRounds || 5,
+            currentUserState: {
+              ...prevState?.currentUserState,
+              isTargetPlayer: true,
+              hasVoted: false
+            }
+          };
+        });
+        
+        // Attendre un court instant et recharger les données complètes
+        setTimeout(() => loadGame(String(gameState.game.id)), 300);
+        
+        return true;
+      }
+      
+      // Si tous les joueurs ont voté mais on n'est pas encore en phase résultats
+      if (currentPhase === 'vote' && currentGameState?.allPlayersVoted) {
+        console.log(`🏁 Tous les joueurs ont voté, transition vers les résultats`);
+        
+        try {
+          // Forcer la transition vers la phase résultats
+          const success = await gameService.forcePhaseTransition(String(gameState.game.id), 'results');
+          if (success) {
+            console.log(`✅ Transition vers résultats forcée avec succès`);
+            loadGame(String(gameState.game.id));
+            return true;
+          }
+        } catch (error) {
+          console.error(`❌ Erreur lors de la transition vers résultats:`, error);
+        }
+      }
+      
+      // Méthode standard de vérification de phase
+      await SocketService.forcePhaseCheck(gameId);
+      loadGame(String(gameState.game.id));
       
       return true;
     } catch (error) {

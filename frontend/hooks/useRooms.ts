@@ -6,6 +6,13 @@ import NetInfo from '@react-native-community/netinfo';
 import { useCreateRoom } from './useCreateRoom'; // Importer depuis le nouveau fichier
 import SocketService from '@/services/socketService'; // Correction du chemin d'importation
 import api from '@/config/axios'; // Ajout de l'import manquant pour l'API
+import { AxiosError } from 'axios';
+
+// Interface pour les erreurs de l'API
+interface ApiErrorResponse {
+  error?: string;
+  message?: string;
+}
 
 // Hook pour lister toutes les salles
 export function useRooms() {
@@ -27,7 +34,7 @@ export function useRooms() {
       return rooms;
     },
     staleTime: 1000 * 30, // Rafraîchir après 30 secondes
-    retry: (failureCount, error: any) => {
+    retry: (failureCount, error: Error) => {
       console.log(`🎮 useRooms: Tentative ${failureCount + 1} après échec:`, error.message);
       return failureCount < 2;
     },
@@ -74,16 +81,17 @@ export function useRoom(roomCode: string | undefined) {
     },
     staleTime: 1000 * 30, // Rafraîchir après 30 secondes
     enabled: !!roomCode, // Ne pas exécuter si roomCode est undefined
-    retry: (failureCount, error: any) => {
+    retry: (failureCount, error: Error) => {
       // Ne pas réessayer si la salle n'existe pas (404)
-      if (error?.response?.status === 404) {
+      const axiosError = error as AxiosError<ApiErrorResponse>;
+      if (axiosError.response?.status === 404) {
         console.log('🎮 useRoom: Salle non trouvée (404), arrêt des tentatives');
         return false;
       }
       console.log(`🎮 useRoom: Tentative ${failureCount + 1} après échec:`, error.message);
       return failureCount < 2;
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       console.error(`🎮 useRoom: Erreur lors de la récupération de la salle ${roomCode}`, error);
       
       if (error.message.includes('Network Error')) {
@@ -128,20 +136,21 @@ export const useJoinRoom = () => {
           code,
           message: response.data?.message || 'Salle rejointe avec succès'
         };
-      } catch (error: any) {
+      } catch (error) {
         console.error(`❌ Erreur lors de la tentative de rejoindre la salle ${code}:`, error);
         
         // Amélioration de la gestion des erreurs
-        if (error.response) {
+        const axiosError = error as AxiosError<ApiErrorResponse>;
+        if (axiosError.response) {
           // L'API a répondu avec une erreur
-          const message = error.response.data?.error || 'Erreur lors de la tentative de rejoindre la salle';
+          const message = axiosError.response.data?.error || 'Erreur lors de la tentative de rejoindre la salle';
           throw new Error(message);
-        } else if (error.request) {
+        } else if (axiosError.request) {
           // Pas de réponse reçue du serveur
           throw new Error('Le serveur ne répond pas. Veuillez vérifier votre connexion internet.');
         } else {
           // Erreur lors de la configuration de la requête
-          throw new Error(`Erreur: ${error.message}`);
+          throw new Error(`Erreur: ${axiosError.message}`);
         }
       }
     },
