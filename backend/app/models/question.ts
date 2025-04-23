@@ -23,7 +23,6 @@ export default class Question extends BaseModel {
     | 'personal'
     | 'action-verite'
     | 'on-ecoute-mais-on-ne-juge-pas'
-    | undefined
 
   @column({ columnName: 'game_id' })
   declare gameId: number

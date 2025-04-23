@@ -12,12 +12,13 @@ import { middleware } from '#start/kernel'
 import socketService from '#services/socket_service'
 
 // Importation des contrôleurs
-const AuthController = () => import('#controllers/auth_controller')
-const GamesController = () => import('#controllers/ws/game_controller')
-const RoomsController = () => import('#controllers/ws/room_controller')
-const UsersController = () => import('#controllers/users_controller')
-const AchievementsController = () => import('#controllers/achievements_controller')
-const QuestionsController = () => import('#controllers/questions_controller')
+const AuthController = () => import('#controllers/auth')
+const GamesController = () => import('#controllers/ws/game')
+const RoomsController = () => import('#controllers/ws/room')
+const UsersController = () => import('#controllers/users')
+const AchievementsController = () => import('#controllers/achievements')
+const QuestionsController = () => import('#controllers/questions')
+const GameQuestionsController = () => import('#controllers/game_questions')
 
 router.get('/', async ({ response }) => response.ok({ uptime: process.uptime() }))
 router.get('/health', ({ response }) => response.noContent())
@@ -72,11 +73,20 @@ router
             router.post('/award', [AchievementsController, 'awardAchievement'])
           })
           .prefix('/achievements')
+
+        // Routes pour les questions de jeux
+        router
+          .group(() => {
+            router.get('/random', [GameQuestionsController, 'getRandomQuestion'])
+            router.get('/batch', [GameQuestionsController, 'getQuestionsBatch'])
+            router.get('/truth-or-dare', [GameQuestionsController, 'getTruthOrDareQuestions'])
+          })
+          .prefix('/questions')
       })
       .use([middleware.auth()])
 
     // Route publique pour récupérer des questions aléatoires
-    router.get('/questions/random', [QuestionsController, 'getRandom'])
+    router.get('/public/questions/random', [QuestionsController, 'getRandom'])
 
     // Route de diagnostic WebSocket
     router.get('/ws/status', ({ response }) => {

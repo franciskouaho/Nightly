@@ -1,11 +1,113 @@
-import env from '#start/env'
 import { Server } from 'socket.io'
+import { Server as HttpServer } from 'node:http'
+import app from '@adonisjs/core/services/app'
+import { Logger } from '@adonisjs/core/logger'
 import { createAdapter } from '@socket.io/redis-adapter'
-import type { Server as HttpServer } from 'node:http'
 import redisProvider from '#providers/redis_provider'
 
-export class SocketService {
+interface RoomData {
+  roomCode: string
+}
+
+interface GameData {
+  gameId: string
+}
+
+interface SocketData {
+  data: {
+    roomCode?: string
+    gameId?: string
+    userId?: string
+  }
+}
+interface MockContext {
+  params: { id: string }
+  auth: { authenticate: () => Promise<{ id: string }> }
+  response: {
+    ok: (data: any) => any
+    notFound: (data: any) => any
+    forbidden: (data: any) => any
+    badRequest: (data: any) => any
+    internalServerError: (data: any) => any
+  }
+}
+
+class SocketService {
+  private static instance: SocketService
   private io: Server | null = null
+  private httpServer: HttpServer | null = null
+
+  private constructor() {}
+
+  public static getInstance(): SocketService {
+    if (!SocketService.instance) {
+      SocketService.instance = new SocketService()
+    }
+    return SocketService.instance
+  }
+
+  public initialize(server: HttpServer) {
+    if (this.io) {
+      Logger.info('Socket.IO déjà initialisé')
+      return
+    }
+
+    this.io = new Server(server, {
+      cors: {
+        origin: app.config.get('app.frontendUrl'),
+        methods: ['GET', 'POST'],
+        credentials: true,
+      },
+      transports: ['websocket', 'polling'],
+      pingTimeout: 60000,
+      pingInterval: 25000,
+    })
+
+    this.setupEventHandlers()
+    Logger.info('Socket.IO initialisé avec succès')
+  }
+
+  private setupEventHandlers() {
+    if (!this.io) return
+
+    this.io.on('connection', (socket) => {
+      Logger.info(`Nouvelle connexion Socket.IO: ${socket.id}`)
+
+      socket.on('join:room', (roomCode: string) => {
+        socket.join(`room:${roomCode}`)
+        Logger.info(`Socket ${socket.id} a rejoint la salle ${roomCode}`)
+      })
+
+      socket.on('leave:room', (roomCode: string) => {
+        socket.leave(`room:${roomCode}`)
+        Logger.info(`Socket ${socket.id} a quitté la salle ${roomCode}`)
+      })
+
+      socket.on('disconnect', () => {
+        Logger.info(`Socket ${socket.id} déconnecté`)
+      })
+    })
+  }
+
+  public getIO(): Server | null {
+    return this.io
+  }
+
+  public emitToRoom(roomCode: string, event: string, data: any) {
+    if (!this.io) {
+      Logger.error('Socket.IO non initialisé')
+      return
+    }
+    this.io.to(`room:${roomCode}`).emit(event, data)
+  }
+
+  public emitToGame(gameId: string, event: string, data: any) {
+    if (!this.io) {
+      Logger.error('Socket.IO non initialisé')
+      return
+    }
+    this.io.to(`game:${gameId}`).emit(event, data)
+  }
 
   // Méthodes pour la gestion des locks Redis
   private async acquireLock(key: string, ttl: number = 30): Promise<boolean> {
@@ -49,131 +151,186 @@ export class SocketService {
     }
   }
 
-  init(httpServer: HttpServer) {
+  async init(httpServer: HttpServer) {
     if (this.io) {
-      console.log('⚠️ Socket.IO déjà initialisé. Ignorer la réinitialisation.')
-      return this.io
+      console.log('⚠️ Socket.IO déjà initialisé')
+      return
     }
 
+    console.log('🔌 Initialisation du serveur Socket.IO...')
+
+    // Configuration CORS
+    const corsOptions = {
+      origin:
+        process.env.NODE_ENV === 'production'
+          ? [process.env.FRONTEND_URL || 'http://localhost:3000']
+          : '*',
+      methods: ['GET', 'POST'],
+      credentials: true,
+    }
+
+    // Initialisation du serveur Socket.IO
+    this.io = new Server(httpServer, {
+      cors: corsOptions,
+      transports: ['websocket', 'polling'],
+      allowEIO3: true,
+      pingTimeout: 60000,
+      pingInterval: 25000,
+      connectTimeout: 45000,
+      maxHttpBufferSize: 1e6,
+    })
+
     try {
-      this.io = new Server(httpServer, {
-        cors: {
-          origin: '*',
-          methods: ['GET', 'POST'],
-          credentials: true,
-        },
-        transports: ['websocket'],
-        allowEIO3: true,
-        pingTimeout: 60000,
-        pingInterval: 25000,
-        connectTimeout: 45000,
-        retries: 1,
-        reconnectionDelayMax: 100,
-        reconnectionDelay: 100,
-        maxHttpBufferSize: 1e8,
-      })
+      // Configuration de l'adaptateur Redis
+      const pubClient = await redisProvider.getClient()
+      const subClient = await pubClient.duplicate()
 
-      // S'assurer que Redis est connecté avant de configurer l'adaptateur
-      const pubClient = redisProvider.getPubClient()
-      const subClient = redisProvider.getSubClient()
+      // Attendre que les clients Redis soient prêts
+      await Promise.all([
+        new Promise<void>((resolve) => {
+          if (pubClient.status === 'ready') {
+            resolve()
+          } else {
+            pubClient.on('ready', () => resolve())
+          }
+        }),
+        new Promise<void>((resolve) => {
+          if (subClient.status === 'ready') {
+            resolve()
+          } else {
+            subClient.on('ready', () => resolve())
+          }
+        }),
+      ])
 
-      if (!pubClient.isOpen || !subClient.isOpen) {
-        throw new Error('Redis clients not connected')
-      }
-
+      console.log('✅ Clients Redis prêts pour Socket.IO')
       this.io.adapter(createAdapter(pubClient, subClient))
+      console.log('✅ Adaptateur Redis configuré pour Socket.IO')
 
-      // Ajouter une gestion d'erreur pour l'adaptateur
-      this.io.of('/').adapter.on('error', (error) => {
-        console.error('❌ Erreur adaptateur Redis:', error)
-        // Tenter de reconnecter l'adaptateur
-        this.reconnectAdapter()
-      })
-
-      console.log('⚡ Initialisation du service WebSocket...')
-
-      this.io.use((socket, next) => {
+      // Middleware d'authentification
+      this.io.use(async (socket, next) => {
         try {
-          const token = socket.handshake.auth?.token
-          console.log(`🔐 Nouvelle connexion WebSocket - Token présent: ${!!token}`)
+          console.log('🔐 Tentative de connexion Socket.IO...')
+          const authToken = socket.handshake.auth.token
+          console.log('🔑 Token reçu:', authToken ? 'présent' : 'absent')
 
-          // Vous pouvez vérifier le token ici si nécessaire
-          // Pour l'instant on accepte toutes les connexions
+          if (!authToken) {
+            console.error("❌ Token d'authentification manquant")
+            return next(new Error("Token d'authentification manquant"))
+          }
+
+          // Extraire le token du format Bearer
+          const token = authToken.replace('Bearer ', '')
+
+          // Vérifier le token avec AdonisJS
+          const { default: User } = await import('#models/user')
+          const tokenInstance = await User.accessTokens.verify(token)
+
+          if (!tokenInstance || !tokenInstance.user_id) {
+            console.error('❌ Token invalide ou expiré')
+            return next(new Error('Token invalide ou expiré'))
+          }
+
+          // Récupérer l'utilisateur
+          const user = await User.find(tokenInstance.user_id)
+          if (!user) {
+            console.error('❌ Utilisateur non trouvé')
+            return next(new Error('Utilisateur non trouvé'))
+          }
+
+          console.log(`✅ Utilisateur authentifié: ${user.id}`)
+          socket.data.user = user
           next()
         } catch (error) {
-          console.error("❌ Erreur d'authentification WebSocket:", error)
+          console.error("❌ Erreur d'authentification:", error)
           next(new Error("Erreur d'authentification"))
         }
       })
 
+      // Gestion des connexions
       this.io.on('connection', (socket) => {
-        console.log(`🟢 Nouveau client connecté: ${socket.id}`)
+        console.log(`✅ Nouvelle connexion Socket.IO: ${socket.id}`)
 
-        // Envoyer un événement de confirmation pour tester la connexion
-        socket.emit('connection:success', { message: 'Connexion WebSocket établie avec succès' })
+        // Gestion des erreurs de connexion
+        socket.on('error', (error) => {
+          console.error(`❌ Erreur Socket.IO:`, error)
+        })
 
-        // Gestion des salles
-        socket.on('join-room', (data) => {
+        // Gestion de la déconnexion
+        socket.on('disconnect', (reason) => {
+          console.log(`⚠️ Déconnexion Socket.IO: ${socket.id} (${reason})`)
+        })
+
+        // Événement de rejoindre une salle
+        socket.on('join-room', async (data: RoomData, callback) => {
           try {
-            const roomCode = typeof data === 'object' ? data.roomCode : data
-            const roomChannel = `room:${roomCode}`
+            if (!data.roomCode) {
+              throw new Error('Code de salle manquant')
+            }
 
-            socket.join(roomChannel)
-            console.log(`🚪 Client ${socket.id} a rejoint la salle ${roomCode}`)
+            console.log(`🎮 Tentative de rejoindre la salle: ${data.roomCode}`)
+            const room = await this.getRoom(data.roomCode)
 
-            // Confirmer au client qu'il a bien rejoint la salle
-            socket.emit('room:joined', { roomCode })
+            if (!room) {
+              throw new Error('Salle non trouvée')
+            }
+
+            socket.join(data.roomCode)
+            console.log(`✅ Client ${socket.id} a rejoint la salle ${data.roomCode}`)
+
+            callback({ success: true })
           } catch (error) {
-            console.error(`❌ Erreur lors de la jointure à la salle:`, error)
-            socket.emit('error', { message: 'Erreur lors de la jointure à la salle' })
+            console.error('❌ Erreur lors du join-room:', error)
+            callback({ success: false, error: error.message })
           }
         })
 
-        socket.on('leave-room', (data) => {
+        socket.on('leave-room', async (data: SocketData) => {
           try {
-            const roomCode = typeof data === 'object' ? data.roomCode : data
+            const roomCode = data.data?.roomCode
+            if (!roomCode) {
+              socket.emit('error', { message: 'Code de salle manquant' })
+              return
+            }
+
             const roomChannel = `room:${roomCode}`
-
-            socket.leave(roomChannel)
+            await socket.leave(roomChannel)
             console.log(`🚪 Client ${socket.id} a quitté la salle ${roomCode}`)
-
-            // Confirmer au client qu'il a bien quitté la salle
             socket.emit('room:left', { roomCode })
           } catch (error) {
-            console.error(`❌ Erreur lors du départ de la salle:`, error)
-            socket.emit('error', { message: 'Erreur lors du départ de la salle' })
+            console.error('❌ Erreur lors de la sortie de la salle:', error)
+            socket.emit('error', { message: 'Erreur lors de la sortie de la salle' })
           }
         })
 
-        // Gestion des jeux
-        socket.on('join-game', (data) => {
+        socket.on('join-game', async (data: SocketData) => {
           try {
-            const gameId = typeof data === 'object' ? data.gameId : data
+            const { gameId } = data.data
+            if (!gameId) {
+              socket.emit('error', { message: 'ID du jeu manquant' })
+              return
+            }
+
             const gameChannel = `game:${gameId}`
-
-            socket.join(gameChannel)
+            await socket.join(gameChannel)
             console.log(`🎮 Client ${socket.id} a rejoint le jeu ${gameId}`)
-
-            // Confirmer au client qu'il a bien rejoint le jeu
             socket.emit('game:joined', { gameId })
           } catch (error) {
-            console.error(`❌ Erreur lors de la jointure au jeu:`, error)
+            console.error('❌ Erreur lors de la jointure au jeu:', error)
             socket.emit('error', { message: 'Erreur lors de la jointure au jeu' })
           }
         })
 
-        socket.on('leave-game', (data) => {
+        socket.on('leave-game', async (data: GameData) => {
           try {
-            const gameId = typeof data === 'object' ? data.gameId : data
+            const gameId = data.gameId
             const gameChannel = `game:${gameId}`
 
-            socket.leave(gameChannel)
+            await socket.leave(gameChannel)
             console.log(`🎮 Client ${socket.id} a quitté le jeu ${gameId}`)
-
-            // Confirmer au client qu'il a bien quitté le jeu
             socket.emit('game:left', { gameId })
           } catch (error) {
-            console.error(`❌ Erreur lors du départ du jeu:`, error)
+            console.error('❌ Erreur lors du départ du jeu:', error)
             socket.emit('error', { message: 'Erreur lors du départ du jeu' })
           }
         })
@@ -237,6 +394,16 @@ export class SocketService {
 
             // Récupérer la salle pour vérifier l'hôte
             const room = await Room.find(game.roomId)
+            if (!room) {
+              console.error(`❌ [WebSocket] Salle non trouvée pour le jeu ${data.gameId}`)
+              if (typeof callback === 'function') {
+                callback({
+                  success: false,
+                  error: 'Salle non trouvée',
+                })
+              }
+              return
+            }
 
             // Vérifier si l'utilisateur est l'hôte (en convertissant en string pour comparaison sûre)
             const isHost = String(room.hostId) === String(userId)
@@ -348,7 +515,7 @@ export class SocketService {
             }
 
             // Importer le contrôleur de jeu
-            const GameController = (await import('#controllers/ws/game_controller')).default
+            const GameController = (await import('#controllers/ws/game')).default
             const controller = new GameController()
 
             try {
@@ -358,13 +525,13 @@ export class SocketService {
               )
 
               // Créer un contexte minimal pour appeler la méthode du contrôleur
-              const mockContext = {
+              const mockContext: MockContext = {
                 params: { id: data.gameId },
                 auth: {
                   authenticate: async () => ({ id: userId }),
                 },
                 response: {
-                  ok: (data) => {
+                  ok: (data: any) => {
                     console.log(`✅ [WebSocket] nextRound exécuté avec succès:`, data)
 
                     // Confirmer spécifiquement l'action next_round à tout le monde
@@ -376,16 +543,18 @@ export class SocketService {
                       data: data.data,
                     })
 
-                    this.io.to(`game:${data.gameId}`).emit('game:update', {
-                      type: 'phase_change',
-                      phase: 'question', // Phase par défaut au début d'un tour
-                      round: game.currentRound + 1,
-                      message: 'Nouveau tour commencé',
-                    })
+                    if (this.io) {
+                      this.io.to(`game:${data.gameId}`).emit('game:update', {
+                        type: 'phase_change',
+                        phase: 'question', // Phase par défaut au début d'un tour
+                        round: game.currentRound + 1,
+                        message: 'Nouveau tour commencé',
+                      })
+                    }
 
                     return data
                   },
-                  notFound: (data) => {
+                  notFound: (data: any) => {
                     console.error(`❌ [WebSocket] Ressource non trouvée:`, data)
                     socket.emit('next_round:error', {
                       success: false,
@@ -393,7 +562,7 @@ export class SocketService {
                     })
                     return data
                   },
-                  forbidden: (data) => {
+                  forbidden: (data: any) => {
                     console.error(`❌ [WebSocket] Accès interdit:`, data)
                     socket.emit('next_round:error', {
                       success: false,
@@ -401,7 +570,7 @@ export class SocketService {
                     })
                     return data
                   },
-                  badRequest: (data) => {
+                  badRequest: (data: any) => {
                     console.error(`❌ [WebSocket] Requête invalide:`, data)
                     socket.emit('next_round:error', {
                       success: false,
@@ -409,7 +578,7 @@ export class SocketService {
                     })
                     return data
                   },
-                  internalServerError: (data) => {
+                  internalServerError: (data: any) => {
                     console.error(`❌ [WebSocket] Erreur serveur:`, data)
                     socket.emit('next_round:error', {
                       success: false,
@@ -476,191 +645,49 @@ export class SocketService {
             }
 
             // Importer le contrôleur de jeu
-            const GameController = (await import('#controllers/ws/game_controller')).default
+            const GameController = (await import('#controllers/ws/game')).default
             const controller = new GameController()
 
             try {
               // Récupérer l'état du jeu via la méthode du contrôleur
               const gameState = await controller.getGameState(data.gameId, userId)
 
-              console.log(
-                `✅ [WebSocket] État du jeu ${data.gameId} récupéré avec succès pour ${userId}`
-              )
+              console.log(`🎮 [WebSocket] État du jeu récupéré pour ${data.gameId}`)
 
-              // Retourner les données au client
               if (typeof callback === 'function') {
                 callback({
                   success: true,
                   data: gameState,
                 })
               }
-            } catch (controllerError) {
+            } catch (error) {
               console.error(
                 `❌ [WebSocket] Erreur lors de la récupération de l'état du jeu:`,
-                controllerError
+                error
               )
-
               if (typeof callback === 'function') {
                 callback({
                   success: false,
-                  error:
-                    controllerError.message || "Erreur lors de la récupération de l'état du jeu",
+                  error: error.message || "Erreur lors de la récupération de l'état du jeu",
                 })
               }
             }
           } catch (error) {
-            console.error(`❌ [WebSocket] Erreur lors du traitement de game:get_state:`, error)
+            console.error(`❌ [WebSocket] Erreur lors de la récupération de l'état du jeu:`, error)
             if (typeof callback === 'function') {
               callback({
                 success: false,
-                error: "Une erreur est survenue lors de la récupération de l'état du jeu",
+                error: error.message || "Erreur lors de la récupération de l'état du jeu",
               })
             }
           }
         })
-
-        // Ajouter un nouveau gestionnaire pour forcer une phase spécifique
-        socket.on('game:force_phase', async (data, callback) => {
-          try {
-            console.log(
-              `🔄 [WebSocket] Demande de transition forcée vers ${data.targetPhase} pour le jeu ${data.gameId}`
-            )
-
-            // Vérifier les données minimales requises
-            if (!data.gameId || !data.targetPhase) {
-              console.error(`❌ [WebSocket] Données manquantes pour force_phase`)
-              if (typeof callback === 'function') {
-                callback({
-                  success: false,
-                  error: 'Données manquantes (gameId ou targetPhase)',
-                })
-              }
-              return
-            }
-
-            // Importer le contrôleur de jeu
-            const GameController = (await import('#controllers/ws/game_controller')).default
-            const controller = new GameController()
-
-            // Exécuter la transition forcée
-            const result = await controller.forceGamePhase(data.gameId, data.targetPhase)
-
-            if (result.success) {
-              console.log(`✅ [WebSocket] Transition forcée réussie vers ${data.targetPhase}`)
-              if (typeof callback === 'function') {
-                callback({
-                  success: true,
-                  message: `Phase ${data.targetPhase} appliquée avec succès`,
-                })
-              }
-            } else {
-              console.error(`❌ [WebSocket] Échec de la transition forcée: ${result.error}`)
-              if (typeof callback === 'function') {
-                callback({
-                  success: false,
-                  error: result.error || 'Impossible de forcer la transition de phase',
-                })
-              }
-            }
-          } catch (error) {
-            console.error(`❌ [WebSocket] Erreur lors de la transition forcée:`, error)
-            if (typeof callback === 'function') {
-              callback({
-                success: false,
-                error: error.message || 'Erreur lors de la transition forcée',
-              })
-            }
-          }
-        })
-
-        // Événement pour tester la connexion
-        socket.on('ping', (callback) => {
-          if (typeof callback === 'function') {
-            callback({ status: 'success', time: new Date().toISOString() })
-          } else {
-            socket.emit('pong', { status: 'success', time: new Date().toISOString() })
-          }
-        })
-
-        socket.on('disconnect', () => {
-          console.log(`🔴 Client déconnecté: ${socket.id}`)
-        })
-
-        socket.on('error', (error) => {
-          console.error(`🚨 Erreur WebSocket pour ${socket.id}:`, error)
-        })
       })
-
-      // Ajouter une gestion d'erreur plus robuste
-      this.io.on('connect_error', (error) => {
-        console.error('❌ Erreur de connexion Socket.IO:', error)
-        // Tenter une reconnexion immédiate
-        this.io?.connect()
-      })
-
-      const port = env.get('PORT')
-      console.log(`✅ Serveur WebSocket en écoute sur le port ${port}`)
-
-      return this.io
     } catch (error) {
-      console.error("❌ Erreur lors de l'initialisation du serveur WebSocket:", error)
+      console.error("❌ Erreur lors de l'initialisation de Socket.IO:", error)
       throw error
     }
   }
-
-  private async reconnectAdapter() {
-    try {
-      const pubClient = redisProvider.getPubClient()
-      const subClient = redisProvider.getSubClient()
-
-      await Promise.all([pubClient.connect(), subClient.connect()])
-
-      this.io?.adapter(createAdapter(pubClient, subClient))
-      console.log('✅ Adaptateur Redis reconnecté')
-    } catch (error) {
-      console.error('❌ Erreur reconnexion adaptateur:', error)
-    }
-  }
-
-  getInstance() {
-    if (!this.io) {
-      throw new Error('Socket.IO non initialisé')
-    }
-    return this.io
-  }
-
-  // Méthode pour diffuser un message à tous les clients
-  broadcast(event: string, data: any) {
-    if (!this.io) {
-      console.error('❌ Socket.IO non initialisé, impossible de diffuser le message')
-      return
-    }
-
-    this.io.emit(event, data)
-    console.log(`📢 Message diffusé sur l'événement "${event}"`)
-  }
-
-  // Méthode pour diffuser un message à une salle spécifique
-  broadcastToRoom(roomCode: string, event: string, data: any) {
-    if (!this.io) {
-      console.error('❌ Socket.IO non initialisé, impossible de diffuser le message')
-      return
-    }
-
-    this.io.to(`room:${roomCode}`).emit(event, data)
-    console.log(`📢 Message diffusé à la salle "${roomCode}" sur l'événement "${event}"`)
-  }
-
-  // Méthode pour diffuser un message à un jeu spécifique
-  broadcastToGame(gameId: string, event: string, data: any) {
-    if (!this.io) {
-      console.error('❌ Socket.IO non initialisé, impossible de diffuser le message')
-      return
-    }
-
-    this.io.to(`game:${gameId}`).emit(event, data)
-    console.log(`📢 Message diffusé au jeu "${gameId}" sur l'événement "${event}"`)
-  }
 }
 
-export default new SocketService()
+export default SocketService.getInstance()

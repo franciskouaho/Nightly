@@ -12,7 +12,7 @@ class QuestionService {
       console.log(`📝 QuestionService: Tentative de récupération d'une question du thème ${theme}`);
       
       // Augmenter le timeout pour donner plus de chances à la requête d'aboutir
-      const response = await api.get(`/questions/random`, {
+      const response = await api.get(`/public/questions/random`, {
         params: { theme },
         timeout: 8000, // 8 secondes au lieu de 5
       });

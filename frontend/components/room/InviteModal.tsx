@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, Modal, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
+import QRCode from 'react-native-qrcode-svg';
 
 type InviteModalProps = {
   visible: boolean;
@@ -33,13 +34,21 @@ const InviteModal = ({ visible, roomId, onClose, onCopyCode, onShareCode }: Invi
             </View>
             
             <View style={styles.inviteCodeContainer}>
-              <MaterialCommunityIcons name="ticket-confirmation" size={60} color="rgba(255,255,255,0.8)" />
               <Text style={styles.inviteCodeLabel}>CODE DE LA SALLE</Text>
               <Text style={styles.inviteCode}>{roomId}</Text>
+              
+              <View style={styles.qrCodeContainer}>
+                <QRCode
+                  value={`cosmic-quest://room/${roomId}`}
+                  size={150}
+                  color="#FFFFFF"
+                  backgroundColor="transparent"
+                />
+              </View>
             </View>
             
             <Text style={styles.codeInstructionText}>
-              Partagez ce code avec vos amis pour qu'ils puissent vous rejoindre dans cette salle
+              Scannez le QR code ou partagez ce code avec vos amis pour qu'ils puissent vous rejoindre dans cette salle
             </Text>
             
             <TouchableOpacity style={styles.actionButton} onPress={onCopyCode}>
@@ -100,7 +109,6 @@ const styles = StyleSheet.create({
   inviteCodeLabel: {
     color: 'rgba(255,255,255,0.6)',
     fontSize: 14,
-    marginTop: 10,
     marginBottom: 5,
   },
   inviteCode: {
@@ -108,6 +116,13 @@ const styles = StyleSheet.create({
     fontSize: 36,
     fontWeight: 'bold',
     letterSpacing: 5,
+    marginBottom: 20,
+  },
+  qrCodeContainer: {
+    padding: 15,
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    borderRadius: 10,
+    marginTop: 10,
   },
   codeInstructionText: {
     color: 'rgba(255,255,255,0.8)',

@@ -9,6 +9,10 @@ import SocketService from '@/services/socketService';
 import NetInfo from '@react-native-community/netinfo';
 import { useCreateRoom } from '@/hooks/useCreateRoom';
 import LoadingOverlay from '@/components/common/LoadingOverlay';
+import { useRouter } from 'expo-router';
+import { GameType } from '@/types/gameTypes';
+import { Room } from '@/types/gameTypes';
+import { CreateRoomPayload } from '@/types/gameTypes';
 
 // Définition des interfaces
 interface GameMode {
@@ -150,11 +154,80 @@ const gameCategories: GameCategory[] = [
 
 export default function HomeScreen() {
   const { user } = useAuth()
+  const router = useRouter()
 
   // Gérer la création d'une salle de jeu
   const { mutate: createRoom, isPending: isCreatingRoom } = useCreateRoom();
   
   const createGameRoom = async (modeId: string) => {
+    if (modeId === 'action-verite') {
+      try {
+        console.log('🎮 Création d\'une salle pour Action ou Vérité');
+        
+        // Initialiser le socket avant la création de la salle
+        console.log('🔌 Initialisation du socket...');
+        await SocketService.getInstanceAsync(true);
+        
+        // Créer la salle
+        const payload: CreateRoomPayload = {
+          name: `Action ou Vérité de ${user?.username || 'Joueur'}`,
+          game_mode: modeId,
+          gameType: GameType.TRUTH_OR_DARE,
+          max_players: 8,
+          total_rounds: 10,
+        };
+
+        createRoom(payload, {
+          onSuccess: async (response) => {
+            console.log('✅ Salle créée avec succès');
+            const roomCode = response.code;
+            if (roomCode) {
+              try {
+                // Attendre que le socket soit prêt et rejoigne la salle
+                console.log('🔄 Attente de la connexion socket...');
+                await SocketService.joinRoom(roomCode);
+                console.log('✅ Socket connecté à la salle, redirection...');
+                router.push(`/game/truth-or-dare?roomId=${roomCode}`);
+              } catch (socketError) {
+                console.error('❌ Erreur de connexion socket:', socketError);
+                // Rediriger quand même, la reconnexion se fera automatiquement
+                router.push(`/game/truth-or-dare?roomId=${roomCode}`);
+              }
+            }
+          }
+        });
+      } catch (error: any) {
+        console.error('❌ Erreur lors de la création de la salle:', error);
+        Alert.alert(
+          'Erreur',
+          error.message || 'Impossible de créer la salle'
+        );
+      }
+      return;
+    }
+    
+    // Déterminer le type de jeu en fonction du mode sélectionné
+    let gameType;
+    const selectedGame = gameCategories.flatMap(cat => cat.games).find(game => game.id === modeId);
+    
+    if (selectedGame) {
+      switch (selectedGame.interactive) {
+        case 'write':
+          gameType = GameType.QUIZ;
+          break;
+        case 'choice':
+          gameType = GameType.BLIND_TEST;
+          break;
+        case 'action':
+          gameType = GameType.TRUTH_OR_DARE;
+          break;
+        default:
+          gameType = GameType.QUIZ;
+      }
+    } else {
+      gameType = GameType.QUIZ;
+    }
+    
     // Vérifier la connexion internet
     const netInfo = await NetInfo.fetch();
     if (!netInfo.isConnected) {
@@ -178,6 +251,7 @@ export default function HomeScreen() {
       createRoom({
         name: `Salle de ${user?.username || 'Joueur'}`,
         game_mode: modeId,
+        gameType: gameType,
         max_players: 6,
         total_rounds: 5,
       });

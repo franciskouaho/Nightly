@@ -12,9 +12,7 @@ import { Player, GamePhase, GameState, Answer, Question } from '@/types/gameType
 import gameService from '@/services/queries/game';
 import SocketService from '@/services/socketService';
 import api, { API_URL } from '@/config/axios';
-import axios from 'axios';
 import NetInfo from '@react-native-community/netinfo';
-import GameTimer from '@/components/game/GameTimer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import UserIdManager from '@/utils/userIdManager';
 import { PhaseManager } from '@/utils/phaseManager';

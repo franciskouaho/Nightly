@@ -1,7 +1,7 @@
 import socketService from '#services/socket_service'
 import { HttpContext } from '@adonisjs/core/http'
-import GameController from '#controllers/ws/game_controller'
-import RecoveryController from '#controllers/ws/recovery_controller'
+import GameController from '#controllers/ws/game'
+import RecoveryController from '#controllers/ws/recovery'
 
 export default function () {
   HttpContext.getter(

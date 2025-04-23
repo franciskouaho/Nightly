@@ -1,13 +1,6 @@
 import QuestionBank from '#models/question_bank'
 
-type QuestionTheme =
-  | 'standard'
-  | 'crazy'
-  | 'fun'
-  | 'dark'
-  | 'personal'
-  | 'action-verite'
-  | 'on-ecoute-mais-on-ne-juge-pas'
+type QuestionTheme = 'action-verite' | 'on-ecoute-mais-on-ne-juge-pas'
 
 class QuestionService {
   /**
@@ -23,14 +16,6 @@ class QuestionService {
         .limit(1)
 
       const question = await query.first()
-
-      // Si aucune question n'est trouvée pour ce thème, essayez le thème standard
-      if (!question && theme !== 'standard') {
-        console.log(
-          `Aucune question trouvée pour le thème: ${theme}, utilisation du thème standard`
-        )
-        return this.getRandomQuestionByTheme('standard')
-      }
 
       // Si on a trouvé une question, incrémenter son compteur d'utilisation
       if (question) {

@@ -11,14 +11,7 @@ export default class QuestionBank extends BaseModel {
   declare text: string
 
   @column()
-  declare theme:
-    | 'standard'
-    | 'crazy'
-    | 'fun'
-    | 'dark'
-    | 'personal'
-    | 'action-verite'
-    | 'on-ecoute-mais-on-ne-juge-pas'
+  declare theme: 'action-verite' | 'on-ecoute-mais-on-ne-juge-pas'
 
   @column({ columnName: 'is_active' })
   declare isActive: boolean

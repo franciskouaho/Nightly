@@ -69,4 +69,20 @@ export default defineConfig({
     ],
     forceExit: false,
   },
+
+  /*
+  |--------------------------------------------------------------------------
+  | Aliases
+  |--------------------------------------------------------------------------
+  |
+  | List of path aliases to register in the application.
+  |
+  */
+  aliases: {
+    '#controllers': './app/controllers',
+    '#models': './app/models',
+    '#services': './app/services',
+    '#validators': './app/validators',
+    '#start': './start',
+  },
 })

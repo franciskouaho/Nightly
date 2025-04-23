@@ -2,13 +2,16 @@ import { DateTime } from 'luxon'
 import { HttpContext } from '@adonisjs/core/http'
 import { createRoomValidator, readyStatusValidator } from '#validators/room'
 import socketService from '#services/socket_service'
-
-import Room from '#models/room'
 import Game from '#models/game'
+import Room from '#models/room'
 import UserRecentRoom from '#models/user_recent_room'
 import User from '#models/user'
 import Answer from '#models/answer'
 import Vote from '#models/vote'
+import type { Server } from 'socket.io'
+
+import type { GameMode } from '#types/game'
+import type { SocketService } from '#services/socket_service'
 
 // Fonction utilitaire pour générer un code de salle aléatoire
 const generateRoomCode = (length = 6) => {
@@ -21,6 +24,15 @@ const generateRoomCode = (length = 6) => {
 }
 
 export default class RoomsController {
+  private io: Server
+
+  constructor() {
+    this.io = socketService.io
+    if (!this.io) {
+      throw new Error('Socket service not initialized')
+    }
+  }
+
   /**
    * Liste toutes les salles publiques disponibles
    */
@@ -269,8 +281,7 @@ export default class RoomsController {
       })
 
       // Notifier les autres joueurs via Socket.IO
-      const io = socketService.getInstance()
-      io.to(`room:${roomCode}`).emit('room:update', {
+      this.io.to(`room:${roomCode}`).emit('room:update', {
         type: 'player_joined',
         player: {
           id: user.id,
@@ -311,8 +322,7 @@ export default class RoomsController {
       await room.related('players').detach([user.id])
 
       // Notifier les autres joueurs via Socket.IO
-      const io = socketService.getInstance()
-      io.to(`room:${roomCode}`).emit('room:update', {
+      this.io.to(`room:${roomCode}`).emit('room:update', {
         type: 'player_left',
         playerId: user.id,
       })
@@ -371,8 +381,7 @@ export default class RoomsController {
       ) // false = ne pas détacher les autres relations
 
       // Remplacer transmit.emit par socketService
-      const io = socketService.getInstance()
-      io.to(`room:${room.code}`).emit('room:update', {
+      this.io.to(`room:${room.code}`).emit('room:update', {
         type: 'player_ready_status',
         playerId: user.id,
         isReady: payload.is_ready,
@@ -473,6 +482,8 @@ export default class RoomsController {
       await game.save()
 
       // NOUVEAU CODE: Générer la première question
+      let questionText = ''
+      let questionId = null
       try {
         // Sélectionner un joueur cible aléatoire
         const randomIndex = Math.floor(Math.random() * players.length)
@@ -484,10 +495,11 @@ export default class RoomsController {
 
         // Récupérer une question depuis la base de données
         const questionService = (await import('#services/question_service')).default
-        const questionFromDB = await questionService.getRandomQuestionByTheme(game.gameMode)
+        const questionFromDB = await questionService.getRandomQuestionByTheme(
+          game.gameMode as GameMode
+        )
 
         // En cas d'échec, générer une question de secours
-        let questionText = ''
         if (questionFromDB) {
           questionText = questionService.formatQuestion(
             questionFromDB.text,
@@ -495,12 +507,12 @@ export default class RoomsController {
           )
         } else {
           // Fallback question
-          const GamesController = (await import('#controllers/ws/game_controller')).default
+          const GamesController = (await import('#controllers/ws/game')).default
           const gameController = new GamesController()
 
-          // Utiliser la méthode generateFallbackQuestion via une méthode publique temporaire
-          questionText = gameController.generateQuestion(
-            game.gameMode,
+          // Utiliser la méthode generateQuestion via une méthode publique temporaire
+          questionText = await gameController.generateFallbackQuestion(
+            game.gameMode as GameMode,
             targetPlayer.displayName || targetPlayer.username
           )
         }
@@ -509,11 +521,12 @@ export default class RoomsController {
         const Question = (await import('#models/question')).default
         const question = await Question.create({
           text: questionText,
-          theme: game.gameMode,
+          theme: game.gameMode as GameMode,
           gameId: game.id,
           roundNumber: game.currentRound,
           targetPlayerId: targetPlayer.id,
         })
+        questionId = question.id
 
         console.log(
           `✅ Première question générée pour le jeu ${game.id} avec le joueur cible ${targetPlayer.id}`
@@ -522,10 +535,9 @@ export default class RoomsController {
         // Définir les durées pour chaque phase - TOUTES RÉDUITES À 1 SECONDE
         const questionPhaseDuration = 1 // Réduit à 1s
         const answerPhaseDuration = 1 // Réduit à 1s
-        const io = socketService.getInstance()
 
         // Notifier tous les joueurs du nouveau tour immédiatement
-        io.to(`game:${game.id}`).emit('game:update', {
+        this.io.to(`game:${game.id}`).emit('game:update', {
           type: 'new_round',
           round: game.currentRound,
           phase: 'question',
@@ -538,12 +550,11 @@ export default class RoomsController {
               displayName: targetPlayer.displayName,
             },
           },
-          // Supprimer le timer pour rendre le jeu instantané
           instantTransition: true,
         })
 
         // Notification avec confirmation
-        io.to(`game:${game.id}`).emit('game:update', {
+        this.io.to(`game:${game.id}`).emit('game:update', {
           type: 'phase_changed',
           newPhase: 'question',
           round: game.currentRound,
@@ -552,11 +563,18 @@ export default class RoomsController {
         console.error('❌ Erreur lors de la génération de la première question:', questionError)
       }
 
-      // Remplacer transmit.emit par socketService pour notifier du début de la partie
-      const io = socketService.getInstance()
-      io.to(`room:${room.code}`).emit('room:update', {
-        type: 'game_started',
+      // Notifier tous les joueurs du démarrage de la partie
+      this.io.to(`room:${room.code}`).emit('game:started', {
         gameId: game.id,
+        currentRound: game.currentRound,
+        totalRounds: game.totalRounds,
+        gameMode: game.gameMode,
+        currentPhase: game.currentPhase,
+        targetPlayerId: game.currentTargetPlayerId,
+        question: questionId ? {
+          id: questionId,
+          text: questionText,
+        } : null,
       })
 
       return response.ok({
@@ -641,8 +659,7 @@ export default class RoomsController {
       })
 
       // Notifier les autres joueurs via Socket.IO
-      const io = socketService.getInstance()
-      io.to(`room:${roomCode}`).emit('room:update', {
+      this.io.to(`room:${roomCode}`).emit('room:update', {
         type: 'answer_submitted',
         answerId: answer.id,
       })
@@ -659,6 +676,106 @@ export default class RoomsController {
       return response.internalServerError({
         error: 'Une erreur est survenue lors de la soumission de la réponse',
       })
+    }
+  }
+
+  async handleGameStart(room: Room, game: Game): Promise<void> {
+    const players = await room.related('players').query()
+    
+    // NOUVEAU CODE: Générer la première question
+    let questionText = ''
+    let questionId = null
+    try {
+      // Sélectionner un joueur cible aléatoire
+      const randomIndex = Math.floor(Math.random() * players.length)
+      const targetPlayer = players[randomIndex]
+
+      // Mettre à jour le joueur cible dans le jeu
+      game.currentTargetPlayerId = targetPlayer.id
+      await game.save()
+
+      // Récupérer une question depuis la base de données
+      const questionService = (await import('#services/question_service')).default
+      const questionFromDB = await questionService.getRandomQuestionByTheme(
+        game.gameMode
+      )
+
+      // En cas d'échec, générer une question de secours
+      if (questionFromDB) {
+        questionText = questionService.formatQuestion(
+          questionFromDB.text,
+          targetPlayer.displayName || targetPlayer.username
+        )
+      } else {
+        // Fallback question
+        const GamesController = (await import('#controllers/ws/game')).default
+        const gameController = new GamesController()
+
+        // Utiliser la méthode generateQuestion via une méthode publique temporaire
+        questionText = await gameController.generateFallbackQuestion(
+          game.gameMode,
+          targetPlayer.displayName || targetPlayer.username
+        )
+      }
+
+      // Créer la question
+      const Question = (await import('#models/question')).default
+      const question = await Question.create({
+        text: questionText,
+        theme: game.gameMode,
+        gameId: game.id,
+        roundNumber: game.currentRound,
+        targetPlayerId: targetPlayer.id,
+      })
+      questionId = question.id
+
+      console.log(
+        `✅ Première question générée pour le jeu ${game.id} avec le joueur cible ${targetPlayer.id}`
+      )
+
+      // Définir les durées pour chaque phase - TOUTES RÉDUITES À 1 SECONDE
+      const questionPhaseDuration = 1 // Réduit à 1s
+      const answerPhaseDuration = 1 // Réduit à 1s
+
+      // Notifier tous les joueurs du nouveau tour immédiatement
+      this.io.to(`game:${game.id}`).emit('game:update', {
+        type: 'new_round',
+        round: game.currentRound,
+        phase: 'question',
+        question: {
+          id: question.id,
+          text: question.text,
+          targetPlayer: {
+            id: targetPlayer.id,
+            username: targetPlayer.username,
+            displayName: targetPlayer.displayName,
+          },
+        },
+        instantTransition: true,
+      })
+
+      // Notification avec confirmation
+      this.io.to(`game:${game.id}`).emit('game:update', {
+        type: 'phase_changed',
+        newPhase: 'question',
+        round: game.currentRound,
+      })
+
+      // Notifier tous les joueurs du démarrage de la partie
+      this.io.to(`room:${room.code}`).emit('game:started', {
+        gameId: game.id,
+        currentRound: game.currentRound,
+        totalRounds: game.totalRounds,
+        gameMode: game.gameMode,
+        currentPhase: game.currentPhase,
+        targetPlayerId: game.currentTargetPlayerId,
+        question: questionId ? {
+          id: questionId,
+          text: questionText,
+        } : null,
+      })
+    } catch (questionError) {
+      console.error('❌ Erreur lors de la génération de la première question:', questionError)
     }
   }
 }

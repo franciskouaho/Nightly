@@ -99,13 +99,24 @@ class RedisProvider {
     }
   }
 
-  public getClient() {
+  public async getClient() {
+    if (!this.mainClient?.isOpen) {
+      await this.connect()
+    }
     return this.mainClient
   }
-  public getPubClient() {
+
+  public async getPubClient() {
+    if (!this.pubClient?.isOpen) {
+      await this.connect()
+    }
     return this.pubClient
   }
-  public getSubClient() {
+
+  public async getSubClient() {
+    if (!this.subClient?.isOpen) {
+      await this.connect()
+    }
     return this.subClient
   }
 }

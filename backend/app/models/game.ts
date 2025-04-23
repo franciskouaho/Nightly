@@ -26,14 +26,7 @@ export default class Game extends BaseModel {
   declare status: 'in_progress' | 'completed'
 
   @column({ columnName: 'game_mode' })
-  declare gameMode:
-    | 'standard'
-    | 'crazy'
-    | 'fun'
-    | 'dark'
-    | 'personal'
-    | 'action-verite'
-    | 'on-ecoute-mais-on-ne-juge-pas'
+  declare gameMode: 'action-verite' | 'on-ecoute-mais-on-ne-juge-pas'
 
   @column({ columnName: 'current_target_player_id' })
   declare currentTargetPlayerId: number | null

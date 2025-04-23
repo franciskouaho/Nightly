@@ -3,7 +3,7 @@ import questionService from '../services/queries/question';
 import questionCache from './questionCache';
 
 export type GameTheme = 
-'on-ecoute-mais-on-ne-juge-pas';
+  'action-verite';
 
 /**
  * Génère un objet Question complet basé sur un thème et un nom de joueur
@@ -69,13 +69,13 @@ function createEmergencyQuestion(theme: GameTheme, playerName: string): Question
   
   // Légère customisation selon le thème avec plus de variété
   switch(theme) {
-    case 'on-ecoute-mais-on-ne-juge-pas':
+    case 'action-verite':
       // Tableau de questions de secours
       const emergencyQuestions = [
-        `Quel est le secret le mieux gardé de ${playerName}?`,
-        `Quelle situation fait le plus douter ${playerName} de ses capacités?`,
-        `Qu'est-ce que ${playerName} n'avouerait jamais, même sous la torture?`,
-        `Quelle est la pire bêtise que ${playerName} ait faite et que personne ne connaît?`
+        `VÉRITÉ: Quelle est la chose la plus embarrassante que ${playerName} a faite?`,
+        `VÉRITÉ: Quel est le plus grand regret de ${playerName}?`,
+        `ACTION: ${playerName} doit imiter un animal choisi par le groupe`,
+        `ACTION: ${playerName} doit raconter une blague`
       ];
       // Sélection aléatoire d'une question
       const randomIndex = Math.floor(Math.random() * emergencyQuestions.length);

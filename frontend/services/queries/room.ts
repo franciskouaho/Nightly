@@ -1,5 +1,6 @@
 import axios from '@/config/axios';
 import SocketService from '@/services/socketService';
+import { GameType } from '@/types/gameTypes';
 
 export interface Room {
   createdAt: string;
@@ -9,6 +10,7 @@ export interface Room {
 export interface CreateRoomPayload {
   name: string;
   game_mode: string;
+  gameType?: GameType;
   is_private?: boolean;
   max_players?: number;
   total_rounds?: number;
@@ -62,9 +64,11 @@ class RoomService {
       const formattedPayload = {
         name: payload.name,
         game_mode: payload.game_mode,
+        game_type: payload.gameType || GameType.QUIZ,
         max_players: payload.max_players || 6,
         total_rounds: payload.total_rounds || 5,
         is_private: payload.is_private || false,
+        settings: payload.settings || {}
       };
       
       const url = `/rooms`;

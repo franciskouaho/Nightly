@@ -277,43 +277,70 @@ class GameWebSocketService {
    * @returns Promise résolu quand le jeu est rejoint
    */
   async joinGameChannel(gameId: string): Promise<void> {
-    try {
-      console.log(`🎮 [GameWebSocket] Tentative de rejoindre le jeu ${gameId}`);
-      let socket = await SocketService.getInstanceAsync(true);
-      socket = await this.waitForSocketReady(socket);
-      const userId = await UserIdManager.getUserId();
-      if (!userId) {
-        throw new Error('ID utilisateur non disponible');
-      }
-      return new Promise<void>((resolve, reject) => {
-        if (!socket || !socket.connected) {
-          reject(new Error('Socket non disponible pour la jointure'));
-          return;
+    let attempts = 0;
+    const maxAttempts = 3;
+    const timeout = 5000; // Augmenté à 5 secondes
+
+    const attemptJoin = async (): Promise<void> => {
+      try {
+        console.log(`🎮 [GameWebSocket] Tentative ${attempts + 1}/${maxAttempts} de rejoindre le jeu ${gameId}`);
+        let socket = await SocketService.getInstanceAsync(true);
+        socket = await this.waitForSocketReady(socket);
+        const userId = await UserIdManager.getUserId();
+        
+        if (!userId) {
+          throw new Error('ID utilisateur non disponible');
         }
-        socket.emit('join-game', { 
-          gameId,
-          userId,
-          timestamp: Date.now()
-        });
-        socket.once('game:joined', (data) => {
-          if (data && data.gameId === gameId) {
-            console.log(`✅ [GameWebSocket] Jeu ${gameId} rejoint avec succès`);
-            this.joinedGames.add(gameId);
-            resolve();
-          } else {
-            reject(new Error('Données de confirmation incorrectes'));
+
+        return new Promise<void>((resolve, reject) => {
+          if (!socket || !socket.connected) {
+            reject(new Error('Socket non disponible pour la jointure'));
+            return;
           }
+
+          socket.emit('join-game', { 
+            gameId,
+            userId,
+            timestamp: Date.now()
+          });
+
+          socket.once('game:joined', (data) => {
+            if (data && data.gameId === gameId) {
+              console.log(`✅ [GameWebSocket] Jeu ${gameId} rejoint avec succès`);
+              this.joinedGames.add(gameId);
+              resolve();
+            } else {
+              reject(new Error('Données de confirmation incorrectes'));
+            }
+          });
+
+          const joinTimeout = setTimeout(() => {
+            reject(new Error('Timeout de jointure au jeu'));
+          }, timeout);
+
+          socket.once('game:joined', () => {
+            clearTimeout(joinTimeout);
+          });
         });
-        const timeout = setTimeout(() => {
-          reject(new Error('Timeout de jointure au jeu'));
-        }, 3000);
-        socket.once('game:joined', () => {
-          clearTimeout(timeout);
-        });
-      });
-    } catch (error) {
-      console.error(`❌ [GameWebSocket] Erreur lors de la tentative de rejoindre le jeu ${gameId}:`, error);
-      throw error;
+      } catch (error) {
+        console.error(`❌ [GameWebSocket] Erreur lors de la tentative ${attempts + 1}:`, error);
+        throw error;
+      }
+    };
+
+    while (attempts < maxAttempts) {
+      try {
+        await attemptJoin();
+        return;
+      } catch (error) {
+        attempts++;
+        if (attempts === maxAttempts) {
+          console.error(`❌ [GameWebSocket] Échec après ${maxAttempts} tentatives`);
+          throw error;
+        }
+        // Attendre avant la prochaine tentative
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
     }
   }
 

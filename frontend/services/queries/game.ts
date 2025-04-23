@@ -24,8 +24,8 @@ class GameService {
   private socketFailCounter: number = 0;
   private readonly MAX_SOCKET_FAILS = 3;
   private readonly SOCKET_RESET_INTERVAL = 30000; // 30 secondes
-  private readonly CACHE_TTL = 1000; // 1 seconde
-  private readonly REQUEST_TIMEOUT = 5000; // 5 secondes au lieu de 2
+  private readonly CACHE_TTL = 5000; // 5 secondes
+  private readonly REQUEST_TIMEOUT = 5000; // 5 secondes
 
   // Liste des phases valides du jeu
   private readonly VALID_PHASES = ['question', 'answer', 'vote', 'results', 'waiting'] as const;
@@ -64,25 +64,54 @@ class GameService {
   }
 
   // Ajoute une méthode dédiée pour le fallback REST
-  private async fetchGameStateViaRest(gameId: string, userId: string) {
-    const url = `/games/${gameId}`;
-    console.log('🔐 API Request: GET', url);
-    if (userId && api && api.defaults) {
-      api.defaults.headers.userId = String(userId);
+  private async fetchGameStateViaRest(gameId: string | number, userId: string) {
+    // Si gameId est une chaîne et correspond à un type de jeu spécial
+    if (typeof gameId === 'string' && gameId === 'truth-or-dare') {
+      const url = '/games';
+      console.log('🔐 API Request: GET', url);
+      if (userId && api && api.defaults) {
+        api.defaults.headers.userId = String(userId);
+      }
+      // Rechercher le jeu par mode de jeu
+      const response = await api.get(url, {
+        params: {
+          gameMode: 'action-verite',
+          status: 'in_progress'
+        }
+      });
+      
+      if (!response.data.data || response.data.data.length === 0) {
+        throw new Error('Aucun jeu action-vérité en cours trouvé');
+      }
+      
+      // Utiliser le premier jeu trouvé
+      const gameData = response.data.data[0];
+      this.gameStateCache.set(String(gameId), {
+        state: gameData,
+        timestamp: Date.now()
+      });
+      console.log('✅ GameService: État du jeu action-vérité récupéré avec succès (REST)');
+      return gameData;
+    } else {
+      // Cas normal avec ID numérique
+      const url = `/games/${gameId}`;
+      console.log('🔐 API Request: GET', url);
+      if (userId && api && api.defaults) {
+        api.defaults.headers.userId = String(userId);
+      }
+      const response = await api.get(url);
+      const gameData = response.data.data;
+      this.gameStateCache.set(String(gameId), {
+        state: gameData,
+        timestamp: Date.now()
+      });
+      console.log('✅ GameService: État du jeu', gameId, 'récupéré avec succès (REST)');
+      return gameData;
     }
-    const response = await api.get(url);
-    const gameData = response.data.data;
-    // Mettre à jour le cache
-    this.gameStateCache.set(gameId, {
-      state: gameData,
-      timestamp: Date.now()
-    });
-    console.log('✅ GameService: État du jeu', gameId, 'récupéré avec succès (REST)');
-    return gameData;
   }
 
   // Récupérer l'état actuel du jeu, priorité au WebSocket
-  async getGameState(gameId: string, retryCount = 0, maxRetries = 3): Promise<GameState> {
+  async getGameState(gameId: string | number, retryCount = 0, maxRetries = 3): Promise<GameState> {
     console.log(`🎮 GameService: Récupération de l'état du jeu ${gameId} via API REST`);
 
     // Récupérer l'ID utilisateur
@@ -92,7 +121,7 @@ class GameService {
     }
 
     // Vérifier si on a des données en cache récentes
-    const cachedData = this.gameStateCache.get(gameId);
+    const cachedData = this.gameStateCache.get(String(gameId));
     if (cachedData && Date.now() - cachedData.timestamp < this.CACHE_TTL) {
       console.log(`🗄️ GameService: Utilisation du cache récent pour ${gameId}`);
       return cachedData.state;
@@ -103,7 +132,7 @@ class GameService {
       const gameData = await this.fetchGameStateViaRest(gameId, userId);
       
       // Mettre à jour le cache
-      this.gameStateCache.set(gameId, {
+      this.gameStateCache.set(String(gameId), {
         state: gameData,
         timestamp: Date.now()
       });
@@ -236,8 +265,6 @@ class GameService {
   }
 
   /**
-   * Attend que la phase 'results' soit atteinte
-   * @param gameId ID du jeu
    * @returns Promise résolue quand la phase 'results' est atteinte
    */
   async waitForResultsPhase(gameId: string): Promise<void> {
@@ -246,7 +273,7 @@ class GameService {
       const maxWaitTime = 10000; // 10 secondes au lieu de 15
       
       while (Date.now() - startTime < maxWaitTime) {
-        const gameState = await this.getGameState(gameId, true);
+        const gameState = await this.getGameState(gameId, 1);
         
         if (gameState?.game?.currentPhase === 'results') {
           return;
@@ -310,7 +337,7 @@ class GameService {
       
       if (response.data?.status === 'success') {
         // Forcer un rafraîchissement des données après un court délai
-        setTimeout(() => this.getGameState(gameId, 0, 1, true), 500);
+        setTimeout(() => this.getGameState(gameId), 500);
         return response.data;
       } else {
         throw new Error(response.data?.message || "Échec du passage au tour suivant");
@@ -335,7 +362,7 @@ class GameService {
         // Invalider le cache
         this.gameStateCache.delete(gameId);
         // Recharger les données
-        await this.getGameState(gameId, 0, 1, true);
+        await this.getGameState(gameId);
       }
       
       return success;
@@ -359,7 +386,7 @@ class GameService {
         // Invalider le cache pour forcer un rafraîchissement
         this.gameStateCache.delete(gameId);
         // Recharger les données
-        await this.getGameState(gameId, 0, 1, true);
+        await this.getGameState(gameId);
       }
       
       return success;

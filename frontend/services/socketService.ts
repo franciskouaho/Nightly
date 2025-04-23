@@ -53,8 +53,9 @@ class SocketService {
           return;
         }
 
-        // Récupérer l'ID utilisateur
+        // Récupérer l'ID utilisateur et le token
         const userId = await UserIdManager.getUserId();
+        const token = await AsyncStorage.getItem('auth_token');
         console.log(`👤 Initialisation socket avec ID utilisateur: ${userId || 'non défini'}`);
 
         // Initialiser le socket avec le SOCKET_URL configuré
@@ -66,7 +67,10 @@ class SocketService {
           reconnectionDelay: 1000,
           reconnectionDelayMax: 5000,
           autoConnect: true,
-          auth: userId ? { userId } : undefined,
+          auth: {
+            userId,
+            token: token ? `Bearer ${token}` : undefined
+          },
           forceNew: true,
         });
 

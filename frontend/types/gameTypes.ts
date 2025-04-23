@@ -19,6 +19,14 @@ export enum GameMode {
   TEAM = 'team'
 }
 
+// Types de jeux disponibles
+export enum GameType {
+  QUIZ = 'quiz',
+  TRUTH_OR_DARE = 'truth-or-dare',
+  HOT = 'hot',
+  BLIND_TEST = 'blind-test'
+}
+
 // Statut du jeu
 export enum GameStatus {
   PENDING = 'pending',
@@ -36,6 +44,8 @@ export interface Player {
   avatar?: string;
   isHost?: boolean;
   score?: number;
+  level?: number;
+  isReady?: boolean;
 }
 
 // Interface pour une question
@@ -79,6 +89,9 @@ export interface Room {
   hostId: string | number;
   status?: string;
   players?: Player[];
+  gameType?: GameType; // Type du jeu qui sera joué dans cette salle
+  maxPlayers?: number;
+  host?: Player;
 }
 
 // Interface pour le timer
@@ -99,6 +112,7 @@ export interface Game {
   totalRounds: number;
   scores: Record<string, number>;
   createdAt?: string;
+  gameType?: GameType; // Type du jeu
 }
 
 // Interface pour l'état d'un jeu
@@ -154,4 +168,15 @@ export interface GameStateCache {
 export interface HostInfo {
   hostId: string;
   timestamp: number;
+}
+
+// Interface pour la création d'une salle
+export interface CreateRoomPayload {
+  name: string;
+  game_mode: string;
+  gameType: GameType;
+  max_players: number;
+  total_rounds: number;
+  is_private?: boolean;
+  settings?: Record<string, any>;
 }
