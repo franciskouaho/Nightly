@@ -204,10 +204,10 @@ export default function HomeScreen() {
   }
   
   // Rendu des cartes de mode de jeu
-  const renderGameModeCard = (game: GameMode) => (
+  const renderGameModeCard = (game: GameMode, isGridItem = false) => (
     <TouchableOpacity 
       key={game.id}
-      style={styles.modeCard} 
+      style={[styles.modeCard, isGridItem && styles.gridModeCard]} 
       onPress={() => createGameRoom(game.id)}
       activeOpacity={0.9}
     >
@@ -218,25 +218,37 @@ export default function HomeScreen() {
           { 
             borderColor: game.borderColor,
             shadowColor: game.shadowColor
-          }
+          },
+          isGridItem && styles.gridModeGradient
         ]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
       >
-        <View style={styles.modeContent}>
-          <View style={styles.characterContainer}>
-            <Image 
-              source={game.image}
-              style={styles.characterImage}
-              resizeMode="contain"
-            />
-          </View>
-          <View style={styles.modeTextContainer}>
-            <Text style={styles.modeName}>{game.name}</Text>
-            <Text style={styles.modeDescription}>{game.description}</Text>
+        <View style={[styles.modeContent, isGridItem && styles.gridModeContent]}>
+          {!isGridItem && (
+            <View style={styles.characterContainer}>
+              <Image 
+                source={game.image}
+                style={styles.characterImage}
+                resizeMode="contain"
+              />
+            </View>
+          )}
+          <View style={[styles.modeTextContainer, isGridItem && styles.gridModeTextContainer]}>
+            {isGridItem && (
+              <Image 
+                source={game.image}
+                style={styles.gridCharacterImage}
+                resizeMode="contain"
+              />
+            )}
+            <Text style={[styles.modeName, isGridItem && styles.gridModeName]}>{game.name}</Text>
+            {!isGridItem && (
+              <Text style={styles.modeDescription}>{game.description}</Text>
+            )}
           </View>
           {game.tag ? (
-            <View style={[styles.modeTagContainer, { backgroundColor: game.tagColor }]}>
+            <View style={[styles.modeTagContainer, isGridItem && styles.gridModeTagContainer, { backgroundColor: game.tagColor }]}>
               <Text style={styles.modeTagText}>{game.tag}</Text>
             </View>
           ) : null}
@@ -262,9 +274,21 @@ export default function HomeScreen() {
         )}
       </View>
       
-      <View style={styles.gameModesColumn}>
-        {category.games.map((game: GameMode) => renderGameModeCard(game))}
-      </View>
+      {category.id === 'packs' ? (
+        // Affichage en grid pour la catégorie "NOS PACKS LES PLUS JOUÉS"
+        <View style={styles.gridContainer}>
+          {category.games.map((game: GameMode) => (
+            <View key={game.id} style={styles.gridItem}>
+              {renderGameModeCard(game, true)}
+            </View>
+          ))}
+        </View>
+      ) : (
+        // Affichage en colonne pour les autres catégories
+        <View style={styles.gameModesColumn}>
+          {category.games.map((game: GameMode) => renderGameModeCard(game))}
+        </View>
+      )}
     </View>
   );
   
@@ -289,7 +313,6 @@ export default function HomeScreen() {
           </View>
         </ScrollView>
         
-        {/* Bottom Tab Bar */}
         <BottomTabBar />
       </LinearGradient>
     </View>
@@ -416,5 +439,43 @@ const styles = StyleSheet.create({
   loadingContainer: {
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  gridContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  gridItem: {
+    width: '48%', // ~50% moins marge
+    marginBottom: 16,
+  },
+  gridModeCard: {
+    height: 140,
+  },
+  gridModeGradient: {
+    height: '100%',
+  },
+  gridModeContent: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 12,
+  },
+  gridModeTextContainer: {
+    alignItems: 'center',
+    paddingRight: 0,
+  },
+  gridModeName: {
+    fontSize: 12,
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  gridCharacterImage: {
+    width: 70,
+    height: 70,
+  },
+  gridModeTagContainer: {
+    top: 5,
+    right: 5,
   },
 });
