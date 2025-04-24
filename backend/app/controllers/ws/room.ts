@@ -5,13 +5,11 @@ import socketService from '#services/socket_service'
 import Game from '#models/game'
 import Room from '#models/room'
 import UserRecentRoom from '#models/user_recent_room'
-import User from '#models/user'
 import Answer from '#models/answer'
 import Vote from '#models/vote'
 import type { Server } from 'socket.io'
 
 import type { GameMode } from '#types/game'
-import type { SocketService } from '#services/socket_service'
 
 // Fonction utilitaire pour générer un code de salle aléatoire
 const generateRoomCode = (length = 6) => {
@@ -195,7 +193,7 @@ export default class RoomsController {
       }
 
       // S'assurer que players est toujours un tableau, même s'il est vide
-      const playersData = room.players
+      let playersData = room.players
         ? room.players.map((player) => ({
             id: player.id,
             username: player.username,
@@ -207,6 +205,26 @@ export default class RoomsController {
             score: player.$extras.pivot_score,
           }))
         : []
+
+      // Vérifier si l'hôte est déjà dans la liste
+      const hostInList = playersData.some((player) => player.id === room.hostId)
+
+      // Si l'hôte n'est pas dans la liste, l'ajouter
+      if (!hostInList && room.host) {
+        console.log(
+          `⚠️ L'hôte (ID: ${room.hostId}) n'est pas dans la liste des joueurs. Ajout automatique.`
+        )
+        playersData.push({
+          id: room.host.id,
+          username: room.host.username,
+          displayName: room.host.displayName,
+          avatar: room.host.avatar,
+          level: room.host.level || 1,
+          isHost: true,
+          isReady: true, // L'hôte est toujours prêt
+          score: 0,
+        })
+      }
 
       return response.ok({
         status: 'success',
@@ -226,7 +244,7 @@ export default class RoomsController {
           gameMode: room.gameMode,
           totalRounds: room.totalRounds,
           settings: room.settings,
-          players: playersData, // Toujours un tableau
+          players: playersData, // Inclut maintenant toujours l'hôte
           createdAt: room.createdAt,
           startedAt: room.startedAt,
         },
@@ -280,7 +298,48 @@ export default class RoomsController {
         },
       })
 
-      // Notifier les autres joueurs via Socket.IO
+      await room.load('host')
+      await room.load('players', (query) => {
+        query.pivotColumns(['is_ready'])
+      })
+
+      // S'assurer que players est toujours un tableau, même s'il est vide
+      let playersData = room.players
+        ? room.players.map((player) => ({
+            id: player.id,
+            username: player.username,
+            displayName: player.displayName,
+            avatar: player.avatar,
+            level: player.level,
+            isHost: player.id === room.hostId,
+            isReady: player.$extras.pivot_is_ready,
+            score: player.$extras.pivot_score,
+          }))
+        : []
+
+      // Vérifier si l'hôte est déjà dans la liste
+      const hostInList = playersData.some((player) => player.id === room.hostId)
+
+      // Si l'hôte n'est pas dans la liste, l'ajouter
+      if (!hostInList && room.host) {
+        console.log(
+          `⚠️ [JOIN] L'hôte (ID: ${room.hostId}) n'est pas dans la liste des joueurs. Ajout automatique.`
+        )
+        playersData.push({
+          id: room.host.id,
+          username: room.host.username,
+          displayName: room.host.displayName,
+          avatar: room.host.avatar,
+          level: room.host.level || 1,
+          isHost: true,
+          isReady: true, // L'hôte est toujours prêt
+          score: 0,
+        })
+      }
+
+      console.log(`Nombre de joueurs dans la salle ${roomCode} après join: ${playersData.length}`)
+
+      // Notifier TOUS les joueurs via Socket.IO avec la liste complète mise à jour
       this.io.to(`room:${roomCode}`).emit('room:update', {
         type: 'player_joined',
         player: {
@@ -289,11 +348,30 @@ export default class RoomsController {
           displayName: user.displayName,
           avatar: user.avatar,
         },
+        players: playersData, // Envoyer la liste complète des joueurs
       })
+
+      // À la place, on pourrait ajouter une gestion WebSocket séparée pour connexions futures
+      console.log(`✅ Notification envoyée à la salle ${roomCode} concernant le nouveau joueur`)
 
       return response.ok({
         status: 'success',
         message: 'Vous avez rejoint la salle avec succès',
+        data: {
+          players: playersData,
+          room: {
+            id: room.id,
+            code: room.code,
+            name: room.name,
+            host: room.host
+              ? {
+                  id: room.host.id,
+                  username: room.host.username,
+                  displayName: room.host.displayName,
+                }
+              : null,
+          },
+        },
       })
     } catch (error) {
       console.error('Erreur lors de la tentative de rejoindre la salle:', error)
@@ -571,10 +649,12 @@ export default class RoomsController {
         gameMode: game.gameMode,
         currentPhase: game.currentPhase,
         targetPlayerId: game.currentTargetPlayerId,
-        question: questionId ? {
-          id: questionId,
-          text: questionText,
-        } : null,
+        question: questionId
+          ? {
+              id: questionId,
+              text: questionText,
+            }
+          : null,
       })
 
       return response.ok({
@@ -681,7 +761,7 @@ export default class RoomsController {
 
   async handleGameStart(room: Room, game: Game): Promise<void> {
     const players = await room.related('players').query()
-    
+
     // NOUVEAU CODE: Générer la première question
     let questionText = ''
     let questionId = null
@@ -696,9 +776,7 @@ export default class RoomsController {
 
       // Récupérer une question depuis la base de données
       const questionService = (await import('#services/question_service')).default
-      const questionFromDB = await questionService.getRandomQuestionByTheme(
-        game.gameMode
-      )
+      const questionFromDB = await questionService.getRandomQuestionByTheme(game.gameMode)
 
       // En cas d'échec, générer une question de secours
       if (questionFromDB) {
@@ -769,10 +847,12 @@ export default class RoomsController {
         gameMode: game.gameMode,
         currentPhase: game.currentPhase,
         targetPlayerId: game.currentTargetPlayerId,
-        question: questionId ? {
-          id: questionId,
-          text: questionText,
-        } : null,
+        question: questionId
+          ? {
+              id: questionId,
+              text: questionText,
+            }
+          : null,
       })
     } catch (questionError) {
       console.error('❌ Erreur lors de la génération de la première question:', questionError)

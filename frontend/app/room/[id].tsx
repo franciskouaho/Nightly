@@ -14,6 +14,16 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import SocketService from '@/services/socketService';
 import NetInfo from '@react-native-community/netinfo';
 
+// Type pour l'utilisateur
+interface User {
+  id: string | number;
+  username: string;
+  displayName?: string;
+  avatar?: string;
+  level?: number;
+  isHost?: boolean;
+}
+
 // Type pour les joueurs
 type Player = {
   id: string;
@@ -24,13 +34,46 @@ type Player = {
   level: number;
 };
 
+// Type pour les données de salle
+interface PlayerData {
+  id: string | number;
+  username: string;
+  displayName?: string;
+  isHost?: boolean;
+  isReady?: boolean;
+  avatar?: string;
+  level?: number;
+}
+
+interface RoomData {
+  id: string | number;
+  code: string;
+  name: string;
+  host: {
+    id: string | number;
+    username: string;
+    displayName?: string;
+    avatar?: string;
+    level?: number;
+  };
+  players?: PlayerData[];
+  maxPlayers: number;
+  gameMode?: string;
+  totalRounds?: number;
+  status?: string;
+}
+
 export default function Room() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const { data: user } = useUser();
 
-  // Utiliser le hook pour récupérer les détails de la salle
-  const { data: roomData, isLoading: isLoadingRoom, error: roomError } = useRoom(id as string);
+  // Utiliser le hook pour récupérer les détails de la salle avec le type approprié
+  const { data: roomData, isLoading: isLoadingRoom, error: roomError } = useRoom(id as string) as {
+    data: RoomData | undefined;
+    isLoading: boolean;
+    error: Error | null;
+  };
 
   // Utiliser les hooks de mutation
   const { mutate: toggleReady, isPending: isTogglingReady } = useToggleReadyStatus();
@@ -53,36 +96,99 @@ export default function Room() {
       setRoomName(roomData.name);
       setMaxPlayers(roomData.maxPlayers);
       
-      // S'assurer que players existe avant de faire le mapping
-      if (roomData.players && Array.isArray(roomData.players)) {
+      // Correction: assurer que players est toujours traité correctement
+      let formattedPlayers: Player[] = [];
+      
+      // Log détaillé pour débogage
+      console.log('📊 Données room reçues:', JSON.stringify({
+        id: roomData.id,
+        code: roomData.code,
+        playersLength: roomData.players?.length || 0,
+        hostId: roomData.host?.id
+      }));
+
+      // S'assurer que players existe et est un tableau
+      if (roomData.players && Array.isArray(roomData.players) && roomData.players.length > 0) {
+        console.log('👥 Players data:', roomData.players.map(p => ({id: p.id, name: p.displayName || p.username})));
+        
         // Convertir les joueurs au format requis
-        const formattedPlayers = roomData.players.map(player => ({
-          id: String(player.id), // S'assurer que l'ID est une chaîne
+        formattedPlayers = roomData.players.map(player => ({
+          id: String(player.id), 
           name: player.displayName || player.username,
-          isHost: player.id === roomData.host.id, // Correction ici pour identifier l'hôte correctement
-          isReady: player.isHost || player.isReady, // L'hôte est toujours prêt
+          isHost: player.id === roomData.host.id,
+          isReady: player.isHost || player.isReady, 
           avatar: player.avatar || 'https://randomuser.me/api/portraits/men/32.jpg',
           level: player.level || 1
         }));
-        
-        setPlayers(formattedPlayers);
       } else {
-        console.log('⚠️ Aucun joueur trouvé dans roomData');
-        setPlayers([]);
+        console.log('⚠️ Aucun joueur trouvé ou format inattendu dans roomData');
+        
+        // Si la liste est vide mais que nous avons l'hôte, s'assurer que l'hôte est ajouté
+        if (roomData.host) {
+          formattedPlayers = [{
+            id: String(roomData.host.id),
+            name: roomData.host.displayName || roomData.host.username,
+            isHost: true,
+            isReady: true,
+            avatar: roomData.host.avatar || 'https://randomuser.me/api/portraits/men/32.jpg',
+            level: roomData.host.level || 1
+          }];
+          console.log('🔄 Ajout manuel de l\'hôte à la liste des joueurs:', formattedPlayers);
+        }
       }
+      
+      // Vérification: s'assurer que l'hôte est toujours dans la liste
+      const hostInList = formattedPlayers.some(p => p.id === String(roomData.host.id));
+      if (!hostInList && roomData.host) {
+        formattedPlayers.push({
+          id: String(roomData.host.id),
+          name: roomData.host.displayName || roomData.host.username,
+          isHost: true,
+          isReady: true,
+          avatar: roomData.host.avatar || 'https://randomuser.me/api/portraits/men/32.jpg',
+          level: roomData.host.level || 1
+        });
+        console.log('🔄 Hôte ajouté à la liste des joueurs car il n\'y était pas');
+      }
+      
+      // Si la liste est toujours vide et que l'utilisateur actuel est l'hôte, l'ajouter
+      if (formattedPlayers.length === 0 && user && roomData.host && user.id === roomData.host.id) {
+        formattedPlayers = [{
+          id: String(user.id),
+          name: user.displayName || user.username || 'Hôte',
+          isHost: true,
+          isReady: true,
+          avatar: user.avatar || 'https://randomuser.me/api/portraits/men/32.jpg',
+          level: user.level || 1
+        }];
+        console.log('🔄 Utilisateur courant (hôte) ajouté manuellement à la liste vide');
+      }
+      
+      console.log(`👥 Liste finale des joueurs: ${formattedPlayers.length} joueurs`);
+      setPlayers(formattedPlayers);
       
       // Vérifier si l'utilisateur actuel est l'hôte
       if (user) {
         // Utiliser l'ID de l'hôte depuis roomData.host
-        setIsHost(roomData.host.id === user.id);
+        const isUserHost = roomData.host.id === user.id;
+        setIsHost(isUserHost);
+        console.log(`👑 Utilisateur est hôte: ${isUserHost}`);
         
-        // Trouver le statut "prêt" de l'utilisateur actuel si players existe
+        // Trouver le statut "prêt" de l'utilisateur actuel
         if (roomData.players && Array.isArray(roomData.players)) {
           const currentPlayer = roomData.players.find(player => player.id === user.id);
           if (currentPlayer) {
             // Si l'utilisateur est l'hôte, il est toujours prêt
-            setIsReady(currentPlayer.isHost || currentPlayer.isReady);
+            setIsReady(isUserHost || currentPlayer.isReady);
+          } else {
+            // Si l'utilisateur est l'hôte mais n'est pas dans la liste des joueurs, le marquer comme prêt
+            if (isUserHost) {
+              setIsReady(true);
+            }
           }
+        } else if (isUserHost) {
+          // Si pas de joueurs mais utilisateur est hôte
+          setIsReady(true);
         }
       }
     }
@@ -123,6 +229,9 @@ export default function Room() {
           try {
             socket = await SocketService.getInstanceAsync(true);
             console.log(`✅ Socket initialisé avec succès pour la salle ${id}`);
+            
+            // Rafraîchir les données après 1 seconde pour s'assurer que tout est synchronisé
+            setTimeout(() => refreshRoomData(false), 1000);
           } catch (socketError) {
             console.error(`❌ Erreur lors de l'initialisation du socket:`, socketError);
             return;
@@ -141,6 +250,8 @@ export default function Room() {
             
             if (joinSuccess) {
               console.log(`✅ Salle ${id} rejointe avec succès via WebSocket`);
+              // Rafraîchir les données après avoir rejoint
+              setTimeout(() => refreshRoomData(false), 500);
             } else {
               console.warn(`⚠️ Impossible de rejoindre la salle ${id} via WebSocket, mais continuons`);
               // Un nouvel essai sera fait automatiquement grâce à setAutoInit(true)
@@ -152,19 +263,41 @@ export default function Room() {
           
           // Écouter les événements de la salle
           socket.on('room:update', async (data) => {
-            console.log(`🔌 Événement room:update reçu:`, data.type);
+            console.log(`🔌 Événement room:update reçu:`, data.type, data);
             
             switch (data.type) {
               case 'player_joined':
-                // Mettre à jour la liste des joueurs
-                setPlayers(prev => [...prev, {
-                  id: data.player.id,
-                  name: data.player.displayName || data.player.username,
-                  isHost: false,
-                  isReady: false,
-                  avatar: data.player.avatar || 'https://randomuser.me/api/portraits/men/32.jpg',
-                  level: data.player.level || 1
-                }]);
+                // Si on reçoit une liste complète des joueurs, l'utiliser directement
+                if (data.players && Array.isArray(data.players)) {
+                  console.log(`📊 Liste de joueurs reçue via WebSocket: ${data.players.length} joueurs`);
+                  
+                  const updatedPlayers = data.players.map(player => ({
+                    id: String(player.id),
+                    name: player.displayName || player.username,
+                    isHost: player.isHost || false,
+                    isReady: player.isReady || false,
+                    avatar: player.avatar || 'https://randomuser.me/api/portraits/men/32.jpg',
+                    level: player.level || 1
+                  }));
+                  
+                  console.log(`👥 Liste des joueurs mise à jour via WebSocket:`, updatedPlayers);
+                  setPlayers(updatedPlayers);
+                } 
+                // Sinon, ajouter le joueur individuellement comme avant
+                else {
+                  console.log(`👤 Ajout individuel d'un joueur via WebSocket`);
+                  setPlayers(prev => [...prev, {
+                    id: data.player.id,
+                    name: data.player.displayName || data.player.username,
+                    isHost: false,
+                    isReady: false,
+                    avatar: data.player.avatar || 'https://randomuser.me/api/portraits/men/32.jpg',
+                    level: data.player.level || 1
+                  }]);
+                }
+                
+                // Forcer un rafraîchissement complet pour s'assurer de la synchronisation
+                setTimeout(() => refreshRoomData(false), 1000);
                 break;
               
               case 'player_left':
@@ -240,6 +373,70 @@ export default function Room() {
       };
     }
   }, [id, user, router, redirectingToGame]);
+
+  // Ajout d'un rafraîchissement automatique périodique
+  useEffect(() => {
+    if (id) {
+      console.log('⏱️ Configuration du rafraîchissement automatique de la salle');
+      
+      // Rafraîchir une première fois au montage du composant
+      refreshRoomData();
+      
+      // Mettre en place un interval pour rafraîchir périodiquement
+      const refreshInterval = setInterval(() => {
+        console.log('🔄 Rafraîchissement automatique des données de la salle');
+        refreshRoomData();
+      }, 5000); // Toutes les 5 secondes
+      
+      // Nettoyer l'interval au démontage
+      return () => {
+        console.log('⏱️ Nettoyage du rafraîchissement automatique');
+        clearInterval(refreshInterval);
+      };
+    }
+  }, [id]); // Ne s'exécute qu'au changement de l'ID de salle
+  
+  // Modifier la fonction refreshRoomData pour être plus silencieuse lors des rafraîchissements automatiques
+  const refreshRoomData = (showLoading = false) => {
+    if (id) {
+      console.log('🔄 Rafraîchissement des données de la salle');
+      
+      // N'affiche le message de chargement que si demandé explicitement
+      if (showLoading) {
+        setLoadingMessage('Actualisation des données...');
+      }
+      
+      api.get(`/rooms/${id}`)
+        .then(response => {
+          console.log('✅ Données rafraîchies:', response.data.data.players?.length || 0, 'joueurs');
+          
+          // Mettre à jour la liste des joueurs
+          if (response.data.data.players && Array.isArray(response.data.data.players)) {
+            const refreshedPlayers = response.data.data.players.map(player => ({
+              id: String(player.id),
+              name: player.displayName || player.username,
+              isHost: player.isHost || false,
+              isReady: player.isReady || false,
+              avatar: player.avatar || 'https://randomuser.me/api/portraits/men/32.jpg',
+              level: player.level || 1
+            }));
+            setPlayers(refreshedPlayers);
+          }
+        })
+        .catch(error => {
+          console.error('❌ Erreur lors du rafraîchissement:', error);
+          // N'affiche l'alerte que si le rafraîchissement a été demandé explicitement
+          if (showLoading) {
+            Alert.alert('Erreur', 'Impossible de rafraîchir les données de la salle');
+          }
+        })
+        .finally(() => {
+          if (showLoading) {
+            setLoadingMessage('Chargement de la salle...');
+          }
+        });
+    }
+  };
 
   const handleToggleReady = () => {
     if (id) {
