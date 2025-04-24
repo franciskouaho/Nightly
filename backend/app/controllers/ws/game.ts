@@ -4,15 +4,12 @@ import { answerValidator } from '#validators/game'
 import socketService from '#services/socket_service'
 import questionService from '#services/question_service'
 import Redis from '@adonisjs/redis/services/main'
-import { Socket } from 'socket.io'
-import type { ManyToMany } from '@adonisjs/lucid/types/relations'
 
 import Game from '#models/game'
 import Question from '#models/question'
 import Answer from '#models/answer'
 import Vote from '#models/vote'
 import Room from '#models/room'
-import User from '#models/user'
 
 interface GameData {
   currentPhase: string
