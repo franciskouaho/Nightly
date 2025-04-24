@@ -585,7 +585,7 @@ export default class RoomsController {
           )
         } else {
           // Fallback question
-          const GamesController = (await import('#controllers/ws/game')).default
+          const GamesController = (await import('#controllers/ws/game_controller')).default
           const gameController = new GamesController()
 
           // Utiliser la méthode generateQuestion via une méthode publique temporaire
@@ -786,7 +786,7 @@ export default class RoomsController {
         )
       } else {
         // Fallback question
-        const GamesController = (await import('#controllers/ws/game')).default
+        const GamesController = (await import('#controllers/ws/game_controller')).default
         const gameController = new GamesController()
 
         // Utiliser la méthode generateQuestion via une méthode publique temporaire

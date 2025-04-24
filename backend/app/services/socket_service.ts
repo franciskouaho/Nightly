@@ -515,7 +515,7 @@ class SocketService {
             }
 
             // Importer le contrôleur de jeu
-            const GameController = (await import('#controllers/ws/game')).default
+            const GameController = (await import('#controllers/ws/game_controller')).default
             const controller = new GameController()
 
             try {
@@ -645,7 +645,7 @@ class SocketService {
             }
 
             // Importer le contrôleur de jeu
-            const GameController = (await import('#controllers/ws/game')).default
+            const GameController = (await import('#controllers/ws/game_controller')).default
             const controller = new GameController()
 
             try {
