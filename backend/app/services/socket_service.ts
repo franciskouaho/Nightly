@@ -372,11 +372,15 @@ class SocketService {
 
             console.log(`👤 [WebSocket] Utilisateur ${userId} demande le passage au tour suivant`)
 
-            // Récupérer les modèles nécessaires
-            const Game = (await import('#models/game')).default
-            const Room = (await import('#models/room')).default
-            const Question = (await import('#models/question')).default
-            const Vote = (await import('#models/vote')).default
+            // Import models
+            const GameModule = await import('#models/game');
+            const Game = GameModule.default;
+            const RoomModule = await import('#models/room');
+            const Room = RoomModule.default;
+            const QuestionModule = await import('#models/question');
+            const Question = QuestionModule.default;
+            const VoteModule = await import('#models/vote');
+            const Vote = VoteModule.default;
 
             // Récupérer le jeu
             const game = await Game.find(data.gameId)
@@ -514,9 +518,10 @@ class SocketService {
               }
             }
 
-            // Importer le contrôleur de jeu
-            const GameController = (await import('#controllers/ws/game_controller')).default
-            const controller = new GameController()
+            // Import GameController on demand
+            const GameControllerModule = await import('#controllers/ws/game');
+            const GameController = GameControllerModule.default;
+            const gameController = new GameController();
 
             try {
               // Tenter le passage au tour suivant directement via le contrôleur
@@ -590,7 +595,7 @@ class SocketService {
               }
 
               // Appeler directement la méthode du contrôleur avec notre contexte
-              await controller.nextRound(mockContext)
+              await gameController.nextRound(mockContext)
 
               console.log(`✅ [WebSocket] Traitement nextRound terminé pour ${data.gameId}`)
             } catch (controllerError) {
@@ -644,13 +649,14 @@ class SocketService {
               return
             }
 
-            // Importer le contrôleur de jeu
-            const GameController = (await import('#controllers/ws/game_controller')).default
-            const controller = new GameController()
+            // Import GameController on demand
+            const GameControllerModule = await import('#controllers/ws/game');
+            const GameController = GameControllerModule.default;
+            const gameController = new GameController();
 
             try {
               // Récupérer l'état du jeu via la méthode du contrôleur
-              const gameState = await controller.getGameState(data.gameId, userId)
+              const gameState = await gameController.getGameState(data.gameId, userId)
 
               console.log(`🎮 [WebSocket] État du jeu récupéré pour ${data.gameId}`)
 

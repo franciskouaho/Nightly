@@ -4,6 +4,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
 import UserIdManager from '@/utils/userIdManager';
 
+// Add this interface definition at the top of the file, near other interfaces
+interface ISocketConnectionInfo {
+  url: string;
+  path: string;
+  token: string;
+}
+
 class SocketService {
   private socket: Socket | null = null;
   private initPromise: Promise<Socket> | null = null;
@@ -13,6 +20,8 @@ class SocketService {
   private readonly MAX_RECONNECT_ATTEMPTS = 5;
   private readonly RECONNECT_DELAY = 2000; // 2 secondes
   private autoInit: boolean = false; // Nouvelle propriété pour contrôler l'initialisation auto
+  private isConnecting: boolean = false;
+  private authService: any = null; // Add authService property
 
   /**
    * Initialise la connexion socket
@@ -61,7 +70,7 @@ class SocketService {
         // Initialiser le socket avec le SOCKET_URL configuré
         this.socket = io(SOCKET_URL, {
           transports: ['websocket'],
-          timeout: 15000, // Augmenté à 15 secondes
+          timeout: 30000, // Augmenté à 30 secondes
           reconnection: true,
           reconnectionAttempts: 10, // Augmenté à 10 tentatives
           reconnectionDelay: 1000,
@@ -126,31 +135,9 @@ class SocketService {
           }
         });
 
-        // Définir un délai pour attendre la connexion
-        const connectionTimeout = setTimeout(() => {
-          if (!this.socket?.connected) {
-            console.warn('⚠️ Délai d\'attente de connexion dépassé');
-            this.isInitializing = false;
-            this.initPromise = null;
-            
-            // Tenter une reconnexion avant de rejeter
-            if (this.reconnectAttempts < this.MAX_RECONNECT_ATTEMPTS) {
-              this.reconnectAttempts++;
-              console.log(`🔄 Tentative de reconnexion ${this.reconnectAttempts}/${this.MAX_RECONNECT_ATTEMPTS}`);
-              setTimeout(() => {
-                this.reconnect().catch(err => {
-                  console.error('❌ Échec de reconnexion automatique:', err);
-                });
-              }, this.RECONNECT_DELAY);
-            }
-            
-            reject(new Error('Timeout de connexion'));
-          }
-        }, 10000); // Augmenté à 10 secondes
-
         // Nettoyer le timeout si la connexion réussit
         this.socket.once('connect', () => {
-          clearTimeout(connectionTimeout);
+          // Connexion réussie
         });
 
       } catch (error) {
@@ -205,21 +192,19 @@ class SocketService {
           console.log(`🔌 Socket créé mais pas connecté, tentative de connexion...`);
           socket.connect();
           
-          // Attendre la connexion avec un timeout
+          // Attendre la connexion
           await new Promise<void>((resolve, reject) => {
-            const timeout = setTimeout(() => {
-              socket.off('connect');
-              reject(new Error('Timeout de connexion dépassé'));
-            }, 3000);
-            
-            socket.once('connect', () => {
-              clearTimeout(timeout);
-              resolve();
-            });
+            if (socket) {
+              socket.once('connect', () => {
+                resolve();
+              });
+            } else {
+              reject(new Error('Socket non défini'));
+            }
           });
         }
         
-        if (socket.connected) {
+        if (socket && socket.connected) {
           console.log(`✅ Connexion socket établie avec succès`);
           return socket;
         } else {
@@ -308,22 +293,25 @@ class SocketService {
       if (this.isInitializing && this.initPromise) {
         try {
           const socket = await this.initPromise;
-          if (socket.connected) return true;
+          if (socket && socket.connected) return true;
           
           // Si le socket n'est pas connecté après l'initialisation, essayer de le connecter
-          socket.connect();
+          if (socket) {
+            socket.connect();
           
-          // Attendre la connexion avec un timeout
-          return await new Promise((resolve) => {
-            const timeout = setTimeout(() => {
-              resolve(false);
-            }, 5000);
-            
-            socket.once('connect', () => {
-              clearTimeout(timeout);
-              resolve(true);
+            // Attendre la connexion avec un timeout
+            return await new Promise((resolve) => {
+              const timeout = setTimeout(() => {
+                resolve(false);
+              }, 5000);
+              
+              socket.once('connect', () => {
+                clearTimeout(timeout);
+                resolve(true);
+              });
             });
-          });
+          }
+          return false;
         } catch (error) {
           console.error('❌ Échec de l\'initialisation en cours:', error);
           // Continuer avec une nouvelle tentative
@@ -342,11 +330,16 @@ class SocketService {
               resolve(false);
             }, 5000);
             
-            this.socket!.once('connect', () => {
+            if (this.socket) {
+              this.socket.once('connect', () => {
+                clearTimeout(timeout);
+                console.log('✅ Socket reconnecté avec succès');
+                resolve(true);
+              });
+            } else {
               clearTimeout(timeout);
-              console.log('✅ Socket reconnecté avec succès');
-              resolve(true);
-            });
+              resolve(false);
+            }
           });
         }
         return true;
@@ -419,43 +412,56 @@ class SocketService {
    * Rejoint une salle
    */
   async joinRoom(roomCode: string): Promise<boolean> {
-    try {
-      console.log(`🚪 Tentative de rejoindre la salle ${roomCode}`);
-      
-      if (!this.socket || !this.socket.connected) {
-        console.warn('⚠️ Socket non connecté, tentative de reconnexion...');
-        await this.reconnect();
-      }
-      
-      if (!this.socket || !this.socket.connected) {
-        throw new Error('Socket non connecté après tentative de reconnexion');
-      }
-      
-      return new Promise((resolve) => {
-        this.socket!.emit('join-room', { roomCode }, (response: any) => {
-          if (response && response.success !== false) {
-            console.log(`✅ Salle ${roomCode} rejointe avec succès`);
-            this.activeRooms.add(roomCode);
-            resolve(true);
+    console.log(`🚪 [SocketService] Tentative de rejoindre la room ${roomCode}`);
+    
+    return this.ensureSocketConnection()
+      .then(connected => {
+        if (!connected) {
+          console.error(`❌ [SocketService] Impossible de rejoindre la room ${roomCode} - socket non connecté`);
+          return false;
+        }
+        
+        if (!this.socket) {
+          console.error(`❌ [SocketService] Socket non disponible pour rejoindre la room ${roomCode}`);
+          return false;
+        }
+        
+        console.log(`📡 [SocketService] Socket connecté (${this.socket?.id}), émission de l'événement join-room`);
+        
+        return new Promise<boolean>((resolve) => {
+          // Écouter l'événement de succès
+          if (this.socket) {
+            this.socket.once('room:joined', (data) => {
+              console.log(`✅ [SocketService] Room ${roomCode} rejointe avec succès:`, data);
+              resolve(true);
+            });
+            
+            // Écouter les erreurs
+            this.socket.once('error', (error) => {
+              console.error(`❌ [SocketService] Erreur socket lors de la tentative de rejoindre la room:`, error);
+              resolve(false);
+            });
+            
+            // Envoyer la requête pour rejoindre la room
+            this.socket.emit('join-room', { data: { roomId: roomCode } }, (response: any) => {
+              if (response && response.success !== false) {
+                console.log(`✅ [SocketService] Room ${roomCode} rejointe avec succès via callback:`, response);
+                resolve(true);
+              } else {
+                console.warn(`⚠️ [SocketService] Échec de rejoindre la room ${roomCode}:`, response?.error || 'Raison inconnue');
+                resolve(false);
+              }
+            });
           } else {
-            console.warn(`⚠️ Échec de rejoindre la salle ${roomCode}:`, response?.error || 'Raison inconnue');
+            console.error(`❌ [SocketService] Socket non disponible pour écouter les événements`);
             resolve(false);
           }
         });
-        
-        // Si pas de callback disponible, considérer comme succès avec un autre événement
-        this.socket!.once('room:joined', (data) => {
-          if (data && data.roomCode === roomCode) {
-            console.log(`✅ Salle ${roomCode} rejointe avec succès (via événement)`);
-            this.activeRooms.add(roomCode);
-            resolve(true);
-          }
-        });
+      })
+      .catch(error => {
+        console.error(`❌ [SocketService] Exception lors de la tentative de rejoindre la room ${roomCode}:`, error);
+        return false;
       });
-    } catch (error) {
-      console.error(`❌ Erreur lors de la tentative de rejoindre la salle ${roomCode}:`, error);
-      return false;
-    }
   }
 
   /**
@@ -472,27 +478,33 @@ class SocketService {
       }
       
       return new Promise((resolve) => {
-        this.socket!.emit('leave-room', { roomCode }, (response: any) => {
-          this.activeRooms.delete(roomCode);
+        if (this.socket) {
+          this.socket.emit('leave-room', { roomCode }, (response: any) => {
+            this.activeRooms.delete(roomCode);
+            
+            if (response && response.success !== false) {
+              console.log(`✅ Salle ${roomCode} quittée avec succès`);
+              resolve(true);
+            } else {
+              console.warn(`⚠️ Échec de quitter la salle ${roomCode}:`, response?.error || 'Raison inconnue');
+              resolve(false);
+            }
+          });
           
-          if (response && response.success !== false) {
-            console.log(`✅ Salle ${roomCode} quittée avec succès`);
-            resolve(true);
-          } else {
-            console.warn(`⚠️ Échec de quitter la salle ${roomCode}:`, response?.error || 'Raison inconnue');
-            resolve(false);
-          }
-        });
-        
-        // Si pas de callback disponible, considérer comme succès avec un autre événement
-        this.socket!.once('room:left', (data) => {
+          // Si pas de callback disponible, considérer comme succès avec un autre événement
+          this.socket.once('room:left', (data) => {
+            this.activeRooms.delete(roomCode);
+            
+            if (data && data.roomCode === roomCode) {
+              console.log(`✅ Salle ${roomCode} quittée avec succès (via événement)`);
+              resolve(true);
+            }
+          });
+        } else {
           this.activeRooms.delete(roomCode);
-          
-          if (data && data.roomCode === roomCode) {
-            console.log(`✅ Salle ${roomCode} quittée avec succès (via événement)`);
-            resolve(true);
-          }
-        });
+          console.warn('⚠️ Socket non disponible, impossible de quitter la salle');
+          resolve(false);
+        }
       });
     } catch (error) {
       console.error(`❌ Erreur lors de la tentative de quitter la salle ${roomCode}:`, error);
@@ -518,23 +530,28 @@ class SocketService {
       }
       
       return new Promise((resolve) => {
-        this.socket!.emit('join-game', { gameId }, (response: any) => {
-          if (response && response.success !== false) {
-            console.log(`✅ Jeu ${gameId} rejoint avec succès`);
-            resolve(true);
-          } else {
-            console.warn(`⚠️ Échec de rejoindre le jeu ${gameId}:`, response?.error || 'Raison inconnue');
-            resolve(false);
-          }
-        });
-        
-        // Si pas de callback disponible, considérer comme succès avec un autre événement
-        this.socket!.once('game:joined', (data) => {
-          if (data && data.gameId === gameId) {
-            console.log(`✅ Jeu ${gameId} rejoint avec succès (via événement)`);
-            resolve(true);
-          }
-        });
+        if (this.socket) {
+          this.socket.emit('join-game', { gameId }, (response: any) => {
+            if (response && response.success !== false) {
+              console.log(`✅ Jeu ${gameId} rejoint avec succès`);
+              resolve(true);
+            } else {
+              console.warn(`⚠️ Échec de rejoindre le jeu ${gameId}:`, response?.error || 'Raison inconnue');
+              resolve(false);
+            }
+          });
+          
+          // Si pas de callback disponible, considérer comme succès avec un autre événement
+          this.socket.once('game:joined', (data) => {
+            if (data && data.gameId === gameId) {
+              console.log(`✅ Jeu ${gameId} rejoint avec succès (via événement)`);
+              resolve(true);
+            }
+          });
+        } else {
+          console.error('❌ Socket non disponible pour rejoindre le jeu');
+          resolve(false);
+        }
       });
     } catch (error) {
       console.error(`❌ Erreur lors de la tentative de rejoindre le jeu ${gameId}:`, error);
@@ -559,23 +576,28 @@ class SocketService {
       }
       
       return new Promise((resolve) => {
-        this.socket!.emit('join-game', { gameId }, (response: any) => {
-          if (response && response.success !== false) {
-            console.log(`✅ Jeu ${gameId} rejoint avec succès`);
-            resolve(true);
-          } else {
-            console.warn(`⚠️ Échec de rejoindre le jeu ${gameId}:`, response?.error || 'Raison inconnue');
-            resolve(false);
-          }
-        });
-        
-        // Si pas de callback disponible, considérer comme succès avec un autre événement
-        this.socket!.once('game:joined', (data) => {
-          if (data && data.gameId === gameId) {
-            console.log(`✅ Jeu ${gameId} rejoint avec succès (via événement)`);
-            resolve(true);
-          }
-        });
+        if (this.socket) {
+          this.socket.emit('join-game', { gameId }, (response: any) => {
+            if (response && response.success !== false) {
+              console.log(`✅ Jeu ${gameId} rejoint avec succès`);
+              resolve(true);
+            } else {
+              console.warn(`⚠️ Échec de rejoindre le jeu ${gameId}:`, response?.error || 'Raison inconnue');
+              resolve(false);
+            }
+          });
+          
+          // Si pas de callback disponible, considérer comme succès avec un autre événement
+          this.socket.once('game:joined', (data) => {
+            if (data && data.gameId === gameId) {
+              console.log(`✅ Jeu ${gameId} rejoint avec succès (via événement)`);
+              resolve(true);
+            }
+          });
+        } else {
+          console.error('❌ Socket non disponible pour rejoindre le jeu');
+          resolve(false);
+        }
       });
     } catch (error) {
       console.error(`❌ Erreur lors de la tentative de rejoindre le jeu ${gameId}:`, error);
@@ -596,23 +618,28 @@ class SocketService {
       }
       
       return new Promise((resolve) => {
-        this.socket!.emit('leave-game', { gameId }, (response: any) => {
-          if (response && response.success !== false) {
-            console.log(`✅ Jeu ${gameId} quitté avec succès`);
-            resolve(true);
-          } else {
-            console.warn(`⚠️ Échec de quitter le jeu ${gameId}:`, response?.error || 'Raison inconnue');
-            resolve(false);
-          }
-        });
-        
-        // Si pas de callback disponible, considérer comme succès avec un autre événement
-        this.socket!.once('game:left', (data) => {
-          if (data && data.gameId === gameId) {
-            console.log(`✅ Jeu ${gameId} quitté avec succès (via événement)`);
-            resolve(true);
-          }
-        });
+        if (this.socket) {
+          this.socket.emit('leave-game', { gameId }, (response: any) => {
+            if (response && response.success !== false) {
+              console.log(`✅ Jeu ${gameId} quitté avec succès`);
+              resolve(true);
+            } else {
+              console.warn(`⚠️ Échec de quitter le jeu ${gameId}:`, response?.error || 'Raison inconnue');
+              resolve(false);
+            }
+          });
+          
+          // Si pas de callback disponible, considérer comme succès avec un autre événement
+          this.socket.once('game:left', (data) => {
+            if (data && data.gameId === gameId) {
+              console.log(`✅ Jeu ${gameId} quitté avec succès (via événement)`);
+              resolve(true);
+            }
+          });
+        } else {
+          console.error('❌ Socket non disponible pour quitter le jeu');
+          resolve(false);
+        }
       });
     } catch (error) {
       console.error(`❌ Erreur lors de la tentative de quitter le jeu ${gameId}:`, error);
@@ -637,15 +664,20 @@ class SocketService {
       }
       
       return new Promise((resolve) => {
-        this.socket!.emit('game:force_check', { gameId }, (response: any) => {
-          if (response && response.success !== false) {
-            console.log(`✅ Vérification forcée avec succès pour le jeu ${gameId}`);
-            resolve(true);
-          } else {
-            console.warn(`⚠️ Échec de la vérification forcée:`, response?.error || 'Raison inconnue');
-            resolve(false);
-          }
-        });
+        if (this.socket) {
+          this.socket.emit('game:force_check', { gameId }, (response: any) => {
+            if (response && response.success !== false) {
+              console.log(`✅ Vérification forcée avec succès pour le jeu ${gameId}`);
+              resolve(true);
+            } else {
+              console.warn(`⚠️ Échec de la vérification forcée:`, response?.error || 'Raison inconnue');
+              resolve(false);
+            }
+          });
+        } else {
+          console.error('❌ Socket non disponible pour forcer la vérification');
+          resolve(false);
+        }
       });
     } catch (error) {
       console.error(`❌ Erreur lors du forçage de vérification:`, error);
@@ -720,46 +752,49 @@ class SocketService {
           reconnection: true,
           reconnectionAttempts: maxRetries,
           reconnectionDelay: retryDelay,
-          timeout: 10000,
+          timeout: 30000, // Augmenté à 30 secondes
           forceNew: true, // Forcer une nouvelle connexion
         });
 
-        this.socket.on('connect', () => {
-          console.log('✅ Socket connecté');
-          retryCount = 0;
-        });
-
-        this.socket.on('connect_error', (error) => {
-          console.error('❌ Erreur de connexion Socket.IO:', error);
-          
-          if (retryCount < maxRetries) {
-            retryCount++;
-            console.log(`⏳ Nouvelle tentative dans ${retryDelay/1000} secondes...`);
-            setTimeout(connect, retryDelay);
-          } else {
-            console.error('❌ Nombre maximum de tentatives atteint');
-          }
-        });
-
-        this.socket.on('disconnect', (reason) => {
-          console.warn('🔌 Socket.IO déconnecté:', reason);
-          
-          if (reason === 'io server disconnect' || reason === 'transport close') {
-            // Le serveur a déconnecté le socket, on peut essayer de se reconnecter
-            this.socket?.connect();
-          }
-        });
-
-        // Attendre la connexion avec un timeout
-        await new Promise((resolve, reject) => {
-          const timeout = setTimeout(() => {
-            reject(new Error('Timeout de connexion'));
-          }, 10000);
-
-          this.socket?.once('connect', () => {
-            clearTimeout(timeout);
-            resolve(true);
+        if (this.socket) {
+          this.socket.on('connect', () => {
+            console.log('✅ Socket connecté');
+            retryCount = 0;
           });
+
+          this.socket.on('connect_error', (error) => {
+            console.error('❌ Erreur de connexion Socket.IO:', error);
+            
+            if (retryCount < maxRetries) {
+              retryCount++;
+              console.log(`⏳ Nouvelle tentative dans ${retryDelay/1000} secondes...`);
+              setTimeout(connect, retryDelay);
+            } else {
+              console.error('❌ Nombre maximum de tentatives atteint');
+            }
+          });
+
+          this.socket.on('disconnect', (reason) => {
+            console.warn('🔌 Socket.IO déconnecté:', reason);
+            
+            if (reason === 'io server disconnect' || reason === 'transport close') {
+              // Le serveur a déconnecté le socket, on peut essayer de se reconnecter
+              if (this.socket) {
+                this.socket.connect();
+              }
+            }
+          });
+        }
+
+        // Attendre la connexion
+        await new Promise((resolve, reject) => {
+          if (this.socket) {
+            this.socket.once('connect', () => {
+              resolve(true);
+            });
+          } else {
+            reject(new Error('Socket non initialisé'));
+          }
         });
 
       } catch (error) {
@@ -776,6 +811,118 @@ class SocketService {
     };
 
     await connect();
+  }
+
+  private async ensureSocketConnection(): Promise<boolean> {
+    console.log('🔄 [SocketService] Tentative de connexion WebSocket...');
+    
+    // Si déjà connecté, on renvoie true immédiatement
+    if (this.socket && this.socket.connected) {
+      console.log('✅ [SocketService] Socket déjà connecté, ID:', this.socket.id);
+      return true;
+    }
+
+    // Préparer les informations pour la connexion
+    console.log('🔧 [SocketService] Préparation des paramètres de connexion');
+    const connectionInfo: ISocketConnectionInfo = await this.getConnectionInfo();
+    console.log(`🔧 [SocketService] Paramètres: URL=${connectionInfo.url}, Path=${connectionInfo.path}`);
+    
+    try {
+      // Récupération du socket
+      console.log('📡 [SocketService] Initialisation de Socket.IO avec l\'URL:', connectionInfo.url);
+      this.socket = io(connectionInfo.url, {
+        path: connectionInfo.path,
+        autoConnect: false,
+        transports: ['websocket'],
+        timeout: 30000,  // Augmenté à 30 secondes
+        // forceNew: true,
+        reconnection: true,
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 5000,
+        reconnectionAttempts: 10, // Augmenté à 10 tentatives
+        query: {
+          'token': connectionInfo.token
+        }
+      });
+
+      // Définition des écouteurs d'événements
+      if (this.socket) {
+        this.socket.on('connect', () => {
+          if (this.socket) {
+            console.log(`✅ [SocketService] Connexion établie avec succès! ID Socket: ${this.socket.id}`);
+          }
+          this.isConnecting = false;
+        });
+
+        this.socket.on('connect_error', (error) => {
+          console.error(`❌ [SocketService] Erreur de connexion:`, error);
+          this.isConnecting = false;
+        });
+
+        this.socket.on('disconnect', (reason) => {
+          console.warn(`⚠️ [SocketService] Déconnexion du socket (${reason})`);
+        });
+
+        this.socket.on('error', (error) => {
+          console.error(`❌ [SocketService] Erreur socket:`, error);
+        });
+
+        this.socket.on('reconnect_attempt', (attemptNumber) => {
+          console.log(`🔄 [SocketService] Tentative de reconnexion #${attemptNumber}`);
+        });
+
+        this.socket.on('reconnect_error', (error) => {
+          console.error(`❌ [SocketService] Erreur de reconnexion:`, error);
+        });
+
+        this.socket.on('reconnect_failed', () => {
+          console.error(`❌ [SocketService] Échec de toutes les tentatives de reconnexion`);
+        });
+      }
+
+      // Tentative de connexion avec promesse
+      return new Promise((resolve) => {
+        this.isConnecting = true;
+        console.log('🔌 [SocketService] Lancement de la connexion socket...');
+        if (this.socket) {
+          this.socket.connect();
+
+          // Cas de connexion réussie
+          this.socket.once('connect', () => {
+            if (this.socket) {
+              console.log(`✅ [SocketService] Événement connect reçu, ID: ${this.socket.id}`);
+            }
+            this.isConnecting = false;
+            resolve(true);
+          });
+
+          // En cas d'erreur de connexion
+          this.socket.once('connect_error', (error) => {
+            console.error(`❌ [SocketService] Erreur lors de la connexion:`, error);
+            this.isConnecting = false;
+            resolve(false);
+          });
+        } else {
+          console.error(`❌ [SocketService] Socket non initialisé`);
+          this.isConnecting = false;
+          resolve(false);
+        }
+      });
+    } catch (error) {
+      console.error(`❌ [SocketService] Exception lors de la connexion:`, error);
+      this.isConnecting = false;
+      return false;
+    }
+  }
+
+  private async getConnectionInfo(): Promise<ISocketConnectionInfo> {
+    // Implementation of getConnectionInfo method
+    // This method should return an object containing the necessary connection information
+    return {
+      url: SOCKET_URL,
+      path: '',
+      token: '' // Empty token since we're not using authService
+    };
   }
 }
 

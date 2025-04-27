@@ -440,12 +440,46 @@ export default function Room() {
 
   const handleToggleReady = () => {
     if (id) {
+      console.log(`🎮 handleToggleReady: Changement du statut pour ${!isReady ? 'prêt' : 'pas prêt'}`);
       toggleReady({ roomCode: id as string, isReady: !isReady });
+      
+      // Rafraîchir les données de la salle après un court délai pour s'assurer que le serveur a bien pris en compte le changement
+      setTimeout(() => {
+        console.log('🔄 Rafraîchissement forcé après changement de statut');
+        refreshRoomData(true);
+      }, 500);
     }
   };
 
   const handleStartGame = () => {
     if (id) {
+      console.log(`🎮 handleStartGame: Tentative de démarrage de la partie dans la salle ${id}`);
+      
+      // Vérifier si tous les joueurs non-hôtes sont prêts
+      const nonHostPlayers = players.filter(player => !player.isHost);
+      const nonReadyPlayers = nonHostPlayers.filter(player => !player.isReady);
+      
+      if (nonReadyPlayers.length > 0) {
+        console.warn(`⚠️ ${nonReadyPlayers.length} joueurs ne sont pas prêts:`, 
+          nonReadyPlayers.map(p => p.name).join(', '));
+        
+        Alert.alert(
+          "Attention",
+          `Tous les joueurs ne sont pas prêts (${nonReadyPlayers.length} en attente). Veuillez attendre que tout le monde soit prêt avant de démarrer.`,
+          [{ text: "OK" }]
+        );
+        
+        // Rafraîchir les données pour s'assurer que nous avons les statuts les plus à jour
+        setTimeout(() => {
+          console.log('🔄 Rafraîchissement forcé avant tentative de démarrage');
+          refreshRoomData(true);
+        }, 500);
+        
+        return;
+      }
+      
+      // Tout est bon, on peut démarrer
+      console.log('✅ Tous les joueurs sont prêts, démarrage de la partie...');
       startGame(id as string);
     }
   };

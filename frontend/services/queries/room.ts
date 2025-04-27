@@ -3,8 +3,30 @@ import SocketService from '@/services/socketService';
 import { GameType } from '@/types/gameTypes';
 
 export interface Room {
+  id: number;
+  code: string;
+  name: string;
   createdAt: string;
   startedAt?: string;
+  status?: 'waiting' | 'playing' | 'finished';
+  maxPlayers?: number;
+  gameMode?: string;
+  gameType?: string;
+  host: {
+    id: number;
+    username: string;
+    displayName?: string;
+    avatar?: string;
+  };
+  players?: Array<{
+    id: number;
+    username: string;
+    displayName?: string;
+    isHost?: boolean;
+    isReady?: boolean;
+    avatar?: string;
+    level?: number;
+  }>;
 }
 
 export interface CreateRoomPayload {
@@ -143,20 +165,36 @@ class RoomService {
     }
   }
 
-  // Changer le statut "prêt" d'un joueur
-  async toggleReadyStatus(roomCode: string, isReady: boolean): Promise<{ status: string; message: string; data: { isReady: boolean } }> {
-    console.log(`🔄 Mise à jour du statut dans la salle ${roomCode}:`, isReady ? 'prêt' : 'pas prêt');
+  // Change le statut "prêt" d'un joueur dans une salle
+  async toggleReadyStatus(roomCode: string, isReady: boolean): Promise<any> {
+    console.log(`🔄 Changement du statut dans la salle ${roomCode}: ${isReady ? 'prêt' : 'pas prêt'}`);
     try {
-      const payload: ReadyStatusPayload = { is_ready: isReady };
-      const url = `/rooms/${roomCode}/ready`;
-      console.log('🌐 Envoi requête POST:', url, payload);
+      // Vérification des paramètres
+      if (!roomCode) {
+        console.error('❌ Code de salle manquant pour toggleReadyStatus');
+        throw new Error('Code de salle manquant');
+      }
       
-      const response = await axios.post(url, payload);
+      // Construction du corps de la requête
+      const payload = { is_ready: isReady }; // Le backend attend "is_ready" (avec un underscore)
       
-      console.log('✅ Statut mis à jour avec succès:', response.status);
+      // Log détaillé de la requête
+      console.log(`🌐 Envoi requête POST pour status:`, { url: `/rooms/${roomCode}/ready`, payload, headers: axios.defaults.headers });
+      
+      const response = await axios.post(`/rooms/${roomCode}/ready`, payload);
+      
+      console.log(`✅ Statut mis à jour avec succès dans la salle ${roomCode}:`, response.status);
       return response.data;
     } catch (error: any) {
       console.error(`❌ Erreur lors de la mise à jour du statut dans la salle ${roomCode}:`, error);
+      // Log détaillé en cas d'erreur axios
+      if (error.response) {
+        console.error('Détails erreur:', { 
+          status: error.response.status,
+          data: error.response.data,
+          headers: error.response.headers
+        });
+      }
       throw error;
     }
   }
@@ -165,15 +203,44 @@ class RoomService {
   async startGame(roomCode: string): Promise<{ status: string; message: string; data: { gameId: number } }> {
     console.log(`🚀 Tentative de démarrage de la partie dans la salle ${roomCode}`);
     try {
+      // Vérification des paramètres
+      if (!roomCode) {
+        console.error('❌ Code de salle manquant pour startGame');
+        throw new Error('Code de salle manquant');
+      }
+      
       const url = `/rooms/${roomCode}/start`;
-      console.log('🌐 Envoi requête POST:', url);
+      
+      // Log détaillé de la requête
+      console.log('🌐 Envoi requête POST pour démarrage:', { url, headers: axios.defaults.headers });
+      
+      // Récupérer la salle avant de démarrer pour vérifier l'état des joueurs
+      console.log('🔍 Vérification de l\'état de la salle avant démarrage');
+      const roomCheck = await this.getRoomByCode(roomCode);
+      
+      if (roomCheck && roomCheck.players) {
+        const notReady = roomCheck.players.filter(p => !p.isHost && !p.isReady);
+        if (notReady.length > 0) {
+          console.warn(`⚠️ ${notReady.length} joueurs ne sont pas prêts:`, notReady.map(p => p.username));
+        } else {
+          console.log('✅ Tous les joueurs sont prêts!');
+        }
+      }
       
       const response = await axios.post(url, {});
       
-      console.log('✅ Partie démarrée avec succès:', response.status);
+      console.log('✅ Partie démarrée avec succès:', response.status, response.data);
       return response.data;
     } catch (error: any) {
       console.error(`❌ Erreur lors du démarrage de la partie dans la salle ${roomCode}:`, error);
+      // Log détaillé en cas d'erreur axios
+      if (error.response) {
+        console.error('Détails erreur:', { 
+          status: error.response.status,
+          data: error.response.data,
+          headers: error.response.headers
+        });
+      }
       throw error;
     }
   }

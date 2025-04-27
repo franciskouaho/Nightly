@@ -7,41 +7,54 @@ class GameWebSocketService {
    */
   async joinGameChannel(gameId: string): Promise<boolean> {
     try {
-      console.log(`🎮 GameWebSocketService: Tentative de rejoindre le canal de jeu ${gameId}`);
+      console.log(`🎮 [GameWebSocket] Tentative de rejoindre le jeu ${gameId}`);
       
       // Nous activons l'initialisation automatique des sockets pour les jeux
       SocketService.setAutoInit(true);
+      console.log(`🔌 Initialisation automatique des sockets: activée`);
       
       // Récupérer une instance du socket (avec forceInit=true pour s'assurer qu'elle est disponible)
+      console.log(`🔄 Récupération d'une instance socket avec forceInit=true`);
       const socket = await SocketService.getInstanceAsync(true);
       
       if (!socket) {
-        console.error('❌ Socket non disponible après tentative d\'initialisation');
+        console.error('❌ [GameWebSocket] Socket non disponible après tentative d\'initialisation');
         return false;
       }
       
+      console.log(`🔌 État du socket: ${socket.connected ? 'connecté' : 'non connecté'}, ID: ${socket.id || 'non défini'}`);
+      
+      // Récupérer l'ID utilisateur pour le logging
+      const userId = await UserIdManager.getUserId();
+      console.log(`👤 [GameWebSocket] Tentative de jointure au jeu ${gameId} pour l'utilisateur ${userId || 'inconnu'}`);
+      
       return new Promise((resolve) => {
-        // Définir un délai d'attente
-        const timeout = setTimeout(() => {
-          console.error(`⏱️ Délai d'attente dépassé pour rejoindre le jeu ${gameId}`);
+        // Événement de succès via 'game:joined'
+        socket.once('game:joined', (data) => {
+          console.log(`✅ [GameWebSocket] Événement game:joined reçu pour le jeu ${gameId}`, data);
+          resolve(true);
+        });
+        
+        // Événement d'erreur
+        socket.once('error', (error) => {
+          console.error(`❌ [GameWebSocket] Événement d'erreur reçu:`, error);
           resolve(false);
-        }, 5000);
+        });
         
         // Émettre l'événement pour rejoindre le jeu
-        socket.emit('join-game', { gameId }, (response: any) => {
-          clearTimeout(timeout);
-          
+        console.log(`📣 [GameWebSocket] Émission de l'événement join-game pour ${gameId}`);
+        socket.emit('join-game', { data: { gameId } }, (response: any) => {
           if (response && response.success !== false) {
-            console.log(`✅ Jeu ${gameId} rejoint avec succès`);
+            console.log(`✅ [GameWebSocket] Jeu ${gameId} rejoint avec succès via callback`);
             resolve(true);
           } else {
-            console.warn(`⚠️ Échec de rejoindre le jeu ${gameId}:`, response?.error || 'Raison inconnue');
+            console.warn(`⚠️ [GameWebSocket] Échec de rejoindre le jeu ${gameId}:`, response?.error || 'Raison inconnue');
             resolve(false);
           }
         });
       });
     } catch (error) {
-      console.error(`❌ Erreur lors de la tentative de rejoindre le jeu ${gameId}:`, error);
+      console.error(`❌ [GameWebSocket] Erreur lors de la tentative de rejoindre le jeu ${gameId}:`, error);
       return false;
     }
   }
@@ -66,16 +79,8 @@ class GameWebSocketService {
       }
       
       return new Promise((resolve) => {
-        // Définir un délai d'attente
-        const timeout = setTimeout(() => {
-          console.warn(`⚠️ Timeout lors de la tentative de quitter le jeu ${gameId}`);
-          resolve(false);
-        }, 5000);
-        
         // Émettre l'événement pour quitter le jeu
         socket.emit('leave-game', { gameId }, (response: any) => {
-          clearTimeout(timeout);
-          
           if (response && response.success !== false) {
             console.log(`✅ Jeu ${gameId} quitté avec succès`);
             resolve(true);
@@ -118,15 +123,8 @@ class GameWebSocketService {
       }
       
       return new Promise((resolve) => {
-        // Définir un délai d'attente
-        const timeout = setTimeout(() => {
-          console.warn(`⚠️ Timeout lors de la vérification du statut d'hôte pour ${gameId}`);
-          resolve(false);
-        }, 5000);
-        
         // Émettre l'événement pour vérifier si l'utilisateur est l'hôte
         socket.emit('game:check_host', { gameId, userId }, (response: any) => {
-          clearTimeout(timeout);
           resolve(response?.isHost || false);
         });
       });

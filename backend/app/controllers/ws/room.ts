@@ -572,7 +572,8 @@ export default class RoomsController {
         await game.save()
 
         // Récupérer une question depuis la base de données
-        const questionService = (await import('#services/question_service')).default
+        const questionServiceModule = await import('#services/question_service')
+        const questionService = questionServiceModule.default
         const questionFromDB = await questionService.getRandomQuestionByTheme(
           game.gameMode as GameMode
         )
@@ -585,7 +586,8 @@ export default class RoomsController {
           )
         } else {
           // Fallback question
-          const GamesController = (await import('#controllers/ws/game_controller')).default
+          const GamesControllerModule = await import('#controllers/ws/game')
+          const GamesController = GamesControllerModule.default
           const gameController = new GamesController()
 
           // Utiliser la méthode generateQuestion via une méthode publique temporaire
@@ -596,7 +598,8 @@ export default class RoomsController {
         }
 
         // Créer la question
-        const Question = (await import('#models/question')).default
+        const QuestionModule = await import('#models/question')
+        const Question = QuestionModule.default
         const question = await Question.create({
           text: questionText,
           theme: game.gameMode as GameMode,
@@ -775,7 +778,8 @@ export default class RoomsController {
       await game.save()
 
       // Récupérer une question depuis la base de données
-      const questionService = (await import('#services/question_service')).default
+      const questionServiceModule = await import('#services/question_service')
+      const questionService = questionServiceModule.default
       const questionFromDB = await questionService.getRandomQuestionByTheme(game.gameMode)
 
       // En cas d'échec, générer une question de secours
@@ -786,7 +790,8 @@ export default class RoomsController {
         )
       } else {
         // Fallback question
-        const GamesController = (await import('#controllers/ws/game_controller')).default
+        const GamesControllerModule = await import('#controllers/ws/game')
+        const GamesController = GamesControllerModule.default
         const gameController = new GamesController()
 
         // Utiliser la méthode generateQuestion via une méthode publique temporaire
@@ -797,7 +802,8 @@ export default class RoomsController {
       }
 
       // Créer la question
-      const Question = (await import('#models/question')).default
+      const QuestionModule = await import('#models/question')
+      const Question = QuestionModule.default
       const question = await Question.create({
         text: questionText,
         theme: game.gameMode,

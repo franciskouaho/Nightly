@@ -37,13 +37,87 @@ export default class GameController {
   /**
    * Map des services de jeu disponibles par type
    */
-  private gameServices = {
+  private gameServices: Record<string, any> = {
     'action-verite': actionVeriteService,
     // Ajouter d'autres services ici
   }
 
   private readonly LOCK_TTL = 5 // 5 secondes pour les locks
   private readonly CACHE_TTL = 2 // 2 secondes pour le cache
+
+  /**
+   * Liste les jeux avec filtres optionnels
+   */
+  async index({ request, response, auth }: HttpContext) {
+    try {
+      await auth.authenticate()
+
+      // Récupérer les paramètres de filtre
+      const gameMode = request.input('gameMode')
+      const status = request.input('status')
+
+      // Construire la requête avec les filtres
+      const query = Game.query()
+
+      if (gameMode) {
+        query.where('gameMode', gameMode)
+      }
+
+      if (status) {
+        query.where('status', status)
+      }
+
+      // Charger les relations
+      query.preload('room', (roomQuery) => {
+        roomQuery.preload('players')
+      })
+
+      // Exécuter la requête
+      const games = await query.orderBy('createdAt', 'desc').limit(20)
+
+      return response.ok({
+        status: 'success',
+        data: games,
+      })
+    } catch (error) {
+      console.error('Erreur lors de la récupération des jeux:', error)
+      return response.internalServerError({
+        error: 'Une erreur est survenue lors de la récupération des jeux',
+      })
+    }
+  }
+
+  /**
+   * Génère une question de secours quand aucune n'est trouvée dans la base de données
+   * Cette méthode est utilisée par le RoomsController lors du démarrage de partie
+   */
+  public async generateFallbackQuestion(gameMode: string, playerName: string): Promise<string> {
+    console.log(`Génération d'une question de secours pour ${playerName} en mode ${gameMode}`)
+
+    // Questions de secours par mode de jeu
+    const fallbackQuestions: Record<string, string[]> = {
+      'action-verite': [
+        `${playerName}, vérité : Quel est le plus grand mensonge que tu aies jamais dit ?`,
+        `${playerName}, action : Imite un animal de ton choix pendant 30 secondes.`,
+        `${playerName}, vérité : Quel est ton plus grand regret ?`,
+        `${playerName}, action : Envoie un message embarrassant à une personne de ton choix.`,
+        `${playerName}, vérité : Quelle est la chose la plus folle que tu aies faite par amour ?`,
+      ],
+      'on-ecoute-mais-on-ne-juge-pas': [
+        `${playerName}, préférerais-tu pouvoir voler ou être invisible ?`,
+        `${playerName}, si tu pouvais voyager dans le temps, irais-tu dans le passé ou le futur ?`,
+        `${playerName}, quel super-pouvoir aimerais-tu avoir ?`,
+        `${playerName}, si tu pouvais dîner avec n'importe quelle personne (vivante ou morte), qui choisirais-tu ?`,
+        `${playerName}, si tu devais vivre dans un film pour le reste de ta vie, lequel choisirais-tu ?`,
+      ],
+    }
+
+    // Sélection d'une question aléatoire parmi celles disponibles pour ce mode
+    const questions = fallbackQuestions[gameMode] || fallbackQuestions['action-verite']
+    const randomIndex = Math.floor(Math.random() * questions.length)
+
+    return questions[randomIndex]
+  }
 
   /**
    * Gestion des locks Redis pour les opérations concurrentes
@@ -257,7 +331,7 @@ export default class GameController {
       const gameService = await this.getGameService(game.gameMode)
 
       // Déléguer la soumission du vote au service spécifique
-      const success = await gameService.handleVote(game.id, user.id, payload.answerId)
+      const success = await gameService.handleVote(game.id, user.id, payload.answer_id)
 
       if (!success) {
         return response.badRequest({

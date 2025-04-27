@@ -7,6 +7,8 @@ import { useCreateRoom } from './useCreateRoom'; // Importer depuis le nouveau f
 import SocketService from '@/services/socketService'; // Correction du chemin d'importation
 import api from '@/config/axios'; // Ajout de l'import manquant pour l'API
 import { AxiosError } from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import userIdManager from '@/utils/userIdManager';
 
 // Interface pour les erreurs de l'API
 interface ApiErrorResponse {
@@ -234,10 +236,40 @@ export function useStartGame() {
   return useMutation({
     mutationFn: async (roomCode: string) => {
       console.log(`🎮 useStartGame: Tentative de démarrer la partie dans la salle ${roomCode}`);
-      return roomService.startGame(roomCode);
+      
+      // Vérifier la connexion internet avant de démarrer
+      const netInfo = await NetInfo.fetch();
+      if (!netInfo.isConnected) {
+        console.error('❌ Pas de connexion internet disponible');
+        throw new Error('Pas de connexion internet. Veuillez vérifier votre connexion et réessayer.');
+      }
+      
+      try {
+        // Récupérer le token du stockage pour s'assurer qu'il est présent
+        const token = await AsyncStorage.getItem('auth_token');
+        console.log(`🔑 Token pour démarrage: ${token ? 'présent' : 'manquant'}`);
+        
+        // Récupérer l'identifiant utilisateur
+        const userId = await userIdManager.getUserId();
+        console.log(`👤 Démarrage par l'utilisateur ${userId}`);
+        
+        // S'assurer que le Socket est prêt pour recevoir les mises à jour
+        try {
+          await SocketService.getInstanceAsync(true);
+          console.log(`🔌 Socket initialisé avec succès pour le démarrage de la partie`);
+        } catch (socketError) {
+          console.warn(`⚠️ Socket non initialisé pour le démarrage, cela peut causer des problèmes:`, socketError);
+        }
+        
+        // Exécuter la requête de démarrage
+        return roomService.startGame(roomCode);
+      } catch (error) {
+        console.error(`❌ Erreur lors du démarrage de la partie:`, error);
+        throw error;
+      }
     },
     onSuccess: (data) => {
-      console.log(`🎮 useStartGame: Partie démarrée avec succès, ID du jeu: ${data.data.gameId}`);
+      console.log(`🎮 useStartGame: Partie démarrée avec succès, ID du jeu:`, data.data.gameId);
       
       // Rediriger vers la page du jeu
       console.log(`🎮 useStartGame: Redirection vers /game/${data.data.gameId}`);
@@ -245,7 +277,17 @@ export function useStartGame() {
     },
     onError: (error: any, roomCode) => {
       console.error(`🎮 useStartGame: Erreur lors du démarrage de la partie dans la salle ${roomCode}`, error);
-      const errorMessage = error?.response?.data?.error || 'Impossible de démarrer la partie. Veuillez réessayer.';
+      
+      // Obtenir le message d'erreur détaillé
+      let errorMessage = 'Impossible de démarrer la partie. Veuillez réessayer.';
+      
+      if (error?.response?.data?.error) {
+        errorMessage = error.response.data.error;
+        console.error(`🎮 Message d'erreur du serveur:`, errorMessage);
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       Alert.alert('Erreur', errorMessage);
     }
   });

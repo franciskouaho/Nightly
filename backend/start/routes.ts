@@ -47,6 +47,7 @@ router
         // Routes pour le jeu
         router
           .group(() => {
+            router.get('/', [GamesController, 'index'])
             router.get('/:id', [GamesController, 'show'])
             router.post('/:id/answer', [GamesController, 'submitAnswer'])
             router.post('/:id/vote', [GamesController, 'submitVote'])
