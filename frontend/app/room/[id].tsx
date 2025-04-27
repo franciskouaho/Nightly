@@ -188,7 +188,13 @@ export default function Room() {
       // Vérifier si l'utilisateur actuel est l'hôte
       if (currentUser && currentUser.id && roomData.host) {
         // Utiliser l'ID de l'hôte depuis roomData.host
-        const isUserHost = roomData.host.id === currentUser.id;
+        console.log(`🔍 Vérification hôte: user ID=${currentUser.id} (${typeof currentUser.id}), host ID=${roomData.host.id} (${typeof roomData.host.id})`);
+        // Convertir les deux en string pour une comparaison correcte
+        const currentUserId = String(currentUser.id);
+        const hostId = String(roomData.host.id);
+        console.log(`🔍 IDs convertis en string: user=${currentUserId}, host=${hostId}`);
+        
+        const isUserHost = currentUserId === hostId;
         setIsHost(isUserHost);
         console.log(`👑 Utilisateur est hôte: ${isUserHost}`);
         
@@ -552,16 +558,23 @@ export default function Room() {
 
   const handleStartGame = () => {
     if (id) {
-      console.log(`🎮 handleStartGame: Tentative de démarrage de la partie dans la salle ${id}`);
+      // Double vérification de l'état hôte
+      if (!isHost) {
+        Alert.alert(
+          "Erreur",
+          "Seul l'hôte peut démarrer la partie.",
+          [{ text: "OK" }]
+        );
+        return;
+      }
       
       // Vérifier si tous les joueurs non-hôtes sont prêts
       const nonHostPlayers = players.filter(player => !player.isHost);
       const nonReadyPlayers = nonHostPlayers.filter(player => !player.isReady);
       
+      console.log(`===== 🔴 IMPORTANT: ${nonHostPlayers.length} joueurs non-hôtes, ${nonReadyPlayers.length} joueurs non prêts =====`);
+      
       if (nonReadyPlayers.length > 0) {
-        console.warn(`⚠️ ${nonReadyPlayers.length} joueurs ne sont pas prêts:`, 
-          nonReadyPlayers.map(p => p.name).join(', '));
-        
         Alert.alert(
           "Attention",
           `Tous les joueurs ne sont pas prêts (${nonReadyPlayers.length} en attente). Veuillez attendre que tout le monde soit prêt avant de démarrer.`,
@@ -570,38 +583,16 @@ export default function Room() {
         
         // Rafraîchir les données pour s'assurer que nous avons les statuts les plus à jour
         setTimeout(() => {
-          console.log('🔄 Rafraîchissement forcé avant tentative de démarrage');
           refreshRoomData(true);
         }, 500);
         
         return;
       }
+
+      console.log(`Francis ${id}`);
       
       // Tout est bon, on peut démarrer
-      console.log('✅ Tous les joueurs sont prêts, démarrage de la partie...');
-      
-      // Vérifier que le socket est bien connecté avant de démarrer
-      const socketCheck = async () => {
-        try {
-          // Vérifier la connexion socket et forcer une reconnexion si nécessaire
-          if (!SocketService.isConnected()) {
-            console.log('🔄 Reconnexion du socket avant démarrage...');
-            await SocketService.reconnect();
-          }
-          
-          // Vérifier si nous sommes toujours dans la salle
-          await SocketService.joinRoom(id as string);
-          
-          // Continuer avec le démarrage
-          return startGame(id as string);
-        } catch (error) {
-          console.warn('⚠️ Erreur lors de la vérification socket, on continue quand même:', error);
-          return startGame(id as string);
-        }
-      };
-      
-      // Exécuter la vérification socket puis démarrer
-      socketCheck();
+      startGame(id as string);
     }
   };
 

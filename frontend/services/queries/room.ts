@@ -1,6 +1,7 @@
-import axios from '@/config/axios';
+import api from '@/config/axios';
 import SocketService from '@/services/socketService';
 import { GameType } from '@/types/gameTypes';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export interface Room {
   id: number;
@@ -44,45 +45,32 @@ export interface ReadyStatusPayload {
 }
 
 class RoomService {  
-  // Liste toutes les salles disponibles
+  // List all available rooms
   async getRooms(): Promise<Room[]> {
-    console.log('📋 Récupération de la liste des salles');
     try {
       const url = `/rooms`;
-      console.log('🌐 Envoi requête GET:', url);
-      
-      const response = await axios.get(url);
-      
-      console.log('✅ Réponse salles reçue:', response.status);
+      const response = await api.get(url);
       return response.data.data;
     } catch (error: any) {
-      console.error('❌ Erreur lors de la récupération des salles:', error);
       throw error;
     }
   }
 
-  // Récupère les détails d'une salle spécifique
+  // Get details of a specific room
   async getRoomByCode(roomCode: string): Promise<Room> {
-    console.log(`🔍 Récupération des détails de la salle ${roomCode}`);
     try {
       const url = `/rooms/${roomCode}`;
-      console.log('🌐 Envoi requête GET:', url);
-      
-      const response = await axios.get(url);
-      
-      console.log('✅ Détails de la salle reçus:', response.status);
+      const response = await api.get(url);
       return response.data.data;
     } catch (error: any) {
-      console.error(`❌ Erreur lors de la récupération de la salle ${roomCode}:`, error);
       throw error;
     }
   }
 
-  // Crée une nouvelle salle
+  // Create a new room
   async createRoom(payload: CreateRoomPayload): Promise<Room> {
-    console.log('🏗️ Création d\'une nouvelle salle avec payload:', payload);
     try {
-      // Format simplifié sans transformations complexes
+      // Simplified format without complex transformations
       const formattedPayload = {
         name: payload.name,
         game_mode: payload.game_mode,
@@ -94,156 +82,114 @@ class RoomService {
       };
       
       const url = `/rooms`;
-      console.log('🌐 Envoi requête POST:', url, formattedPayload);
-      
-      const response = await axios.post(url, formattedPayload);
-      
-      console.log('✅ Salle créée avec succès:', response.status);
+      const response = await api.post(url, formattedPayload);
       return response.data.data;
     } catch (error: any) {
-      console.error('❌ Erreur lors de la création de la salle:', error);
       throw error;
     }
   }
 
-  // Rejoindre une salle
+  // Join a room
   async joinRoom(roomCode: string): Promise<{ status: string; message: string }> {
-    console.log(`🚪 Tentative de rejoindre la salle ${roomCode}`);
     try {
       const url = `/rooms/${roomCode}/join`;
-      console.log('🌐 Envoi requête POST:', url);
       
       try {
-        const response = await axios.post(url, {});
+        const response = await api.post(url, {});
         
-        console.log('✅ Salle rejointe avec succès:', response.status);
-        
-        // Rejoindre également via WebSocket après succès HTTP en utilisant try/catch
+        // Also join via WebSocket after HTTP success using try/catch
         try {
           SocketService.joinRoom(roomCode);
-          console.log(`✅ Demande WebSocket pour rejoindre la salle ${roomCode} envoyée`);
         } catch (socketError) {
-          console.error('❌ Erreur WebSocket ignorée:', socketError);
+          // Socket error ignored
         }
         
         return response.data;
       } catch (axiosError: any) {
-        console.error(`❌ Erreur HTTP lors de la tentative de rejoindre la salle ${roomCode}:`, 
-          axiosError.response?.status || 'Sans statut', 
-          axiosError.response?.data || axiosError.message);
         throw axiosError;
       }
     } catch (error: any) {
-      console.error(`❌ Erreur lors de la tentative de rejoindre la salle ${roomCode}:`, error);
       throw error;
     }
   }
 
-  // Quitter une salle
+  // Leave a room
   async leaveRoom(roomCode: string): Promise<{ status: string; message: string }> {
-    console.log(`🚶 Tentative de quitter la salle ${roomCode}`);
     try {
       const url = `/rooms/${roomCode}/leave`;
-      console.log('🌐 Envoi requête POST:', url);
+      const response = await api.post(url, {});
       
-      const response = await axios.post(url, {});
-      
-      console.log('✅ Salle quittée avec succès:', response.status);
-      
-      // Également quitter la salle via WebSocket
+      // Also leave the room via WebSocket
       try {
         SocketService.leaveRoom(roomCode);
-        console.log(`✅ Demande WebSocket pour quitter la salle ${roomCode} envoyée`);
       } catch (socketError) {
-        console.error('❌ Erreur WebSocket ignorée lors de la tentative de quitter:', socketError);
+        // Socket error ignored
       }
       
       return response.data;
     } catch (error: any) {
-      console.error(`❌ Erreur lors de la tentative de quitter la salle ${roomCode}:`, error);
       throw error;
     }
   }
 
-  // Change le statut "prêt" d'un joueur dans une salle
+  // Change a player's ready status in a room
   async toggleReadyStatus(roomCode: string, isReady: boolean): Promise<any> {
-    console.log(`🔄 Changement du statut dans la salle ${roomCode}: ${isReady ? 'prêt' : 'pas prêt'}`);
     try {
-      // Vérification des paramètres
+      // Check parameters
       if (!roomCode) {
-        console.error('❌ Code de salle manquant pour toggleReadyStatus');
-        throw new Error('Code de salle manquant');
+        throw new Error('Missing room code');
       }
       
-      // Construction du corps de la requête
-      const payload = { is_ready: isReady }; // Le backend attend "is_ready" (avec un underscore)
+      // Build request body
+      const payload = { is_ready: isReady }; // Backend expects "is_ready" (with underscore)
       
-      // Log détaillé de la requête
-      console.log(`🌐 Envoi requête POST pour status:`, { url: `/rooms/${roomCode}/ready`, payload, headers: axios.defaults.headers });
-      
-      const response = await axios.post(`/rooms/${roomCode}/ready`, payload);
-      
-      console.log(`✅ Statut mis à jour avec succès dans la salle ${roomCode}:`, response.status);
+      const response = await api.post(`/rooms/${roomCode}/ready`, payload);
       return response.data;
     } catch (error: any) {
-      console.error(`❌ Erreur lors de la mise à jour du statut dans la salle ${roomCode}:`, error);
-      // Log détaillé en cas d'erreur axios
-      if (error.response) {
-        console.error('Détails erreur:', { 
-          status: error.response.status,
-          data: error.response.data,
-          headers: error.response.headers
-        });
-      }
       throw error;
     }
   }
 
-  // Démarrer la partie
+  // Start the game
   async startGame(roomCode: string): Promise<{ status: string; message: string; data: { gameId: number } }> {
-    console.log(`🚀 Tentative de démarrage de la partie dans la salle ${roomCode}`);
     try {
-      // Vérification des paramètres
+      // Check parameters
       if (!roomCode) {
-        console.error('❌ Code de salle manquant pour startGame');
-        throw new Error('Code de salle manquant');
+        throw new Error('Missing room code');
+      }
+            
+      // Try to join via socket before starting the game
+      try {
+        await SocketService.joinRoom(roomCode);
+      } catch (socketError) {
+        // Continuer même en cas d'erreur socket
       }
       
-      const url = `/rooms/${roomCode}/start`;
-      
-      // Log détaillé de la requête
-      console.log('🌐 Envoi requête POST pour démarrage:', { url, headers: axios.defaults.headers });
-      
-      // Récupérer la salle avant de démarrer pour vérifier l'état des joueurs
-      console.log('🔍 Vérification de l\'état de la salle avant démarrage');
-      const roomCheck = await this.getRoomByCode(roomCode);
-      
-      if (roomCheck && roomCheck.players) {
-        const notReady = roomCheck.players.filter(p => !p.isHost && !p.isReady);
-        if (notReady.length > 0) {
-          console.warn(`⚠️ ${notReady.length} joueurs ne sont pas prêts:`, notReady.map(p => p.username));
-        } else {
-          console.log('✅ Tous les joueurs sont prêts!');
+      // Make the start request with error handling
+      try {
+        console.log(`===== 🔴 IMPORTANT: REQUÊTE START ENVOYÉE À ${url} =====`);
+        const response = await api.post(`/rooms/${roomCode}/start`);
+        console.log(`===== 🔴 IMPORTANT: RÉPONSE REÇUE =====`, response.data);
+        
+        // Try to establish WebSocket connection to the game
+        if (response.data?.data?.gameId) {
+          try {
+            await SocketService.joinGame(String(response.data.data.gameId));
+          } catch (gameSocketError) {
+            // Ignorer les erreurs de socket
+          }
         }
+        
+        return response.data;
+      } catch (startError: any) {
+        throw startError;
       }
-      
-      const response = await axios.post(url, {});
-      
-      console.log('✅ Partie démarrée avec succès:', response.status, response.data);
-      return response.data;
     } catch (error: any) {
-      console.error(`❌ Erreur lors du démarrage de la partie dans la salle ${roomCode}:`, error);
-      // Log détaillé en cas d'erreur axios
-      if (error.response) {
-        console.error('Détails erreur:', { 
-          status: error.response.status,
-          data: error.response.data,
-          headers: error.response.headers
-        });
-      }
       throw error;
     }
   }
 }
 
+// Export a singleton instance of RoomService
 export const roomService = new RoomService();
+

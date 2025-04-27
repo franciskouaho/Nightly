@@ -49,18 +49,81 @@ class RoomSocketService {
    * Démarre une partie dans une salle
    */
   async startGame(roomCode: string): Promise<{ success: boolean; gameId?: string }> {
-    const socket = socketManager.getSocketInstance();
-    if (!socket || !socket.connected) return { success: false };
-    
-    return new Promise((resolve) => {
-      socket.emit('room:start_game', { roomCode }, (response: any) => {
-        if (response && response.success && response.gameId) {
-          resolve({ success: true, gameId: response.gameId });
-        } else {
-          resolve({ success: false });
+    try {
+      console.log(`🎮 RoomSocketService: Tentative de démarrage de la partie dans la salle ${roomCode}`);
+      
+      // Vérifier si un socket existe et est connecté
+      let socket = socketManager.getSocketInstance();
+      
+      // Si pas de socket ou pas connecté, tenter de l'initialiser
+      if (!socket || !socket.connected) {
+        console.log(`🔄 RoomSocketService: Socket non connecté, tentative d'initialisation...`);
+        try {
+          socket = await socketManager.getInstanceAsync(true);
+          
+          // Vérifier si l'initialisation a réussi
+          if (!socket || !socket.connected) {
+            console.error(`❌ RoomSocketService: Échec d'initialisation du socket`);
+            return { success: false };
+          }
+          
+          console.log(`✅ RoomSocketService: Socket initialisé avec succès (${socket.id})`);
+          
+          // Tenter de rejoindre la salle avant de démarrer la partie
+          const joinResult = await socketManager.joinRoom(roomCode);
+          if (!joinResult) {
+            console.warn(`⚠️ RoomSocketService: Impossible de rejoindre la salle ${roomCode}, mais on continue`);
+          } else {
+            console.log(`✅ RoomSocketService: Salle ${roomCode} rejointe avec succès`);
+          }
+        } catch (error) {
+          console.error(`❌ RoomSocketService: Erreur lors de l'initialisation du socket:`, error);
+          return { success: false };
         }
+      }
+      
+      // Vérifier à nouveau si le socket est disponible après les tentatives
+      socket = socketManager.getSocketInstance();
+      if (!socket || !socket.connected) {
+        console.error(`❌ RoomSocketService: Socket toujours non disponible après les tentatives`);
+        return { success: false };
+      }
+      
+      console.log(`🚀 RoomSocketService: Émission de l'événement room:start_game pour ${roomCode}`);
+      
+      return new Promise((resolve) => {
+        // Ajouter un timeout pour éviter de bloquer indéfiniment
+        const timeout = setTimeout(() => {
+          console.warn(`⚠️ RoomSocketService: Timeout lors du démarrage de la partie dans ${roomCode}`);
+          resolve({ success: false });
+        }, 10000);
+        
+        socket!.emit('room:start_game', { roomCode }, (response: any) => {
+          clearTimeout(timeout);
+          
+          if (response && response.success && response.gameId) {
+            console.log(`✅ RoomSocketService: Partie démarrée avec succès dans ${roomCode}, gameId: ${response.gameId}`);
+            resolve({ success: true, gameId: response.gameId });
+          } else {
+            console.warn(`⚠️ RoomSocketService: Échec du démarrage de la partie dans ${roomCode}:`, response);
+            resolve({ success: false });
+          }
+        });
+        
+        // Écouter également l'événement game_started en cas de problème avec le callback
+        socket!.once('game:started', (data: any) => {
+          clearTimeout(timeout);
+          
+          if (data && data.gameId) {
+            console.log(`✅ RoomSocketService: Partie démarrée avec succès via l'événement game:started, gameId: ${data.gameId}`);
+            resolve({ success: true, gameId: data.gameId });
+          }
+        });
       });
-    });
+    } catch (error) {
+      console.error(`❌ RoomSocketService: Exception lors du démarrage de la partie:`, error);
+      return { success: false };
+    }
   }
 
   /**

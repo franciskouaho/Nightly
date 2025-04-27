@@ -43,7 +43,6 @@ class GameService {
     // Vérifier périodiquement si on peut réactiver le socket
     setInterval(() => {
       if (!this.socketEnabled && this.socketFailCounter < this.MAX_SOCKET_FAILS) {
-        console.log('🔄 GameService: Tentative de réactivation du WebSocket');
         this.socketEnabled = true;
       }
     }, this.SOCKET_RESET_INTERVAL);
@@ -57,7 +56,6 @@ class GameService {
   // Vérifier si une transition de phase est valide
   private isValidTransition(from: string, to: string): boolean {
     if (!this.isValidPhase(from) || !this.isValidPhase(to)) {
-      console.error(`❌ Phase invalide détectée: ${from} -> ${to}`);
       return false;
     }
     return this.PHASE_TRANSITIONS[from]?.includes(to) || false;
@@ -68,7 +66,6 @@ class GameService {
     // Si gameId est une chaîne et correspond à un type de jeu spécial
     if (typeof gameId === 'string' && gameId === 'truth-or-dare') {
       const url = '/games';
-      console.log('🔐 API Request: GET', url);
       if (userId && api && api.defaults) {
         api.defaults.headers.userId = String(userId);
       }
@@ -90,12 +87,10 @@ class GameService {
         state: gameData,
         timestamp: Date.now()
       });
-      console.log('✅ GameService: État du jeu action-vérité récupéré avec succès (REST)');
       return gameData;
     } else {
       // Cas normal avec ID numérique
       const url = `/games/${gameId}`;
-      console.log('🔐 API Request: GET', url);
       if (userId && api && api.defaults) {
         api.defaults.headers.userId = String(userId);
       }
@@ -105,16 +100,12 @@ class GameService {
         state: gameData,
         timestamp: Date.now()
       });
-      console.log('✅ GameService: État du jeu', gameId, 'récupéré avec succès (REST)');
       return gameData;
     }
   }
 
   // Récupérer l'état actuel du jeu, priorité au WebSocket
   async getGameState(gameId: string | number, retryCount = 0, maxRetries = 3): Promise<GameState> {
-    console.log(`🎮 GameService: Récupération de l'état du jeu ${gameId} via API REST`);
-
-    // Récupérer l'ID utilisateur
     const userId = await UserIdManager.getUserId();
     if (!userId) {
       throw new Error("ID utilisateur non disponible");
@@ -123,7 +114,6 @@ class GameService {
     // Vérifier si on a des données en cache récentes
     const cachedData = this.gameStateCache.get(String(gameId));
     if (cachedData && Date.now() - cachedData.timestamp < this.CACHE_TTL) {
-      console.log(`🗄️ GameService: Utilisation du cache récent pour ${gameId}`);
       return cachedData.state;
     }
 
@@ -139,7 +129,6 @@ class GameService {
 
       return gameData;
     } catch (error) {
-      console.error(`❌ Erreur lors de la récupération via API REST:`, error);
       throw error;
     }
   }
@@ -157,7 +146,6 @@ class GameService {
         })
       );
     } catch (error) {
-      console.warn('⚠️ Erreur lors de la persistence de l\'état du jeu:', error);
     }
   }
 
@@ -177,7 +165,6 @@ class GameService {
       }
       return null;
     } catch (error) {
-      console.warn('⚠️ Erreur lors de la récupération de l\'état persitant du jeu:', error);
       return null;
     }
   }
@@ -186,16 +173,11 @@ class GameService {
    * Soumettre une réponse à une question directement via HTTP REST
    */
   async submitAnswer(gameId: string, questionId: string, content: string) {
-    console.log(`🎮 GameService: Soumission de réponse pour le jeu ${gameId}, question ${questionId}`);
-    
     try {
       // Récupérer l'ID utilisateur
       const userId = await UserIdManager.getUserId();
-      console.log(`👤 GameService: Soumission de réponse par utilisateur ${userId}`);
       
       // Utiliser directement HTTP REST pour une fiabilité maximale
-      console.log('🌐 Envoi de la réponse via HTTP REST...');
-      
       const response = await api.post(`/games/${gameId}/answer`, {
         question_id: questionId,
         content: content,
@@ -205,14 +187,11 @@ class GameService {
       });
       
       if (response.data?.status === 'success') {
-        console.log('✅ Réponse soumise avec succès via HTTP');
         return true;
       } else {
-        console.error('❌ Réponse du serveur inattendue:', response.data);
         throw new Error(response.data?.error || 'Échec de la soumission via HTTP');
       }
     } catch (error) {
-      console.error('❌ GameService: Erreur lors de la soumission de la réponse:', error);
       throw error;
     }
   }
@@ -225,8 +204,6 @@ class GameService {
    */
   async submitVote(gameId: string, answerId: string): Promise<void> {
     try {
-      console.log(`🎮 [GameService] Début de la soumission du vote pour le jeu ${gameId}, réponse ${answerId}`);
-      
       const userId = await UserIdManager.getUserId();
       
       if (!userId) {
@@ -241,8 +218,6 @@ class GameService {
         throw new Error("Question actuelle non trouvée");
       }
       
-      console.log('🌐 Envoi du vote via HTTP REST...');
-      
       const response = await api.post(`/games/${gameId}/vote`, {
         answer_id: answerId,
         question_id: currentQuestion.id,
@@ -252,14 +227,11 @@ class GameService {
       });
       
       if (response.data?.status === 'success') {
-        console.log('✅ Vote soumis avec succès via HTTP');
         return;
       } else {
-        console.error('❌ Réponse du serveur inattendue:', response.data);
         throw new Error(response.data?.error || 'Échec de la soumission du vote');
       }
     } catch (error) {
-      console.error(`❌ [GameService] Erreur lors de la soumission du vote:`, error);
       throw error;
     }
   }
@@ -293,15 +265,11 @@ class GameService {
    */
   async isUserRoomHost(gameId: string | number, userId: string | number): Promise<boolean> {
     try {
-      console.log(`👑 Vérification si utilisateur ${userId} est l'hôte de ${gameId}`);
-      
-      // S'assurer que la connexion WebSocket est active
       await gameWebSocketService.ensureSocketConnection(String(gameId));
       
       // Utiliser la méthode d'instance au lieu de la méthode statique
       return await gameWebSocketService.isUserHost(String(gameId));
     } catch (error) {
-      console.error(`❌ Erreur lors de la vérification de l'hôte:`, error);
       return false;
     }
   }
@@ -311,8 +279,6 @@ class GameService {
    */
   async nextRound(gameId: string, forceAdvance: boolean = false): Promise<any> {
     try {
-      console.log(`🌐 Passage au tour suivant via HTTP direct pour le jeu ${gameId}`);
-      
       // Invalider immédiatement le cache pour forcer un rechargement après
       this.gameStateCache.delete(gameId);
       
@@ -333,8 +299,6 @@ class GameService {
         timeout: 8000 // timeout plus long pour assurer une chance de succès
       });
       
-      console.log(`✅ Réponse du serveur pour passage au tour suivant:`, response.data);
-      
       if (response.data?.status === 'success') {
         // Forcer un rafraîchissement des données après un court délai
         setTimeout(() => this.getGameState(gameId), 500);
@@ -343,7 +307,6 @@ class GameService {
         throw new Error(response.data?.message || "Échec du passage au tour suivant");
       }
     } catch (error) {
-      console.error(`❌ Erreur lors du passage au tour suivant:`, error);
       throw error;
     }
   }
@@ -353,8 +316,6 @@ class GameService {
    */
   async forcePhaseTransition(gameId: string, targetPhase: string): Promise<boolean> {
     try {
-      console.log(`🎯 [GameService] Tentative de forcer la phase ${targetPhase} pour le jeu ${gameId}`);
-      
       // Utiliser notre utilitaire de transition de phase
       const success = await GameStateHelper.forcePhaseTransition(gameId, targetPhase);
       
@@ -367,7 +328,6 @@ class GameService {
       
       return success;
     } catch (error) {
-      console.error(`❌ [GameService] Erreur lors de la transition forcée:`, error);
       return false;
     }
   }
@@ -377,8 +337,6 @@ class GameService {
    */
   async forceVotePhaseForTarget(gameId: string): Promise<boolean> {
     try {
-      console.log(`🎯 [GameService] Tentative de forcer la phase vote pour la cible du jeu ${gameId}`);
-      
       // Utiliser notre utilitaire dédié
       const success = await GameStateHelper.forceVotePhaseForTarget(gameId);
       
@@ -391,7 +349,6 @@ class GameService {
       
       return success;
     } catch (error) {
-      console.error(`❌ [GameService] Erreur lors du forçage de phase vote pour la cible:`, error);
       return false;
     }
   }
@@ -402,7 +359,6 @@ class GameService {
       // Vérifier d'abord la connexion internet
       const netInfo = await NetInfo.fetch();
       if (!netInfo.isConnected) {
-        console.error('❌ Pas de connexion internet disponible');
         return false;
       }
 
@@ -413,19 +369,14 @@ class GameService {
 
       while (!connected && attempts < maxAttempts) {
         attempts++;
-        console.log(`🔄 Tentative de connexion WebSocket ${attempts}/${maxAttempts}`);
 
         try {
           const socket = await gameWebSocketService.ensureSocketConnection(gameId);
           connected = socket && socket.connected;
           if (connected) {
-            console.log('✅ Connexion WebSocket établie avec succès');
             return true;
           }
         } catch (error) {
-          console.error(`❌ Erreur lors de la tentative ${attempts}:`, error);
-          
-          // Attendre avant la prochaine tentative
           if (attempts < maxAttempts) {
             await new Promise(resolve => setTimeout(resolve, 500));
           }
@@ -433,13 +384,11 @@ class GameService {
       }
 
       if (!connected) {
-        console.error('❌ Échec de la connexion WebSocket après plusieurs tentatives');
         return false;
       }
 
       return true;
     } catch (error) {
-      console.error('❌ Erreur lors de la vérification de la connexion WebSocket:', error);
       return false;
     }
   }
@@ -454,7 +403,6 @@ class GameService {
       
       return await gameWebSocketService.forceCheckPhase(gameId);
     } catch (error) {
-      console.error('❌ Erreur lors de la vérification forcée de la phase:', error);
       return false;
     }
   }
@@ -464,8 +412,6 @@ class GameService {
    */
   async forceTransitionToAnswer(gameId: string): Promise<boolean> {
     try {
-      console.log(`🔄 [GameService] Tentative de forcer la phase answer pour le jeu ${gameId}`);
-      
       // S'assurer que la connexion WebSocket est active
       await this.ensureSocketConnection(gameId);
       
@@ -488,7 +434,6 @@ class GameService {
         });
       });
     } catch (error) {
-      console.error(`❌ [GameService] Erreur lors de la transition forcée:`, error);
       return false;
     }
   }
@@ -499,10 +444,8 @@ class GameService {
   clearCache(gameId?: string) {
     if (gameId) {
       this.gameStateCache.delete(gameId);
-      console.log(`🧹 Cache effacé pour le jeu ${gameId}`);
     } else {
       this.gameStateCache.clear();
-      console.log('🧹 Cache entièrement effacé');
     }
   }
 }
@@ -513,7 +456,6 @@ export default gameService;
 // Fonction utilitaire pour sécuriser les emits
 function safeEmit(socket: any, ...args: any[]) {
   if (!socket || !socket.connected) {
-    console.error('❌ [WebSocket] Tentative d\'emit sur un socket non connecté ou undefined', { socket });
     return;
   }
   socket.emit(...args);

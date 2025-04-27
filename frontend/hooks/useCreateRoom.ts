@@ -5,57 +5,43 @@ import { Alert } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 
 /**
- * Hook pour créer une nouvelle salle de jeu
- * Ce hook est extrait de useRooms pour une utilisation plus ciblée
+ * Hook for creating a new game room
+ * This hook is extracted from useRooms for more targeted use
  */
 export function useCreateRoom() {
-  console.log('🎮 useCreateRoom: Initialisation du hook');
   const queryClient = useQueryClient();
   const router = useRouter();
 
   return useMutation({
     mutationFn: async (payload: CreateRoomPayload) => {
-      console.log('🎮 useCreateRoom: Création d\'une nouvelle salle', payload);
-      
-      // Vérification de la connexion internet
+      // Check internet connection
       const netInfo = await NetInfo.fetch();
       if (!netInfo.isConnected) {
-        console.error('❌ Pas de connexion internet disponible');
-        throw new Error('Pas de connexion internet. Veuillez vérifier votre connexion et réessayer.');
+        throw new Error('No internet connection. Please check your connection and try again.');
       }
       
       return roomService.createRoom(payload);
     },
     onSuccess: (data) => {
-      console.log(`🎮 useCreateRoom: Salle créée avec succès, code: ${data.code}`);
-      
-      // Invalider la requête de liste des salles pour la forcer à se rafraîchir
+      // Invalidate room list query to force refresh
       queryClient.invalidateQueries({ queryKey: ['rooms'] });
       
-      // Ajouter la nouvelle salle au cache
+      // Add new room to cache
       queryClient.setQueryData(['rooms', data.code], data);
       
-      // Rediriger vers la page de la salle nouvellement créée
-      console.log(`🎮 useCreateRoom: Redirection vers /room/${data.code}`);
+      // Redirect to newly created room page
       router.push(`/room/${data.code}`);
     },
     onError: (error: any) => {
-      console.error('🎮 useCreateRoom: Erreur lors de la création de la salle:', error);
-      
-      let message = 'Impossible de créer la salle. Veuillez réessayer.';
+      let message = 'Unable to create room. Please try again.';
       
       if (error.message.includes('Network Error')) {
-        message = 'Problème de connexion au serveur. Veuillez vérifier votre connexion internet et réessayer.';
-        
-        // Vérifier l'état de la connexion
-        NetInfo.fetch().then(state => {
-          console.error(`🌐 État connexion lors de l'erreur: ${state.isConnected ? 'Connecté' : 'Non connecté'} (${state.type})`);
-        });
+        message = 'Server connection problem. Please check your internet connection and try again.';
       } else if (error.response?.data?.error) {
         message = error.response.data.error;
       }
       
-      Alert.alert('Erreur', message);
+      Alert.alert('Error', message);
     }
   });
 }

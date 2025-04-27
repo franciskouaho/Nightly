@@ -38,9 +38,6 @@ class SocketManager {
    */
   setAutoInit(enabled: boolean): void {
     this.autoInit = enabled;
-    if (process.env.NODE_ENV !== 'production') {
-      console.log(`🔌 Initialisation automatique des sockets: ${enabled ? 'activée' : 'désactivée'}`);
-    }
   }
 
   /**
@@ -63,31 +60,19 @@ class SocketManager {
   async initialize(forceInit: boolean = false): Promise<Socket> {
     // Si l'initialisation n'est pas forcée et autoInit est false, ne pas se connecter
     if (!forceInit && !this.autoInit) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('🔌 Initialisation Socket.IO reportée (pas de forceInit)');
-      }
       throw new Error('Socket.IO initialization postponed - explicit initialization required');
     }
 
     // Si l'initialisation est déjà en cours, retourner la promesse existante
     if (this.initPromise) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('🔌 Connexion Socket.IO déjà en cours, attente...');
-      }
       return this.initPromise;
     }
 
     // Si le socket existe déjà et est connecté, le retourner directement
     if (this.socket && this.socket.connected) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('✅ Socket.IO déjà initialisé et connecté');
-      }
       return this.socket;
     }
 
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('🔌 Initialisation de la connexion Socket.IO...');
-    }
     this.isInitializing = true;
 
     // Créer une promesse pour l'initialisation
@@ -104,7 +89,7 @@ class SocketManager {
 
         // Récupérer l'ID utilisateur et le token
         const userId = await UserIdManager.getUserId();
-        const token = await AsyncStorage.getItem('auth_token');
+        const token = await AsyncStorage.getItem('@auth_token');
 
         // Initialiser le socket avec le SOCKET_URL configuré
         this.socket = io(SOCKET_URL, {
@@ -149,17 +134,10 @@ class SocketManager {
     if (!this.socket) return;
 
     this.socket.on('connect', () => {
-      if (process.env.NODE_ENV !== 'production') {
-        console.log(`✅ Socket.IO connecté avec ID: ${this.socket?.id}`);
-      }
       this.reconnectAttempts = 0;
     });
 
     this.socket.on('connect_error', (error) => {
-      if (process.env.NODE_ENV !== 'production') {
-        console.error(`❌ Erreur de connexion Socket.IO:`, error);
-      }
-
       if (this.reconnectAttempts < this.MAX_RECONNECT_ATTEMPTS) {
         this.reconnectAttempts++;
         setTimeout(() => {
@@ -169,16 +147,9 @@ class SocketManager {
     });
 
     this.socket.on('error', (error) => {
-      if (process.env.NODE_ENV !== 'production') {
-        console.error(`❌ Erreur Socket:`, error);
-      }
     });
 
     this.socket.on('disconnect', (reason) => {
-      if (process.env.NODE_ENV !== 'production') {
-        console.warn(`🔌 Socket.IO déconnecté: ${reason}`);
-      }
-      
       if (reason === 'io server disconnect' || reason === 'transport close') {
         if (this.reconnectAttempts < this.MAX_RECONNECT_ATTEMPTS) {
           this.reconnectAttempts++;
@@ -437,20 +408,16 @@ class SocketManager {
    */
   async joinGame(gameId: string): Promise<boolean> {
     try {
-      console.log(`🎮 Tentative de rejoindre le canal du jeu ${gameId}`);
-      
       // S'assurer que la connexion est bien établie
       await this.ensureSocketConnection();
       
       const socket = this.getSocketInstance();
       if (!socket) {
-        console.error("❌ Socket non disponible pour rejoindre le jeu");
         return false;
       }
       
       // Vérifier si déjà dans ce canal
       if (this.activeGames.has(gameId)) {
-        console.log(`✅ Déjà dans le canal du jeu ${gameId}`);
         return true;
       }
 
@@ -460,7 +427,6 @@ class SocketManager {
       return new Promise((resolve) => {
         // Définir un timeout pour éviter de bloquer indéfiniment
         const timeoutId = setTimeout(() => {
-          console.error(`❌ Délai dépassé pour rejoindre le jeu ${gameId}`);
           resolve(false);
         }, 5000);
         
@@ -470,10 +436,8 @@ class SocketManager {
           
           if (response && response.success) {
             this.activeGames.add(gameId);
-            console.log(`✅ Canal du jeu ${gameId} rejoint avec succès`);
             resolve(true);
           } else {
-            console.error(`❌ Erreur lors de la tentative de rejoindre le jeu ${gameId}:`, response?.error || 'Erreur inconnue');
             resolve(false);
           }
         });
@@ -481,11 +445,9 @@ class SocketManager {
         // Émettre un deuxième événement au format game:join pour compatibilité
         socket.emit('game:join', { gameId }, (response: any) => {
           // Ne pas résoudre ici car déjà fait dans l'autre émission
-          console.log(`ℹ️ Réponse secondaire game:join:`, response);
         });
       });
     } catch (error) {
-      console.error(`❌ Erreur lors de la tentative de rejoindre le jeu ${gameId}:`, error);
       return false;
     }
   }
@@ -673,7 +635,7 @@ class SocketManager {
    * Récupère les informations de connexion
    */
   private async getConnectionInfo(): Promise<ISocketConnectionInfo> {
-    const token = await AsyncStorage.getItem('auth_token') || '';
+    const token = await AsyncStorage.getItem('@auth_token') || '';
     
     return {
       url: SOCKET_URL,

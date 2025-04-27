@@ -3,318 +3,245 @@ import { roomService, Room } from '@/services/queries/room';
 import { useRouter } from 'expo-router';
 import { Alert } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
-import { useCreateRoom } from './useCreateRoom'; // Importer depuis le nouveau fichier
-import SocketService from '@/services/socketService'; // Correction du chemin d'importation
-import api from '@/config/axios'; // Ajout de l'import manquant pour l'API
+import { useCreateRoom } from './useCreateRoom';
+import SocketService from '@/services/socketService';
+import api from '@/config/axios'; // Using the api instance from axios.ts
 import { AxiosError } from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import userIdManager from '@/utils/userIdManager';
 
-// Interface pour les erreurs de l'API
+// Interface for API error responses
 interface ApiErrorResponse {
   error?: string;
   message?: string;
 }
 
-// Hook pour lister toutes les salles
+// Hook to list all rooms
 export function useRooms() {
-  console.log('🎮 useRooms: Initialisation du hook');
   return useQuery({
     queryKey: ['rooms'],
     queryFn: async () => {
-      console.log('🎮 useRooms: Exécution de la requête');
-      
-      // Vérification de la connexion internet
+      // Check internet connection
       const netInfo = await NetInfo.fetch();
       if (!netInfo.isConnected) {
-        console.error('❌ Pas de connexion internet disponible');
-        throw new Error('Pas de connexion internet. Veuillez vérifier votre connexion et réessayer.');
+        throw new Error('No internet connection. Please check your connection and try again.');
       }
       
       const rooms = await roomService.getRooms();
-      console.log(`🎮 useRooms: ${rooms.length} salles récupérées`);
       return rooms;
     },
-    staleTime: 1000 * 30, // Rafraîchir après 30 secondes
+    staleTime: 1000 * 30, // Refresh after 30 seconds
     retry: (failureCount, error: Error) => {
-      console.log(`🎮 useRooms: Tentative ${failureCount + 1} après échec:`, error.message);
       return failureCount < 2;
-    },
-    onError: (error) => {
-      console.error('🎮 useRooms: Erreur lors de la récupération des salles', error);
     },
   });
 }
 
-// Hook pour obtenir les détails d'une salle spécifique
+// Hook to get details of a specific room
 export function useRoom(roomCode: string | undefined) {
-  console.log(`🎮 useRoom: Initialisation du hook pour la salle ${roomCode}`);
   return useQuery({
     queryKey: ['rooms', roomCode],
     queryFn: async () => {
       if (!roomCode) {
-        console.error('🎮 useRoom: Code de salle manquant');
-        throw new Error('Code de salle manquant');
+        throw new Error('Missing room code');
       }
-      console.log(`🎮 useRoom: Récupération des détails de la salle ${roomCode}`);
       
-      // Vérification de la connexion internet
+      // Check internet connection
       const netInfo = await NetInfo.fetch();
       if (!netInfo.isConnected) {
-        console.error('❌ Pas de connexion internet disponible');
-        throw new Error('Pas de connexion internet. Veuillez vérifier votre connexion et réessayer.');
+        throw new Error('No internet connection. Please check your connection and try again.');
       }
       
       try {
         const room = await roomService.getRoomByCode(roomCode);
         
-        // S'assurer que les propriétés importantes existent
+        // Ensure important properties exist
         if (!room.players) {
-          console.warn(`🎮 useRoom: La propriété 'players' est manquante dans la réponse de la salle ${roomCode}`);
           room.players = [];
         }
         
-        console.log(`🎮 useRoom: Salle ${roomCode} récupérée avec ${room.players.length} joueurs`);
         return room;
       } catch (error) {
-        console.error(`🎮 useRoom: Erreur lors de la récupération de la salle ${roomCode}`, error);
         throw error;
       }
     },
-    staleTime: 1000 * 30, // Rafraîchir après 30 secondes
-    enabled: !!roomCode, // Ne pas exécuter si roomCode est undefined
+    staleTime: 1000 * 30, // Refresh after 30 seconds
+    enabled: !!roomCode, // Don't execute if roomCode is undefined
     retry: (failureCount, error: Error) => {
-      // Ne pas réessayer si la salle n'existe pas (404)
+      // Don't retry if room doesn't exist (404)
       const axiosError = error as AxiosError<ApiErrorResponse>;
       if (axiosError.response?.status === 404) {
-        console.log('🎮 useRoom: Salle non trouvée (404), arrêt des tentatives');
         return false;
       }
-      console.log(`🎮 useRoom: Tentative ${failureCount + 1} après échec:`, error.message);
       return failureCount < 2;
-    },
-    onError: (error: Error) => {
-      console.error(`🎮 useRoom: Erreur lors de la récupération de la salle ${roomCode}`, error);
-      
-      if (error.message.includes('Network Error')) {
-        // Vérifier l'état de la connexion
-        NetInfo.fetch().then(state => {
-          console.error(`🌐 État connexion lors de l'erreur: ${state.isConnected ? 'Connecté' : 'Non connecté'} (${state.type})`);
-        });
-      }
     },
   });
 }
 
-// Exportation du hook de création de salle depuis le nouveau fichier
+// Export useCreateRoom hook
 export { useCreateRoom };
 
-// Hook pour rejoindre une salle
+// Hook to join a room
 export const useJoinRoom = () => {
   const router = useRouter();
   
   return useMutation({
     mutationFn: async (code: string) => {
       try {
-        console.log(`🎮 Tentative de rejoindre la salle ${code}`);
-        
-        // S'assurer que le socket est initialisé avant de tenter de rejoindre une salle
+        // Ensure socket is initialized before attempting to join a room
         try {
           await SocketService.initialize();
-          // Essayer de rejoindre la salle via WebSocket
+          // Try to join the room via WebSocket
           await SocketService.joinRoom(code);
-          console.log(`✅ Demande WebSocket pour rejoindre la salle ${code} envoyée`);
         } catch (socketError) {
-          console.warn('⚠️ Erreur lors de la communication WebSocket, continuons avec HTTP uniquement:', socketError);
-          // On continue même en cas d'erreur WebSocket, l'API HTTP est prioritaire
+          // Continue even with WebSocket errors, HTTP API is priority
         }
         
-        // Appeler l'API pour rejoindre la salle
-        console.log(`🎮 useJoinRoom: Envoi de la requête pour rejoindre ${code}`);
+        // Call API to join the room
         const response = await api.post(`/rooms/${code}/join`);
-        console.log(`🎮 useJoinRoom: Salle ${code} rejointe avec succès`);
         
         return {
           code,
-          message: response.data?.message || 'Salle rejointe avec succès'
+          message: response.data?.message || 'Room joined successfully'
         };
       } catch (error) {
-        console.error(`❌ Erreur lors de la tentative de rejoindre la salle ${code}:`, error);
-        
-        // Amélioration de la gestion des erreurs
+        // Improved error handling
         const axiosError = error as AxiosError<ApiErrorResponse>;
         if (axiosError.response) {
-          // L'API a répondu avec une erreur
-          const message = axiosError.response.data?.error || 'Erreur lors de la tentative de rejoindre la salle';
+          // API responded with an error
+          const message = axiosError.response.data?.error || 'Error when attempting to join the room';
           throw new Error(message);
         } else if (axiosError.request) {
-          // Pas de réponse reçue du serveur
-          throw new Error('Le serveur ne répond pas. Veuillez vérifier votre connexion internet.');
+          // No response received from server
+          throw new Error('Server not responding. Please check your internet connection.');
         } else {
-          // Erreur lors de la configuration de la requête
-          throw new Error(`Erreur: ${axiosError.message}`);
+          // Error in setting up the request
+          throw new Error(`Error: ${axiosError.message}`);
         }
       }
     },
     onSuccess: (data) => {
-      console.log(`🎮 useJoinRoom: Salle ${data.code} rejointe avec succès`);
-      console.log(`🎮 useJoinRoom: Redirection vers /room/${data.code}`);
       router.push(`/room/${data.code}`);
     },
     onError: (error: Error) => {
-      console.error('🎮 useJoinRoom: Erreur:', error.message);
-      Alert.alert("Erreur", error.message);
+      Alert.alert("Error", error.message);
     }
   });
 };
 
-// Hook pour quitter une salle
+// Hook to leave a room
 export function useLeaveRoom() {
-  console.log('🎮 useLeaveRoom: Initialisation du hook');
   const queryClient = useQueryClient();
   const router = useRouter();
 
   return useMutation({
     mutationFn: async (roomCode: string) => {
-      console.log(`🎮 useLeaveRoom: Tentative de quitter la salle ${roomCode}`);
       return roomService.leaveRoom(roomCode);
     },
     onSuccess: (_, roomCode) => {
-      console.log(`🎮 useLeaveRoom: Salle ${roomCode} quittée avec succès`);
-      
-      // Invalider toutes les données relatives aux salles
+      // Invalidate all room-related data
       queryClient.invalidateQueries({ queryKey: ['rooms'] });
       
-      // Rediriger vers la page principale
-      console.log('🎮 useLeaveRoom: Redirection vers la page d\'accueil');
-      router.replace('/(tabs)/');
+      // Redirect to home page
+      router.replace('/');
     },
     onError: (error, roomCode) => {
-      console.error(`🎮 useLeaveRoom: Erreur lors de la tentative de quitter la salle ${roomCode}`, error);
       Alert.alert(
-        'Erreur',
-        'Impossible de quitter la salle. Veuillez réessayer.'
+        'Error',
+        'Unable to leave the room. Please try again.'
       );
     }
   });
 }
 
-// Hook pour changer le statut "prêt" d'un joueur
+// Hook to toggle player ready status
 export function useToggleReadyStatus() {
-  console.log('🎮 useToggleReadyStatus: Initialisation du hook');
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({ roomCode, isReady }: { roomCode: string; isReady: boolean }) => {
-      console.log(`🎮 useToggleReadyStatus: Mise à jour du statut dans la salle ${roomCode}: ${isReady ? 'prêt' : 'pas prêt'}`);
       return roomService.toggleReadyStatus(roomCode, isReady);
     },
     onSuccess: (data, variables) => {
-      console.log(`🎮 useToggleReadyStatus: Statut mis à jour avec succès dans la salle ${variables.roomCode}`);
-      
-      // Mettre à jour le cache avec le nouveau statut
+      // Update cache with new status
       queryClient.setQueryData(['user', 'ready', variables.roomCode], variables.isReady);
       
-      // Invalider la requête de salle spécifique pour rafraîchir les données
+      // Invalidate specific room query to refresh data
       queryClient.invalidateQueries({ queryKey: ['rooms', variables.roomCode] });
     },
     onError: (error, variables) => {
-      console.error(`🎮 useToggleReadyStatus: Erreur lors de la mise à jour du statut dans la salle ${variables.roomCode}`, error);
       Alert.alert(
-        'Erreur',
-        'Impossible de mettre à jour votre statut. Veuillez réessayer.'
+        'Error',
+        'Unable to update your status. Please try again.'
       );
     }
   });
 }
 
-// Hook pour démarrer une partie
+// Hook to start a game
 export function useStartGame() {
-  console.log('🎮 useStartGame: Initialisation du hook');
   const router = useRouter();
 
   return useMutation({
     mutationFn: async (roomCode: string) => {
-      console.log(`🎮 useStartGame: Tentative de démarrer la partie dans la salle ${roomCode}`);
-      
-      // Vérifier la connexion internet avant de démarrer
+      // Check internet connection before starting
       const netInfo = await NetInfo.fetch();
+      
       if (!netInfo.isConnected) {
-        console.error('❌ Pas de connexion internet disponible');
-        throw new Error('Pas de connexion internet. Veuillez vérifier votre connexion et réessayer.');
+        throw new Error('No internet connection. Please check your connection and try again.');
       }
       
       try {
-        // Récupérer le token et définir les headers pour la requête
-        const token = await AsyncStorage.getItem('auth_token');
-        console.log(`🔑 Token pour démarrage: ${token ? 'présent' : 'manquant'}`);
+        // Clean up old connections to avoid conflicts
+        await SocketService.cleanup();
         
-        // Récupérer l'identifiant utilisateur
-        const userId = await userIdManager.getUserId();
-        console.log(`👤 Démarrage par l'utilisateur ${userId}`);
+        // Wait a short time to ensure previous connection is closed
+        await new Promise(resolve => setTimeout(resolve, 300));
         
-        // S'assurer que les headers sont correctement définis
-        if (userId) {
-          api.defaults.headers.userId = userId;
-        }
-        if (token) {
-          api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        }
+        // Initialize socket with force
+        const socket = await SocketService.getInstanceAsync(true);
         
-        console.log(`🔄 Préparation du démarrage de la partie...`);
-        
-        // Préparation du socket en parallèle, mais ne pas attendre sa réussite pour continuer
-        const socketPromise = (async () => {
-          try {
-            console.log(`🔄 Réinitialisation du socket avant démarrage...`);
-            await SocketService.cleanup();
-            await new Promise(resolve => setTimeout(resolve, 300));
-            
-            const socket = await SocketService.getInstanceAsync(true);
-            await SocketService.joinRoom(roomCode);
-            console.log(`🔌 Socket réinitialisé et reconnecté avant démarrage`);
-            return true;
-          } catch (socketError) {
-            console.warn(`⚠️ Erreur d'initialisation socket, continuons avec l'API:`, socketError);
-            return false;
+        let socketReady = false;
+        if (socket) {
+          // Try to join the room
+          const joinResult = await SocketService.joinRoom(roomCode);
+          
+          if (joinResult) {
+            socketReady = true;
           }
-        })();
+        }
         
-        // Ne pas attendre le socket, lancer l'API immédiatement
-        console.log(`🚀 Envoi de la requête API pour démarrer la partie...`);
+        // Direct and explicit call to startGame
         const startResult = await roomService.startGame(roomCode);
         
-        // Attendre la fin de l'initialisation du socket (mais pas plus de 2 secondes)
-        const socketTimeout = new Promise(resolve => setTimeout(() => resolve(false), 2000));
-        await Promise.race([socketPromise, socketTimeout]);
+        // If API succeeded but socket is not ready, try to connect one last time
+        if (!socketReady && startResult.data && startResult.data.gameId) {
+          try {
+            await SocketService.getInstanceAsync(true);
+            await SocketService.joinGame(String(startResult.data.gameId));
+          } catch (lastSocketError) {
+            // Ignore errors
+          }
+        }
         
         return startResult;
       } catch (error) {
-        console.error(`❌ Erreur lors du démarrage de la partie:`, error);
         throw error;
       }
     },
     onSuccess: (data) => {
-      console.log(`🎮 useStartGame: Partie démarrée avec succès, ID du jeu:`, data.data.gameId);
-      
-      // Rediriger vers la page du jeu
-      console.log(`🎮 useStartGame: Redirection vers /game/${data.data.gameId}`);
+      // Redirect to game page
       router.replace(`/game/${data.data.gameId}`);
     },
     onError: (error: any, roomCode) => {
-      console.error(`🎮 useStartGame: Erreur lors du démarrage de la partie dans la salle ${roomCode}`, error);
-      
-      // Obtenir le message d'erreur détaillé
-      let errorMessage = 'Impossible de démarrer la partie. Veuillez réessayer.';
+      // Get detailed error message
+      let errorMessage = 'Unable to start game. Please try again.';
       
       if (error?.response?.data?.error) {
         errorMessage = error.response.data.error;
-        console.error(`🎮 Message d'erreur du serveur:`, errorMessage);
       } else if (error.message) {
         errorMessage = error.message;
       }
       
-      Alert.alert('Erreur', errorMessage);
+      Alert.alert('Error', errorMessage);
     }
   });
 }

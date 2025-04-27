@@ -147,13 +147,11 @@ class GameManager {
     const game = this.getGameConfig(gameId as GameType);
     
     if (!game) {
-      console.error(`Game type ${gameId} not found`);
       return;
     }
 
     if (game.id === GameType.TRUTH_OR_DARE) {
       try {
-        console.log('Création directe d\'une salle Action ou Vérité...');
         const response = await api.post('/rooms', {
           game_type: 'truth-or-dare',
           game_mode: 'action-verite',
@@ -165,11 +163,10 @@ class GameManager {
         });
 
         if (response.data?.data?.code) {
-          console.log(`Redirection vers la salle ${response.data.data.code}`);
           router.replace(`/room/${response.data.data.code}`);
         }
       } catch (error) {
-        console.error('Erreur lors de la création de la salle:', error);
+        // Erreur ignorée
       }
     } else if (game.id === GameType.QUIZ) {
       router.push({

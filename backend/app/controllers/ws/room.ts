@@ -484,11 +484,14 @@ export default class RoomsController {
    * Démarrer la partie
    */
   async startGame({ response, auth, params }: HttpContext) {
+    console.log(`🎮 [startGame] Démarrage de partie avec la salle ${params.code}`)
     try {
       const user = await auth.authenticate()
 
       // Trouver la salle par son code
       const room = await Room.findBy('code', params.code)
+
+      console.log(`🎮 [startGame] Démarrage de partie avec la salle ${room.code}`)
       if (!room) {
         return response.notFound({
           error: 'Salle non trouvée',

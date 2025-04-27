@@ -80,11 +80,8 @@ export const handleAnswerSubmissionError = async (error: any, gameId: string, re
  * Utilitaire pour la récupération d'erreurs critique avec réinitialisation WebSocket
  */
 export const handleCriticalError = async (error: any, context: string, gameId?: string): Promise<void> => {
-  console.error(`🚨 ERREUR CRITIQUE (${context}):`, error);
-  
   // Tenter une réinitialisation complète de la connexion
   try {
-    console.log('🔄 Tentative de réinitialisation WebSocket...');
     await SocketService.reset();
     
     // Se reconnecter au jeu si un ID est fourni
@@ -97,8 +94,6 @@ export const handleCriticalError = async (error: any, context: string, gameId?: 
       'La connexion a été réinitialisée avec succès.'
     );
   } catch (resetError) {
-    console.error('❌ Échec de réinitialisation:', resetError);
-    
     Alert.alert(
       'Erreur critique',
       'Une erreur grave est survenue. Essayez de quitter et redémarrer l\'application.',
@@ -115,8 +110,6 @@ export const setupGlobalErrorHandlers = () => {
   const originalUnhandledRejection = global.ErrorUtils.getGlobalHandler();
   
   global.ErrorUtils.setGlobalHandler((error, isFatal) => {
-    console.error(`❌ ERREUR ${isFatal ? 'FATALE' : 'NON FATALE'} NON GÉRÉE:`, error);
-    
     // Pour les erreurs liées aux sockets, utiliser notre gestionnaire spécialisé
     if (error.message?.includes('socket') || error.message?.includes('WebSocket')) {
       handleSocketError(error, 'non gérée').catch(console.error);
@@ -125,8 +118,6 @@ export const setupGlobalErrorHandlers = () => {
     // Appeler le gestionnaire original
     originalUnhandledRejection(error, isFatal);
   });
-  
-  console.log('✅ Gestionnaire global d\'erreurs configuré');
 };
 
 export default {
