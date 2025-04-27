@@ -24,15 +24,17 @@ interface User {
   isHost?: boolean;
 }
 
-// Type pour les joueurs
-type Player = {
+// Type local pour Player qui correspond à ce que nous utilisons dans ce composant
+interface Player {
   id: string;
-  name: string;
+  username: string;
+  displayName?: string;
+  name: string; // Pour la rétrocompatibilité avec le code existant
   isHost: boolean;
   isReady: boolean;
   avatar: string;
   level: number;
-};
+}
 
 // Type pour les données de salle
 interface PlayerData {
@@ -67,6 +69,7 @@ export default function Room() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const { data: user } = useUser();
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   // Utiliser le hook pour récupérer les détails de la salle avec le type approprié
   const { data: roomData, isLoading: isLoadingRoom, error: roomError } = useRoom(id as string) as {
@@ -89,6 +92,13 @@ export default function Room() {
   const [rulesVisible, setRulesVisible] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('Chargement de la salle...');
   const [redirectingToGame, setRedirectingToGame] = useState<string | null>(null);
+
+  // Mettre à jour l'utilisateur actuel lorsque les données sont disponibles
+  useEffect(() => {
+    if (user) {
+      setCurrentUser(user as User);
+    }
+  }, [user]);
 
   // Mettre à jour les états en fonction des données récupérées
   useEffect(() => {
@@ -114,9 +124,11 @@ export default function Room() {
         // Convertir les joueurs au format requis
         formattedPlayers = roomData.players.map(player => ({
           id: String(player.id), 
+          username: player.username || '',
+          displayName: player.displayName || '',
           name: player.displayName || player.username,
           isHost: player.id === roomData.host.id,
-          isReady: player.isHost || player.isReady, 
+          isReady: Boolean(player.isHost || player.isReady), 
           avatar: player.avatar || 'https://randomuser.me/api/portraits/men/32.jpg',
           level: player.level || 1
         }));
@@ -127,6 +139,8 @@ export default function Room() {
         if (roomData.host) {
           formattedPlayers = [{
             id: String(roomData.host.id),
+            username: roomData.host.username || '',
+            displayName: roomData.host.displayName || '',
             name: roomData.host.displayName || roomData.host.username,
             isHost: true,
             isReady: true,
@@ -142,6 +156,8 @@ export default function Room() {
       if (!hostInList && roomData.host) {
         formattedPlayers.push({
           id: String(roomData.host.id),
+          username: roomData.host.username || '',
+          displayName: roomData.host.displayName || '',
           name: roomData.host.displayName || roomData.host.username,
           isHost: true,
           isReady: true,
@@ -152,14 +168,16 @@ export default function Room() {
       }
       
       // Si la liste est toujours vide et que l'utilisateur actuel est l'hôte, l'ajouter
-      if (formattedPlayers.length === 0 && user && roomData.host && user.id === roomData.host.id) {
+      if (formattedPlayers.length === 0 && currentUser && roomData.host && currentUser.id === roomData.host.id) {
         formattedPlayers = [{
-          id: String(user.id),
-          name: user.displayName || user.username || 'Hôte',
+          id: String(currentUser.id),
+          username: currentUser.username || '',
+          displayName: currentUser.displayName || '',
+          name: currentUser.displayName || currentUser.username || 'Hôte',
           isHost: true,
           isReady: true,
-          avatar: user.avatar || 'https://randomuser.me/api/portraits/men/32.jpg',
-          level: user.level || 1
+          avatar: currentUser.avatar || 'https://randomuser.me/api/portraits/men/32.jpg',
+          level: currentUser.level || 1
         }];
         console.log('🔄 Utilisateur courant (hôte) ajouté manuellement à la liste vide');
       }
@@ -168,18 +186,18 @@ export default function Room() {
       setPlayers(formattedPlayers);
       
       // Vérifier si l'utilisateur actuel est l'hôte
-      if (user) {
+      if (currentUser && currentUser.id && roomData.host) {
         // Utiliser l'ID de l'hôte depuis roomData.host
-        const isUserHost = roomData.host.id === user.id;
+        const isUserHost = roomData.host.id === currentUser.id;
         setIsHost(isUserHost);
         console.log(`👑 Utilisateur est hôte: ${isUserHost}`);
         
         // Trouver le statut "prêt" de l'utilisateur actuel
         if (roomData.players && Array.isArray(roomData.players)) {
-          const currentPlayer = roomData.players.find(player => player.id === user.id);
-          if (currentPlayer) {
+          const player = roomData.players.find(player => player.id === currentUser.id);
+          if (player) {
             // Si l'utilisateur est l'hôte, il est toujours prêt
-            setIsReady(isUserHost || currentPlayer.isReady);
+            setIsReady(isUserHost || Boolean(player.isReady));
           } else {
             // Si l'utilisateur est l'hôte mais n'est pas dans la liste des joueurs, le marquer comme prêt
             if (isUserHost) {
@@ -192,20 +210,20 @@ export default function Room() {
         }
       }
     }
-  }, [roomData, user]);
+  }, [roomData, currentUser]);
 
   useEffect(() => {
-    if (user && user.id) {
+    if (currentUser && currentUser.id) {
       // Définir l'ID utilisateur dans les headers API
-      api.defaults.headers.userId = user.id;
-      console.log(`👤 ID utilisateur ${user.id} défini dans les headers API`);
+      api.defaults.headers.userId = currentUser.id;
+      console.log(`👤 ID utilisateur ${currentUser.id} défini dans les headers API`);
       
       // Sauvegarder l'ID utilisateur dans AsyncStorage pour y accéder ailleurs
-      AsyncStorage.setItem('@current_user_id', String(user.id))
+      AsyncStorage.setItem('@current_user_id', String(currentUser.id))
         .then(() => console.log('✅ ID utilisateur sauvegardé dans AsyncStorage'))
         .catch(err => console.error('❌ Erreur lors de la sauvegarde de l\'ID utilisateur:', err));
     }
-  }, [user]);
+  }, [currentUser]);
 
   useEffect(() => {
     if (id) {
@@ -271,11 +289,13 @@ export default function Room() {
                 if (data.players && Array.isArray(data.players)) {
                   console.log(`📊 Liste de joueurs reçue via WebSocket: ${data.players.length} joueurs`);
                   
-                  const updatedPlayers = data.players.map(player => ({
+                  const updatedPlayers = data.players.map((player: any) => ({
                     id: String(player.id),
+                    username: player.username || '',
+                    displayName: player.displayName || '',
                     name: player.displayName || player.username,
                     isHost: player.isHost || false,
-                    isReady: player.isReady || false,
+                    isReady: Boolean(player.isReady),
                     avatar: player.avatar || 'https://randomuser.me/api/portraits/men/32.jpg',
                     level: player.level || 1
                   }));
@@ -284,13 +304,15 @@ export default function Room() {
                   setPlayers(updatedPlayers);
                 } 
                 // Sinon, ajouter le joueur individuellement comme avant
-                else {
+                else if (data.player) {
                   console.log(`👤 Ajout individuel d'un joueur via WebSocket`);
                   setPlayers(prev => [...prev, {
-                    id: data.player.id,
-                    name: data.player.displayName || data.player.username,
-                    isHost: false,
-                    isReady: false,
+                    id: String(data.player.id || ''),
+                    username: data.player.username || '',
+                    displayName: data.player.displayName || '',
+                    name: data.player.displayName || data.player.username || '',
+                    isHost: Boolean(data.player.isHost),
+                    isReady: Boolean(data.player.isReady),
                     avatar: data.player.avatar || 'https://randomuser.me/api/portraits/men/32.jpg',
                     level: data.player.level || 1
                   }]);
@@ -302,41 +324,115 @@ export default function Room() {
               
               case 'player_left':
                 // Retirer le joueur de la liste
-                setPlayers(prev => prev.filter(p => p.id !== data.playerId));
+                if (data.playerId) {
+                  setPlayers(prev => prev.filter(p => p.id !== data.playerId));
+                }
                 break;
               
               case 'player_ready_status':
                 // Mettre à jour le statut d'un joueur
-                setPlayers(prev => prev.map(p => 
-                  p.id === data.playerId 
-                    ? { ...p, isReady: data.isReady }
-                    : p
-                ));
-                
-                // Mettre à jour l'état local si c'est l'utilisateur actuel
-                if (user && data.playerId === user.id) {
-                  setIsReady(data.isReady);
+                if (data.playerId) {
+                  setPlayers(prev => prev.map(p => 
+                    p.id === data.playerId 
+                      ? { ...p, isReady: Boolean(data.isReady) }
+                      : p
+                  ));
+                  
+                  // Mettre à jour l'état local si c'est l'utilisateur actuel
+                  if (currentUser && currentUser.id && data.playerId === currentUser.id) {
+                    setIsReady(Boolean(data.isReady));
+                  }
                 }
                 break;
                 
               case 'game_started':
                 // Éviter les redirections multiples
-                if (redirectingToGame !== data.gameId) {
+                if (data.gameId && redirectingToGame !== data.gameId) {
                   setRedirectingToGame(data.gameId);
                   
                   console.log(`🎮 Jeu démarré! Redirection vers /game/${data.gameId}`);
                   
                   // S'assurer que les headers d'API sont corrects avant la redirection
-                  if (user && user.id) {
-                    api.defaults.headers.userId = user.id;
-                    await AsyncStorage.setItem('@current_user_id', String(user.id));
-                    console.log(`👤 ID utilisateur ${user.id} défini avant redirection`);
+                  if (currentUser && currentUser.id) {
+                    api.defaults.headers.userId = currentUser.id;
+                    await AsyncStorage.setItem('@current_user_id', String(currentUser.id));
+                    console.log(`👤 ID utilisateur ${currentUser.id} défini avant redirection`);
                   }
                   
                   // Redirection immédiate
                   router.push(`/game/${data.gameId}`);
                 }
                 break;
+            }
+          });
+          
+          // Ajouter un écouteur spécifique pour game:started
+          socket.on('game:started', async (data) => {
+            if (!data || !data.gameId) return;
+            
+            console.log(`🎮 Événement game:started reçu directement:`, data);
+            
+            // Éviter les redirections multiples
+            if (redirectingToGame !== data.gameId) {
+              setRedirectingToGame(data.gameId);
+              
+              console.log(`🎮 Jeu démarré! Redirection vers /game/${data.gameId}`);
+              
+              // S'assurer que les headers d'API sont corrects avant la redirection
+              if (currentUser && currentUser.id) {
+                api.defaults.headers.userId = currentUser.id;
+                await AsyncStorage.setItem('@current_user_id', String(currentUser.id));
+                console.log(`👤 ID utilisateur ${currentUser.id} défini avant redirection`);
+              }
+              
+              // Rejoindre le canal du jeu avant de naviguer
+              try {
+                await SocketService.joinGame(data.gameId);
+                console.log(`✅ Canal game:${data.gameId} rejoint avec succès`);
+              } catch (error) {
+                console.warn(`⚠️ Impossible de rejoindre le canal du jeu:`, error);
+                // Continuer malgré tout
+              }
+              
+              // Redirection immédiate
+              router.replace(`/game/${data.gameId}`);
+            }
+          });
+
+          // Ajouter un écouteur encore plus spécifique qui écoute TOUS les événements
+          socket.onAny((eventName, ...args) => {
+            console.log(`🎯 Événement [${eventName}] reçu:`, args);
+            
+            // Si c'est un événement lié au démarrage d'un jeu (game.started ou autre variante)
+            if (eventName.includes('game') && eventName.includes('start')) {
+              const data = args[0] || {};
+              const gameId = data?.gameId;
+              
+              if (gameId && redirectingToGame !== gameId) {
+                console.log(`🎮 Événement de démarrage de jeu détecté: ${eventName}`);
+                setRedirectingToGame(gameId);
+                
+                // Redirection urgente pour éviter les problèmes
+                setTimeout(async () => {
+                  try {
+                    // Définir l'ID utilisateur avant la redirection
+                    if (currentUser && currentUser.id) {
+                      api.defaults.headers.userId = currentUser.id;
+                      await AsyncStorage.setItem('@current_user_id', String(currentUser.id));
+                    }
+                    
+                    // Tenter de rejoindre le canal du jeu
+                    try {
+                      await SocketService.joinGame(gameId);
+                    } catch {}
+                    
+                    // Redirection vers le jeu
+                    router.replace(`/game/${gameId}`);
+                  } catch (error) {
+                    console.error('❌ Erreur lors de la redirection d\'urgence:', error);
+                  }
+                }, 100);
+              }
             }
           });
         } catch (error) {
@@ -372,7 +468,7 @@ export default function Room() {
         })();
       };
     }
-  }, [id, user, router, redirectingToGame]);
+  }, [id, currentUser, router, redirectingToGame]);
 
   // Ajout d'un rafraîchissement automatique périodique
   useEffect(() => {
@@ -383,10 +479,10 @@ export default function Room() {
       refreshRoomData();
       
       // Mettre en place un interval pour rafraîchir périodiquement
+      // Augmenter l'intervalle à 10 secondes pour réduire les appels API
       const refreshInterval = setInterval(() => {
-        console.log('🔄 Rafraîchissement automatique des données de la salle');
         refreshRoomData();
-      }, 5000); // Toutes les 5 secondes
+      }, 10000); // Toutes les 10 secondes au lieu de 5
       
       // Nettoyer l'interval au démontage
       return () => {
@@ -399,24 +495,27 @@ export default function Room() {
   // Modifier la fonction refreshRoomData pour être plus silencieuse lors des rafraîchissements automatiques
   const refreshRoomData = (showLoading = false) => {
     if (id) {
-      console.log('🔄 Rafraîchissement des données de la salle');
-      
-      // N'affiche le message de chargement que si demandé explicitement
+      // Réduire les logs
       if (showLoading) {
+        console.log('🔄 Rafraîchissement des données de la salle');
         setLoadingMessage('Actualisation des données...');
       }
       
       api.get(`/rooms/${id}`)
         .then(response => {
-          console.log('✅ Données rafraîchies:', response.data.data.players?.length || 0, 'joueurs');
+          if (showLoading) {
+            console.log('✅ Données rafraîchies:', response.data.data.players?.length || 0, 'joueurs');
+          }
           
           // Mettre à jour la liste des joueurs
           if (response.data.data.players && Array.isArray(response.data.data.players)) {
-            const refreshedPlayers = response.data.data.players.map(player => ({
+            const refreshedPlayers = response.data.data.players.map((player: any) => ({
               id: String(player.id),
+              username: player.username || '',
+              displayName: player.displayName || '',
               name: player.displayName || player.username,
               isHost: player.isHost || false,
-              isReady: player.isReady || false,
+              isReady: Boolean(player.isReady),
               avatar: player.avatar || 'https://randomuser.me/api/portraits/men/32.jpg',
               level: player.level || 1
             }));
@@ -480,7 +579,29 @@ export default function Room() {
       
       // Tout est bon, on peut démarrer
       console.log('✅ Tous les joueurs sont prêts, démarrage de la partie...');
-      startGame(id as string);
+      
+      // Vérifier que le socket est bien connecté avant de démarrer
+      const socketCheck = async () => {
+        try {
+          // Vérifier la connexion socket et forcer une reconnexion si nécessaire
+          if (!SocketService.isConnected()) {
+            console.log('🔄 Reconnexion du socket avant démarrage...');
+            await SocketService.reconnect();
+          }
+          
+          // Vérifier si nous sommes toujours dans la salle
+          await SocketService.joinRoom(id as string);
+          
+          // Continuer avec le démarrage
+          return startGame(id as string);
+        } catch (error) {
+          console.warn('⚠️ Erreur lors de la vérification socket, on continue quand même:', error);
+          return startGame(id as string);
+        }
+      };
+      
+      // Exécuter la vérification socket puis démarrer
+      socketCheck();
     }
   };
 
@@ -548,7 +669,7 @@ export default function Room() {
         <StatusBar style="light" />
         <LinearGradient colors={['#1a0933', '#321a5e']} style={styles.background} />
         <Text style={styles.errorText}>Salle non trouvée ou inaccessible</Text>
-        <TouchableOpacity style={styles.backToHomeButton} onPress={() => router.replace('/(tabs)/')}>
+        <TouchableOpacity style={styles.backToHomeButton} onPress={() => router.replace("/")}>
           <Text style={styles.backToHomeText}>Retourner à l'accueil</Text>
         </TouchableOpacity>
       </View>

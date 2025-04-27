@@ -245,7 +245,7 @@ export function useStartGame() {
       }
       
       try {
-        // Récupérer le token du stockage pour s'assurer qu'il est présent
+        // Récupérer le token et définir les headers pour la requête
         const token = await AsyncStorage.getItem('auth_token');
         console.log(`🔑 Token pour démarrage: ${token ? 'présent' : 'manquant'}`);
         
@@ -253,16 +253,42 @@ export function useStartGame() {
         const userId = await userIdManager.getUserId();
         console.log(`👤 Démarrage par l'utilisateur ${userId}`);
         
-        // S'assurer que le Socket est prêt pour recevoir les mises à jour
-        try {
-          await SocketService.getInstanceAsync(true);
-          console.log(`🔌 Socket initialisé avec succès pour le démarrage de la partie`);
-        } catch (socketError) {
-          console.warn(`⚠️ Socket non initialisé pour le démarrage, cela peut causer des problèmes:`, socketError);
+        // S'assurer que les headers sont correctement définis
+        if (userId) {
+          api.defaults.headers.userId = userId;
+        }
+        if (token) {
+          api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         }
         
-        // Exécuter la requête de démarrage
-        return roomService.startGame(roomCode);
+        console.log(`🔄 Préparation du démarrage de la partie...`);
+        
+        // Préparation du socket en parallèle, mais ne pas attendre sa réussite pour continuer
+        const socketPromise = (async () => {
+          try {
+            console.log(`🔄 Réinitialisation du socket avant démarrage...`);
+            await SocketService.cleanup();
+            await new Promise(resolve => setTimeout(resolve, 300));
+            
+            const socket = await SocketService.getInstanceAsync(true);
+            await SocketService.joinRoom(roomCode);
+            console.log(`🔌 Socket réinitialisé et reconnecté avant démarrage`);
+            return true;
+          } catch (socketError) {
+            console.warn(`⚠️ Erreur d'initialisation socket, continuons avec l'API:`, socketError);
+            return false;
+          }
+        })();
+        
+        // Ne pas attendre le socket, lancer l'API immédiatement
+        console.log(`🚀 Envoi de la requête API pour démarrer la partie...`);
+        const startResult = await roomService.startGame(roomCode);
+        
+        // Attendre la fin de l'initialisation du socket (mais pas plus de 2 secondes)
+        const socketTimeout = new Promise(resolve => setTimeout(() => resolve(false), 2000));
+        await Promise.race([socketPromise, socketTimeout]);
+        
+        return startResult;
       } catch (error) {
         console.error(`❌ Erreur lors du démarrage de la partie:`, error);
         throw error;

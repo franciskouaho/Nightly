@@ -433,38 +433,59 @@ class SocketManager {
   }
 
   /**
-   * Rejoint un jeu
+   * Rejoint un canal de jeu
    */
   async joinGame(gameId: string): Promise<boolean> {
     try {
-      if (!this.socket || !this.socket.connected) {
-        await this.reconnect();
-      }
+      console.log(`🎮 Tentative de rejoindre le canal du jeu ${gameId}`);
       
-      if (!this.socket || !this.socket.connected) {
+      // S'assurer que la connexion est bien établie
+      await this.ensureSocketConnection();
+      
+      const socket = this.getSocketInstance();
+      if (!socket) {
+        console.error("❌ Socket non disponible pour rejoindre le jeu");
         return false;
       }
       
+      // Vérifier si déjà dans ce canal
+      if (this.activeGames.has(gameId)) {
+        console.log(`✅ Déjà dans le canal du jeu ${gameId}`);
+        return true;
+      }
+
+      // Préparer les données pour l'événement
+      const joinData = { gameId };
+      
       return new Promise((resolve) => {
-        if (this.socket) {
-          this.socket.emit('join-game', { gameId }, (response: any) => {
-            const success = response && response.success !== false;
-            if (success) this.activeGames.add(gameId);
-            resolve(success);
-          });
-          
-          // Si pas de callback disponible, considérer comme succès avec un autre événement
-          this.socket.once('game:joined', (data) => {
-            if (data && data.gameId === gameId) {
-              this.activeGames.add(gameId);
-              resolve(true);
-            }
-          });
-        } else {
+        // Définir un timeout pour éviter de bloquer indéfiniment
+        const timeoutId = setTimeout(() => {
+          console.error(`❌ Délai dépassé pour rejoindre le jeu ${gameId}`);
           resolve(false);
-        }
+        }, 5000);
+        
+        // Tenter de rejoindre avec une promesse
+        socket.emit('join-game', { data: joinData }, (response: any) => {
+          clearTimeout(timeoutId);
+          
+          if (response && response.success) {
+            this.activeGames.add(gameId);
+            console.log(`✅ Canal du jeu ${gameId} rejoint avec succès`);
+            resolve(true);
+          } else {
+            console.error(`❌ Erreur lors de la tentative de rejoindre le jeu ${gameId}:`, response?.error || 'Erreur inconnue');
+            resolve(false);
+          }
+        });
+        
+        // Émettre un deuxième événement au format game:join pour compatibilité
+        socket.emit('game:join', { gameId }, (response: any) => {
+          // Ne pas résoudre ici car déjà fait dans l'autre émission
+          console.log(`ℹ️ Réponse secondaire game:join:`, response);
+        });
       });
-    } catch {
+    } catch (error) {
+      console.error(`❌ Erreur lors de la tentative de rejoindre le jeu ${gameId}:`, error);
       return false;
     }
   }
