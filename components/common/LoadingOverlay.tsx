@@ -1,22 +1,19 @@
 import React from 'react';
-import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 
 interface LoadingOverlayProps {
   message?: string;
   showSpinner?: boolean;
 }
 
-const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ 
-  message = 'Chargement...', 
-  showSpinner = true
-}) => {
+export default function LoadingOverlay({ message = 'Chargement...', showSpinner = true }: LoadingOverlayProps) {
   return (
     <View style={styles.container}>
-      {showSpinner && <ActivityIndicator size="large" color="#694ED6" />}
+      {showSpinner && <ActivityIndicator size="large" color="#5d6dff" />}
       <Text style={styles.message}>{message}</Text>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -26,11 +23,9 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   message: {
+    color: '#ffffff',
     fontSize: 16,
-    color: '#FFFFFF',
-    marginTop: 16,
     textAlign: 'center',
-  }
-});
-
-export default LoadingOverlay;
+    marginTop: 10,
+  },
+}); 

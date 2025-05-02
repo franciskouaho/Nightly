@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Cosmic-Quest",
-    "slug": "Cosmic-Quest",
-    "version": "1.0.0",
+    "name": "Nightly",
+    "slug": "Nightly",
+    "version": "0.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
     "scheme": "cosmic-quest",
@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.emplica.cosmicquest"
+      "bundleIdentifier": "com.emplica.nightly"
     },
     "android": {
       "adaptiveIcon": {

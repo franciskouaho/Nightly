@@ -5,14 +5,9 @@ import { LinearGradient } from "expo-linear-gradient"
 import { useAuth } from "@/contexts/AuthContext"
 import BottomTabBar from "@/components/BottomTabBar"
 import TopBar from "@/components/TopBar"
-import SocketService from '@/services/socketService';
-import NetInfo from '@react-native-community/netinfo';
-import { useCreateRoom } from '@/hooks/useCreateRoom';
-import LoadingOverlay from '@/components/common/LoadingOverlay';
+import { useFirebaseRooms } from '@/hooks/useFirebaseRooms';
 import { useRouter } from 'expo-router';
-import { GameType } from '@/types/gameTypes';
-import { Room } from '@/types/gameTypes';
-import { CreateRoomPayload } from '@/types/gameTypes';
+import NetInfo from '@react-native-community/netinfo';
 
 // Définition des interfaces
 interface GameMode {
@@ -153,81 +148,11 @@ const gameCategories: GameCategory[] = [
 ];
 
 export default function HomeScreen() {
-  const { user } = useAuth()
-  const router = useRouter()
+  const { user } = useAuth();
+  const router = useRouter();
+  const { createRoom, loading: isCreatingRoom } = useFirebaseRooms();
 
-  // Gérer la création d'une salle de jeu
-  const { mutate: createRoom, isPending: isCreatingRoom } = useCreateRoom();
-  
   const createGameRoom = async (modeId: string) => {
-    if (modeId === 'action-verite') {
-      try {
-        console.log('🎮 Création d\'une salle pour Action ou Vérité');
-        
-        // Initialiser le socket avant la création de la salle
-        console.log('🔌 Initialisation du socket...');
-        await SocketService.getInstanceAsync(true);
-        
-        // Créer la salle
-        const payload: CreateRoomPayload = {
-          name: `Action ou Vérité de ${user?.username || 'Joueur'}`,
-          game_mode: modeId,
-          gameType: GameType.TRUTH_OR_DARE,
-          max_players: 8,
-          total_rounds: 10,
-        };
-
-        createRoom(payload, {
-          onSuccess: async (response) => {
-            console.log('✅ Salle créée avec succès');
-            const roomCode = response.code;
-            if (roomCode) {
-              try {
-                // Attendre que le socket soit prêt et rejoigne la salle
-                console.log('🔄 Attente de la connexion socket...');
-                await SocketService.joinRoom(roomCode);
-                console.log('✅ Socket connecté à la salle, redirection...');
-                router.push(`/game/truth-or-dare?roomId=${roomCode}`);
-              } catch (socketError) {
-                console.error('❌ Erreur de connexion socket:', socketError);
-                // Rediriger quand même, la reconnexion se fera automatiquement
-                router.push(`/game/truth-or-dare?roomId=${roomCode}`);
-              }
-            }
-          }
-        });
-      } catch (error: any) {
-        console.error('❌ Erreur lors de la création de la salle:', error);
-        Alert.alert(
-          'Erreur',
-          error.message || 'Impossible de créer la salle'
-        );
-      }
-      return;
-    }
-    
-    // Déterminer le type de jeu en fonction du mode sélectionné
-    let gameType;
-    const selectedGame = gameCategories.flatMap(cat => cat.games).find(game => game.id === modeId);
-    
-    if (selectedGame) {
-      switch (selectedGame.interactive) {
-        case 'write':
-          gameType = GameType.QUIZ;
-          break;
-        case 'choice':
-          gameType = GameType.BLIND_TEST;
-          break;
-        case 'action':
-          gameType = GameType.TRUTH_OR_DARE;
-          break;
-        default:
-          gameType = GameType.QUIZ;
-      }
-    } else {
-      gameType = GameType.QUIZ;
-    }
-    
     // Vérifier la connexion internet
     const netInfo = await NetInfo.fetch();
     if (!netInfo.isConnected) {
@@ -237,24 +162,23 @@ export default function HomeScreen() {
       );
       return;
     }
-    
+
     try {
-      console.log('🎮 Tentative de création de salle avec mode:', modeId);
+      console.log('🎮 Création d\'une salle pour le mode:', modeId);
       
-      // Initialiser le socket explicitement ici au moment du clic
-      console.log('🔌 Initialisation socket demandée lors de la création de salle');
+      const roomData = {
+        name: `${modeId} de ${user?.email || 'Joueur'}`,
+        createdBy: user?.uid || '',
+        players: [user?.uid || ''],
+        currentPhase: 'waiting' as const,
+        maxPlayers: 8,
+      };
+
+      const roomId = await createRoom(roomData);
+      console.log('✅ Salle créée avec succès:', roomId);
       
-      // On active l'initialisation automatique seulement à partir de ce moment
-      SocketService.setAutoInit(true);
-      
-      // S'assurer que toutes les propriétés sont correctement définies et nommées
-      createRoom({
-        name: `Salle de ${user?.username || 'Joueur'}`,
-        game_mode: modeId,
-        gameType: gameType,
-        max_players: 6,
-        total_rounds: 5,
-      });
+      // Rediriger vers la salle de jeu
+      router.push(`/game/${modeId}?roomId=${roomId}`);
     } catch (error: any) {
       console.error('❌ Erreur lors de la création de la salle:', error);
       Alert.alert(
@@ -264,292 +188,142 @@ export default function HomeScreen() {
     }
   };
 
-  // Rendu conditionnel pour le chargement
-  if (isCreatingRoom) {
-    return (
-      <View style={[styles.container, styles.loadingContainer]}>
-        <LinearGradient
-          colors={["#1A0938", "#2D1155"]}
-          style={styles.background}
-        />
-        <LoadingOverlay message="Création de la salle en cours..." />
-      </View>
-    );
-  }
-  
-  // Rendu des cartes de mode de jeu
   const renderGameModeCard = (game: GameMode, isGridItem = false) => (
-    <TouchableOpacity 
+    <TouchableOpacity
       key={game.id}
-      style={[styles.modeCard, isGridItem && styles.gridModeCard]} 
+      style={[
+        styles.gameCard,
+        isGridItem ? styles.gridItem : null,
+        { borderColor: game.borderColor }
+      ]}
       onPress={() => createGameRoom(game.id)}
-      activeOpacity={0.9}
+      disabled={isCreatingRoom}
     >
       <LinearGradient
         colors={game.colors}
-        style={[
-          styles.modeGradient, 
-          { 
-            borderColor: game.borderColor,
-            shadowColor: game.shadowColor
-          },
-          isGridItem && styles.gridModeGradient
-        ]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+        style={styles.cardGradient}
       >
-        <View style={[styles.modeContent, isGridItem && styles.gridModeContent]}>
-          {!isGridItem && (
-            <View style={styles.characterContainer}>
-              <Image 
-                source={game.image}
-                style={styles.characterImage}
-                resizeMode="contain"
-              />
+        <Image source={game.image} style={styles.gameImage} />
+        <View style={styles.cardContent}>
+          <Text style={styles.gameName}>{game.name}</Text>
+          <Text style={styles.gameDescription}>{game.description}</Text>
+          {game.tag && (
+            <View style={[styles.tagContainer, { backgroundColor: game.tagColor }]}>
+              <Text style={styles.tagText}>{game.tag}</Text>
             </View>
           )}
-          <View style={[styles.modeTextContainer, isGridItem && styles.gridModeTextContainer]}>
-            {isGridItem && (
-              <Image 
-                source={game.image}
-                style={styles.gridCharacterImage}
-                resizeMode="contain"
-              />
-            )}
-            <Text style={[styles.modeName, isGridItem && styles.gridModeName]}>{game.name}</Text>
-            {!isGridItem && (
-              <Text style={styles.modeDescription}>{game.description}</Text>
-            )}
-          </View>
-          {game.tag ? (
-            <View style={[styles.modeTagContainer, isGridItem && styles.gridModeTagContainer, { backgroundColor: game.tagColor }]}>
-              <Text style={styles.modeTagText}>{game.tag}</Text>
-            </View>
-          ) : null}
         </View>
       </LinearGradient>
     </TouchableOpacity>
   );
-  
-  // Rendu d'une catégorie de jeu avec ses modes
+
   const renderGameCategory = (category: GameCategory) => (
-    <View key={category.id} style={styles.categorySection}>
+    <View key={category.id} style={styles.categoryContainer}>
       <View style={styles.categoryHeader}>
-        <View>
-          <Text style={styles.categoryTitle}>{category.title}</Text>
-          {category.subtitle ? (
-            <Text style={styles.categorySubtitle}>{category.subtitle}</Text>
-          ) : null}
-        </View>
-        {category.id !== 'packs' && (
-          <TouchableOpacity style={styles.rulesButton}>
-            <Text style={styles.rulesText}>règles</Text>
-          </TouchableOpacity>
+        <Text style={styles.categoryTitle}>{category.title}</Text>
+        {category.subtitle && (
+          <Text style={styles.categorySubtitle}>{category.subtitle}</Text>
         )}
       </View>
-      
-      {category.id === 'packs' ? (
-        // Affichage en grid pour la catégorie "NOS PACKS LES PLUS JOUÉS"
-        <View style={styles.gridContainer}>
-          {category.games.map((game: GameMode) => (
-            <View key={game.id} style={styles.gridItem}>
-              {renderGameModeCard(game, true)}
-            </View>
-          ))}
-        </View>
-      ) : (
-        // Affichage en colonne pour les autres catégories
-        <View style={styles.gameModesColumn}>
-          {category.games.map((game: GameMode) => renderGameModeCard(game))}
-        </View>
-      )}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.gamesScroll}
+      >
+        {category.games.map(game => renderGameModeCard(game))}
+      </ScrollView>
     </View>
   );
-  
+
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={["#1A0938", "#2D1155"]}
-        style={styles.background}
-      >
-        {/* TopBar */}
-        <TopBar />
-        
-        <ScrollView 
-          style={styles.scrollView}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollViewContent}
-        >
-          {/* Content Container */}
-          <View style={styles.contentContainer}>
-            {/* Sections de jeu */}
-            {gameCategories.map(renderGameCategory)}
-          </View>
-        </ScrollView>
-        
-        <BottomTabBar />
-      </LinearGradient>
+        colors={["#1a0933", "#321a5e"]}
+        style={StyleSheet.absoluteFill}
+      />
+      <TopBar />
+      <ScrollView style={styles.scrollView}>
+        {gameCategories.map(renderGameCategory)}
+      </ScrollView>
+      <BottomTabBar />
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  background: {
-    flex: 1,
+    backgroundColor: '#1a0933',
   },
   scrollView: {
     flex: 1,
   },
-  scrollViewContent: {
-    paddingBottom: 20,
-  },
-  contentContainer: {
-    padding: 20,
-    paddingBottom: 100,
-  },
-  categorySection: {
-    marginBottom: 30,
+  categoryContainer: {
+    marginBottom: 20,
   },
   categoryHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 16,
+    paddingHorizontal: 20,
+    marginBottom: 10,
   },
   categoryTitle: {
-    color: 'white',
-    fontSize: 16,
+    fontSize: 24,
     fontWeight: 'bold',
+    color: 'white',
+    marginBottom: 5,
   },
   categorySubtitle: {
-    color: '#CCCCCC',
-    fontSize: 12,
+    fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.7)',
   },
-  rulesButton: {
-    borderWidth: 1,
-    borderColor: 'white',
-    borderRadius: 16,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    marginLeft: 8,
+  gamesScroll: {
+    paddingHorizontal: 15,
   },
-  rulesText: {
-    color: 'white',
-    fontSize: 10,
-  },
-  gameModesColumn: {
-    width: '100%',
-  },
-  modeCard: {
-    width: '100%',
-    marginBottom: 16,
-    borderRadius: 20,
+  gameCard: {
+    width: 300,
+    height: 200,
+    marginHorizontal: 5,
+    borderRadius: 15,
     overflow: 'hidden',
-    height: 120,
-  },
-  modeGradient: {
-    borderRadius: 20,
-    height: '100%',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 5,
-  },
-  modeContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    height: '100%',
-  },
-  characterContainer: {
-    width: 90,
-    height: 90,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 16,
-  },
-  characterImage: {
-    width: '100%',
-    height: '100%',
-  },
-  modeTextContainer: {
-    flex: 1,
-    paddingRight: 10,
-  },
-  modeName: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginBottom: 4,
-    fontFamily: 'System',
-    letterSpacing: 0.5,
-  },
-  modeDescription: {
-    color: 'white',
-    fontSize: 10,
-    lineHeight: 14,
-  },
-  modeTagContainer: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 4,
-    alignItems: 'center',
-    justifyContent: 'center',
-    minWidth: 50,
-  },
-  modeTagText: {
-    color: 'white',
-    fontSize: 8,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  loadingContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  gridContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    borderWidth: 2,
   },
   gridItem: {
-    width: '48%', // ~50% moins marge
-    marginBottom: 16,
+    width: '45%',
+    height: 180,
   },
-  gridModeCard: {
-    height: 140,
+  cardGradient: {
+    flex: 1,
+    padding: 15,
   },
-  gridModeGradient: {
-    height: '100%',
+  gameImage: {
+    width: 60,
+    height: 60,
+    marginBottom: 10,
   },
-  gridModeContent: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 12,
+  cardContent: {
+    flex: 1,
   },
-  gridModeTextContainer: {
-    alignItems: 'center',
-    paddingRight: 0,
+  gameName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: 'white',
+    marginBottom: 5,
   },
-  gridModeName: {
+  gameDescription: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.8)',
+    marginBottom: 10,
+  },
+  tagContainer: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 15,
+  },
+  tagText: {
+    color: 'white',
     fontSize: 12,
-    marginTop: 8,
-    textAlign: 'center',
-  },
-  gridCharacterImage: {
-    width: 70,
-    height: 70,
-  },
-  gridModeTagContainer: {
-    top: 5,
-    right: 5,
+    fontWeight: 'bold',
   },
 });
