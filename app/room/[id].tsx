@@ -5,6 +5,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons, FontAwesome5, Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
+import { getFirestore, doc, onSnapshot, updateDoc, getDoc } from 'firebase/firestore';
+import { getApp } from 'firebase/app';
 
 // Type pour l'utilisateur
 interface User {
@@ -28,41 +30,30 @@ interface Player {
   level: number;
 }
 
-// Type pour les données de salle
-interface PlayerData {
-  id: string | number;
-  username: string;
-  displayName?: string;
-  isHost?: boolean;
-  isReady?: boolean;
-  avatar?: string;
-  level?: number;
-}
-
-interface RoomData {
-  id: string | number;
-  code: string;
+// Interface pour l'objet Room qui correspond à ce qui est créé dans la page d'accueil
+interface Room {
+  id: string;
+  gameId: string;
   name: string;
-  host: {
-    id: string | number;
-    username: string;
-    displayName?: string;
-    avatar?: string;
-    level?: number;
-  };
-  players?: PlayerData[];
+  players: Player[];
+  createdAt: string;
+  status: string;
+  host: string;
   maxPlayers: number;
-  gameMode?: string;
-  totalRounds?: number;
-  status?: string;
 }
 
 export default function Room() {
   const router = useRouter();
-  const { id } = useLocalSearchParams();
+  const params = useLocalSearchParams();
+  const { id } = params;
   const { user } = useAuth();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
+  // Firebase setup
+  const app = getApp();
+  const db = getFirestore(app);
+
+  const [roomData, setRoomData] = useState<Room | null>(null);
   const [roomName, setRoomName] = useState<string>('');
   const [players, setPlayers] = useState<Player[]>([]);
   const [isReady, setIsReady] = useState(false);
@@ -71,7 +62,99 @@ export default function Room() {
   const [inviteModalVisible, setInviteModalVisible] = useState(false);
   const [rulesVisible, setRulesVisible] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('Chargement de la salle...');
-  const [redirectingToGame, setRedirectingToGame] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Set up Firebase listener for room data
+  useEffect(() => {
+    if (!id || typeof id !== 'string') {
+      setError('ID de salle non valide');
+      setIsLoading(false);
+      return;
+    }
+
+    const roomRef = doc(db, 'rooms', id as string);
+
+    // Initial fetch to check if the room exists
+    getDoc(roomRef).then(docSnap => {
+      if (!docSnap.exists()) {
+        setError('Cette salle n\'existe pas');
+        setIsLoading(false);
+        return;
+      }
+    }).catch(err => {
+      console.error('Error checking room:', err);
+      setError('Erreur lors du chargement de la salle');
+      setIsLoading(false);
+    });
+
+    // Set up real-time listener
+    const unsubscribe = onSnapshot(
+      roomRef,
+      (docSnapshot) => {
+        if (docSnapshot.exists()) {
+          const data = docSnapshot.data();
+
+          // Create room data from snapshot
+          const roomInfo: Room = {
+            id: docSnapshot.id,
+            gameId: data.gameId || '',
+            name: data.name || 'Salle sans nom',
+            players: data.players || [],
+            createdAt: data.createdAt || new Date().toISOString(),
+            status: data.status || 'waiting',
+            host: data.host || data.createdBy || '',
+            maxPlayers: data.maxPlayers || 6
+          };
+
+          // Update state with room data
+          setRoomData(roomInfo);
+          setRoomName(roomInfo.name);
+          setMaxPlayers(roomInfo.maxPlayers);
+
+          // Transform player data to match our Player interface
+          if (data.players && Array.isArray(data.players)) {
+            const formattedPlayers: Player[] = data.players.map((player: any) => ({
+              id: player.id || player.uid || '',
+              username: player.username || player.displayName || 'Joueur',
+              name: player.displayName || player.username || 'Joueur',
+              isHost: player.id === roomInfo.host || player.uid === roomInfo.host,
+              isReady: player.isReady || false,
+              avatar: player.avatar || player.photoURL || `https://i.pravatar.cc/150?img=${Math.floor(Math.random() * 70)}`,
+              level: player.level || Math.floor(Math.random() * 10) + 1
+            }));
+            setPlayers(formattedPlayers);
+
+            // Check if current user is host
+            if (user && (user.uid === roomInfo.host || user.id === roomInfo.host)) {
+              setIsHost(true);
+            }
+
+            // Check if current user is ready
+            if (user) {
+              const currentPlayerInRoom = formattedPlayers.find(
+                p => p.id === user.uid || p.id === user.id
+              );
+              setIsReady(currentPlayerInRoom?.isReady || false);
+            }
+          }
+
+          setIsLoading(false);
+        } else {
+          setError('Cette salle n\'existe plus');
+          setIsLoading(false);
+        }
+      },
+      (error) => {
+        console.error('Error listening to room updates:', error);
+        setError(`Erreur: ${error.message}`);
+        setIsLoading(false);
+      }
+    );
+
+    // Clean up listener on unmount
+    return () => unsubscribe();
+  }, [id, user, db]);
 
   // Mettre à jour l'utilisateur actuel lorsque les données sont disponibles
   useEffect(() => {
@@ -80,44 +163,74 @@ export default function Room() {
     }
   }, [user]);
 
-  const handleToggleReady = () => {
-    if (id) {
-      console.log(`🎮 handleToggleReady: Changement du statut pour ${!isReady ? 'prêt' : 'pas prêt'}`);
+  const handleToggleReady = async () => {
+    if (!id || !user || !roomData) return;
+
+    try {
+      setIsLoading(true);
+      const roomRef = doc(db, 'rooms', id as string);
+
+      // Find current user in players array and update their ready status
+      const updatedPlayers = roomData.players.map(player => {
+        if (player.id === user.uid || player.id === user.id) {
+          return { ...player, isReady: !isReady };
+        }
+        return player;
+      });
+
+      // Update Firestore document
+      await updateDoc(roomRef, {
+        players: updatedPlayers
+      });
+
+      // Local update
       setIsReady(!isReady);
+      console.log(`🎮 Statut changé: ${!isReady ? 'prêt' : 'pas prêt'}`);
+
+    } catch (error: any) {
+      console.error('Erreur mise à jour statut:', error);
+      Alert.alert('Erreur', `Impossible de mettre à jour votre statut: ${error.message}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleStartGame = () => {
-    if (id) {
-      // Double vérification de l'état hôte
-      if (!isHost) {
-        Alert.alert(
-          "Erreur",
-          "Seul l'hôte peut démarrer la partie.",
-          [{ text: "OK" }]
-        );
-        return;
-      }
-      
-      // Vérifier si tous les joueurs non-hôtes sont prêts
-      const nonHostPlayers = players.filter(player => !player.isHost);
-      const nonReadyPlayers = nonHostPlayers.filter(player => !player.isReady);
-      
-      if (nonReadyPlayers.length > 0) {
-        Alert.alert(
-          "Attention",
-          `Tous les joueurs ne sont pas prêts (${nonReadyPlayers.length} en attente). Veuillez attendre que tout le monde soit prêt avant de démarrer.`,
-          [{ text: "OK" }]
-        );
-        return;
-      }
+  const handleStartGame = async () => {
+    if (!roomData || !isHost) return;
 
-      // TODO: Implement game start
-      console.log(`Starting game for room ${id}`);
+    // Vérifier si tous les joueurs sont prêts
+    const nonReadyPlayers = players.filter(player => !player.isReady && !player.isHost);
+
+    if (nonReadyPlayers.length > 0) {
+      Alert.alert(
+        "Attention",
+        `Tous les joueurs ne sont pas prêts (${nonReadyPlayers.length} en attente). Veuillez attendre que tout le monde soit prêt avant de démarrer.`,
+        [{ text: "OK" }]
+      );
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      // Mettre à jour le statut de la salle dans Firestore
+      const roomRef = doc(db, 'rooms', id as string);
+      await updateDoc(roomRef, {
+        status: 'playing'
+      });
+
+      // Redirection vers la page de jeu
+      router.push(`/game/${roomData.gameId}?roomId=${roomData.id}`);
+
+    } catch (error: any) {
+      console.error('Erreur démarrage partie:', error);
+      Alert.alert('Erreur', `Impossible de démarrer la partie: ${error.message}`);
+      setIsLoading(false);
     }
   };
 
-  const handleLeaveRoom = () => {
+  const handleLeaveRoom = async () => {
+    if (!id || !user) return;
+
     Alert.alert(
       'Quitter la salle',
       'Êtes-vous sûr de vouloir quitter cette salle ?',
@@ -129,31 +242,50 @@ export default function Room() {
         {
           text: 'Quitter',
           style: 'destructive',
-          onPress: () => {
-            router.push('/');
+          onPress: async () => {
+            try {
+              // Si l'utilisateur est le dernier à quitter ou est l'hôte, supprimer la salle
+              // Sinon, retirer le joueur de la liste
+              if (isHost || players.length <= 1) {
+                // Code pour supprimer la salle ou transférer l'hôte si nécessaire
+                // Cela serait implémenté selon vos besoins spécifiques
+              } else {
+                // Enlever le joueur de la liste
+                const roomRef = doc(db, 'rooms', id as string);
+                const updatedPlayers = roomData?.players.filter(
+                  player => player.id !== user.uid && player.id !== user.id
+                ) || [];
+
+                await updateDoc(roomRef, {
+                  players: updatedPlayers
+                });
+              }
+
+              router.push('/');
+            } catch (error) {
+              console.error('Erreur en quittant la salle:', error);
+              // Forcer le retour même en cas d'erreur
+              router.push('/');
+            }
           },
         },
       ]
     );
   };
 
-  const handleInviteFriend = () => {
-    setInviteModalVisible(true);
-  };
-
   const handleCopyCode = () => {
-    Clipboard.setString(id as string);
+    Clipboard.setString(roomData?.id || id as string);
     Alert.alert('Code copié', 'Le code de la salle a été copié dans le presse-papiers');
   };
 
   const handleShareCode = async () => {
     try {
       const result = await Share.share({
-        message: `Rejoins-moi dans Cosmic Quest ! Utilise ce code pour me rejoindre: ${id}`,
-        url: `cosmic-quest://room/${id}`,
+        message: `Rejoins-moi dans Cosmic Quest ! Utilise ce code pour me rejoindre: ${roomData?.id || id}`,
+        url: `cosmic-quest://room/${roomData?.id || id}`,
         title: 'Invitation Cosmic Quest',
       });
-      
+
       if (result.action === Share.sharedAction) {
         if (result.activityType) {
           console.log('Shared with activity type of', result.activityType);
@@ -203,6 +335,36 @@ export default function Room() {
     </View>
   );
 
+  if (isLoading && !roomData) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <LinearGradient
+          colors={['#1a0933', '#321a5e']}
+          style={styles.background}
+        />
+        <Text style={{ color: 'white', fontSize: 18, marginBottom: 20 }}>{loadingMessage}</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <LinearGradient
+          colors={['#1a0933', '#321a5e']}
+          style={styles.background}
+        />
+        <Text style={styles.errorText}>{error}</Text>
+        <TouchableOpacity 
+          style={styles.backToHomeButton}
+          onPress={() => router.push('/')}
+        >
+          <Text style={styles.backToHomeText}>Retour à l'accueil</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
@@ -227,7 +389,7 @@ export default function Room() {
             </View>
             
             <TouchableOpacity style={styles.roomCodeBadge} onPress={handleCopyCode}>
-              <Text style={styles.roomCodeText}>Code: {id}</Text>
+              <Text style={styles.roomCodeText}>Code: {roomData?.id || id}</Text>
               <MaterialCommunityIcons name="content-copy" size={16} color="rgba(255,255,255,0.8)" />
             </TouchableOpacity>
           </View>
@@ -249,38 +411,56 @@ export default function Room() {
           </TouchableOpacity>
         </View>
         
-        <FlatList
-          data={players}
-          renderItem={renderPlayerItem}
-          keyExtractor={item => item.id}
-          style={styles.playersList}
-          contentContainerStyle={styles.playersListContent}
-        />
+        {players.length > 0 ? (
+          <FlatList
+            data={players}
+            renderItem={renderPlayerItem}
+            keyExtractor={item => item.id}
+            style={styles.playersList}
+            contentContainerStyle={styles.playersListContent}
+          />
+        ) : (
+          <View style={[styles.centerContent, { flex: 1 }]}>
+            <Text style={{ color: 'white', fontSize: 16 }}>Chargement des joueurs...</Text>
+          </View>
+        )}
         
         {/* Room actions */}
         <View style={styles.actionsContainer}>
           {isHost ? (
             <TouchableOpacity 
-              style={[styles.actionButton, styles.startGameButton]}
+              style={[styles.actionButton, styles.startGameButton, isLoading && styles.disabledButton]}
               onPress={handleStartGame}
+              disabled={isLoading}
             >
               <MaterialCommunityIcons name="rocket-launch" size={24} color="white" />
-              <Text style={styles.actionButtonText}>Lancer la partie</Text>
+              <Text style={styles.actionButtonText}>
+                {isLoading ? 'Chargement...' : 'Lancer la partie'}
+              </Text>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity 
-              style={[styles.actionButton, isReady ? styles.notReadyButton : styles.readyButton]}
+              style={[
+                styles.actionButton, 
+                isReady ? styles.notReadyButton : styles.readyButton,
+                isLoading && styles.disabledButton
+              ]}
               onPress={handleToggleReady}
+              disabled={isLoading}
             >
               {isReady ? (
                 <>
                   <MaterialCommunityIcons name="close-circle" size={24} color="white" />
-                  <Text style={styles.actionButtonText}>Annuler</Text>
+                  <Text style={styles.actionButtonText}>
+                    {isLoading ? 'Chargement...' : 'Annuler'}
+                  </Text>
                 </>
               ) : (
                 <>
                   <MaterialCommunityIcons name="check-circle" size={24} color="white" />
-                  <Text style={styles.actionButtonText}>Je suis prêt</Text>
+                  <Text style={styles.actionButtonText}>
+                    {isLoading ? 'Chargement...' : 'Je suis prêt'}
+                  </Text>
                 </>
               )}
             </TouchableOpacity>
@@ -501,5 +681,8 @@ const styles = StyleSheet.create({
   backToHomeText: {
     color: 'white',
     fontWeight: 'bold',
+  },
+  disabledButton: {
+    opacity: 0.5,
   },
 });

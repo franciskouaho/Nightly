@@ -10,6 +10,7 @@ import { useRouter } from 'expo-router'
 import NetInfo from '@react-native-community/netinfo'
 import { getFirestore } from 'firebase/firestore'
 import { initializeApp, getApp, getApps } from 'firebase/app'
+import { gameCategories, GameMode, GameCategory } from '@/app/data/gameModes'
 
 // Firebase initialization for mobile app
 const firebaseConfig = {
@@ -25,238 +26,242 @@ const firebaseConfig = {
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Définition des interfaces
-interface GameMode {
-  id: string;
-  name: string;
-  description: string;
-  image: any;
-  colors: string[];
-  borderColor: string;
-  shadowColor: string;
-  tag: string;
-  tagColor: string;
-  premium: boolean;
-  interactive?: 'write' | 'choice' | 'action';
-}
-
-interface GameCategory {
-  id: string;
-  title: string;
-  subtitle: string;
-  games: GameMode[];
-}
-
-// Configuration des catégories de jeu
-const gameCategories: GameCategory[] = [
-  {
-    id: 'insight_modes',
-    title: 'INSIGHT MODES',
-    subtitle: 'Plusieurs téléphones',
-    games: [
-      {
-        id: 'on-ecoute-mais-on-ne-juge-pas',
-        name: 'ON ÉCOUTE MAIS ON NE JUGE PAS',
-        description: 'Un mode gratuit pour rigoler tranquillement entre potes.',
-        image: require('@/assets/images/taupeTranspa.png'),
-        colors: ["rgba(17, 34, 78, 0.8)", "rgba(38, 56, 120, 0.9)"],
-        borderColor: "#3B5FD9",
-        shadowColor: "#3B5FD9",
-        tag: 'GRATUIT',
-        tagColor: "#8E24AA",
-        premium: false,
-        interactive: 'write'
-      },
-      {
-        id: 'spicy',
-        name: 'HOT',
-        description: 'Questions coquines et déplacées... Prêts à assumer ?',
-        image: require('@/assets/images/vache.png'),
-        colors: ["rgba(90, 10, 50, 0.8)", "rgba(130, 20, 80, 0.9)"],
-        borderColor: "#D81B60",
-        shadowColor: "#D81B60",
-        tag: 'PREMIUM',
-        tagColor: "#D81B60",
-        premium: true,
-        interactive: 'write'
-      },
-      {
-        id: 'soit-tu-sais-soit-tu-bois',
-        name: 'SOIT TU SAIS SOIT TU BOIS',
-        description: 'Un mode ludique avec un niveau de difficulté progressif.',
-        image: require('@/assets/images/snake_vs_fox.png'),
-        colors: ["rgba(20, 20, 40, 0.8)", "rgba(40, 40, 80, 0.9)"],
-        borderColor: "#212121",
-        shadowColor: "#212121",
-        tag: 'PREMIUM',
-        tagColor: "#D81B60",
-        premium: true,
-        interactive: 'write'
-      },
-    ]
-  },
-  {
-    id: 'jeu_de_soiree',
-    title: 'JEU DE SOIRÉE',
-    subtitle: 'Plusieurs téléphones',
-    games: [
-      {
-        id: 'connais-tu-vraiment',
-        name: 'CONNAIS-TU VRAIMENT ?',
-        description: 'Testez votre connaissance de vos amis.',
-        image: require('@/assets/images/cochon.png'),
-        colors: ["rgba(80, 20, 100, 0.8)", "rgba(120, 40, 160, 0.9)"],
-        borderColor: "#9C27B0",
-        shadowColor: "#9C27B0",
-        tag: 'NEW !',
-        tagColor: "#F06292",
-        premium: false,
-        interactive: 'choice'
-      },
-      {
-        id: 'blind-test',
-        name: 'BLIND TEST',
-        description: 'Devinez des titres à partir d\'extraits musicaux.',
-        image: require('@/assets/images/taupeTranspa.png'),
-        colors: ["rgba(0, 100, 130, 0.8)", "rgba(0, 150, 180, 0.9)"],
-        borderColor: "#0097A7",
-        shadowColor: "#0097A7",
-        tag: 'COMING SOON',
-        tagColor: "#F06292",
-        premium: true,
-        interactive: 'choice'
-      }
-    ]
-  },
-  {
-    id: 'packs',
-    title: 'NOS PACKS LES PLUS JOUÉS',
-    subtitle: '',
-    games: [
-      {
-        id: 'action-verite',
-        name: 'ACTION OU VÉRITÉ',
-        description: 'Le classique revisité avec des défis exclusifs.',
-        image: require('@/assets/images/snake_vs_fox.png'),
-        colors: ["rgba(50, 90, 150, 0.8)", "rgba(80, 120, 200, 0.9)"],
-        borderColor: "#3F51B5",
-        shadowColor: "#3F51B5",
-        tag: '',
-        tagColor: "",
-        premium: false,
-        interactive: 'action'
-      },
-      {
-        id: 'apero',
-        name: 'APÉRO',
-        description: 'Pour animer vos soirées entre amis.',
-        image: require('@/assets/images/taupeTranspa.png'),
-        colors: ["rgba(0, 100, 130, 0.8)", "rgba(0, 150, 180, 0.9)"],
-        borderColor: "#0097A7",
-        shadowColor: "#0097A7",
-        tag: '',
-        tagColor: "",
-        premium: false,
-        interactive: 'choice'
-      }
-    ]
+// Fonction utilitaire pour générer des IDs uniques sans dépendre de crypto
+const generateUniqueId = (length: number = 6) => {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const timestamp = new Date().getTime().toString(36);
+  let result = timestamp.substring(timestamp.length - 2);
+  
+  for (let i = 0; i < length - 2; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
   }
-];
+  
+  return result;
+};
 
 export default function HomeScreen() {
   const { user } = useAuth();
   const router = useRouter();
-  const { createRoom, loading: isCreatingRoom } = useFirebaseRooms(db);
+  const { createRoom: createFirebaseRoom, loading: isCreatingRoom } = useFirebaseRooms(db);
 
-  const createGameRoom = async (modeId: string) => {
-    // Vérifier la connexion internet
-    const netInfo = await NetInfo.fetch();
-    if (!netInfo.isConnected) {
+  // Fonction utilitaire pour obtenir le nom d'affichage de l'utilisateur
+  const getUserDisplayName = (user: any) => {
+    if (!user) return "Joueur";
+    
+    // Vérifier les propriétés courantes pour les objets utilisateur
+    if (typeof user.displayName === 'string' && user.displayName.trim() !== '') {
+      return user.displayName;
+    }
+    
+    if (typeof user.email === 'string' && user.email.trim() !== '') {
+      // Utiliser seulement la partie avant @ de l'email
+      return user.email.split('@')[0];
+    }
+    
+    if (typeof user.username === 'string' && user.username.trim() !== '') {
+      return user.username;
+    }
+    
+    // Fallback si aucun nom disponible
+    return "Joueur";
+  };
+
+  // Fonction qui crée un objet room avec les propriétés requises
+  const createRoom = (game: GameMode) => {
+    console.log('⭐ createRoom appelé avec le jeu:', game.name);
+    return {
+      id: generateUniqueId(6),
+      gameId: game.id,
+      name: game.name,
+      players: [],
+      createdAt: new Date().toISOString(),
+      status: "waiting"
+    };
+  };
+
+  const createGameRoom = async (game: GameMode) => {
+    console.log('👉 Fonction createGameRoom appelée pour:', game.name);
+    
+    // Vérifier que l'utilisateur est connecté
+    if (!user) {
+      console.log('❌ Utilisateur non connecté');
       Alert.alert(
-        'Erreur de connexion',
-        'Pas de connexion internet. Veuillez vérifier votre connexion et réessayer.'
+        'Connexion requise',
+        'Vous devez être connecté pour créer une salle de jeu.',
+        [{ text: 'OK' }]
       );
       return;
     }
-
+    
+    // Afficher l'indicateur de chargement
+    console.log('⌛ Début du processus de création de salle...');
+    
+    // Vérifier la connexion internet avec gestion d'erreurs
     try {
-      console.log('🎮 Création d\'une salle pour le mode:', modeId);
+      const netInfo = await NetInfo.fetch();
+      console.log('📶 État de la connexion:', netInfo.isConnected);
       
+      if (!netInfo.isConnected) {
+        Alert.alert(
+          'Erreur de connexion',
+          'Pas de connexion internet. Veuillez vérifier votre connexion et réessayer.'
+        );
+        return;
+      }
+  
+      console.log('🎮 Création d\'une salle pour le mode:', game.id);
+      
+      const room = createRoom(game);
+      console.log('📦 Objet room créé:', room);
+      
+      // Préparer les données pour Firebase
       const roomData = {
-        name: `${modeId} de ${user?.email || 'Joueur'}`,
-        createdBy: user?.uid || '',
-        players: [user?.uid || ''],
-        currentPhase: 'waiting' as const,
+        id: room.id, // Utiliser le même ID pour la cohérence
+        name: `${game.name}`,  // Simplement utiliser le nom du jeu
+        gameId: game.id,
+        createdBy: user.uid || '',
+        host: user.uid || '',
+        players: [{
+          id: user.uid,
+          username: getUserDisplayName(user), // Utiliser getUserDisplayName plutôt que directement user.email
+          displayName: getUserDisplayName(user),
+          isHost: true,
+          isReady: true,
+          avatar: user.photoURL || `https://i.pravatar.cc/150?img=1`,
+        }],
+        createdAt: new Date().toISOString(),
+        status: "waiting",
         maxPlayers: 8,
       };
-
-      const roomId = await createRoom(roomData);
-      console.log('✅ Salle créée avec succès:', roomId);
+  
+      console.log('📤 Enregistrement dans Firebase avec les données:', roomData);
       
-      // Rediriger vers la salle de jeu
-      router.push(`/game/${modeId}?roomId=${roomId}`);
+      try {
+        // Créer la salle dans Firebase avec un timeout pour éviter une attente infinie
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Délai d\'attente dépassé lors de la création de la salle')), 15000);
+        });
+        
+        // Race entre la création de room et le timeout
+        await Promise.race([
+          createFirebaseRoom(roomData),
+          timeoutPromise
+        ]);
+        
+        console.log('✅ Salle créée avec succès dans Firebase:', room.id);
+        
+        // Rediriger vers la page room avec l'ID seulement
+        console.log('🔄 Tentative de redirection vers:', `/room/${room.id}`);
+        
+        // Forcer un délai avant la navigation pour éviter les problèmes de timing
+        setTimeout(() => {
+          console.log('➡️ Exécution de la redirection maintenant');
+          router.push(`/room/${room.id}`);
+        }, 500);
+        
+        return true;
+      } catch (firebaseError) {
+        console.error('🔥 Erreur Firebase:', firebaseError);
+        if (firebaseError instanceof Error) {
+          Alert.alert(
+            'Erreur lors de la création de la salle',
+            firebaseError.message || 'Une erreur est survenue lors de la création de la salle.'
+          );
+        }
+        throw firebaseError; // Remonter l'erreur pour la gestion globale
+      }
+      
     } catch (error: any) {
       console.error('❌ Erreur lors de la création de la salle:', error);
       Alert.alert(
         'Erreur',
         error.message || 'Impossible de créer la salle'
       );
+      return false;
     }
   };
-
-  // Rendu des cartes de mode de jeu avec le nouveau design
-  const renderGameModeCard = (game: GameMode, isGridItem = false) => (
-    <TouchableOpacity 
-      key={game.id}
-      style={[styles.modeCard, isGridItem && styles.gridModeCard]} 
-      onPress={() => createGameRoom(game.id)}
-      activeOpacity={0.9}
-    >
-      <LinearGradient
-        colors={game.colors}
+  
+  // Améliorer le rendu des cartes pour s'assurer que les événements sont correctement attachés
+  const renderGameModeCard = (game: GameMode, isGridItem = false) => {
+    // Créer un gestionnaire d'événements séparé pour faciliter le débogage
+    const handlePress = async () => {
+      console.log('🖱️ Clic sur le mode de jeu:', game.name);
+      
+      // Désactiver temporairement l'interaction pendant la création
+      if (isCreatingRoom) {
+        console.log('⏳ Création de salle en cours, veuillez patienter...');
+        return;
+      }
+      
+      // Appeler la fonction de création et attendre sa complétion
+      const result = await createGameRoom(game);
+      
+      if (result) {
+        console.log('✅ Création de la salle réussie, redirection en cours...');
+      } else {
+        console.log('❌ La création de la salle a échoué');
+      }
+    };
+    
+    return (
+      <TouchableOpacity 
+        key={game.id}
         style={[
-          styles.modeGradient, 
-          { 
-            borderColor: game.borderColor,
-            shadowColor: game.shadowColor
-          },
-          isGridItem && styles.gridModeGradient
-        ]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+          styles.modeCard, 
+          isGridItem && styles.gridModeCard,
+          isCreatingRoom && styles.disabledCard
+        ]} 
+        onPress={handlePress}
+        activeOpacity={0.7}
+        disabled={isCreatingRoom}
+        testID={`game-mode-${game.id}`}
       >
-        <View style={[styles.modeContent, isGridItem && styles.gridModeContent]}>
-          {!isGridItem && (
-            <View style={styles.characterContainer}>
-              <Image 
-                source={game.image}
-                style={styles.characterImage}
-                resizeMode="contain"
-              />
-            </View>
-          )}
-          <View style={[styles.modeTextContainer, isGridItem && styles.gridModeTextContainer]}>
-            {isGridItem && (
-              <Image 
-                source={game.image}
-                style={styles.gridCharacterImage}
-                resizeMode="contain"
-              />
-            )}
-            <Text style={[styles.modeName, isGridItem && styles.gridModeName]}>{game.name}</Text>
+        <LinearGradient
+          colors={game.colors}
+          style={[
+            styles.modeGradient, 
+            { 
+              borderColor: game.borderColor,
+              shadowColor: game.shadowColor
+            },
+            isGridItem && styles.gridModeGradient
+          ]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
+          <View style={[styles.modeContent, isGridItem && styles.gridModeContent]}>
             {!isGridItem && (
-              <Text style={styles.modeDescription}>{game.description}</Text>
+              <View style={styles.characterContainer}>
+                <Image 
+                  source={game.image}
+                  style={styles.characterImage}
+                  resizeMode="contain"
+                />
+              </View>
             )}
-          </View>
-          {game.tag ? (
-            <View style={[styles.modeTagContainer, isGridItem && styles.gridModeTagContainer, { backgroundColor: game.tagColor }]}>
-              <Text style={styles.modeTagText}>{game.tag}</Text>
+            <View style={[styles.modeTextContainer, isGridItem && styles.gridModeTextContainer]}>
+              {isGridItem && (
+                <Image 
+                  source={game.image}
+                  style={styles.gridCharacterImage}
+                  resizeMode="contain"
+                />
+              )}
+              <Text style={[styles.modeName, isGridItem && styles.gridModeName]}>{game.name}</Text>
+              {!isGridItem && (
+                <Text style={styles.modeDescription}>{game.description}</Text>
+              )}
             </View>
-          ) : null}
-        </View>
-      </LinearGradient>
-    </TouchableOpacity>
-  );
+            {game.tag ? (
+              <View style={[styles.modeTagContainer, isGridItem && styles.gridModeTagContainer, { backgroundColor: game.tagColor }]}>
+                <Text style={styles.modeTagText}>{game.tag}</Text>
+              </View>
+            ) : null}
+          </View>
+        </LinearGradient>
+      </TouchableOpacity>
+    );
+  };
   
   // Rendu d'une catégorie de jeu avec ses modes
   const renderGameCategory = (category: GameCategory) => (
@@ -474,5 +479,8 @@ const styles = StyleSheet.create({
   gridModeTagContainer: {
     top: 5,
     right: 5,
+  },
+  disabledCard: {
+    opacity: 0.6,
   },
 });

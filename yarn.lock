@@ -9955,6 +9955,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"nanoid@npm:^5.1.5":
+  version: 5.1.5
+  resolution: "nanoid@npm:5.1.5"
+  bin:
+    nanoid: bin/nanoid.js
+  checksum: 10c0/e6004f1ad6c7123eeb037062c4441d44982037dc043aabb162457ef6986e99964ba98c63c975f96c547403beb0bf95bc537bd7bf9a09baf381656acdc2975c3c
+  languageName: node
+  linkType: hard
+
 "napi-postinstall@npm:^0.2.2":
   version: 0.2.2
   resolution: "napi-postinstall@npm:0.2.2"
@@ -10050,6 +10059,7 @@ __metadata:
     expo-system-ui: "npm:~4.0.9"
     jest: "npm:^29.2.1"
     jest-expo: "npm:~52.0.6"
+    nanoid: "npm:^5.1.5"
     react: "npm:18.3.1"
     react-dom: "npm:18.3.1"
     react-native: "npm:0.76.9"
