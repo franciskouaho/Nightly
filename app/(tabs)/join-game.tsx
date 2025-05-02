@@ -5,11 +5,10 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Alert 
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
-import BottomTabBar from '../../components/BottomTabBar';
+import BottomTabBar from '@/components/BottomTabBar';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
-import { doc, getDoc, collection, query, where, getDocs, updateDoc } from 'firebase/firestore';
-import { db } from '@/config/firebase';
+import firestore from '@react-native-firebase/firestore';
 import LoadingOverlay from '@/components/LoadingOverlay';
 
 interface Room {
@@ -37,8 +36,8 @@ export default function JoinGame() {
 
     setIsJoining(true);
     try {
-      const roomRef = doc(db, 'rooms', roomCode);
-      const roomDoc = await getDoc(roomRef);
+      const roomRef = firestore().collection('rooms').doc(roomCode);
+      const roomDoc = await roomRef.get();
 
       if (!roomDoc.exists()) {
         Alert.alert('Erreur', 'Salle introuvable');
@@ -57,7 +56,7 @@ export default function JoinGame() {
         return;
       }
 
-      await updateDoc(roomRef, {
+      await roomRef.update({
         players: [...roomData.players, user?.uid]
       });
 
@@ -76,9 +75,10 @@ export default function JoinGame() {
 
   const loadRecentRooms = async () => {
     try {
-      const roomsRef = collection(db, 'rooms');
-      const q = query(roomsRef, where('currentPhase', '==', 'waiting'));
-      const querySnapshot = await getDocs(q);
+      const querySnapshot = await firestore()
+        .collection('rooms')
+        .where('currentPhase', '==', 'waiting')
+        .get();
       
       const rooms = querySnapshot.docs.map(doc => ({
         id: doc.id,
@@ -393,4 +393,4 @@ const styles = StyleSheet.create({
   bottomTabBarPlaceholder: {
     height: 80,
   },
-}); 
+});

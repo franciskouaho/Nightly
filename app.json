@@ -16,11 +16,10 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo.png",
-        "package": "com.emplica.nightly",
-        "backgroundColor": "#4b277d",
-        "googleServicesFile": "./google-services.json"
+        "backgroundColor": "#4b277d"
       },
-      "package": "com.emplica.nightly"
+      "package": "com.emplica.nightly",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "bundler": "metro",
@@ -28,9 +27,17 @@
       "favicon": "./assets/images/logo.png"
     },
     "plugins": [
+      "expo-router",
+     [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
+      ],
       "@react-native-firebase/app",
-      "@react-native-firebase/auth",
-      "@react-native-firebase/crashlytics"
+      "@react-native-firebase/auth"
     ],
     "assetBundlePatterns": [
       "**/*"

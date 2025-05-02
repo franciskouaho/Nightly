@@ -10,7 +10,7 @@ import { Ionicons } from '@expo/vector-icons';
 export default function LoginScreen() {
   const [username, setUsername] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn } = useAuth();
+  const { signInWithPseudo } = useAuth();
   const router = useRouter();
 
   const handleLogin = async () => {
@@ -26,7 +26,7 @@ export default function LoginScreen() {
 
     setIsLoading(true);
     try {
-      await signIn(username);
+      await signInWithPseudo(username);
       router.replace('/(tabs)');
     } catch (error: any) {
       Alert.alert(
@@ -138,4 +138,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-}); 
+});

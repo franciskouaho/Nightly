@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, where } from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, where, Firestore } from 'firebase/firestore';
 
 export interface Room {
   id: string;
@@ -12,7 +11,7 @@ export interface Room {
   createdAt: Date;
 }
 
-export function useFirebaseRooms() {
+export function useFirebaseRooms(db: Firestore) {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +32,7 @@ export function useFirebaseRooms() {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [db]);
 
   const createRoom = async (roomData: Omit<Room, 'id' | 'createdAt'>) => {
     try {
@@ -89,4 +88,4 @@ export function useFirebaseRooms() {
     leaveRoom,
     deleteRoom,
   };
-} 
+}

@@ -1,6 +1,5 @@
-import { signInAnonymously } from 'firebase/auth';
-import { collection, doc, getDoc, setDoc } from 'firebase/firestore';
-import { auth, db } from '../config/firebase';
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 
 /**
  * Authentifie un utilisateur avec un pseudo
@@ -12,23 +11,23 @@ export async function signInWithPseudo(pseudo: string): Promise<string> {
   const trimmedPseudo = pseudo.trim().toLowerCase();
 
   // Vérifie si le pseudo est déjà pris
-  const existing = await getDoc(doc(db, 'usernames', trimmedPseudo));
+  const existing = await firestore().collection('usernames').doc(trimmedPseudo).get();
   if (existing.exists()) {
     throw new Error('Pseudo déjà pris');
   }
 
   // Connexion anonyme
-  const userCredential = await signInAnonymously(auth);
+  const userCredential = await auth().signInAnonymously();
   const uid = userCredential.user.uid;
 
   // Sauvegarde du pseudo lié à l'UID
-  await setDoc(doc(db, 'usernames', trimmedPseudo), {
+  await firestore().collection('usernames').doc(trimmedPseudo).set({
     uid: uid,
     createdAt: new Date().toISOString(),
   });
 
   // Sauvegarde des informations de l'utilisateur
-  await setDoc(doc(db, 'users', uid), {
+  await firestore().collection('users').doc(uid).set({
     pseudo: trimmedPseudo,
     createdAt: new Date().toISOString(),
   });
@@ -43,6 +42,6 @@ export async function signInWithPseudo(pseudo: string): Promise<string> {
  */
 export async function isPseudoAvailable(pseudo: string): Promise<boolean> {
   const trimmedPseudo = pseudo.trim().toLowerCase();
-  const existing = await getDoc(doc(db, 'usernames', trimmedPseudo));
+  const existing = await firestore().collection('usernames').doc(trimmedPseudo).get();
   return !existing.exists();
-} 
+}
