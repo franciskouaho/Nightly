@@ -10,13 +10,17 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.emplica.nightly"
+      "bundleIdentifier": "com.emplica.nightly",
+      "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo.png",
-        "backgroundColor": "#4b277d"
-      }
+        "package": "com.emplica.nightly",
+        "backgroundColor": "#4b277d",
+        "googleServicesFile": "./google-services.json"
+      },
+      "package": "com.emplica.nightly"
     },
     "web": {
       "bundler": "metro",
@@ -24,8 +28,9 @@
       "favicon": "./assets/images/logo.png"
     },
     "plugins": [
-      "expo-router"
-      
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth",
+      "@react-native-firebase/crashlytics"
     ],
     "assetBundlePatterns": [
       "**/*"
