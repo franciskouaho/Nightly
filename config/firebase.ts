@@ -1,8 +1,8 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
+import { initializeAuth, getReactNativePersistence, getAuth } from 'firebase/auth';
+import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 
-// Configuration Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyCaXTVinkd4OIMqhGAXENme4tVvDUG4CzA",
   authDomain: "drink-dare.firebaseapp.com",
@@ -13,11 +13,18 @@ const firebaseConfig = {
   measurementId: "G-78CP3RMLLH"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firebase services
 export const db = getFirestore(app);
-export const auth = getAuth(app);
 
-export default app; 
+let auth;
+try {
+  auth = initializeAuth(app, {
+    persistence: getReactNativePersistence(ReactNativeAsyncStorage)
+  });
+} catch (error) {
+  auth = getAuth(app);
+}
+
+export { auth };
+export default app;
