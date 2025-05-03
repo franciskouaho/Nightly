@@ -34,6 +34,7 @@ interface Player {
 interface Room {
   id: string;
   gameId: string;
+  gameMode?: string;
   name: string;
   players: Player[];
   createdAt: string;
@@ -83,6 +84,7 @@ export const createFirebaseRoom = async (roomData: RoomCreationData, timeoutMs =
   const firestoreData = {
     name: roomData.name,
     gameId: roomData.gameId,
+    gameMode: roomData.gameId,
     host: roomData.host,
     status: 'waiting', 
     players: cleanedPlayers,
@@ -118,6 +120,7 @@ export const createFirebaseRoom = async (roomData: RoomCreationData, timeoutMs =
               status: 'waiting',
               maxPlayers: firestoreData.maxPlayers,
               code: firestoreData.code,
+              gameMode: firestoreData.gameMode,
             };
             
             resolve(roomWithId);
@@ -176,6 +179,16 @@ export default function RoomScreen() {
       if (doc.exists()) {
         const roomData = { ...(doc.data() as Room), id: doc.id };
         setRoom(roomData);
+
+        // Redirection automatique pour tous les joueurs quand la partie commence
+        if (roomData.status === 'playing' && roomData.gameId && roomData.gameId.length > 0) {
+          if (
+            roomData.gameMode === 'action-verite' ||
+            roomData.gameMode === 'truth-or-dare'
+          ) {
+            router.replace(`/game/truth-or-dare/${roomData.gameId}`);
+          }
+        }
       } else {
         Alert.alert('Erreur', 'Salle introuvable');
         router.back();
@@ -197,7 +210,11 @@ export default function RoomScreen() {
       const db = getFirestore();
       
       // 1. Get questions for the game mode
-      const questionsRef = doc(db, 'gameQuestions', room.gameId);
+      const questionsRef = doc(
+        db,
+        'gameQuestions',
+        room.gameId === 'action-verite' ? 'truth-or-dare' : room.gameId
+      );
       const questionsDoc = await getDoc(questionsRef);
       
       if (!questionsDoc.exists()) {
@@ -245,7 +262,7 @@ export default function RoomScreen() {
           currentRound: 1,
           totalRounds: questions.length,
           scores: {},
-          gameMode: room.gameId,
+          gameMode: room.gameMode || room.gameId,
           hostId: room.host
         }
       };
@@ -257,11 +274,16 @@ export default function RoomScreen() {
       await updateDoc(doc(db, 'rooms', room.id), {
         status: 'playing',
         startedAt: new Date().toISOString(),
-        gameId: gameRef.id
+        gameId: gameRef.id,
+        gameMode: room.gameMode || room.gameId
       });
 
       // 5. Navigate to the game
-      router.push(`/game/${gameRef.id}`);
+      if (room.gameId === 'action-verite') {
+        router.push(`/game/truth-or-dare/${gameRef.id}`);
+      } else {
+        router.push(`/game/${gameRef.id}`);
+      }
     } catch (error: unknown) {
       console.error('Erreur lors du démarrage de la partie:', error);
       Alert.alert('Erreur', 'Impossible de démarrer la partie');
@@ -396,16 +418,6 @@ export default function RoomScreen() {
           />
         </View>
 
-        {/* Debug logs pour le bouton Prêt */}
-        {(() => {
-          console.log('user.uid:', user?.uid);
-          console.log('room.host:', room.host);
-          console.log('room.status:', room.status);
-          console.log('room.id:', room.id);
-          console.log('players:', room.players);
-          console.log('isReady:', room.players.find(p => String(p.id) === String(user?.uid))?.isReady);
-        })()}
-        {/* Bouton Prêt pour les joueurs non-hôtes et non prêts */}
         {user?.uid !== room.host && room.status === 'waiting' && room.id && !room.players.find(p => String(p.id) === String(user?.uid))?.isReady && (
           <TouchableOpacity
             style={styles.readyButton}

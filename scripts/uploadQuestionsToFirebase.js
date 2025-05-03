@@ -23,7 +23,7 @@ const questions = {
     'Si {playerName} devait écrire une lettre à son "moi" passé, quel conseil donnerait-il/elle ?',
     'Quelle situation fait le plus douter {playerName} de ses capacités ?',
   ],
-  'action-verite': [
+  'truth-or-dare': [
     // Questions de vérité
     { type: 'verite', text: 'Quelle est la chose la plus embarrassante que tu as faite en public ?' },
     { type: 'verite', text: "As-tu déjà menti à quelqu'un dans cette pièce ?" },
