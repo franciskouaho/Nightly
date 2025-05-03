@@ -5,7 +5,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons, FontAwesome5, Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
-import { collection, doc, onSnapshot, updateDoc, getFirestore } from '@react-native-firebase/firestore';
+import { collection, doc, onSnapshot, updateDoc, getFirestore, getDoc, setDoc } from '@react-native-firebase/firestore';
+import { GameState, GamePhase, Player, Question } from '@/types/gameTypes';
 
 // Type pour l'utilisateur
 interface User {
@@ -173,7 +174,7 @@ export default function RoomScreen() {
     
     const unsubscribe = onSnapshot(roomRef, async (doc) => {
       if (doc.exists()) {
-        const roomData = doc.data() as Room;
+        const roomData = { ...(doc.data() as Room), id: doc.id };
         setRoom(roomData);
       } else {
         Alert.alert('Erreur', 'Salle introuvable');
@@ -194,11 +195,74 @@ export default function RoomScreen() {
 
     try {
       const db = getFirestore();
+      
+      // 1. Get questions for the game mode
+      const questionsRef = doc(db, 'gameQuestions', room.gameId);
+      const questionsDoc = await getDoc(questionsRef);
+      
+      if (!questionsDoc.exists()) {
+        throw new Error('Questions not found for this game mode');
+      }
+      
+      const questions = questionsDoc.data().questions;
+      if (!questions || questions.length === 0) {
+        throw new Error('No questions available for this game mode');
+      }
+
+      // 2. Create game document
+      const gameRef = doc(collection(db, 'games'));
+      const randomPlayer = room.players[Math.floor(Math.random() * room.players.length)] || null;
+      
+      const firstQuestion: Question = {
+        id: '1',
+        text: questions[0],
+        theme: room.gameId,
+        roundNumber: 1
+      };
+      
+      const gameData: GameState = {
+        phase: GamePhase.QUESTION,
+        currentRound: 1,
+        totalRounds: questions.length,
+        targetPlayer: randomPlayer,
+        currentQuestion: firstQuestion,
+        answers: [],
+        players: room.players.map(p => ({
+          id: p.id,
+          name: p.displayName || p.username,
+          avatar: p.avatar
+        })),
+        scores: {},
+        theme: room.gameId,
+        timer: 60,
+        currentUserState: {
+          isTargetPlayer: false,
+          hasAnswered: false,
+          hasVoted: false
+        },
+        game: {
+          currentPhase: 'question',
+          currentRound: 1,
+          totalRounds: questions.length,
+          scores: {},
+          gameMode: room.gameId,
+          hostId: room.host
+        }
+      };
+
+      // 3. Create the game document
+      await setDoc(gameRef, gameData);
+
+      // 4. Update room status
       await updateDoc(doc(db, 'rooms', room.id), {
         status: 'playing',
-        startedAt: new Date().toISOString()
+        startedAt: new Date().toISOString(),
+        gameId: gameRef.id
       });
-    } catch (error) {
+
+      // 5. Navigate to the game
+      router.push(`/game/${gameRef.id}`);
+    } catch (error: unknown) {
       console.error('Erreur lors du démarrage de la partie:', error);
       Alert.alert('Erreur', 'Impossible de démarrer la partie');
     }
@@ -263,7 +327,7 @@ export default function RoomScreen() {
     );
   }
 
-  if (!room) {
+  if (!room || !room.id) {
     return null;
   }
 
@@ -314,21 +378,66 @@ export default function RoomScreen() {
                 />
                 <View style={styles.playerInfo}>
                   <Text style={styles.playerName}>{item.displayName || item.username}</Text>
-                  {item.isHost && (
-                    <View style={styles.hostBadge}>
-                      <Text style={styles.hostText}>Hôte</Text>
-                    </View>
-                  )}
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    {item.isHost && (
+                      <View style={styles.hostBadge}>
+                        <Text style={styles.hostText}>Hôte</Text>
+                      </View>
+                    )}
+                    {item.isReady && (
+                      <View style={styles.readyBadge}>
+                        <Text style={styles.readyText}>Prêt !</Text>
+                      </View>
+                    )}
+                  </View>
                 </View>
               </View>
             )}
           />
         </View>
 
+        {/* Debug logs pour le bouton Prêt */}
+        {(() => {
+          console.log('user.uid:', user?.uid);
+          console.log('room.host:', room.host);
+          console.log('room.status:', room.status);
+          console.log('room.id:', room.id);
+          console.log('players:', room.players);
+          console.log('isReady:', room.players.find(p => String(p.id) === String(user?.uid))?.isReady);
+        })()}
+        {/* Bouton Prêt pour les joueurs non-hôtes et non prêts */}
+        {user?.uid !== room.host && room.status === 'waiting' && room.id && !room.players.find(p => String(p.id) === String(user?.uid))?.isReady && (
+          <TouchableOpacity
+            style={styles.readyButton}
+            onPress={async () => {
+              try {
+                const db = getFirestore();
+                const updatedPlayers = room.players.map(p =>
+                  String(p.id) === String(user?.uid) ? { ...p, isReady: true } : p
+                );
+                console.log('user:', user);
+                console.log('updatedPlayers:', updatedPlayers);
+                console.log('room.id:', room.id);
+                await updateDoc(doc(db, 'rooms', room.id), {
+                  players: updatedPlayers
+                });
+                console.log('Mise à jour réussie !');
+              } catch (error) {
+                console.log('Erreur Firestore:', error);
+                Alert.alert('Erreur', 'Impossible de se mettre prêt');
+              }
+            }}
+          >
+            <Text style={styles.readyButtonText}>Je suis prêt !</Text>
+          </TouchableOpacity>
+        )}
+
+        {/* Bouton démarrer la partie pour l'hôte */}
         {user?.uid === room.host && room.status === 'waiting' && (
           <TouchableOpacity
             style={styles.startButton}
             onPress={handleStartGame}
+            disabled={!room.players.every(p => p.isReady)}
           >
             <Text style={styles.startButtonText}>Démarrer la partie</Text>
           </TouchableOpacity>
@@ -445,11 +554,36 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
+    marginRight: 6,
   },
   hostText: {
     color: '#fff',
     fontSize: 12,
     fontWeight: '500',
+  },
+  readyBadge: {
+    backgroundColor: '#00c853',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  readyText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  readyButton: {
+    backgroundColor: '#00c853',
+    marginHorizontal: 20,
+    marginBottom: 15,
+    paddingVertical: 15,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  readyButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   startButton: {
     backgroundColor: '#6c5ce7',

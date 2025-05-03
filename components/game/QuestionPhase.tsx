@@ -52,7 +52,7 @@ export default function QuestionPhase({
 
       <View style={styles.questionContainer}>
         <Text style={styles.questionText}>
-          {question.text.replace('{player}', targetPlayer?.name || 'le joueur')}
+          {question?.text ? question.text.replace('{player}', targetPlayer?.name || 'le joueur') : 'Question en cours de chargement...'}
         </Text>
       </View>
 

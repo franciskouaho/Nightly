@@ -102,7 +102,7 @@ export default function TruthOrDareScreen() {
         <View style={styles.questionContainer}>
           {currentQuestion ? (
             <>
-              <Text style={styles.questionText}>{currentQuestion.text}</Text>
+              <Text style={styles.questionText}>{typeof currentQuestion.text === 'string' ? currentQuestion.text : ''}</Text>
               <TouchableOpacity
                 style={styles.nextButton}
                 onPress={handleNext}
