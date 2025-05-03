@@ -10,10 +10,10 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <PaperProvider>
         <AuthProvider>
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="room/[id]" options={{ headerShown: false }} />
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="(auth)" />
+            <Stack.Screen name="room/[id]" />
           </Stack>
         </AuthProvider>
       </PaperProvider>

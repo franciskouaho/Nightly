@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, Alert, StyleSheet, ScrollView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { GameState } from '@/types/gameTypes';
 import { LinearGradient } from 'expo-linear-gradient';
 import RoundedButton from '@/components/RoundedButton';
+import { Animated } from 'react-native';
 
 interface TruthOrDareQuestion { text: string; type: string; }
 
@@ -40,10 +41,12 @@ const QuestionCard = ({
     <Text style={styles.cardPlayer}>{playerName},</Text>
     <Text style={styles.cardType}>{type === 'verite' ? 'Truth!' : 'Dare!'}</Text>
     <Text style={styles.cardQuestion}>{question}</Text>
-    <View style={styles.progressBarContainer}>
-      <View style={[styles.progressBar, { width: `${(currentRound / totalRounds) * 100}%` }]} />
+    <View style={styles.progressRow}>
+      <View style={styles.progressBarContainer}>
+        <View style={[styles.progressBar, { width: `${(currentRound / totalRounds) * 100}%` }]} />
+      </View>
+      <Text style={styles.cardProgress}>{currentRound}/{totalRounds}</Text>
     </View>
-    <Text style={styles.cardProgress}>{currentRound}/{totalRounds}</Text>
   </View>
 );
 
@@ -82,6 +85,49 @@ const CardStack = ({ children }: { children: React.ReactNode }) => (
     ]} />
     {/* Carte principale */}
     <View style={{ zIndex: 2, opacity: 1, width: '100%' }}>{children}</View>
+  </View>
+);
+
+const AnimatedEllipsis = ({ style }: { style?: any }) => {
+  const dot1 = useRef(new Animated.Value(0)).current;
+  const dot2 = useRef(new Animated.Value(0)).current;
+  const dot3 = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.stagger(250, [
+        Animated.sequence([
+          Animated.timing(dot1, { toValue: 1, duration: 250, useNativeDriver: true }),
+          Animated.timing(dot1, { toValue: 0, duration: 250, useNativeDriver: true })
+        ]),
+        Animated.sequence([
+          Animated.timing(dot2, { toValue: 1, duration: 250, useNativeDriver: true }),
+          Animated.timing(dot2, { toValue: 0, duration: 250, useNativeDriver: true })
+        ]),
+        Animated.sequence([
+          Animated.timing(dot3, { toValue: 1, duration: 250, useNativeDriver: true }),
+          Animated.timing(dot3, { toValue: 0, duration: 250, useNativeDriver: true })
+        ]),
+      ])
+    ).start();
+  }, [dot1, dot2, dot3]);
+
+  return (
+    <Text style={[{ flexDirection: 'row', fontSize: 32, color: '#fff', textAlign: 'center', marginBottom: 12 }, style]}>
+      <Animated.Text style={{ opacity: dot1 }}>.</Animated.Text>
+      <Animated.Text style={{ opacity: dot2 }}>.</Animated.Text>
+      <Animated.Text style={{ opacity: dot3 }}>.</Animated.Text>
+    </Text>
+  );
+};
+
+// Barre de progression pour la carte de vote
+const VoteProgressBar = ({ current, total }: { current: number, total: number }) => (
+  <View style={styles.progressRow}>
+    <View style={styles.progressBarContainer}>
+      <View style={[styles.progressBar, { width: `${(current / total) * 100}%` }]} />
+    </View>
+    <Text style={styles.cardProgress}>{current}/{total}</Text>
   </View>
 );
 
@@ -196,7 +242,15 @@ export default function TruthOrDareGameScreen() {
           style={styles.background}
         >
           <StatusBar style="light" />
-          <Text style={styles.questionText}>{player?.name || 'Le joueur'} doit choisir : Action ou Vérité...</Text>
+          <View style={styles.spectatorChoiceContainer}>
+            {/* Avatar cercle avec initiale du joueur */}
+            <View style={styles.avatarCircle}>
+              <Text style={styles.avatarText}>{(player?.name || 'Joueur').charAt(0).toUpperCase()}</Text>
+            </View>
+            <Text style={styles.spectatorTitle}>{player?.name || 'Le joueur'} réfléchit...</Text>
+            <AnimatedEllipsis style={styles.ellipsis} />
+            <Text style={styles.spectatorSubtitle}>Va-t-il choisir <Text style={{color:'#7c3aed', fontWeight:'bold'}}>Action</Text> ou <Text style={{color:'#f59e42', fontWeight:'bold'}}>Vérité</Text> ?</Text>
+          </View>
         </LinearGradient>
       );
     }
@@ -259,40 +313,64 @@ export default function TruthOrDareGameScreen() {
     const votesCount = Object.keys(votes).length;
     const hasVoted = !!votes[user.uid];
     const isCurrentPlayer = game.currentPlayerId === user.uid;
+    const badgeColor = '#7c3aed';
+    const highlightColor = '#b983ff';
+    const cardBgColor = 'rgba(75,39,125,0.60)';
     if (isCurrentPlayer) {
       return (
-        <View style={styles.container}>
-          <StatusBar style="light" />
-          <Text style={styles.questionText}>Tour {game.currentRound} / {game.totalRounds}</Text>
-          <Text style={styles.questionText}>Les autres joueurs votent...</Text>
-          <Text style={styles.questionText}>{votesCount} / {totalVoters} votes</Text>
-        </View>
+        <LinearGradient
+          colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
+          locations={[0, 0.2, 0.5, 0.8, 1]}
+          style={styles.background}
+        >
+          <View style={styles.voteCardShadow}>
+            <View style={[styles.voteCard, { backgroundColor: cardBgColor }]}>
+              <VoteProgressBar current={game.currentRound} total={game.totalRounds} />
+              <Text style={styles.voteTitle}>Vote en cours !</Text>
+              <Text style={styles.voteSubtitle}>
+                Les autres joueurs décident si <Text style={{color: highlightColor, fontWeight: 'bold'}}>{playerName}</Text> a bien joué le jeu
+              </Text>
+              <AnimatedEllipsis style={styles.ellipsis} />
+              <Text style={styles.voteCount}>{votesCount} / {totalVoters} votes</Text>
+            </View>
+          </View>
+        </LinearGradient>
       );
     }
     return (
-      <View style={styles.container}>
-        <StatusBar style="light" />
-        <Text style={styles.questionText}>Tour {game.currentRound} / {game.totalRounds}</Text>
-        <Text style={styles.questionText}>Est-ce que {playerName} a bien joué le jeu ?</Text>
-        <View style={styles.voteButtons}>
-          <RoundedButton
-            title="✅ Oui"
-            onPress={() => handleVote('yes')}
-            disabled={hasVoted}
-            style={styles.voteButton}
-            textStyle={styles.voteButtonText}
-          />
-          <RoundedButton
-            title="❌ Non"
-            onPress={() => handleVote('no')}
-            disabled={hasVoted}
-            style={styles.voteButton}
-            textStyle={styles.voteButtonText}
-          />
+      <LinearGradient
+        colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
+        locations={[0, 0.2, 0.5, 0.8, 1]}
+        style={styles.background}
+      >
+        <View style={styles.voteCardShadow}>
+          <View style={[styles.voteCard, { backgroundColor: cardBgColor }]}>
+            <VoteProgressBar current={game.currentRound} total={game.totalRounds} />
+            <Text style={styles.voteTitle}>À toi de voter !</Text>
+            <Text style={styles.voteSubtitle}>
+              Est-ce que <Text style={{color: highlightColor, fontWeight: 'bold'}}>{playerName}</Text> a bien joué le jeu ?
+            </Text>
+            <View style={styles.voteButtons}>
+              <RoundedButton
+                title="Oui"
+                onPress={() => handleVote('yes')}
+                disabled={hasVoted}
+                style={styles.voteButton}
+                textStyle={styles.voteButtonText}
+              />
+              <RoundedButton
+                title="Non"
+                onPress={() => handleVote('no')}
+                disabled={hasVoted}
+                style={styles.voteButton}
+                textStyle={styles.voteButtonText}
+              />
+            </View>
+            {hasVoted && <Text style={styles.voteThanks}>Merci pour ton vote !</Text>}
+            <Text style={styles.voteCount}>{votesCount} / {totalVoters} votes</Text>
+          </View>
         </View>
-        {hasVoted && <Text style={styles.questionText}>Merci pour ton vote !</Text>}
-        <Text style={styles.questionText}>{votesCount} / {totalVoters} votes</Text>
-      </View>
+      </LinearGradient>
     );
   }
 
@@ -439,105 +517,6 @@ export default function TruthOrDareGameScreen() {
       </ScrollView>
     </View>
   );
-
-  // Modification de la phase de vote pour inclure les spectateurs
-  if (game?.phase === 'vote') {
-    const player = game.players?.find((p: any) => String(p.id) === String(game.currentPlayerId));
-    const playerName = player?.name || 'Le joueur';
-    const totalVoters = game.players.length - 1;
-    const votes = game.votes || {};
-    const votesCount = Object.keys(votes).length;
-    const hasVoted = user && !!votes[user.uid];
-    const isCurrentPlayer = game.currentPlayerId === user?.uid;
-
-    if (isCurrentPlayer) {
-      return (
-        <View style={styles.container}>
-          <StatusBar style="light" />
-          <ScoreBoard />
-          <Text style={styles.questionText}>Tour {game.currentRound} / {game.totalRounds}</Text>
-          <Text style={styles.questionText}>Les autres joueurs votent...</Text>
-          <Text style={styles.questionText}>{votesCount} / {totalVoters} votes</Text>
-          {canValidateVote && (
-            <RoundedButton
-              title="Valider le vote"
-              onPress={handleValidateVote}
-              style={styles.nextButton}
-              textStyle={styles.nextButtonText}
-            />
-          )}
-          {!canValidateVote && (
-            <Text style={styles.timerText}>Temps restant : {voteTimer}s</Text>
-          )}
-        </View>
-      );
-    }
-
-    if (isSpectator) {
-      return (
-        <View style={styles.container}>
-          <StatusBar style="light" />
-          <ScoreBoard />
-          <Text style={styles.questionText}>Tour {game.currentRound} / {game.totalRounds}</Text>
-          <Text style={styles.questionText}>Vote spectateur</Text>
-          <Text style={styles.questionText}>Est-ce que {playerName} a bien joué le jeu ?</Text>
-          <View style={styles.voteButtons}>
-            <RoundedButton
-              title="Oui"
-              onPress={() => handleVote('yes')}
-              style={styles.voteButton}
-              textStyle={styles.voteButtonText}
-            />
-            <RoundedButton
-              title="Non"
-              onPress={() => handleVote('no')}
-              style={styles.voteButton}
-              textStyle={styles.voteButtonText}
-            />
-          </View>
-          <Text style={styles.spectatorText}>Votre vote n'affecte pas le score</Text>
-        </View>
-      );
-    }
-
-    return (
-      <View style={styles.container}>
-        <StatusBar style="light" />
-        <ScoreBoard />
-        <Text style={styles.questionText}>Tour {game.currentRound} / {game.totalRounds}</Text>
-        <Text style={styles.questionText}>Est-ce que {playerName} a bien joué le jeu ?</Text>
-        <View style={styles.voteButtons}>
-          <RoundedButton
-            title="Oui"
-            onPress={() => handleVote('yes')}
-            disabled={hasVoted}
-            style={styles.voteButton}
-            textStyle={styles.voteButtonText}
-          />
-          <RoundedButton
-            title="Non"
-            onPress={() => handleVote('no')}
-            disabled={hasVoted}
-            style={styles.voteButton}
-            textStyle={styles.voteButtonText}
-          />
-        </View>
-        {hasVoted && <Text style={styles.questionText}>Merci pour ton vote !</Text>}
-        <Text style={styles.questionText}>{votesCount} / {totalVoters} votes</Text>
-        {canValidateVote && (
-          <RoundedButton
-            title="Valider le vote"
-            onPress={handleValidateVote}
-            style={styles.nextButton}
-            textStyle={styles.nextButtonText}
-          />
-        )}
-        {!canValidateVote && (
-          <Text style={styles.timerText}>Temps restant : {voteTimer}s</Text>
-        )}
-      </View>
-    );
-  }
 
   // --- Handlers synchronisés ---
   async function handleChoice(choice: 'verite' | 'action') {
@@ -721,27 +700,38 @@ const styles = StyleSheet.create({
   voteButtons: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 12,
-    marginVertical: 20,
+    gap: 18,
+    marginVertical: 24,
+    width: '100%',
   },
   voteButton: {
-    paddingVertical: 5,
+    flex: 1,
+    borderRadius: 24,
+    marginHorizontal: 6,
+    paddingVertical: 16,
+    paddingHorizontal: 28,
+    backgroundColor: 'transparent',
+    overflow: 'hidden',
   },
   voteButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+    textAlign: 'center',
   },
-  timerText: {
+  voteCount: {
     color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  voteThanks: {
+    color: '#C471F5',
     fontSize: 18,
-    marginTop: 20,
-  },
-  spectatorText: {
-    color: '#fff',
-    fontSize: 14,
-    fontStyle: 'italic',
-    marginTop: 10,
+    fontWeight: 'bold',
+    marginTop: 12,
+    textAlign: 'center',
   },
   playerText: {
     color: '#fff',
@@ -846,12 +836,21 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 32,
   },
-  progressBarContainer: {
+  progressRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     width: '100%',
+    marginBottom: 1,
+    marginTop: 8,
+    justifyContent: 'space-between',
+  },
+  progressBarContainer: {
+    flex: 1,
     height: 7,
     backgroundColor: '#3a185a',
     borderRadius: 4,
-    marginBottom: 8,
+    marginBottom: 0,
+    marginRight: 12,
     overflow: 'hidden',
   },
   progressBar: {
@@ -864,7 +863,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'right',
-    width: '100%',
+    minWidth: 48,
+    opacity: 0.85,
   },
   stackContainer: {
     width: '100%',
@@ -900,5 +900,96 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+  },
+  spectatorChoiceContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 40,
+    marginBottom: 40,
+    padding: 24,
+    backgroundColor: 'rgba(75, 39, 125, 0.25)',
+    borderRadius: 32,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+  },
+  avatarCircle: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: '#7c3aed',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 18,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.18,
+    shadowRadius: 8,
+  },
+  avatarText: {
+    color: '#fff',
+    fontSize: 36,
+    fontWeight: 'bold',
+  },
+  spectatorTitle: {
+    color: '#fff',
+    fontSize: 22,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  spectatorSubtitle: {
+    color: '#fff',
+    fontSize: 18,
+    textAlign: 'center',
+    marginBottom: 0,
+  },
+  ellipsis: {
+    marginBottom: 8,
+  },
+  voteCardShadow: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.18,
+    shadowRadius: 24,
+    elevation: 12,
+    borderRadius: 36,
+    alignSelf: 'stretch',
+    marginHorizontal: 12,
+  },
+  voteCard: {
+    borderRadius: 36,
+    padding: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 60,
+    marginBottom: 60,
+    minWidth: 0,
+  },
+  voteRoundBadge: {
+    backgroundColor: '#7c3aed',
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 17,
+    borderRadius: 32,
+    paddingHorizontal: 22,
+    paddingVertical: 7,
+    marginBottom: 18,
+    overflow: 'hidden',
+    alignSelf: 'center',
+  },
+  voteTitle: {
+    color: '#fff',
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  voteSubtitle: {
+    color: '#fff',
+    fontSize: 19,
+    marginBottom: 18,
+    textAlign: 'center',
   },
 }); 

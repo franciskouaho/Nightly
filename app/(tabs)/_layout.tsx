@@ -12,9 +12,6 @@ export default function TabLayout() {
   const router = useRouter();
   const colorScheme = useColorScheme() ?? "dark"
   const colors = Colors[colorScheme]
-
-  // Nous ne redirigeons plus automatiquement ici, car c'est géré dans le splash screen
-  // et cela évite les redirections en boucle
   
   return (
     <Tabs 
@@ -29,7 +26,7 @@ export default function TabLayout() {
       <Tabs.Screen 
         name="index"
         options={{
-          href: isAuthenticated ? undefined : null // Empêcher la navigation directe si non authentifié
+          href: isAuthenticated ? undefined : null
         }}
       />
     </Tabs>
