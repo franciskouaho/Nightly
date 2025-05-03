@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, Alert, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, ActivityIndicator, Alert, StyleSheet, ScrollView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { getFirestore, doc, onSnapshot, updateDoc, getDoc } from '@react-native-firebase/firestore';
@@ -14,6 +14,8 @@ interface TruthOrDareGameState extends Omit<GameState, 'phase'> {
   currentPlayerId: string;
   currentChoice: 'verite' | 'action' | null;
   phase: string;
+  votes?: { [playerId: string]: 'yes' | 'no' };
+  spectatorVotes?: { [playerId: string]: 'yes' | 'no' };
 }
 
 export default function TruthOrDareGameScreen() {
@@ -25,6 +27,9 @@ export default function TruthOrDareGameScreen() {
   const [loading, setLoading] = useState(true);
   const [questions, setQuestions] = useState<TruthOrDareQuestion[]>([]);
   const [isGameOver, setIsGameOver] = useState(false);
+  const [voteTimer, setVoteTimer] = useState(10);
+  const [canValidateVote, setCanValidateVote] = useState(false);
+  const [voteHandled, setVoteHandled] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -122,10 +127,7 @@ export default function TruthOrDareGameScreen() {
 
   // PHASE 2 : Question ou Action
   if (game.phase === 'question' || game.phase === 'action') {
-    console.log('currentPlayerId:', game.currentPlayerId);
-    console.log('players:', game.players);
     const player = game.players?.find((p: any) => String(p.id) === String(game.currentPlayerId));
-    console.log('player trouvé:', player);
     const playerName = player?.name || 'Le joueur';
     // On s'assure que c'est bien une string
     let questionText = '';
@@ -156,6 +158,52 @@ export default function TruthOrDareGameScreen() {
     );
   }
 
+  // PHASE 2.5 : Vote des autres joueurs
+  if (game.phase === 'vote') {
+    const player = game.players?.find((p: any) => String(p.id) === String(game.currentPlayerId));
+    const playerName = player?.name || 'Le joueur';
+    const totalVoters = game.players.length - 1;
+    const votes = game.votes || {};
+    const votesCount = Object.keys(votes).length;
+    const hasVoted = !!votes[user.uid];
+    const isCurrentPlayer = game.currentPlayerId === user.uid;
+    if (isCurrentPlayer) {
+      return (
+        <View style={styles.container}>
+          <StatusBar style="light" />
+          <Text style={styles.questionText}>Tour {game.currentRound} / {game.totalRounds}</Text>
+          <Text style={styles.questionText}>Les autres joueurs votent...</Text>
+          <Text style={styles.questionText}>{votesCount} / {totalVoters} votes</Text>
+        </View>
+      );
+    }
+    return (
+      <View style={styles.container}>
+        <StatusBar style="light" />
+        <Text style={styles.questionText}>Tour {game.currentRound} / {game.totalRounds}</Text>
+        <Text style={styles.questionText}>Est-ce que {playerName} a bien joué le jeu ?</Text>
+        <View style={{ flexDirection: 'row', gap: 20 }}>
+          <TouchableOpacity
+            style={styles.nextButton}
+            disabled={hasVoted}
+            onPress={() => handleVote('yes')}
+          >
+            <Text style={styles.nextButtonText}>✅ Oui</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.nextButton}
+            disabled={hasVoted}
+            onPress={() => handleVote('no')}
+          >
+            <Text style={styles.nextButtonText}>❌ Non</Text>
+          </TouchableOpacity>
+        </View>
+        {hasVoted && <Text style={styles.questionText}>Merci pour ton vote !</Text>}
+        <Text style={styles.questionText}>{votesCount} / {totalVoters} votes</Text>
+      </View>
+    );
+  }
+
   // PHASE 3 : Résultat
   if (game.phase === 'resultat') {
     const player = game.players?.find((p: any) => String(p.id) === String(game.currentPlayerId));
@@ -172,7 +220,223 @@ export default function TruthOrDareGameScreen() {
     );
   }
 
-  return null;
+  // Fonction utilitaire pour vérifier si l'utilisateur est un spectateur
+  const isSpectator = game && user && !game.players.some((p: any) => String(p.id) === String(user.uid));
+
+  // Fonction utilitaire pour obtenir le score d'un joueur
+  const getPlayerScore = (playerId: string) => {
+    return game?.scores?.[playerId] || 0;
+  };
+
+  // Fonction pour valider le vote
+  const handleValidateVote = async () => {
+    if (!game || !user) return;
+    
+    const db = getFirestore();
+    const totalVoters = game.players.length - 1;
+    const votes = game.votes || {};
+    const yes = Object.values(votes).filter(v => v === 'yes').length;
+    const no = Object.values(votes).filter(v => v === 'no').length;
+    
+    let points = 0;
+    if (yes > no) points = 1;
+    else if (no > yes) points = 0;
+    
+    const scores = { ...game.scores };
+    scores[game.currentPlayerId] = (scores[game.currentPlayerId] || 0) + points;
+
+    // Sélectionne le prochain joueur
+    const currentIndex = game.players.findIndex((p: any) => String(p.id) === String(game.currentPlayerId));
+    const nextIndex = (currentIndex + 1) % game.players.length;
+    const nextPlayer = game.players[nextIndex];
+    
+    console.log('[DEBUG] handleValidateVote', {
+      currentPlayerId: game.currentPlayerId,
+      currentIndex,
+      nextIndex,
+      nextPlayer,
+      scores,
+      points
+    });
+
+    if (!nextPlayer) {
+      console.error('Erreur: Impossible de trouver le prochain joueur');
+      return;
+    }
+
+    // Met à jour le jeu avec les nouveaux scores et passe au tour suivant
+    await updateDoc(doc(db, 'games', String(id)), {
+      scores,
+      currentPlayerId: nextPlayer.id,
+      phase: 'choix',
+      currentChoice: null,
+      currentQuestion: null,
+      currentRound: game.currentRound + 1,
+      votes: {}
+    });
+  };
+
+  // Timer pour le vote
+  useEffect(() => {
+    if (game?.phase === 'vote') {
+      setVoteTimer(10);
+      setCanValidateVote(false);
+      
+      const interval = setInterval(() => {
+        setVoteTimer((t) => {
+          if (t <= 1) {
+            setCanValidateVote(true);
+            clearInterval(interval);
+            return 0;
+          }
+          return t - 1;
+        });
+      }, 1000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [game?.phase]);
+
+  // Vérification si tous ont voté
+  useEffect(() => {
+    if (
+      game?.phase === 'vote' &&
+      !voteHandled
+    ) {
+      const totalVoters = game.players.length - 1;
+      const votes = game.votes || {};
+      console.log('[DEBUG] PHASE VOTE', {
+        totalVoters,
+        votes,
+        votesCount: Object.keys(votes).length,
+        voteHandled
+      });
+      if (Object.keys(votes).length === totalVoters && totalVoters > 0) {
+        console.log('[DEBUG] Tous les votes sont là, on passe au tour suivant');
+        setVoteHandled(true);
+        handleValidateVote();
+      }
+      // Cas 1 joueur : on passe direct au tour suivant
+      if (totalVoters === 0) {
+        console.log('[DEBUG] Cas 1 joueur, on passe direct au tour suivant');
+        setVoteHandled(true);
+        handleValidateVote();
+      }
+    }
+    // On reset le flag à chaque nouveau tour
+    if (game?.phase !== 'vote' && voteHandled) {
+      console.log('[DEBUG] Reset voteHandled');
+      setVoteHandled(false);
+    }
+  }, [game?.votes, game?.phase]);
+
+  // Composant d'affichage des scores
+  const ScoreBoard = () => (
+    <View style={styles.scoreBoard}>
+      <Text style={styles.scoreBoardTitle}>Scores</Text>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        {game?.players.map((player: any) => (
+          <View key={player.id} style={styles.scoreItem}>
+            <Text style={styles.scoreName}>{player.name}</Text>
+            <Text style={styles.scoreValue}>{getPlayerScore(player.id)}</Text>
+          </View>
+        ))}
+      </ScrollView>
+    </View>
+  );
+
+  // Modification de la phase de vote pour inclure les spectateurs
+  if (game?.phase === 'vote') {
+    const player = game.players?.find((p: any) => String(p.id) === String(game.currentPlayerId));
+    const playerName = player?.name || 'Le joueur';
+    const totalVoters = game.players.length - 1;
+    const votes = game.votes || {};
+    const votesCount = Object.keys(votes).length;
+    const hasVoted = user && !!votes[user.uid];
+    const isCurrentPlayer = game.currentPlayerId === user?.uid;
+
+    if (isCurrentPlayer) {
+      return (
+        <View style={styles.container}>
+          <StatusBar style="light" />
+          <ScoreBoard />
+          <Text style={styles.questionText}>Tour {game.currentRound} / {game.totalRounds}</Text>
+          <Text style={styles.questionText}>Les autres joueurs votent...</Text>
+          <Text style={styles.questionText}>{votesCount} / {totalVoters} votes</Text>
+          {canValidateVote && (
+            <TouchableOpacity style={styles.nextButton} onPress={handleValidateVote}>
+              <Text style={styles.nextButtonText}>Valider le vote</Text>
+            </TouchableOpacity>
+          )}
+          {!canValidateVote && (
+            <Text style={styles.timerText}>Temps restant : {voteTimer}s</Text>
+          )}
+        </View>
+      );
+    }
+
+    if (isSpectator) {
+      return (
+        <View style={styles.container}>
+          <StatusBar style="light" />
+          <ScoreBoard />
+          <Text style={styles.questionText}>Tour {game.currentRound} / {game.totalRounds}</Text>
+          <Text style={styles.questionText}>Vote spectateur</Text>
+          <Text style={styles.questionText}>Est-ce que {playerName} a bien joué le jeu ?</Text>
+          <View style={styles.voteButtons}>
+            <TouchableOpacity
+              style={styles.voteButton}
+              onPress={() => handleVote('yes')}
+            >
+              <Text style={styles.voteButtonText}>✅ Oui</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.voteButton}
+              onPress={() => handleVote('no')}
+            >
+              <Text style={styles.voteButtonText}>❌ Non</Text>
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.spectatorText}>Votre vote n'affecte pas le score</Text>
+        </View>
+      );
+    }
+
+    return (
+      <View style={styles.container}>
+        <StatusBar style="light" />
+        <ScoreBoard />
+        <Text style={styles.questionText}>Tour {game.currentRound} / {game.totalRounds}</Text>
+        <Text style={styles.questionText}>Est-ce que {playerName} a bien joué le jeu ?</Text>
+        <View style={styles.voteButtons}>
+          <TouchableOpacity
+            style={styles.voteButton}
+            disabled={hasVoted}
+            onPress={() => handleVote('yes')}
+          >
+            <Text style={styles.voteButtonText}>✅ Oui</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.voteButton}
+            disabled={hasVoted}
+            onPress={() => handleVote('no')}
+          >
+            <Text style={styles.voteButtonText}>❌ Non</Text>
+          </TouchableOpacity>
+        </View>
+        {hasVoted && <Text style={styles.questionText}>Merci pour ton vote !</Text>}
+        <Text style={styles.questionText}>{votesCount} / {totalVoters} votes</Text>
+        {canValidateVote && (
+          <TouchableOpacity style={styles.nextButton} onPress={handleValidateVote}>
+            <Text style={styles.nextButtonText}>Valider le vote</Text>
+          </TouchableOpacity>
+        )}
+        {!canValidateVote && (
+          <Text style={styles.timerText}>Temps restant : {voteTimer}s</Text>
+        )}
+      </View>
+    );
+  }
 
   // --- Handlers synchronisés ---
   async function handleChoice(choice: 'verite' | 'action') {
@@ -200,15 +464,65 @@ export default function TruthOrDareGameScreen() {
   async function handleValidate() {
     const db = getFirestore();
     await updateDoc(doc(db, 'games', String(id)), {
-      phase: 'resultat'
+      phase: 'vote',
+      votes: {}
     });
   }
 
   async function handleRefuse() {
     const db = getFirestore();
     await updateDoc(doc(db, 'games', String(id)), {
-      phase: 'resultat'
+      phase: 'vote',
+      votes: {}
     });
+  }
+
+  async function handleVote(vote: 'yes' | 'no') {
+    if (!user) return;
+    const db = getFirestore();
+    await updateDoc(doc(db, 'games', String(id)), {
+      [`votes.${user.uid}`]: vote
+    });
+
+    // Vérifier si tous les joueurs ont voté
+    const gameDoc = await getDoc(doc(db, 'games', String(id)));
+    if (gameDoc.exists()) {
+      const gameData = gameDoc.data() as TruthOrDareGameState;
+      if (!gameData) return;
+
+      const totalVoters = gameData.players.length - 1;
+      const votes = gameData.votes || {};
+      
+      if (Object.keys(votes).length === totalVoters) {
+        // Tous les joueurs ont voté, on passe à la phase suivante
+        const yes = Object.values(votes).filter(v => v === 'yes').length;
+        const no = Object.values(votes).filter(v => v === 'no').length;
+        
+        let points = 0;
+        if (yes > no) points = 1;
+        else if (no > yes) points = 0;
+        
+        const scores = { ...gameData.scores };
+        scores[gameData.currentPlayerId] = (scores[gameData.currentPlayerId] || 0) + points;
+
+        // Sélectionne le prochain joueur
+        const currentIndex = gameData.players.findIndex((p: any) => String(p.id) === String(gameData.currentPlayerId));
+        const nextIndex = (currentIndex + 1) % gameData.players.length;
+        const nextPlayer = gameData.players[nextIndex];
+
+        if (nextPlayer) {
+          await updateDoc(doc(db, 'games', String(id)), {
+            scores,
+            currentPlayerId: nextPlayer.id,
+            phase: 'choix',
+            currentChoice: null,
+            currentQuestion: null,
+            currentRound: gameData.currentRound + 1,
+            votes: {}
+          });
+        }
+      }
+    }
   }
 
   async function handleNextRound() {
@@ -227,6 +541,8 @@ export default function TruthOrDareGameScreen() {
       currentRound: game.currentRound + 1
     });
   }
+
+  return null;
 }
 
 const styles = StyleSheet.create({
@@ -266,5 +582,68 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  scoreBoard: {
+    position: 'absolute',
+    top: 20,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 10,
+    zIndex: 1,
+  },
+  scoreBoardTitle: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 5,
+  },
+  scoreItem: {
+    backgroundColor: 'rgba(108, 92, 231, 0.8)',
+    padding: 10,
+    borderRadius: 8,
+    marginHorizontal: 5,
+    minWidth: 100,
+    alignItems: 'center',
+  },
+  scoreName: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '500',
+    marginBottom: 5,
+  },
+  scoreValue: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  voteButtons: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 20,
+    marginVertical: 20,
+  },
+  voteButton: {
+    backgroundColor: '#6c5ce7',
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 25,
+  },
+  voteButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  timerText: {
+    color: '#fff',
+    fontSize: 18,
+    marginTop: 20,
+  },
+  spectatorText: {
+    color: '#fff',
+    fontSize: 14,
+    fontStyle: 'italic',
+    marginTop: 10,
   },
 }); 

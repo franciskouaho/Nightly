@@ -180,6 +180,9 @@ export default function RoomScreen() {
         const roomData = { ...(doc.data() as Room), id: doc.id };
         setRoom(roomData);
 
+        // Ajout du log debug
+        console.log('[DEBUG ROOM] roomData:', roomData);
+
         // Redirection automatique pour tous les joueurs quand la partie commence
         if (roomData.status === 'playing' && roomData.gameId && roomData.gameId.length > 0) {
           if (
