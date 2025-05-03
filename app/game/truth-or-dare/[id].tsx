@@ -19,6 +19,31 @@ interface TruthOrDareGameState extends Omit<GameState, 'phase'> {
   spectatorVotes?: { [playerId: string]: 'yes' | 'no' };
 }
 
+// Ajout du composant QuestionCard avant la fonction principale
+const QuestionCard = ({
+  playerName,
+  type,
+  question,
+  currentRound,
+  totalRounds
+}: {
+  playerName: string;
+  type: 'verite' | 'action';
+  question: string;
+  currentRound: number;
+  totalRounds: number;
+}) => (
+  <View style={styles.cardContainer}>
+    <Text style={styles.cardPlayer}>{playerName},</Text>
+    <Text style={styles.cardType}>{type === 'verite' ? 'Truth!' : 'Dare!'}</Text>
+    <Text style={styles.cardQuestion}>{question}</Text>
+    <View style={styles.progressBarContainer}>
+      <View style={[styles.progressBar, { width: `${(currentRound / totalRounds) * 100}%` }]} />
+    </View>
+    <Text style={styles.cardProgress}>{currentRound}/{totalRounds}</Text>
+  </View>
+);
+
 export default function TruthOrDareGameScreen() {
   const { id: idParam } = useLocalSearchParams();
   const id = Array.isArray(idParam) ? idParam[0] : idParam || '';
@@ -106,7 +131,7 @@ export default function TruthOrDareGameScreen() {
         <LinearGradient
           colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
           locations={[0, 0.2, 0.5, 0.8, 1]}
-          style={styles.gradientBg}
+          style={styles.background}
         >
           <StatusBar style="light" />
           <Text style={styles.playerText}>{player?.name || 'Joueur'}</Text>
@@ -124,10 +149,14 @@ export default function TruthOrDareGameScreen() {
     } else {
       const player = game.players?.find((p: any) => String(p.id) === String(game.currentPlayerId));
       return (
-        <View style={styles.container}>
+        <LinearGradient
+          colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
+          locations={[0, 0.2, 0.5, 0.8, 1]}
+          style={styles.background}
+        >
           <StatusBar style="light" />
           <Text style={styles.questionText}>{player?.name || 'Le joueur'} doit choisir : Action ou Vérité...</Text>
-        </View>
+        </LinearGradient>
       );
     }
   }
@@ -136,7 +165,6 @@ export default function TruthOrDareGameScreen() {
   if (game.phase === 'question' || game.phase === 'action') {
     const player = game.players?.find((p: any) => String(p.id) === String(game.currentPlayerId));
     const playerName = player?.name || 'Le joueur';
-    // On s'assure que c'est bien une string
     let questionText = '';
     if (game.currentQuestion && typeof (game.currentQuestion as any).text === 'string') {
       questionText = (game.currentQuestion as any).text;
@@ -146,13 +174,21 @@ export default function TruthOrDareGameScreen() {
       questionText = "Aucune question disponible pour ce choix.";
     }
     return (
-      <View style={styles.container}>
+      <LinearGradient
+        colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
+        locations={[0, 0.2, 0.5, 0.8, 1]}
+        style={styles.background}
+      >
         <StatusBar style="light" />
-        <Text style={styles.questionText}>Tour {game.currentRound} / {game.totalRounds}</Text>
-        <Text style={styles.questionText}>{playerName} a choisi {game.currentChoice === 'verite' ? 'Vérité' : 'Action'}</Text>
-        <Text style={styles.questionText}>{questionText}</Text>
+        <QuestionCard
+          playerName={playerName}
+          type={game.currentChoice as 'verite' | 'action'}
+          question={questionText}
+          currentRound={game.currentRound}
+          totalRounds={game.totalRounds}
+        />
         {isCurrentPlayer && (
-          <>
+          <View style={{ marginTop: 32 }}>
             <RoundedButton
               title="J'ai répondu / fait l'action"
               onPress={handleValidate}
@@ -165,9 +201,9 @@ export default function TruthOrDareGameScreen() {
               style={styles.nextButton}
               textStyle={styles.nextButtonText}
             />
-          </>
+          </View>
         )}
-      </View>
+      </LinearGradient>
     );
   }
 
@@ -729,6 +765,68 @@ const styles = StyleSheet.create({
     transform: [{ skewX: '-2deg' }],
   },
   gradientBg: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  cardContainer: {
+    backgroundColor: '#4b277d',
+    borderRadius: 24,
+    padding: 32,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.35,
+    shadowRadius: 24,
+    elevation: 8,
+    marginBottom: 24,
+    width: '100%',
+    maxWidth: 380,
+  },
+  cardPlayer: {
+    color: '#fff',
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  cardType: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '600',
+    opacity: 0.7,
+    marginBottom: 24,
+    textAlign: 'center',
+  },
+  cardQuestion: {
+    color: '#fff',
+    fontSize: 22,
+    fontWeight: '500',
+    textAlign: 'center',
+    marginBottom: 32,
+  },
+  progressBarContainer: {
+    width: '100%',
+    height: 6,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    borderRadius: 3,
+    marginBottom: 8,
+    overflow: 'hidden',
+  },
+  progressBar: {
+    height: 6,
+    backgroundColor: '#C471F5',
+    borderRadius: 3,
+  },
+  cardProgress: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'right',
+    width: '100%',
+  },
+  background: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',

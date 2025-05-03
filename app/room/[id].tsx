@@ -473,7 +473,6 @@ export default function RoomScreen() {
               }
             }}
             style={styles.readyButton}
-            textStyle={styles.readyButtonText}
           />
         )}
 
@@ -663,7 +662,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   readyButton: {
-    backgroundColor: '#00c853',
     marginHorizontal: 20,
     marginBottom: 15,
     paddingVertical: 15,
