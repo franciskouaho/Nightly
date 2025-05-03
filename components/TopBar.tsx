@@ -33,8 +33,7 @@ export default function TopBar({
       </View>
       
       <View style={styles.rightContainer}>
-        {showNotificationButton && (
-          <TouchableOpacity
+      <TouchableOpacity
             style={styles.iconButton}
             onPress={() => router.push('/(tabs)/profil')}
           >
@@ -47,8 +46,6 @@ export default function TopBar({
               <Feather name="settings" size={22} color="#FFFFFF" />
             </LinearGradient>
           </TouchableOpacity>
-        )}
-        {rightButtons}
       </View>
     </View>
   );

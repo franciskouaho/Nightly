@@ -8,6 +8,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { collection, doc, onSnapshot, updateDoc, getFirestore, getDoc, setDoc } from '@react-native-firebase/firestore';
 import { GameState, GamePhase, Player, Question } from '@/types/gameTypes';
 import RulesDrawer from '@/components/room/RulesDrawer';
+import InviteModal from '@/components/room/InviteModal';
+import RoundedButton from '@/components/RoundedButton';
 
 // Type pour l'utilisateur
 interface User {
@@ -170,6 +172,8 @@ export default function RoomScreen() {
   const [room, setRoom] = useState<Room | null>(null);
   const [loading, setLoading] = useState(true);
   const [isRulesDrawerVisible, setIsRulesDrawerVisible] = useState(false);
+  const [inviteModalVisible, setInviteModalVisible] = useState(false);
+
 
   useEffect(() => {
     if (!id || !user) return;
@@ -296,6 +300,10 @@ export default function RoomScreen() {
     }
   };
 
+  const handleInviteFriend = () => {
+    setInviteModalVisible(true);
+  };
+
   const handleLeaveRoom = async () => {
     if (!room || !user) return;
 
@@ -367,19 +375,30 @@ export default function RoomScreen() {
         locations={[0, 0.2, 0.5, 0.8, 1]}
         style={styles.background}
       >
-        <View style={styles.topBar}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <View style={styles.topBar}>      
+          <TouchableOpacity onPress={handleLeaveRoom} style={styles.backButton}>
             <Ionicons name="arrow-back" size={24} color="white" />
           </TouchableOpacity>
+
           <View style={styles.topBarTitleContainer}>
             <Text style={styles.topBarTitle}>{room.name?.toUpperCase()}</Text>
           </View>
-          <TouchableOpacity
-            style={styles.shareButton}
-            onPress={handleShareRoom}
-          >
-            <Ionicons name="share-outline" size={24} color="#fff" />
-          </TouchableOpacity>
+
+          <View style={styles.rightContainer}>
+            <TouchableOpacity
+                  style={styles.iconButton}
+                  onPress={handleInviteFriend}
+                >
+              <LinearGradient
+                colors={["#A259FF", "#C471F5"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={{ borderRadius: 12, padding: 7 }}
+              >
+                <Ionicons name="qr-code" size={22} color="white" />
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
         </View>
 
         <View style={styles.codeContainer}>
@@ -433,8 +452,8 @@ export default function RoomScreen() {
         </View>
 
         {user?.uid !== room.host && room.status === 'waiting' && room.id && !room.players.find(p => String(p.id) === String(user?.uid))?.isReady && (
-          <TouchableOpacity
-            style={styles.readyButton}
+          <RoundedButton
+            title="Je suis prêt !"
             onPress={async () => {
               try {
                 const db = getFirestore();
@@ -453,28 +472,29 @@ export default function RoomScreen() {
                 Alert.alert('Erreur', 'Impossible de se mettre prêt');
               }
             }}
-          >
-            <Text style={styles.readyButtonText}>Je suis prêt !</Text>
-          </TouchableOpacity>
+            style={styles.readyButton}
+            textStyle={styles.readyButtonText}
+          />
         )}
 
         {/* Bouton démarrer la partie pour l'hôte */}
         {user?.uid === room.host && room.status === 'waiting' && (
-          <TouchableOpacity
-            style={styles.startButton}
+          <RoundedButton
+            title="Démarrer la partie"
             onPress={handleStartGame}
             disabled={!room.players.every(p => p.isReady)}
-          >
-            <Text style={styles.startButtonText}>Démarrer la partie</Text>
-          </TouchableOpacity>
+            style={styles.startButton}
+            textStyle={styles.startButtonText}
+          />
         )}
 
-        <TouchableOpacity
-          style={styles.leaveButton}
-          onPress={handleLeaveRoom}
-        >
-          <Text style={styles.leaveButtonText}>Quitter la salle</Text>
-        </TouchableOpacity>
+        <InviteModal 
+          visible={inviteModalVisible}
+          roomId={room?.code || ''}
+          onClose={() => setInviteModalVisible(false)}
+          onCopyCode={handleCopyCode}
+          onShareCode={handleShareRoom}
+        />
 
         <RulesDrawer
           visible={isRulesDrawerVisible}
@@ -655,8 +675,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+   rightContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+ headerButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  inviteButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(93, 109, 255, 0.3)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   startButton: {
-    backgroundColor: '#6c5ce7',
     marginHorizontal: 20,
     marginBottom: 15,
     paddingVertical: 15,
@@ -669,7 +704,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   leaveButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     marginHorizontal: 20,
     marginBottom: 30,
     paddingVertical: 15,
@@ -681,4 +715,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
   },
+  iconButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: 10,
+  }
 });

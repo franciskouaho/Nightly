@@ -1,7 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { View, Text, Modal, TouchableOpacity, ScrollView, StyleSheet, Animated } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 
 type RulesDrawerProps = {
   visible: boolean;
@@ -37,7 +36,7 @@ const RulesDrawer = ({ visible, onClose }: RulesDrawerProps) => {
 
   return (
     <Modal
-      transparent={true}
+      transparent
       visible={visible}
       animationType="none"
       onRequestClose={onClose}
@@ -54,71 +53,38 @@ const RulesDrawer = ({ visible, onClose }: RulesDrawerProps) => {
             { transform: [{ translateY }] }
           ]}
         >
-          <LinearGradient
-            colors={['#321a5e', '#1a0933']}
-            style={styles.gradient}
-          >
+          <View style={styles.inner}>
             <View style={styles.header}>
-              <View style={styles.headerHandle} />
               <Text style={styles.title}>RÈGLES DU JEU</Text>
               <TouchableOpacity onPress={onClose}>
-                <Ionicons name="close" size={22} color="white" />
+                <Ionicons name="close" size={24} color="#fff" />
               </TouchableOpacity>
             </View>
 
-            <ScrollView style={styles.content}>
+            <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
               <Text style={styles.subtitle}>PLUSIEURS TÉLÉPHONES</Text>
-              
               <View style={styles.ruleCard}>
-                <View style={styles.iconContainer}>
-                  <Text style={styles.emoji}>🎲</Text>
-                </View>
-                <Text style={styles.ruleText}>
-                  Un joueur est désigné aléatoirement.
-                </Text>
+                <Text style={styles.emoji}>🎲</Text>
+                <Text style={styles.ruleText}>Un joueur est désigné aléatoirement.</Text>
               </View>
-              
               <View style={styles.ruleCard}>
-                <View style={styles.iconContainer}>
-                  <Text style={styles.emoji}>🤔</Text>
-                </View>
-                <Text style={styles.ruleText}>
-                  Tous les joueurs reçoivent la même question concernant le joueur visé.
-                </Text>
+                <Text style={styles.emoji}>🤔</Text>
+                <Text style={styles.ruleText}>Tous les joueurs reçoivent la même question concernant le joueur visé.</Text>
               </View>
-              
               <View style={styles.ruleCard}>
-                <View style={styles.iconContainer}>
-                  <Text style={styles.emoji}>👀</Text>
-                </View>
-                <Text style={styles.ruleText}>
-                  Chaque joueur y répond de manière anonyme.
-                </Text>
+                <Text style={styles.emoji}>👀</Text>
+                <Text style={styles.ruleText}>Chaque joueur y répond de manière anonyme.</Text>
               </View>
-              
               <View style={styles.ruleCard}>
-                <View style={styles.iconContainer}>
-                  <Text style={styles.emoji}>📦</Text>
-                </View>
-                <Text style={styles.ruleText}>
-                  Le joueur désigné lit toutes les réponses et vote pour sa préférée.
-                </Text>
+                <Text style={styles.emoji}>📦</Text>
+                <Text style={styles.ruleText}>Le joueur désigné lit toutes les réponses et vote pour sa préférée.</Text>
               </View>
-
               <View style={styles.scoreContainer}>
-                <View>
-                  <Text style={styles.scoreText}>
-                    Le joueur dont la réponse est choisie :
-                  </Text>
-                </View>
-                <View>
-                  <Text style={styles.pointsText}>+1 pt.</Text>
-                </View>
+                <Text style={styles.scoreText}>Le joueur dont la réponse est choisie :</Text>
+                <Text style={styles.pointsText}>+1 pt.</Text>
               </View>
-              
-              <View style={styles.footer} />
             </ScrollView>
-          </LinearGradient>
+          </View>
         </Animated.View>
       </View>
     </Modal>
@@ -136,101 +102,87 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(10, 6, 20, 0.92)',
   },
   container: {
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderBottomWidth: 0,
-    borderColor: 'rgba(93, 109, 255, 0.5)',
-    maxHeight: '80%',
+    backgroundColor: '#2B1845',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -8 },
+    shadowOpacity: 0.18,
+    shadowRadius: 16,
+    elevation: 10,
+    maxHeight: '85%',
   },
-  gradient: {
-    padding: 16,
+  inner: {
+    padding: 24,
+    paddingBottom: 32,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
-    paddingHorizontal: 8,
-  },
-  headerHandle: {
-    width: 40,
-    height: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    borderRadius: 2,
-    position: 'absolute',
-    top: -20,
-    left: '50%',
-    marginLeft: -20,
+    marginBottom: 18,
   },
   title: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
-    color: 'white',
-    textAlign: 'center',
-    flex: 1,
+    color: '#fff',
+    letterSpacing: 0.5,
   },
   content: {
-    paddingHorizontal: 8,
+    paddingHorizontal: 0,
     maxHeight: '100%',
   },
   subtitle: {
-    fontSize: 16,
-    color: '#b3b3b3',
+    fontSize: 15,
+    color: '#C7B8F5',
     textAlign: 'center',
     marginBottom: 20,
+    fontWeight: '600',
+    letterSpacing: 0.5,
   },
   ruleCard: {
-    backgroundColor: '#19102e',
-    borderRadius: 16,
+    backgroundColor: '#3D2956',
+    borderRadius: 18,
     padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  iconContainer: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
+    marginBottom: 14,
   },
   emoji: {
     fontSize: 28,
+    marginRight: 14,
   },
   ruleText: {
-    color: 'white',
-    fontSize: 14,
+    color: '#fff',
+    fontSize: 15,
     flex: 1,
     lineHeight: 20,
+    fontWeight: '500',
   },
   scoreContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 16,
+    marginTop: 22,
     paddingHorizontal: 10,
+    backgroundColor: '#3D2956',
+    borderRadius: 16,
+    paddingVertical: 12,
+    marginBottom: 10,
   },
   scoreText: {
-    color: 'white',
-    fontSize: 14,
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '500',
   },
   pointsText: {
-    color: 'white',
-    fontSize: 30,
+    color: '#fff',
+    fontSize: 16,
     fontWeight: 'bold',
-  },
-  footer: {
-    height: 30,
   },
 });
 
