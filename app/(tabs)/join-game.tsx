@@ -36,31 +36,58 @@ export default function JoinGame() {
 
     setIsJoining(true);
     try {
-      const roomRef = firestore().collection('rooms').doc(roomCode);
-      const roomDoc = await roomRef.get();
+      // Recherche par code (champ 'code')
+      const code = roomCode.trim().toUpperCase();
+      let querySnapshot = await firestore()
+        .collection('rooms')
+        .where('code', '==', code)
+        .limit(1)
+        .get();
 
-      if (!roomDoc.exists()) {
+      let roomDoc: any = querySnapshot.empty ? null : querySnapshot.docs[0];
+      let roomRef = roomDoc ? roomDoc.ref : null;
+
+      // Si pas trouvé, essaie par ID Firestore
+      if (!roomDoc) {
+        const docById = await firestore().collection('rooms').doc(roomCode.trim()).get();
+        if (docById.exists()) {
+          roomDoc = docById;
+          roomRef = firestore().collection('rooms').doc(docById.id);
+        }
+      }
+
+      if (!roomDoc || !roomRef) {
         Alert.alert('Erreur', 'Salle introuvable');
         return;
       }
 
-      const roomData = roomDoc.data() as Room;
-      
+      const roomData = roomDoc.data() as any;
+
       if (roomData.players.length >= roomData.maxPlayers) {
         Alert.alert('Erreur', 'La salle est pleine');
         return;
       }
 
-      if (roomData.players.includes(user?.uid || '')) {
+      if (roomData.players.some((p: any) => p.id === user?.uid)) {
         Alert.alert('Erreur', 'Vous êtes déjà dans cette salle');
         return;
       }
 
       await roomRef.update({
-        players: [...roomData.players, user?.uid]
+        players: [
+          ...roomData.players,
+          {
+            id: user?.uid,
+            username: user?.pseudo,
+            displayName: user?.pseudo,
+            isHost: false,
+            isReady: false,
+            avatar: `https://i.pravatar.cc/150?img=${Math.floor(Math.random() * 70)}`
+          }
+        ]
       });
 
-      router.push(`/room/${roomCode}`);
+      router.push(`/room/${roomDoc.id}`);
     } catch (error) {
       console.error('Erreur lors de la jointure:', error);
       Alert.alert('Erreur', 'Impossible de rejoindre la salle');
@@ -122,7 +149,7 @@ export default function JoinGame() {
                 style={styles.input}
                 value={roomCode}
                 onChangeText={setRoomCode}
-                placeholder="Entrez le code à 6 chiffres"
+                placeholder="Entrez le code de la salle (ex: QN64UG)"
                 placeholderTextColor="rgba(255,255,255,0.5)"
                 keyboardType="default"
                 maxLength={6}

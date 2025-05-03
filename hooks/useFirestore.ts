@@ -1,24 +1,23 @@
-import { useState, useEffect } from 'react';
-import firestore from '@react-native-firebase/firestore';
-import { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
+import { useState } from 'react';
+import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, DocumentData, QueryDocumentSnapshot, WithFieldValue } from 'firebase/firestore';
+import { db } from '@/config/firebase';
 
-export const useFirestore = <T>(collectionPath: string) => {
+export const useFirestore = <T extends DocumentData>(collectionPath: string) => {
   const [data, setData] = useState<T[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const db = firestore();
-  const collectionRef = db.collection(collectionPath);
+  const collectionRef = collection(db, collectionPath);
 
   // Fetch all documents
   const fetchAll = async () => {
     try {
       setLoading(true);
-      const snapshot = await collectionRef.get();
-      const documents = snapshot.docs.map(doc => ({
+      const snapshot = await getDocs(collectionRef);
+      const documents = snapshot.docs.map((doc: QueryDocumentSnapshot) => ({
         id: doc.id,
         ...doc.data()
-      })) as T[];
+      })) as unknown as T[];
       setData(documents);
       setError(null);
     } catch (err) {
@@ -29,10 +28,10 @@ export const useFirestore = <T>(collectionPath: string) => {
   };
 
   // Add a new document
-  const add = async (document: Omit<T, 'id'>) => {
+  const add = async (document: WithFieldValue<T>) => {
     try {
       setLoading(true);
-      const docRef = await collectionRef.add(document);
+      const docRef = await addDoc(collectionRef, document);
       return docRef.id;
     } catch (err) {
       setError(err as Error);
@@ -43,10 +42,11 @@ export const useFirestore = <T>(collectionPath: string) => {
   };
 
   // Update a document
-  const update = async (id: string, document: Partial<T>) => {
+  const update = async (id: string, document: Partial<WithFieldValue<T>>) => {
     try {
       setLoading(true);
-      await collectionRef.doc(id).update(document);
+      const docRef = doc(db, collectionPath, id);
+      await updateDoc(docRef, document as DocumentData);
     } catch (err) {
       setError(err as Error);
       throw err;
@@ -59,7 +59,8 @@ export const useFirestore = <T>(collectionPath: string) => {
   const remove = async (id: string) => {
     try {
       setLoading(true);
-      await collectionRef.doc(id).delete();
+      const docRef = doc(db, collectionPath, id);
+      await deleteDoc(docRef);
     } catch (err) {
       setError(err as Error);
       throw err;

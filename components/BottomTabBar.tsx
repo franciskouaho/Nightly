@@ -50,7 +50,7 @@ export default function BottomTabBar() {
             />
           }
           isActive={pathname === '/joint-salle'}
-          onPress={() => router.push('/joint-salle')}
+          onPress={() => router.push('/(tabs)/join-game')}
         />
         <TabItem
           iconComponent={
@@ -61,7 +61,7 @@ export default function BottomTabBar() {
             />
           }
           isActive={pathname === '/leaderboard'}
-          onPress={() => router.push('/leaderboard')}
+          onPress={() => router.push('/(tabs)/leaderboard')}
         />
         <TabItem
           iconComponent={

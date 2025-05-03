@@ -40,6 +40,7 @@ interface Room {
   status: string;
   host: string;
   maxPlayers: number;
+  code: string;
 }
 
 // Interface pour les données de création de salle
@@ -87,7 +88,8 @@ export const createFirebaseRoom = async (roomData: RoomCreationData, timeoutMs =
     players: cleanedPlayers,
     maxPlayers: roomData.maxPlayers || 6,
     createdAt: new Date().toISOString(), // Utiliser une chaîne ISO au lieu de serverTimestamp() pour résoudre des problèmes potentiels
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date().toISOString(),
+    code: roomData.code || '',
   };
 
   console.log('🏠 Tentative de création de salle avec données nettoyées:', JSON.stringify(firestoreData));
@@ -114,7 +116,8 @@ export const createFirebaseRoom = async (roomData: RoomCreationData, timeoutMs =
               id: docRef.id,
               createdAt: firestoreData.createdAt,
               status: 'waiting',
-              maxPlayers: firestoreData.maxPlayers
+              maxPlayers: firestoreData.maxPlayers,
+              code: firestoreData.code,
             };
             
             resolve(roomWithId);
@@ -218,7 +221,8 @@ export default function Room() {
             createdAt: data.createdAt || new Date().toISOString(),
             status: data.status || 'waiting',
             host: data.host || data.createdBy || '',
-            maxPlayers: data.maxPlayers || 6
+            maxPlayers: data.maxPlayers || 6,
+            code: data.code || '',
           };
 
           // Update state with room data
@@ -326,14 +330,34 @@ export default function Room() {
 
     try {
       setIsLoading(true);
-      // Mettre à jour le statut de la salle dans Firestore
       const roomRef = doc(db, 'rooms', id as string);
+      // Mettre à jour le statut de la salle dans Firestore
       await updateDoc(roomRef, {
         status: 'playing'
       });
 
-      // Redirection vers la page de jeu
-      router.push(`/game/${roomData.gameId}?roomId=${roomData.id}`);
+      // Créer le document de jeu dans Firestore (collection 'games')
+      const gamesCollection = collection(db, 'games');
+      const initialGameState = {
+        phase: 'question',
+        currentRound: 1,
+        totalRounds: 5,
+        players: players.map(p => ({
+          id: p.id,
+          name: p.name,
+          avatar: p.avatar,
+          isHost: p.isHost,
+          level: p.level,
+        })),
+        scores: {},
+        roomId: id,
+        createdAt: new Date().toISOString(),
+        // Ajoute ici d'autres champs nécessaires (questions, etc.)
+      };
+      const gameDocRef = await addDoc(gamesCollection, initialGameState);
+
+      // Redirection vers la page de jeu avec l'ID du jeu
+      router.push(`/game/${gameDocRef.id}?roomId=${id}`);
 
     } catch (error: any) {
       console.error('Erreur démarrage partie:', error);
@@ -506,7 +530,9 @@ export default function Room() {
             </View>
             
             <TouchableOpacity style={styles.roomCodeBadge} onPress={handleCopyCode}>
-              <Text style={styles.roomCodeText}>Code: {roomData?.id || id}</Text>
+               {roomData?.code && (
+                <Text style={styles.roomCodeText}>Code: {roomData.code}</Text>
+                )}
               <MaterialCommunityIcons name="content-copy" size={16} color="rgba(255,255,255,0.8)" />
             </TouchableOpacity>
           </View>
@@ -801,5 +827,14 @@ const styles = StyleSheet.create({
   },
   disabledButton: {
     opacity: 0.5,
+  },
+  roomCodeDisplay: {
+    color: '#FFD700',
+    fontWeight: 'bold',
+    fontSize: 14,
+    marginTop: 4,
+    marginBottom: 2,
+    letterSpacing: 1.5,
+    textAlign: 'center',
   },
 });

@@ -1,20 +1,22 @@
+import { useEffect } from 'react';
 import { Stack } from 'expo-router';
-import { PaperProvider } from 'react-native-paper';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { PaperProvider } from 'react-native-paper';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import '@/config/firebase';
 
 export default function RootLayout() {
   return (
-    <PaperProvider>
-      <AuthProvider>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="auth" />
-          <Stack.Screen name="game" />
-          <Stack.Screen name="room" />
-          <Stack.Screen name="splash" />
-          <Stack.Screen name="joint-salle" />
-        </Stack>
-      </AuthProvider>
-    </PaperProvider>
+    <SafeAreaProvider>
+      <PaperProvider>
+        <AuthProvider>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            <Stack.Screen name="room/[id]" options={{ headerShown: false }} />
+          </Stack>
+        </AuthProvider>
+      </PaperProvider>
+    </SafeAreaProvider>
   );
 }

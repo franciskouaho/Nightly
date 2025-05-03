@@ -12,7 +12,7 @@ import { gameCategories, GameMode, GameCategory } from '@/app/data/gameModes'
 import { useEffect } from 'react'
 
 interface Room {
-  id: string;
+  id?: string;
   name: string;
   gameId: string;
   createdBy: string;
@@ -28,6 +28,7 @@ interface Room {
   createdAt: string;
   status: 'waiting' | 'playing' | 'finished';
   maxPlayers: number;
+  code: string;
 }
 
 // Fonction utilitaire pour générer des IDs uniques sans dépendre de crypto
@@ -41,6 +42,16 @@ const generateUniqueId = (length: number = 6) => {
   }
   
   return result;
+};
+
+// Fonction utilitaire pour générer un code court unique
+const generateRoomCode = (length = 6) => {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Pas de O, 0, I, 1
+  let code = '';
+  for (let i = 0; i < length; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
 };
 
 export default function HomeScreen() {
@@ -115,12 +126,13 @@ export default function HomeScreen() {
   
       console.log('🎮 Création d\'une salle pour le mode:', game.id);
       
-      const roomId = generateUniqueId(6);
       const displayName = getUserDisplayName(user);
       
-      // Préparer les données pour Firebase
-      const roomData: Room = {
-        id: roomId,
+      // Générer un code court unique pour la room
+      const shortCode = generateRoomCode(6);
+      
+      // Préparer les données pour Firebase (sans champ 'id')
+      const roomData: Omit<Room, 'id'> & { code: string } = {
         name: game.name,
         gameId: game.id,
         createdBy: user.uid,
@@ -136,6 +148,7 @@ export default function HomeScreen() {
         createdAt: new Date().toISOString(),
         status: "waiting",
         maxPlayers: 8,
+        code: shortCode,
       };
 
       // Vérifier qu'il n'y a pas de valeurs undefined
@@ -171,21 +184,26 @@ export default function HomeScreen() {
         });
         
         // Race entre la création de room et le timeout
-        await Promise.race([
+        const createdRoomId = await Promise.race([
           createRoom(roomData),
           timeoutPromise
         ]);
         
-        console.log('✅ Salle créée avec succès dans Firebase:', roomId);
+        console.log('✅ Salle créée avec succès dans Firebase:', createdRoomId);
         
-        // Rediriger vers la page room avec l'ID seulement
-        console.log('🔄 Tentative de redirection vers:', `/room/${roomId}`);
-        
-        // Forcer un délai avant la navigation pour éviter les problèmes de timing
-        setTimeout(() => {
-          console.log('➡️ Exécution de la redirection maintenant');
-          router.push(`/room/${roomId}`);
-        }, 500);
+        // Rediriger vers la page room avec l'ID Firestore
+        console.log('🔄 Tentative de redirection vers:', `/room/${createdRoomId}`);
+        Alert.alert(
+          'Salle créée !',
+          `Code d'invitation : ${shortCode}\nPartage-le avec tes amis pour qu'ils rejoignent la salle !`,
+          [
+            { text: 'OK', onPress: () => {
+              setTimeout(() => {
+                router.push(`/room/${createdRoomId}`);
+              }, 500);
+            }}
+          ]
+        );
         
         return true;
       } catch (firebaseError) {
