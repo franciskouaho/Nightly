@@ -240,7 +240,7 @@ export default function RoomScreen() {
       const gameData: GameState = {
         phase: GamePhase.QUESTION,
         currentRound: 1,
-        totalRounds: questions.length,
+        totalRounds: 4,
         targetPlayer: randomPlayer,
         currentQuestion: firstQuestion,
         answers: [],
@@ -260,7 +260,7 @@ export default function RoomScreen() {
         game: {
           currentPhase: 'question',
           currentRound: 1,
-          totalRounds: questions.length,
+          totalRounds: 4,
           scores: {},
           gameMode: room.gameMode || room.gameId,
           hostId: room.host

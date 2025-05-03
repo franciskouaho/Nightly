@@ -6,6 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome5, Ionicons } from '@expo/vector-icons';
 import Confetti from 'react-native-confetti';
 import { Player } from '@/types/gameTypes';
+import { getFirestore, doc, getDoc } from '@react-native-firebase/firestore';
 
 type PlayerScore = Player & { score: number };
 
@@ -18,31 +19,33 @@ export default function GameResultsScreen() {
   const [confettiRef, setConfettiRef] = useState<any>(null);
   
   useEffect(() => {
-    const mockPlayers: PlayerScore[] = [
-      { id: '1', name: 'Francis', avatar: 'avatar1', isReady: true, score: 3 },
-      { id: '2', name: 'Sophie', avatar: 'avatar2', isReady: true, score: 5 },
-      { id: '3', name: 'Thomas', avatar: 'avatar3', isReady: true, score: 2 },
-      { id: '4', name: 'Emma', avatar: 'avatar4', isReady: true, score: 4 },
-    ];
-    
-    // Trier les joueurs par score (décroissant)
-    mockPlayers.sort((a, b) => b.score - a.score);
-    
-    setPlayers(mockPlayers);
-    setLoading(false);
-    
-    // Version simplifiée avec les confettis pour le gagnant
-    if (confettiRef) {
-      confettiRef.startConfetti();
-    }
-    
-    // Arrêter les confettis lors du nettoyage
-    return () => {
-      if (confettiRef) {
-        confettiRef.stopConfetti();
+    const fetchResults = async () => {
+      try {
+        if (!id) return;
+        const db = getFirestore();
+        const gameRef = doc(db, 'games', String(id));
+        const gameSnap = await getDoc(gameRef);
+        if (!gameSnap.exists()) return;
+        const data = gameSnap.data();
+        const scores: Record<string, number> = data.scores || {};
+        const playersRaw = data.players || [];
+        const players: PlayerScore[] = playersRaw.map((p: any) => ({
+          ...p,
+          score: scores[p.id] || 0,
+        }));
+        players.sort((a, b) => b.score - a.score);
+        setPlayers(players);
+        setLoading(false);
+        if (confettiRef) confettiRef.startConfetti();
+      } catch (e) {
+        setLoading(false);
       }
     };
-  }, [confettiRef]);
+    fetchResults();
+    return () => {
+      if (confettiRef) confettiRef.stopConfetti();
+    };
+  }, [confettiRef, id]);
   
   const handlePlayAgain = () => {
     router.push(`/room/${id}`);

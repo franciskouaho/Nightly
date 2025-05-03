@@ -24,6 +24,7 @@ export default function TruthOrDareGameScreen() {
   const [game, setGame] = useState<TruthOrDareGameState | null>(null);
   const [loading, setLoading] = useState(true);
   const [questions, setQuestions] = useState<TruthOrDareQuestion[]>([]);
+  const [isGameOver, setIsGameOver] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -58,11 +59,33 @@ export default function TruthOrDareGameScreen() {
     fetchQuestions();
   }, []);
 
+  useEffect(() => {
+    if (game && game.currentRound > game.totalRounds) {
+      setIsGameOver(true);
+      const timeout = setTimeout(() => {
+        router.replace(`/game/results/${id}`);
+      }, 2000);
+      return () => clearTimeout(timeout);
+    } else {
+      setIsGameOver(false);
+    }
+  }, [game, id, router]);
+
   if (loading || !game || !user) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#6c5ce7" />
         <Text style={styles.loadingText}>Chargement de la partie...</Text>
+      </View>
+    );
+  }
+
+  if (isGameOver) {
+    return (
+      <View style={styles.container}>
+        <StatusBar style="light" />
+        <Text style={styles.questionText}>Partie terminée !</Text>
+        <Text style={styles.questionText}>Redirection vers les résultats...</Text>
       </View>
     );
   }
@@ -75,6 +98,7 @@ export default function TruthOrDareGameScreen() {
       return (
         <View style={styles.container}>
           <StatusBar style="light" />
+          <Text style={styles.questionText}>Tour {game.currentRound} / {game.totalRounds}</Text>
           <Text style={styles.questionText}>Action ou Vérité ?</Text>
           <TouchableOpacity style={styles.nextButton} onPress={() => handleChoice('verite')}>
             <Text style={styles.nextButtonText}>Vérité</Text>
@@ -85,11 +109,12 @@ export default function TruthOrDareGameScreen() {
         </View>
       );
     } else {
-      const player = game.players?.find((p: any) => p.id === game.currentPlayerId);
+      const player = game.players?.find((p: any) => String(p.id) === String(game.currentPlayerId));
       return (
         <View style={styles.container}>
           <StatusBar style="light" />
-          <Text style={styles.questionText}>{player?.name} doit choisir : Action ou Vérité...</Text>
+          <Text style={styles.questionText}>Tour {game.currentRound} / {game.totalRounds}</Text>
+          <Text style={styles.questionText}>{player?.name || 'Le joueur'} doit choisir : Action ou Vérité...</Text>
         </View>
       );
     }
@@ -114,6 +139,7 @@ export default function TruthOrDareGameScreen() {
     return (
       <View style={styles.container}>
         <StatusBar style="light" />
+        <Text style={styles.questionText}>Tour {game.currentRound} / {game.totalRounds}</Text>
         <Text style={styles.questionText}>{playerName} a choisi {game.currentChoice === 'verite' ? 'Vérité' : 'Action'}</Text>
         <Text style={styles.questionText}>{questionText}</Text>
         {isCurrentPlayer && (
@@ -137,6 +163,7 @@ export default function TruthOrDareGameScreen() {
     return (
       <View style={styles.container}>
         <StatusBar style="light" />
+        <Text style={styles.questionText}>Tour {game.currentRound} / {game.totalRounds}</Text>
         <Text style={styles.questionText}>Tour terminé pour {playerName}</Text>
         <TouchableOpacity style={styles.nextButton} onPress={handleNextRound}>
           <Text style={styles.nextButtonText}>Tour suivant</Text>
@@ -197,7 +224,7 @@ export default function TruthOrDareGameScreen() {
       phase: 'choix',
       currentChoice: null,
       currentQuestion: null,
-      currentRound: game.currentRound + 1 > game.totalRounds ? game.currentRound : game.currentRound + 1
+      currentRound: game.currentRound + 1
     });
   }
 }
