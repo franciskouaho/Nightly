@@ -6,6 +6,7 @@ import { getFirestore, doc, onSnapshot, updateDoc, getDoc } from '@react-native-
 import { useAuth } from '@/contexts/AuthContext';
 import { GameState, Question } from '@/types/gameTypes';
 import ResultsPhase from '@/components/game/ResultsPhase';
+import { LinearGradient } from 'expo-linear-gradient';
 
 interface TruthOrDareQuestion { text: string; type: string; }
 
@@ -100,25 +101,30 @@ export default function TruthOrDareGameScreen() {
   // PHASE 1 : Choix Action/Vérité
   if (game.phase === 'choix') {
     if (isCurrentPlayer) {
+      const player = game.players?.find((p: any) => String(p.id) === String(game.currentPlayerId));
       return (
-        <View style={styles.container}>
+        <LinearGradient
+          colors={["#181028", "#2d1b4e", "#1a102a"]}
+          style={styles.gradientBg}
+        >
           <StatusBar style="light" />
-          <Text style={styles.questionText}>Tour {game.currentRound} / {game.totalRounds}</Text>
-          <Text style={styles.questionText}>Action ou Vérité ?</Text>
-          <TouchableOpacity style={styles.nextButton} onPress={() => handleChoice('verite')}>
-            <Text style={styles.nextButtonText}>Vérité</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.nextButton} onPress={() => handleChoice('action')}>
-            <Text style={styles.nextButtonText}>Action</Text>
-          </TouchableOpacity>
-        </View>
+          <Text style={styles.playerText}>{player?.name || 'Joueur'}</Text>
+          <Text style={styles.chooseTaskText}>Choisis une action</Text>
+          <View style={styles.choiceButtonsRow}>
+            <TouchableOpacity style={[styles.truthButton, styles.skewLeft]} onPress={() => handleChoice('verite')}>
+              <Text style={[styles.choiceButtonText, styles.skewTextLeft]}>Truth</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.dareButton, styles.skewRight]} onPress={() => handleChoice('action')}>
+              <Text style={[styles.choiceButtonText, styles.skewTextRight]}>Dare</Text>
+            </TouchableOpacity>
+          </View>
+        </LinearGradient>
       );
     } else {
       const player = game.players?.find((p: any) => String(p.id) === String(game.currentPlayerId));
       return (
         <View style={styles.container}>
           <StatusBar style="light" />
-          <Text style={styles.questionText}>Tour {game.currentRound} / {game.totalRounds}</Text>
           <Text style={styles.questionText}>{player?.name || 'Le joueur'} doit choisir : Action ou Vérité...</Text>
         </View>
       );
@@ -645,5 +651,75 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontStyle: 'italic',
     marginTop: 10,
+  },
+  playerText: {
+    color: '#fff',
+    fontSize: 22,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  chooseTaskText: {
+    color: '#fff',
+    fontSize: 18,
+    textAlign: 'center',
+    marginBottom: 32,
+  },
+  choiceButtonsRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 24,
+  },
+  truthButton: {
+    backgroundColor: '#7c3aed',
+    paddingVertical: 28,
+    paddingHorizontal: 36,
+    borderRadius: 18,
+    marginRight: 14,
+    minWidth: 110,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.35,
+    shadowRadius: 14,
+    elevation: 5,
+  },
+  dareButton: {
+    backgroundColor: '#f59e42',
+    paddingVertical: 28,
+    paddingHorizontal: 36,
+    borderRadius: 18,
+    marginLeft: 14,
+    minWidth: 110,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.35,
+    shadowRadius: 14,
+    elevation: 5,
+  },
+  skewLeft: {
+    transform: [{ skewX: '-2deg' }],
+  },
+  skewRight: {
+    transform: [{ skewX: '2deg' }],
+  },
+  choiceButtonText: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  skewTextLeft: {
+    transform: [{ skewX: '2deg' }],
+  },
+  skewTextRight: {
+    transform: [{ skewX: '-2deg' }],
+  },
+  gradientBg: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
   },
 }); 
