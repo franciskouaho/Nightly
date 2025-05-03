@@ -135,3 +135,5 @@ export const gameCategories: GameCategory[] = [
     ]
   }
 ];
+
+export default gameCategories;

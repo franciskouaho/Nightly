@@ -3,8 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert } fr
 import { StatusBar } from 'expo-status-bar';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
-import { getApp } from 'firebase/app';
+import { collection, query, where, getDocs, getFirestore } from '@react-native-firebase/firestore';
 
 export default function TruthOrDareScreen() {
   const router = useRouter();
@@ -18,16 +17,19 @@ export default function TruthOrDareScreen() {
     const fetchQuestions = async () => {
       setLoading(true);
       try {
-        const db = getFirestore(getApp());
-        const docRef = doc(db, 'gameQuestions', 'action-verite');
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setQuestions(docSnap.data().questions);
+        const db = getFirestore();
+        const questionsRef = collection(db, 'gameQuestions');
+        const q = query(questionsRef, where('id', '==', 'action-verite'));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          const doc = querySnapshot.docs[0];
+          setQuestions(doc.data().questions);
         } else {
-          Alert.alert('Error', 'No questions found in Firestore');
+          Alert.alert('Erreur', 'Aucune question trouvée dans Firestore');
         }
       } catch (e) {
-        Alert.alert('Error', 'Could not load questions');
+        Alert.alert('Erreur', 'Impossible de charger les questions');
       } finally {
         setLoading(false);
       }
@@ -35,7 +37,7 @@ export default function TruthOrDareScreen() {
     fetchQuestions();
   }, []);
 
-  // Filter questions by selected type
+  // Filtrer les questions par type sélectionné
   const filteredQuestions = questions.filter(q => q.type === selectedType);
   const currentQuestion = filteredQuestions[currentIndex] || null;
 
@@ -43,27 +45,22 @@ export default function TruthOrDareScreen() {
     if (currentIndex < filteredQuestions.length - 1) {
       setCurrentIndex(i => i + 1);
     } else {
-      Alert.alert('Done', 'You have finished all the questions!', [
-        { text: 'Home', onPress: () => router.push('/') }
+      Alert.alert('Terminé', 'Vous avez terminé toutes les questions !', [
+        { text: 'Accueil', onPress: () => router.push('/') }
       ]);
     }
   };
 
+  const handleTypeChange = (type: 'verite' | 'action') => {
+    setSelectedType(type);
+    setCurrentIndex(0);
+  };
+
   if (loading) {
     return (
-      <View style={styles.container}>
-        <LinearGradient colors={['#1a0933', '#321a5e']} style={styles.background} />
-        <ActivityIndicator size="large" color="#fff" />
-        <Text style={{ color: '#fff', marginTop: 20 }}>Loading questions...</Text>
-      </View>
-    );
-  }
-
-  if (!currentQuestion) {
-    return (
-      <View style={styles.container}>
-        <LinearGradient colors={['#1a0933', '#321a5e']} style={styles.background} />
-        <Text style={{ color: '#fff', marginTop: 20 }}>No questions of this type.</Text>
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#6c5ce7" />
+        <Text style={styles.loadingText}>Chargement des questions...</Text>
       </View>
     );
   }
@@ -71,76 +68,128 @@ export default function TruthOrDareScreen() {
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
-      <LinearGradient colors={['#1a0933', '#321a5e']} style={styles.background} />
-      <View style={styles.content}>
-        <View style={{ flexDirection: 'row', marginBottom: 20 }}>
+      <LinearGradient
+        colors={['#4b277d', '#2d1b4e']}
+        style={styles.gradient}
+      >
+        <View style={styles.typeSelector}>
           <TouchableOpacity
             style={[
               styles.typeButton,
-              selectedType === 'verite' && styles.typeButtonSelected
+              selectedType === 'verite' && styles.selectedType
             ]}
-            onPress={() => { setSelectedType('verite'); setCurrentIndex(0); }}
+            onPress={() => handleTypeChange('verite')}
           >
-            <Text style={styles.typeButtonText}>Truth</Text>
+            <Text style={[
+              styles.typeButtonText,
+              selectedType === 'verite' && styles.selectedTypeText
+            ]}>Vérité</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[
               styles.typeButton,
-              selectedType === 'action' && styles.typeButtonSelected
+              selectedType === 'action' && styles.selectedType
             ]}
-            onPress={() => { setSelectedType('action'); setCurrentIndex(0); }}
+            onPress={() => handleTypeChange('action')}
           >
-            <Text style={styles.typeButtonText}>Dare</Text>
+            <Text style={[
+              styles.typeButtonText,
+              selectedType === 'action' && styles.selectedTypeText
+            ]}>Action</Text>
           </TouchableOpacity>
         </View>
-        <Text style={styles.messageTitle}>
-          {selectedType === 'verite' ? 'TRUTH' : 'DARE'} {currentIndex + 1}/{filteredQuestions.length}
-        </Text>
-        <Text style={styles.messageText}>{currentQuestion.text}</Text>
-        <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-          <Text style={styles.nextButtonText}>
-            {currentIndex < filteredQuestions.length - 1 ? 'Next question' : 'Finish'}
-          </Text>
-        </TouchableOpacity>
-      </View>
+
+        <View style={styles.questionContainer}>
+          {currentQuestion ? (
+            <>
+              <Text style={styles.questionText}>{currentQuestion.text}</Text>
+              <TouchableOpacity
+                style={styles.nextButton}
+                onPress={handleNext}
+              >
+                <Text style={styles.nextButtonText}>Question suivante</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <Text style={styles.noQuestionsText}>
+              Aucune question disponible pour ce type
+            </Text>
+          )}
+        </View>
+      </LinearGradient>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  background: {
-    position: 'absolute', left: 0, right: 0, top: 0, bottom: 0,
-  },
-  content: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20, paddingTop: 40 },
-  messageTitle: { fontSize: 24, fontWeight: 'bold', color: '#fff', marginBottom: 16, textAlign: 'center' },
-  messageText: { fontSize: 18, color: '#e0e0e0', textAlign: 'center', lineHeight: 28, marginBottom: 30 },
-  typeButton: {
+  container: {
     flex: 1,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    padding: 12,
-    borderRadius: 8,
-    marginHorizontal: 5,
-    alignItems: 'center'
   },
-  typeButtonSelected: {
-    backgroundColor: '#5D6DFF',
+  gradient: {
+    flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#4b277d',
+  },
+  loadingText: {
+    color: '#fff',
+    fontSize: 16,
+    marginTop: 20,
+  },
+  typeSelector: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    paddingTop: 60,
+    paddingBottom: 20,
+  },
+  typeButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+    marginHorizontal: 10,
+    borderRadius: 25,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  selectedType: {
+    backgroundColor: '#6c5ce7',
   },
   typeButtonText: {
     color: '#fff',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  selectedTypeText: {
     fontWeight: 'bold',
-    fontSize: 16
+  },
+  questionContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  questionText: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 40,
   },
   nextButton: {
-    backgroundColor: '#5D6DFF',
+    backgroundColor: '#6c5ce7',
     paddingVertical: 15,
     paddingHorizontal: 30,
-    borderRadius: 12,
-    marginTop: 30,
+    borderRadius: 25,
   },
   nextButtonText: {
     color: '#fff',
+    fontSize: 16,
     fontWeight: 'bold',
+  },
+  noQuestionsText: {
+    color: '#fff',
     fontSize: 18,
-  }
+    textAlign: 'center',
+  },
 }); 

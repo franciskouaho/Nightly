@@ -5,8 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons, FontAwesome5, Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
-import { getFirestore, doc, onSnapshot, updateDoc, getDoc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { getApp } from 'firebase/app';
+import { collection, doc, onSnapshot, updateDoc, getFirestore } from '@react-native-firebase/firestore';
 
 // Type pour l'utilisateur
 interface User {
@@ -61,7 +60,7 @@ interface RoomCreationData {
  */
 export const createFirebaseRoom = async (roomData: RoomCreationData, timeoutMs = 30000): Promise<Room> => {
   // Récupérer l'instance Firestore
-  const db = getFirestore(getApp());
+  const db = getFirestore();
   
   // Vérification des données obligatoires
   if (!roomData.name || !roomData.host || !roomData.gameId) {
@@ -159,466 +158,189 @@ export const createFirebaseRoom = async (roomData: RoomCreationData, timeoutMs =
   }
 };
 
-export default function Room() {
+export default function RoomScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams();
-  const { id } = params;
+  const { id } = useLocalSearchParams();
   const { user } = useAuth();
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [room, setRoom] = useState<Room | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Firebase setup
-  const app = getApp();
-  const db = getFirestore(app);
-
-  const [roomData, setRoomData] = useState<Room | null>(null);
-  const [roomName, setRoomName] = useState<string>('');
-  const [players, setPlayers] = useState<Player[]>([]);
-  const [isReady, setIsReady] = useState(false);
-  const [isHost, setIsHost] = useState(false);
-  const [maxPlayers, setMaxPlayers] = useState(6);
-  const [inviteModalVisible, setInviteModalVisible] = useState(false);
-  const [rulesVisible, setRulesVisible] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState('Chargement de la salle...');
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Set up Firebase listener for room data
   useEffect(() => {
-    if (!id || typeof id !== 'string') {
-      setError('ID de salle non valide');
-      setIsLoading(false);
-      return;
-    }
+    if (!id || !user) return;
 
+    const db = getFirestore();
     const roomRef = doc(db, 'rooms', id as string);
-
-    // Initial fetch to check if the room exists
-    getDoc(roomRef).then(docSnap => {
-      if (!docSnap.exists()) {
-        setError('Cette salle n\'existe pas');
-        setIsLoading(false);
-        return;
+    
+    const unsubscribe = onSnapshot(roomRef, async (doc) => {
+      if (doc.exists()) {
+        const roomData = doc.data() as Room;
+        setRoom(roomData);
+      } else {
+        Alert.alert('Erreur', 'Salle introuvable');
+        router.back();
       }
-    }).catch(err => {
-      console.error('Error checking room:', err);
-      setError('Erreur lors du chargement de la salle');
-      setIsLoading(false);
+      setLoading(false);
+    }, (error) => {
+      console.error('Erreur lors de l\'écoute de la salle:', error);
+      Alert.alert('Erreur', 'Impossible de charger la salle');
+      router.back();
     });
 
-    // Set up real-time listener
-    const unsubscribe = onSnapshot(
-      roomRef,
-      (docSnapshot) => {
-        if (docSnapshot.exists()) {
-          const data = docSnapshot.data();
-
-          // Create room data from snapshot
-          const roomInfo: Room = {
-            id: docSnapshot.id,
-            gameId: data.gameId || '',
-            name: data.name || 'Salle sans nom',
-            players: data.players || [],
-            createdAt: data.createdAt || new Date().toISOString(),
-            status: data.status || 'waiting',
-            host: data.host || data.createdBy || '',
-            maxPlayers: data.maxPlayers || 6,
-            code: data.code || '',
-          };
-
-          // Update state with room data
-          setRoomData(roomInfo);
-          setRoomName(roomInfo.name);
-          setMaxPlayers(roomInfo.maxPlayers);
-
-          // Transform player data to match our Player interface
-          if (data.players && Array.isArray(data.players)) {
-            const formattedPlayers: Player[] = data.players.map((player: any) => ({
-              id: player.id || player.uid || '',
-              username: player.username || player.displayName || 'Joueur',
-              name: player.displayName || player.username || 'Joueur',
-              isHost: player.id === roomInfo.host || player.uid === roomInfo.host,
-              isReady: player.isReady || false,
-              avatar: player.avatar || player.photoURL || `https://i.pravatar.cc/150?img=${Math.floor(Math.random() * 70)}`,
-              level: player.level || Math.floor(Math.random() * 10) + 1
-            }));
-            setPlayers(formattedPlayers);
-
-            // Check if current user is host
-            if (user && (user.uid === roomInfo.host || user.id === roomInfo.host)) {
-              setIsHost(true);
-            }
-
-            // Check if current user is ready
-            if (user) {
-              const currentPlayerInRoom = formattedPlayers.find(
-                p => p.id === user.uid || p.id === user.id
-              );
-              setIsReady(currentPlayerInRoom?.isReady || false);
-            }
-          }
-
-          // REDIRECTION AUTOMATIQUE SI LA PARTIE COMMENCE
-          if (data.status === 'playing' && roomData?.status !== 'playing') {
-            if (data.gameId === 'action-verite') {
-              router.replace(`/game/truth-or-dare/${id}`);
-            } else {
-              router.replace(`/game/${id}?gameId=${data.gameId}`);
-            }
-          }
-
-          setIsLoading(false);
-        } else {
-          setError('Cette salle n\'existe plus');
-          setIsLoading(false);
-        }
-      },
-      (error) => {
-        console.error('Error listening to room updates:', error);
-        setError(`Erreur: ${error.message}`);
-        setIsLoading(false);
-      }
-    );
-
-    // Clean up listener on unmount
     return () => unsubscribe();
-  }, [id, user, db, router]);
-
-  // Mettre à jour l'utilisateur actuel lorsque les données sont disponibles
-  useEffect(() => {
-    if (user) {
-      setCurrentUser(user as User);
-    }
-  }, [user]);
-
-  const handleToggleReady = async () => {
-    if (!id || !user || !roomData) return;
-
-    try {
-      setIsLoading(true);
-      const roomRef = doc(db, 'rooms', id as string);
-
-      // Find current user in players array and update their ready status
-      const updatedPlayers = roomData.players.map(player => {
-        if (player.id === user.uid || player.id === user.id) {
-          return { ...player, isReady: !isReady };
-        }
-        return player;
-      });
-
-      // Update Firestore document
-      await updateDoc(roomRef, {
-        players: updatedPlayers
-      });
-
-      // Local update
-      setIsReady(!isReady);
-      console.log(`🎮 Statut changé: ${!isReady ? 'prêt' : 'pas prêt'}`);
-
-    } catch (error: any) {
-      console.error('Erreur mise à jour statut:', error);
-      Alert.alert('Erreur', `Impossible de mettre à jour votre statut: ${error.message}`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [id, user]);
 
   const handleStartGame = async () => {
-    if (!roomData || !isHost) return;
-
-    // Vérifier si tous les joueurs sont prêts
-    const nonReadyPlayers = players.filter(player => !player.isReady && !player.isHost);
-
-    if (nonReadyPlayers.length > 0) {
-      Alert.alert(
-        "Attention",
-        `Tous les joueurs ne sont pas prêts (${nonReadyPlayers.length} en attente). Veuillez attendre que tout le monde soit prêt avant de démarrer.`,
-        [{ text: "OK" }]
-      );
-      return;
-    }
+    if (!room || !user) return;
 
     try {
-      setIsLoading(true);
-      const roomRef = doc(db, 'rooms', id as string);
-      // Mettre à jour le statut de la salle dans Firestore
-      await updateDoc(roomRef, {
-        status: 'playing'
+      const db = getFirestore();
+      await updateDoc(doc(db, 'rooms', room.id), {
+        status: 'playing',
+        startedAt: new Date().toISOString()
       });
-
-      // Créer le document de jeu dans Firestore (collection 'games')
-      const gamesCollection = collection(db, 'games');
-      const initialGameState = {
-        phase: 'question',
-        currentRound: 1,
-        totalRounds: 5,
-        players: players.map(p => ({
-          id: p.id,
-          name: p.name,
-          avatar: p.avatar,
-          isHost: p.isHost,
-          level: p.level,
-        })),
-        scores: {},
-        roomId: id,
-        createdAt: new Date().toISOString(),
-        // Ajoute ici d'autres champs nécessaires (questions, etc.)
-      };
-      const gameDocRef = await addDoc(gamesCollection, initialGameState);
-
-      // Redirection vers la page de jeu avec l'ID du jeu
-      router.push(`/game/${gameDocRef.id}?roomId=${id}`);
-
-    } catch (error: any) {
-      console.error('Erreur démarrage partie:', error);
-      Alert.alert('Erreur', `Impossible de démarrer la partie: ${error.message}`);
-      setIsLoading(false);
+    } catch (error) {
+      console.error('Erreur lors du démarrage de la partie:', error);
+      Alert.alert('Erreur', 'Impossible de démarrer la partie');
     }
   };
 
   const handleLeaveRoom = async () => {
-    if (!id || !user) return;
+    if (!room || !user) return;
 
-    Alert.alert(
-      'Quitter la salle',
-      'Êtes-vous sûr de vouloir quitter cette salle ?',
-      [
-        {
-          text: 'Annuler',
-          style: 'cancel',
-        },
-        {
-          text: 'Quitter',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              // Si l'utilisateur est le dernier à quitter ou est l'hôte, supprimer la salle
-              // Sinon, retirer le joueur de la liste
-              if (isHost || players.length <= 1) {
-                // Code pour supprimer la salle ou transférer l'hôte si nécessaire
-                // Cela serait implémenté selon vos besoins spécifiques
-              } else {
-                // Enlever le joueur de la liste
-                const roomRef = doc(db, 'rooms', id as string);
-                const updatedPlayers = roomData?.players.filter(
-                  player => player.id !== user.uid && player.id !== user.id
-                ) || [];
-
-                await updateDoc(roomRef, {
-                  players: updatedPlayers
-                });
-              }
-
-              router.push('/');
-            } catch (error) {
-              console.error('Erreur en quittant la salle:', error);
-              // Forcer le retour même en cas d'erreur
-              router.push('/');
-            }
-          },
-        },
-      ]
-    );
-  };
-
-  const handleCopyCode = () => {
-    Clipboard.setString(roomData?.id || id as string);
-    Alert.alert('Code copié', 'Le code de la salle a été copié dans le presse-papiers');
-  };
-
-  const handleShareCode = async () => {
     try {
-      const result = await Share.share({
-        message: `Rejoins-moi dans Cosmic Quest ! Utilise ce code pour me rejoindre: ${roomData?.id || id}`,
-        url: `cosmic-quest://room/${roomData?.id || id}`,
-        title: 'Invitation Cosmic Quest',
-      });
-
-      if (result.action === Share.sharedAction) {
-        if (result.activityType) {
-          console.log('Shared with activity type of', result.activityType);
-        } else {
-          console.log('Shared successfully');
-        }
-      } else if (result.action === Share.dismissedAction) {
-        console.log('Share dismissed');
+      const db = getFirestore();
+      const updatedPlayers = room.players.filter(p => p.id !== user.uid);
+      
+      if (updatedPlayers.length === 0) {
+        // Si c'était le dernier joueur, supprimer la salle
+        await updateDoc(doc(db, 'rooms', room.id), {
+          status: 'finished'
+        });
+      } else if (updatedPlayers[0]) {
+        // Sinon, mettre à jour la liste des joueurs
+        await updateDoc(doc(db, 'rooms', room.id), {
+          players: updatedPlayers,
+          host: updatedPlayers[0].id // Le premier joueur restant devient l'hôte
+        });
       }
-      setInviteModalVisible(false);
+      
+      router.back();
     } catch (error) {
-      Alert.alert('Erreur', 'Une erreur s\'est produite lors du partage');
+      console.error('Erreur lors de la sortie de la salle:', error);
+      Alert.alert('Erreur', 'Impossible de quitter la salle');
     }
   };
 
-  const showRules = () => {
-    setRulesVisible(true);
+  const handleShareRoom = async () => {
+    if (!room) return;
+
+    try {
+      await Share.share({
+        message: `Rejoins ma partie sur Nightly ! Code: ${room.code}`,
+        title: 'Rejoins ma partie'
+      });
+    } catch (error) {
+      console.error('Erreur lors du partage:', error);
+    }
   };
 
-  const hideRules = () => {
-    setRulesVisible(false);
+  const handleCopyCode = async () => {
+    if (!room) return;
+
+    try {
+      await Clipboard.setString(room.code);
+      Alert.alert('Succès', 'Code copié dans le presse-papiers');
+    } catch (error) {
+      console.error('Erreur lors de la copie du code:', error);
+    }
   };
 
-  const renderPlayerItem = ({ item }: { item: Player }) => (
-    <View style={styles.playerCard}>
-      <LinearGradient
-        colors={item.isReady ? ['rgba(76, 175, 80, 0.2)', 'rgba(76, 175, 80, 0.05)'] : ['rgba(255, 255, 255, 0.2)', 'rgba(255, 255, 255, 0.05)']}
-        style={styles.playerCardGradient}
-      >
-        <Image 
-          source={{ uri: item.avatar }} 
-          style={styles.playerAvatar} 
-        />
-        
-        <View style={styles.playerInfo}>
-          <Text style={styles.playerName}>
-            {item.name} 
-            {item.isHost && <Text style={styles.hostTag}> (Hôte)</Text>}
-          </Text>
-          <Text style={styles.playerLevel}>Niveau {item.level}</Text>
-        </View>
-        
-        <View style={[styles.statusIndicator, item.isReady ? styles.readyStatus : styles.notReadyStatus]}>
-          <Text style={styles.statusText}>{item.isReady ? 'Prêt' : 'En attente'}</Text>
-        </View>
-      </LinearGradient>
-    </View>
-  );
-
-  if (isLoading && !roomData) {
+  if (loading) {
     return (
-      <View style={[styles.container, styles.centerContent]}>
-        <LinearGradient
-          colors={['#1a0933', '#321a5e']}
-          style={styles.background}
-        />
-        <Text style={{ color: 'white', fontSize: 18, marginBottom: 20 }}>{loadingMessage}</Text>
+      <View style={styles.loadingContainer}>
+        <Text style={styles.loadingText}>Chargement de la salle...</Text>
       </View>
     );
   }
 
-  if (error) {
-    return (
-      <View style={[styles.container, styles.centerContent]}>
-        <LinearGradient
-          colors={['#1a0933', '#321a5e']}
-          style={styles.background}
-        />
-        <Text style={styles.errorText}>{error}</Text>
-        <TouchableOpacity 
-          style={styles.backToHomeButton}
-          onPress={() => router.push('/')}
-        >
-          <Text style={styles.backToHomeText}>Retour à l'accueil</Text>
-        </TouchableOpacity>
-      </View>
-    );
+  if (!room) {
+    return null;
   }
 
-  function handleInviteFriend(event: GestureResponderEvent): void {
-    setInviteModalVisible(true);
-  }
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
-      
       <LinearGradient
-        colors={['#1a0933', '#321a5e']}
-        style={styles.background}
-      />
-      
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={handleLeaveRoom}>
-          <Ionicons name="arrow-back" size={24} color="white" />
-        </TouchableOpacity>
-        
-        <View style={styles.roomInfo}>
-          <Text style={styles.roomName}>{roomName}</Text>
-          <View style={styles.roomInfoDetails}>
-            <View style={styles.playersCount}>
-              <FontAwesome5 name="user-astronaut" size={14} color="rgba(255,255,255,0.8)" />
-              <Text style={styles.playersCountText}>{players.length}/{maxPlayers}</Text>
-            </View>
-            
-            <TouchableOpacity style={styles.roomCodeBadge} onPress={handleCopyCode}>
-               {roomData?.code && (
-                <Text style={styles.roomCodeText}>Code: {roomData.code}</Text>
-                )}
-              <MaterialCommunityIcons name="content-copy" size={16} color="rgba(255,255,255,0.8)" />
-            </TouchableOpacity>
-          </View>
-        </View>
-        
-        <View style={styles.headerButtons}>
-          <TouchableOpacity style={styles.inviteButton} onPress={handleInviteFriend}>
-            <Ionicons name="qr-code" size={22} color="white" />
+        colors={['#4b277d', '#2d1b4e']}
+        style={styles.gradient}
+      >
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <Ionicons name="arrow-back" size={24} color="#fff" />
+          </TouchableOpacity>
+          <Text style={styles.roomName}>{room.name}</Text>
+          <TouchableOpacity
+            style={styles.shareButton}
+            onPress={handleShareRoom}
+          >
+            <Ionicons name="share-outline" size={24} color="#fff" />
           </TouchableOpacity>
         </View>
-      </View>
 
-      {/* Room content */}
-      <View style={styles.content}>
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Joueurs</Text>
-          <TouchableOpacity style={styles.helpButton} onPress={showRules}>
-            <Ionicons name="help-circle" size={22} color="rgba(255, 255, 255, 0.8)" />
+        <View style={styles.codeContainer}>
+          <Text style={styles.codeLabel}>Code de la salle</Text>
+          <TouchableOpacity
+            style={styles.codeBox}
+            onPress={handleCopyCode}
+          >
+            <Text style={styles.codeText}>{room.code}</Text>
+            <Ionicons name="copy-outline" size={20} color="#fff" />
           </TouchableOpacity>
         </View>
-        
-        {players.length > 0 ? (
+
+        <View style={styles.playersContainer}>
+          <Text style={styles.sectionTitle}>Joueurs ({room.players.length}/{room.maxPlayers})</Text>
           <FlatList
-            data={players}
-            renderItem={renderPlayerItem}
-            keyExtractor={item => item.id}
-            style={styles.playersList}
-            contentContainerStyle={styles.playersListContent}
+            data={room.players}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <View style={styles.playerCard}>
+                <Image
+                  source={{ uri: item.avatar || `https://i.pravatar.cc/150?img=${Math.floor(Math.random() * 70)}` }}
+                  style={styles.playerAvatar}
+                />
+                <View style={styles.playerInfo}>
+                  <Text style={styles.playerName}>{item.displayName || item.username}</Text>
+                  {item.isHost && (
+                    <View style={styles.hostBadge}>
+                      <Text style={styles.hostText}>Hôte</Text>
+                    </View>
+                  )}
+                </View>
+              </View>
+            )}
           />
-        ) : (
-          <View style={[styles.centerContent, { flex: 1 }]}>
-            <Text style={{ color: 'white', fontSize: 16 }}>Chargement des joueurs...</Text>
-          </View>
-        )}
-        
-        {/* Room actions */}
-        <View style={styles.actionsContainer}>
-          {isHost ? (
-            <TouchableOpacity 
-              style={[styles.actionButton, styles.startGameButton, isLoading && styles.disabledButton]}
-              onPress={handleStartGame}
-              disabled={isLoading}
-            >
-              <MaterialCommunityIcons name="rocket-launch" size={24} color="white" />
-              <Text style={styles.actionButtonText}>
-                {isLoading ? 'Chargement...' : 'Lancer la partie'}
-              </Text>
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity 
-              style={[
-                styles.actionButton, 
-                isReady ? styles.notReadyButton : styles.readyButton,
-                isLoading && styles.disabledButton
-              ]}
-              onPress={handleToggleReady}
-              disabled={isLoading}
-            >
-              {isReady ? (
-                <>
-                  <MaterialCommunityIcons name="close-circle" size={24} color="white" />
-                  <Text style={styles.actionButtonText}>
-                    {isLoading ? 'Chargement...' : 'Annuler'}
-                  </Text>
-                </>
-              ) : (
-                <>
-                  <MaterialCommunityIcons name="check-circle" size={24} color="white" />
-                  <Text style={styles.actionButtonText}>
-                    {isLoading ? 'Chargement...' : 'Je suis prêt'}
-                  </Text>
-                </>
-              )}
-            </TouchableOpacity>
-          )}
         </View>
-      </View>
+
+        {user?.uid === room.host && room.status === 'waiting' && (
+          <TouchableOpacity
+            style={styles.startButton}
+            onPress={handleStartGame}
+          >
+            <Text style={styles.startButtonText}>Démarrer la partie</Text>
+          </TouchableOpacity>
+        )}
+
+        <TouchableOpacity
+          style={styles.leaveButton}
+          onPress={handleLeaveRoom}
+        >
+          <Text style={styles.leaveButtonText}>Quitter la salle</Text>
+        </TouchableOpacity>
+      </LinearGradient>
     </View>
   );
 }
@@ -627,223 +349,132 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  background: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
+  gradient: {
+    flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#4b277d',
+  },
+  loadingText: {
+    color: '#fff',
+    fontSize: 16,
   },
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingTop: 60,
     paddingHorizontal: 20,
     paddingBottom: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
   },
   backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  roomInfo: {
-    flex: 1,
-    alignItems: 'center',
+    padding: 8,
   },
   roomName: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: 'white',
+    color: '#fff',
   },
-  roomInfoDetails: {
+  shareButton: {
+    padding: 8,
+  },
+  codeContainer: {
+    alignItems: 'center',
+    marginBottom: 30,
+  },
+  codeLabel: {
+    color: '#fff',
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  codeBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 5,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
   },
-  playersCount: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 15,
+  codeText: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginRight: 10,
+    letterSpacing: 2,
   },
-  playersCountText: {
-    color: 'rgba(255,255,255,0.8)',
-    marginLeft: 5,
-    fontSize: 12,
-  },
-  roomCodeBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(93, 109, 255, 0.3)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 15,
-    marginLeft: 8,
-  },
-  roomCodeText: {
-    color: 'rgba(255,255,255,0.8)',
-    marginRight: 5,
-    fontSize: 12,
-  },
-  headerButtons: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  inviteButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(93, 109, 255, 0.3)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  content: {
+  playersContainer: {
     flex: 1,
     paddingHorizontal: 20,
   },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
   sectionTitle: {
+    color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
-    color: 'white',
-    letterSpacing: 0.5,
-  },
-  helpButton: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: 'rgba(255, 193, 7, 0.2)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  playersList: {
-    flex: 1,
-  },
-  playersListContent: {
-    paddingBottom: 20,
+    marginBottom: 15,
   },
   playerCard: {
-    marginBottom: 12,
-    borderRadius: 12,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(93, 109, 255, 0.3)',
-  },
-  playerCardGradient: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 15,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 10,
   },
   playerAvatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.3)',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 12,
   },
   playerInfo: {
     flex: 1,
-    marginLeft: 15,
-  },
-  playerName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 4,
-  },
-  hostTag: {
-    color: '#FFC107',
-    fontWeight: 'normal',
-  },
-  playerLevel: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.6)',
-  },
-  statusIndicator: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    marginLeft: 10,
-  },
-  readyStatus: {
-    backgroundColor: 'rgba(76, 175, 80, 0.3)',
-  },
-  notReadyStatus: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  statusText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  actionsContainer: {
-    paddingVertical: 20,
-    marginBottom: 70, // Espace pour la BottomTabBar
-  },
-  actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 12,
-    padding: 16,
+    justifyContent: 'space-between',
   },
-  readyButton: {
-    backgroundColor: 'rgba(76, 175, 80, 0.8)',
-  },
-  notReadyButton: {
-    backgroundColor: 'rgba(244, 67, 54, 0.8)',
-  },
-  startGameButton: {
-    backgroundColor: 'rgba(93, 109, 255, 0.8)',
-  },
-  actionButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
+  playerName: {
+    color: '#fff',
     fontSize: 16,
-    marginLeft: 10,
+    fontWeight: '500',
   },
-  centerContent: {
-    justifyContent: 'center',
+  hostBadge: {
+    backgroundColor: '#6c5ce7',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  hostText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  startButton: {
+    backgroundColor: '#6c5ce7',
+    marginHorizontal: 20,
+    marginBottom: 15,
+    paddingVertical: 15,
+    borderRadius: 12,
     alignItems: 'center',
   },
-  errorText: {
-    color: '#ff6b6b',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  backToHomeButton: {
-    backgroundColor: 'rgba(93, 109, 255, 0.8)',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-  },
-  backToHomeText: {
-    color: 'white',
+  startButtonText: {
+    color: '#fff',
+    fontSize: 16,
     fontWeight: 'bold',
   },
-  disabledButton: {
-    opacity: 0.5,
+  leaveButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    marginHorizontal: 20,
+    marginBottom: 30,
+    paddingVertical: 15,
+    borderRadius: 12,
+    alignItems: 'center',
   },
-  roomCodeDisplay: {
-    color: '#FFD700',
-    fontWeight: 'bold',
-    fontSize: 14,
-    marginTop: 4,
-    marginBottom: 2,
-    letterSpacing: 1.5,
-    textAlign: 'center',
+  leaveButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '500',
   },
 });

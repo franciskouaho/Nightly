@@ -178,9 +178,9 @@ export default function HomeScreen() {
       console.log('📤 Enregistrement dans Firebase avec les données:', JSON.stringify(roomData, null, 2));
       
       try {
-        // Créer la salle dans Firebase avec un timeout pour éviter une attente infinie
+        // Créer la salle dans Firebase avec un timeout plus long et une meilleure gestion des erreurs
         const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Délai d\'attente dépassé lors de la création de la salle')), 15000);
+          setTimeout(() => reject(new Error('Délai d\'attente dépassé lors de la création de la salle')), 30000); // Augmenté à 30 secondes
         });
         
         // Race entre la création de room et le timeout
@@ -188,6 +188,10 @@ export default function HomeScreen() {
           createRoom(roomData),
           timeoutPromise
         ]);
+        
+        if (!createdRoomId) {
+          throw new Error('La création de la salle a échoué : aucun ID retourné');
+        }
         
         console.log('✅ Salle créée avec succès dans Firebase:', createdRoomId);
         
@@ -208,20 +212,28 @@ export default function HomeScreen() {
         return true;
       } catch (firebaseError) {
         console.error('🔥 Erreur Firebase:', firebaseError);
+        
+        // Gestion spécifique des erreurs Firebase
         if (firebaseError instanceof Error) {
-          Alert.alert(
-            'Erreur lors de la création de la salle',
-            firebaseError.message || 'Une erreur est survenue lors de la création de la salle.'
-          );
+          let errorMessage = 'Une erreur est survenue lors de la création de la salle.';
+          
+          if (firebaseError.message.includes('permission-denied')) {
+            errorMessage = 'Accès refusé : vérifiez les règles de sécurité Firestore';
+          } else if (firebaseError.message.includes('network-request-failed')) {
+            errorMessage = 'Erreur réseau : vérifiez votre connexion internet';
+          } else if (firebaseError.message.includes('Délai d\'attente dépassé')) {
+            errorMessage = 'Le serveur met trop de temps à répondre. Veuillez réessayer.';
+          }
+          
+          Alert.alert('Erreur lors de la création de la salle', errorMessage);
         }
-        throw firebaseError; // Remonter l'erreur pour la gestion globale
+        throw firebaseError;
       }
-      
-    } catch (error: any) {
+    } catch (error) {
       console.error('❌ Erreur lors de la création de la salle:', error);
       Alert.alert(
         'Erreur',
-        error.message || 'Impossible de créer la salle'
+        error instanceof Error ? error.message : 'Impossible de créer la salle'
       );
       return false;
     }
