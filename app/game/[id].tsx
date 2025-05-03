@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Alert, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import { getApp } from 'firebase/app';
+import RoundedButton from '@/components/RoundedButton';
 
 export default function GameScreen() {
   const router = useRouter();
@@ -96,21 +97,22 @@ export default function GameScreen() {
         {Array.isArray(currentQuestion.choices) && currentQuestion.choices.length > 0 && (
           <View style={{ width: '100%' }}>
             {currentQuestion.choices.map((choice: string) => (
-              <TouchableOpacity
+              <RoundedButton
                 key={choice}
-                style={styles.choiceButton}
+                title={choice}
                 onPress={handleNext}
-              >
-                <Text style={styles.choiceText}>{choice}</Text>
-              </TouchableOpacity>
+                style={styles.choiceButton}
+                textStyle={styles.choiceText}
+              />
             ))}
           </View>
         )}
-        <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-          <Text style={styles.nextButtonText}>
-            {currentIndex < questions.length - 1 ? 'Question suivante' : 'Terminer'}
-          </Text>
-        </TouchableOpacity>
+        <RoundedButton
+          title={currentIndex < questions.length - 1 ? 'Question suivante' : 'Terminer'}
+          onPress={handleNext}
+          style={styles.nextButton}
+          textStyle={styles.nextButtonText}
+        />
       </View>
     </View>
   );

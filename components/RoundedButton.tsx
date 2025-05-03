@@ -1,5 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import Colors from '../constants/Colors';
 
 interface RoundedButtonProps {
   title: string;
@@ -26,53 +28,49 @@ const RoundedButton: React.FC<RoundedButtonProps> = ({
 }) => {
   return (
     <TouchableOpacity
-      style={[
-        styles.button,
-        { backgroundColor: color },
-        disabled && styles.disabledButton,
-        style
-      ]}
+      style={[disabled && styles.disabledButton, style]}
       onPress={onPress}
       disabled={disabled || isLoading}
       activeOpacity={0.8}
     >
-      {isLoading ? (
-        <ActivityIndicator size="small" color={textColor} />
-      ) : (
-        <View style={styles.contentContainer}>
-          {icon && <View style={styles.iconContainer}>{icon}</View>}
-          <Text style={[styles.buttonText, { color: textColor }, textStyle]}>
-            {title}
-          </Text>
-        </View>
-      )}
+      <LinearGradient
+        colors={['#D80B96', '#B707A7', '#A90BB2', '#8E08C1']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={styles.button}
+      >
+        {isLoading ? (
+          <ActivityIndicator size="small" color={textColor} />
+        ) : (
+          <View style={styles.contentContainer}>
+            {icon && <View style={styles.iconContainer}>{icon}</View>}
+            <Text style={[styles.buttonText, { color: textColor }, textStyle]}>
+              {title}
+            </Text>
+          </View>
+        )}
+      </LinearGradient>
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
   button: {
+    borderRadius: 12,
     paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 50,
+    paddingHorizontal: 36,
     alignItems: 'center',
     justifyContent: 'center',
-    minWidth: 120,
-    elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
+    minWidth: 180,
+    alignSelf: 'center',
   },
   disabledButton: {
     opacity: 0.5,
   },
   buttonText: {
-    fontSize: 16,
+    color: '#fff',
     fontWeight: 'bold',
+    fontSize: 16,
     textAlign: 'center',
   },
   contentContainer: {

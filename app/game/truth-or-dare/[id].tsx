@@ -4,9 +4,9 @@ import { StatusBar } from 'expo-status-bar';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { getFirestore, doc, onSnapshot, updateDoc, getDoc } from '@react-native-firebase/firestore';
 import { useAuth } from '@/contexts/AuthContext';
-import { GameState, Question } from '@/types/gameTypes';
-import ResultsPhase from '@/components/game/ResultsPhase';
+import { GameState } from '@/types/gameTypes';
 import { LinearGradient } from 'expo-linear-gradient';
+import RoundedButton from '@/components/RoundedButton';
 
 interface TruthOrDareQuestion { text: string; type: string; }
 
@@ -152,12 +152,18 @@ export default function TruthOrDareGameScreen() {
         <Text style={styles.questionText}>{questionText}</Text>
         {isCurrentPlayer && (
           <>
-            <TouchableOpacity style={styles.nextButton} onPress={handleValidate}>
-              <Text style={styles.nextButtonText}>J'ai répondu / fait l'action</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.nextButton} onPress={handleRefuse}>
-              <Text style={styles.nextButtonText}>Je refuse</Text>
-            </TouchableOpacity>
+            <RoundedButton
+              title="J'ai répondu / fait l'action"
+              onPress={handleValidate}
+              style={styles.nextButton}
+              textStyle={styles.nextButtonText}
+            />
+            <RoundedButton
+              title="Je refuse"
+              onPress={handleRefuse}
+              style={styles.nextButton}
+              textStyle={styles.nextButtonText}
+            />
           </>
         )}
       </View>
@@ -188,21 +194,21 @@ export default function TruthOrDareGameScreen() {
         <StatusBar style="light" />
         <Text style={styles.questionText}>Tour {game.currentRound} / {game.totalRounds}</Text>
         <Text style={styles.questionText}>Est-ce que {playerName} a bien joué le jeu ?</Text>
-        <View style={{ flexDirection: 'row', gap: 20 }}>
-          <TouchableOpacity
-            style={styles.nextButton}
-            disabled={hasVoted}
+        <View style={styles.voteButtons}>
+          <RoundedButton
+            title="✅ Oui"
             onPress={() => handleVote('yes')}
-          >
-            <Text style={styles.nextButtonText}>✅ Oui</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.nextButton}
             disabled={hasVoted}
+            style={styles.voteButton}
+            textStyle={styles.voteButtonText}
+          />
+          <RoundedButton
+            title="❌ Non"
             onPress={() => handleVote('no')}
-          >
-            <Text style={styles.nextButtonText}>❌ Non</Text>
-          </TouchableOpacity>
+            disabled={hasVoted}
+            style={styles.voteButton}
+            textStyle={styles.voteButtonText}
+          />
         </View>
         {hasVoted && <Text style={styles.questionText}>Merci pour ton vote !</Text>}
         <Text style={styles.questionText}>{votesCount} / {totalVoters} votes</Text>
@@ -219,9 +225,12 @@ export default function TruthOrDareGameScreen() {
         <StatusBar style="light" />
         <Text style={styles.questionText}>Tour {game.currentRound} / {game.totalRounds}</Text>
         <Text style={styles.questionText}>Tour terminé pour {playerName}</Text>
-        <TouchableOpacity style={styles.nextButton} onPress={handleNextRound}>
-          <Text style={styles.nextButtonText}>Tour suivant</Text>
-        </TouchableOpacity>
+        <RoundedButton
+          title="Tour suivant"
+          onPress={handleNextRound}
+          style={styles.nextButton}
+          textStyle={styles.nextButtonText}
+        />
       </View>
     );
   }
@@ -370,9 +379,12 @@ export default function TruthOrDareGameScreen() {
           <Text style={styles.questionText}>Les autres joueurs votent...</Text>
           <Text style={styles.questionText}>{votesCount} / {totalVoters} votes</Text>
           {canValidateVote && (
-            <TouchableOpacity style={styles.nextButton} onPress={handleValidateVote}>
-              <Text style={styles.nextButtonText}>Valider le vote</Text>
-            </TouchableOpacity>
+            <RoundedButton
+              title="Valider le vote"
+              onPress={handleValidateVote}
+              style={styles.nextButton}
+              textStyle={styles.nextButtonText}
+            />
           )}
           {!canValidateVote && (
             <Text style={styles.timerText}>Temps restant : {voteTimer}s</Text>
@@ -390,18 +402,18 @@ export default function TruthOrDareGameScreen() {
           <Text style={styles.questionText}>Vote spectateur</Text>
           <Text style={styles.questionText}>Est-ce que {playerName} a bien joué le jeu ?</Text>
           <View style={styles.voteButtons}>
-            <TouchableOpacity
-              style={styles.voteButton}
+            <RoundedButton
+              title="Oui"
               onPress={() => handleVote('yes')}
-            >
-              <Text style={styles.voteButtonText}>✅ Oui</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
               style={styles.voteButton}
+              textStyle={styles.voteButtonText}
+            />
+            <RoundedButton
+              title="Non"
               onPress={() => handleVote('no')}
-            >
-              <Text style={styles.voteButtonText}>❌ Non</Text>
-            </TouchableOpacity>
+              style={styles.voteButton}
+              textStyle={styles.voteButtonText}
+            />
           </View>
           <Text style={styles.spectatorText}>Votre vote n'affecte pas le score</Text>
         </View>
@@ -415,27 +427,30 @@ export default function TruthOrDareGameScreen() {
         <Text style={styles.questionText}>Tour {game.currentRound} / {game.totalRounds}</Text>
         <Text style={styles.questionText}>Est-ce que {playerName} a bien joué le jeu ?</Text>
         <View style={styles.voteButtons}>
-          <TouchableOpacity
-            style={styles.voteButton}
-            disabled={hasVoted}
+          <RoundedButton
+            title="Oui"
             onPress={() => handleVote('yes')}
-          >
-            <Text style={styles.voteButtonText}>✅ Oui</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.voteButton}
             disabled={hasVoted}
+            style={styles.voteButton}
+            textStyle={styles.voteButtonText}
+          />
+          <RoundedButton
+            title="Non"
             onPress={() => handleVote('no')}
-          >
-            <Text style={styles.voteButtonText}>❌ Non</Text>
-          </TouchableOpacity>
+            disabled={hasVoted}
+            style={styles.voteButton}
+            textStyle={styles.voteButtonText}
+          />
         </View>
         {hasVoted && <Text style={styles.questionText}>Merci pour ton vote !</Text>}
         <Text style={styles.questionText}>{votesCount} / {totalVoters} votes</Text>
         {canValidateVote && (
-          <TouchableOpacity style={styles.nextButton} onPress={handleValidateVote}>
-            <Text style={styles.nextButtonText}>Valider le vote</Text>
-          </TouchableOpacity>
+          <RoundedButton
+            title="Valider le vote"
+            onPress={handleValidateVote}
+            style={styles.nextButton}
+            textStyle={styles.nextButtonText}
+          />
         )}
         {!canValidateVote && (
           <Text style={styles.timerText}>Temps restant : {voteTimer}s</Text>
@@ -578,7 +593,6 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   nextButton: {
-    backgroundColor: '#6c5ce7',
     paddingVertical: 15,
     paddingHorizontal: 30,
     borderRadius: 25,
@@ -627,14 +641,11 @@ const styles = StyleSheet.create({
   voteButtons: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 20,
+    gap: 12,
     marginVertical: 20,
   },
   voteButton: {
-    backgroundColor: '#6c5ce7',
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    borderRadius: 25,
+    paddingVertical: 5,
   },
   voteButtonText: {
     color: '#fff',

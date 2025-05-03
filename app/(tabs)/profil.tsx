@@ -8,6 +8,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import BottomTabBar from '@/components/BottomTabBar';
+import RoundedButton from '@/components/RoundedButton';
 
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
@@ -88,10 +89,13 @@ export default function ProfileScreen() {
             <MaterialCommunityIcons name="chevron-right" size={24} color="rgba(255,255,255,0.7)" />
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-            <MaterialCommunityIcons name="logout" size={24} color="#ff6b6b" />
-            <Text style={styles.logoutText}>Déconnexion</Text>
-          </TouchableOpacity>
+          <RoundedButton
+            title="Déconnexion"
+            onPress={handleLogout}
+            style={styles.logoutButton}
+            textStyle={styles.logoutText}
+            icon={<MaterialCommunityIcons name="logout" size={24} color="#ff6b6b" />}
+          />
         </View>
         
         <View style={styles.bottomSpace} />

@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { Question, Player, Answer } from '@/types/gameTypes';
+import RoundedButton from '@/components/RoundedButton';
 
 interface ResultsPhaseProps {
   answers: Answer[];
@@ -62,9 +63,12 @@ export default function ResultsPhase({
       </View>
 
       {!isLastRound && (
-        <TouchableOpacity style={styles.nextButton} onPress={onNextRound}>
-          <Text style={styles.nextButtonText}>Tour suivant</Text>
-        </TouchableOpacity>
+        <RoundedButton
+          title="Tour suivant"
+          onPress={onNextRound}
+          style={styles.nextButton}
+          textStyle={styles.nextButtonText}
+        />
       )}
     </View>
   );

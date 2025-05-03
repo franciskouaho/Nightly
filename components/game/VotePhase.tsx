@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { Question, Answer } from '@/types/gameTypes';
+import RoundedButton from '@/components/RoundedButton';
 
 interface VotePhaseProps {
   answers: Answer[];
@@ -50,14 +51,14 @@ export default function VotePhase({
 
       <ScrollView style={styles.answersContainer}>
         {answers.map((answer) => (
-          <TouchableOpacity
+          <RoundedButton
             key={answer.id}
-            style={styles.answerButton}
+            title={answer.text}
             onPress={() => onVote(answer.id)}
             disabled={!isTargetPlayer || hasVoted || allPlayersVoted}
-          >
-            <Text style={styles.answerText}>{answer.text}</Text>
-          </TouchableOpacity>
+            style={styles.answerButton}
+            textStyle={styles.answerText}
+          />
         ))}
       </ScrollView>
     </View>
