@@ -19,6 +19,9 @@ interface TruthOrDareGameState extends Omit<GameState, 'phase'> {
   spectatorVotes?: { [playerId: string]: 'yes' | 'no' };
 }
 
+const CARD_COLOR = '#4B277D';
+const CARD_DARK = '#6C4FA1';
+
 // Ajout du composant QuestionCard avant la fonction principale
 const QuestionCard = ({
   playerName,
@@ -41,6 +44,44 @@ const QuestionCard = ({
       <View style={[styles.progressBar, { width: `${(currentRound / totalRounds) * 100}%` }]} />
     </View>
     <Text style={styles.cardProgress}>{currentRound}/{totalRounds}</Text>
+  </View>
+);
+
+// Ajout du composant CardStack pour l'effet de cartes empilées
+const CardStack = ({ children }: { children: React.ReactNode }) => (
+  <View style={styles.stackContainer}>
+    {/* Fausse carte la plus éloignée */}
+    <View style={[
+      styles.fakeCard,
+      {
+        zIndex: 0,
+        opacity: 0.75,
+        transform: [{ translateY: 28 }, { scale: 1.05 }],
+        backgroundColor: CARD_COLOR,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.10,
+        shadowRadius: 6,
+        elevation: 8,
+      }
+    ]} />
+    {/* Fausse carte du milieu */}
+    <View style={[
+      styles.fakeCard,
+      {
+        zIndex: 1,
+        opacity: 0.75,
+        transform: [{ translateY: 14 }, { scale: 1.025 }],
+        backgroundColor: CARD_COLOR,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.08,
+        shadowRadius: 4,
+        elevation: 4,
+      }
+    ]} />
+    {/* Carte principale */}
+    <View style={{ zIndex: 2, opacity: 1, width: '100%' }}>{children}</View>
   </View>
 );
 
@@ -180,26 +221,28 @@ export default function TruthOrDareGameScreen() {
         style={styles.background}
       >
         <StatusBar style="light" />
-        <QuestionCard
-          playerName={playerName}
-          type={game.currentChoice as 'verite' | 'action'}
-          question={questionText}
-          currentRound={game.currentRound}
-          totalRounds={game.totalRounds}
-        />
+        <CardStack>
+          <QuestionCard
+            playerName={playerName}
+            type={game.currentChoice as 'verite' | 'action'}
+            question={questionText}
+            currentRound={game.currentRound}
+            totalRounds={game.totalRounds}
+          />
+        </CardStack>
         {isCurrentPlayer && (
-          <View style={{ marginTop: 32 }}>
+          <View style={{ marginTop: 48, width: '100%', maxWidth: 380 }}>
             <RoundedButton
               title="J'ai répondu / fait l'action"
               onPress={handleValidate}
-              style={styles.nextButton}
-              textStyle={styles.nextButtonText}
+              style={styles.gradientButton}
+              textStyle={styles.gradientButtonText}
             />
             <RoundedButton
               title="Je refuse"
               onPress={handleRefuse}
-              style={styles.nextButton}
-              textStyle={styles.nextButtonText}
+              style={[styles.gradientButton, { marginTop: 16 }]}
+              textStyle={styles.gradientButtonText}
             />
           </View>
         )}
@@ -771,28 +814,25 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   cardContainer: {
-    backgroundColor: '#4b277d',
-    borderRadius: 24,
+    backgroundColor: CARD_COLOR,
+    borderRadius: 36,
     padding: 32,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.35,
-    shadowRadius: 24,
-    elevation: 8,
     marginBottom: 24,
     width: '100%',
     maxWidth: 380,
+    shadowColor: 'transparent',
   },
   cardPlayer: {
     color: '#fff',
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 8,
     textAlign: 'center',
+    textTransform: 'lowercase',
   },
   cardType: {
-    color: '#fff',
+    color: '#e0d6ff',
     fontSize: 18,
     fontWeight: '600',
     opacity: 0.7,
@@ -808,16 +848,16 @@ const styles = StyleSheet.create({
   },
   progressBarContainer: {
     width: '100%',
-    height: 6,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: 3,
+    height: 7,
+    backgroundColor: '#3a185a',
+    borderRadius: 4,
     marginBottom: 8,
     overflow: 'hidden',
   },
   progressBar: {
-    height: 6,
+    height: 7,
     backgroundColor: '#C471F5',
-    borderRadius: 3,
+    borderRadius: 4,
   },
   cardProgress: {
     color: '#fff',
@@ -825,6 +865,35 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'right',
     width: '100%',
+  },
+  stackContainer: {
+    width: '100%',
+    maxWidth: 380,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    marginBottom: 24,
+  },
+  fakeCard: {
+    position: 'absolute',
+    borderRadius: 36,
+    height: 270,
+    width: '100%',
+    zIndex: 0,
+  },
+  gradientButton: {
+    width: '100%',
+    borderRadius: 18,
+    paddingVertical: 18,
+    marginBottom: 0,
+    backgroundColor: 'transparent',
+    overflow: 'hidden',
+  },
+  gradientButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   background: {
     flex: 1,
