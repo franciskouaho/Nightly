@@ -31,7 +31,7 @@ export const gameCategories: GameCategory[] = [
         id: 'on-ecoute-mais-on-ne-juge-pas',
         name: 'ON ÉCOUTE MAIS ON NE JUGE PAS',
         description: 'Un mode gratuit pour rigoler tranquillement entre potes.',
-        image: require('@/assets/images/taupeTranspa.png'),
+        image: require('@/assets/jeux/on-ecoute-mais-on-juge-pas.png'),
         colors: ["rgba(17, 34, 78, 0.8)", "rgba(38, 56, 120, 0.9)"],
         borderColor: "#3B5FD9",
         shadowColor: "#3B5FD9",
