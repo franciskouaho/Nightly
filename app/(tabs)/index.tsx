@@ -3,7 +3,6 @@
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Alert, TextInput } from "react-native"
 import { LinearGradient } from "expo-linear-gradient"
 import { useAuth } from "@/contexts/AuthContext"
-import BottomTabBar from "@/components/BottomTabBar"
 import TopBar from "@/components/TopBar"
 import { useFirestore } from '@/hooks/useFirestore'
 import { useRouter } from 'expo-router'
@@ -477,8 +476,6 @@ export default function HomeScreen() {
             {gameCategories.map(renderGameCategory)}
           </View>
         </ScrollView>
-        
-        <BottomTabBar />
       </LinearGradient>
       {/* Loader overlay */}
       {loading && (

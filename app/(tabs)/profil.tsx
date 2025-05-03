@@ -7,7 +7,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
-import BottomTabBar from '@/components/BottomTabBar';
 import RoundedButton from '@/components/RoundedButton';
 
 export default function ProfileScreen() {
@@ -101,8 +100,6 @@ export default function ProfileScreen() {
         
         <View style={styles.bottomSpace} />
       </ScrollView>
-      
-      <BottomTabBar />
     </View>
   );
 }

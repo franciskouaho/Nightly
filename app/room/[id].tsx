@@ -7,6 +7,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { collection, doc, onSnapshot, updateDoc, getFirestore, getDoc, setDoc } from '@react-native-firebase/firestore';
 import { GameState, GamePhase, Player, Question } from '@/types/gameTypes';
+import RulesDrawer from '@/components/room/RulesDrawer';
 
 // Type pour l'utilisateur
 interface User {
@@ -168,6 +169,7 @@ export default function RoomScreen() {
   const { user } = useAuth();
   const [room, setRoom] = useState<Room | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isRulesDrawerVisible, setIsRulesDrawerVisible] = useState(false);
 
   useEffect(() => {
     if (!id || !user) return;
@@ -365,14 +367,13 @@ export default function RoomScreen() {
         locations={[0, 0.2, 0.5, 0.8, 1]}
         style={styles.background}
       >
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <Ionicons name="arrow-back" size={24} color="#fff" />
+        <View style={styles.topBar}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={24} color="white" />
           </TouchableOpacity>
-          <Text style={styles.roomName}>{room.name}</Text>
+          <View style={styles.topBarTitleContainer}>
+            <Text style={styles.topBarTitle}>{room.name?.toUpperCase()}</Text>
+          </View>
           <TouchableOpacity
             style={styles.shareButton}
             onPress={handleShareRoom}
@@ -393,7 +394,15 @@ export default function RoomScreen() {
         </View>
 
         <View style={styles.playersContainer}>
-          <Text style={styles.sectionTitle}>Joueurs ({room.players.length}/{room.maxPlayers})</Text>
+          <View style={styles.playersHeaderRow}>
+            <Text style={styles.sectionTitle}>Joueurs ({room.players.length}/{room.maxPlayers})</Text>
+            <TouchableOpacity style={styles.rulesButtonRow} onPress={() => setIsRulesDrawerVisible(true)}>
+              <Text style={styles.rulesText}>règles</Text>
+              <View style={styles.rulesCircle}>
+                <Text style={styles.rulesQuestionMark}>?</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
           <FlatList
             data={room.players}
             keyExtractor={(item) => item.id.toString()}
@@ -466,6 +475,11 @@ export default function RoomScreen() {
         >
           <Text style={styles.leaveButtonText}>Quitter la salle</Text>
         </TouchableOpacity>
+
+        <RulesDrawer
+          visible={isRulesDrawerVisible}
+          onClose={() => setIsRulesDrawerVisible(false)}
+        />
       </LinearGradient>
     </View>
   );
@@ -488,21 +502,31 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
   },
-  header: {
+  topBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: 60,
     paddingHorizontal: 20,
+    paddingTop: 50,
     paddingBottom: 20,
   },
   backButton: {
-    padding: 8,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  roomName: {
-    fontSize: 20,
-    fontWeight: 'bold',
+  topBarTitleContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  topBarTitle: {
     color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   shareButton: {
     padding: 8,
@@ -526,7 +550,7 @@ const styles = StyleSheet.create({
   },
   codeText: {
     color: '#fff',
-    fontSize: 24,
+    fontSize: 16,
     fontWeight: 'bold',
     marginRight: 10,
     letterSpacing: 2,
@@ -535,11 +559,40 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
   },
+  playersHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 15,
+  },
+  rulesButtonRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  rulesText: {
+    color: '#ccc',
+    fontSize: 16,
+    marginRight: 6,
+  },
+  rulesCircle: {
+    width: 18,
+    height: 18,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  rulesQuestionMark: {
+    color: '#ccc',
+    fontSize: 10,
+    fontWeight: 'bold',
+    marginTop: -2,
+  },
   sectionTitle: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 15,
   },
   playerCard: {
     flexDirection: 'row',
