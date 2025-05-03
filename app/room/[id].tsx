@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, Alert, Clipboard, Share } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, Alert, Clipboard, Share, GestureResponderEvent } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons, FontAwesome5, Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
-import { getFirestore, doc, onSnapshot, updateDoc, getDoc } from 'firebase/firestore';
+import { getFirestore, doc, onSnapshot, updateDoc, getDoc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { getApp } from 'firebase/app';
 
 // Type pour l'utilisateur
@@ -41,6 +41,120 @@ interface Room {
   host: string;
   maxPlayers: number;
 }
+
+// Interface pour les données de création de salle
+interface RoomCreationData {
+  name: string;
+  gameId: string;
+  maxPlayers: number;
+  host: string;
+  players: Player[];
+  [key: string]: any; // Pour les propriétés additionnelles
+}
+
+/**
+ * Crée une salle dans Firebase avec gestion de timeout et d'erreurs améliorée
+ * @param roomData Données de la salle à créer
+ * @param timeoutMs Délai maximum en millisecondes (défaut: 30000ms)
+ * @returns Promise avec les données de la salle créée incluant son ID
+ */
+export const createFirebaseRoom = async (roomData: RoomCreationData, timeoutMs = 30000): Promise<Room> => {
+  // Récupérer l'instance Firestore
+  const db = getFirestore(getApp());
+  
+  // Vérification des données obligatoires
+  if (!roomData.name || !roomData.host || !roomData.gameId) {
+    throw new Error('Données de salle incomplètes (nom, hôte ou gameId manquant)');
+  }
+
+  // Nettoyer les données pour éviter les champs non sérialisables
+  const cleanedPlayers = roomData.players.map(player => ({
+    id: player.id,
+    username: player.username || player.displayName || 'Joueur',
+    name: player.name || player.displayName || player.username || 'Joueur',
+    isHost: player.isHost || false,
+    isReady: player.isReady || false,
+    avatar: player.avatar || `https://i.pravatar.cc/150?img=${Math.floor(Math.random() * 70)}`,
+    level: player.level || 1
+  }));
+
+  // Créer un objet propre pour Firestore (sans méthodes ou propriétés spéciales)
+  const firestoreData = {
+    name: roomData.name,
+    gameId: roomData.gameId,
+    host: roomData.host,
+    status: 'waiting', 
+    players: cleanedPlayers,
+    maxPlayers: roomData.maxPlayers || 6,
+    createdAt: new Date().toISOString(), // Utiliser une chaîne ISO au lieu de serverTimestamp() pour résoudre des problèmes potentiels
+    updatedAt: new Date().toISOString()
+  };
+
+  console.log('🏠 Tentative de création de salle avec données nettoyées:', JSON.stringify(firestoreData));
+  
+  try {
+    // Créer une référence à la collection
+    const roomsCollection = collection(db, 'rooms');
+    
+    // Mesurer le temps d'exécution
+    const startTime = Date.now();
+    
+    // Utiliser une promesse avec timeout manuellement géré
+    const addDocWithTimeout = async () => {
+      return new Promise<Room>((resolve, reject) => {
+        // Ajouter le document
+        addDoc(roomsCollection, firestoreData)
+          .then(docRef => {
+            const endTime = Date.now();
+            console.log(`🏠 Salle créée avec succès en ${endTime - startTime}ms:`, docRef.id);
+            
+            // Retourner l'objet Room avec l'ID
+            const roomWithId: Room = {
+              ...roomData,
+              id: docRef.id,
+              createdAt: firestoreData.createdAt,
+              status: 'waiting',
+              maxPlayers: firestoreData.maxPlayers
+            };
+            
+            resolve(roomWithId);
+          })
+          .catch(error => {
+            console.error('⚡ Erreur Firebase addDoc:', error);
+            reject(error);
+          });
+          
+        // Ajouter un timeout
+        setTimeout(() => {
+          reject(new Error(`Délai d'attente dépassé lors de la création de la salle (${timeoutMs}ms)`));
+        }, timeoutMs);
+      });
+    };
+    
+    // Exécuter avec un délai de garde
+    return await addDocWithTimeout();
+  } catch (error: any) {
+    console.error('🔥 Erreur de création de salle détaillée:', error);
+    
+    // Vérifications supplémentaires
+    if (error.code === 'permission-denied') {
+      throw new Error(`Accès refusé: vérifiez les règles de sécurité Firestore`);
+    } else if (error.code === 'unavailable' || error.code === 'network-request-failed') {
+      throw new Error(`Problème réseau: vérifiez votre connexion internet`);
+    }
+    
+    // Ajouter le délai au message pour clarité
+    if (error.message.includes('Délai d\'attente dépassé')) {
+      console.error(`⏱️ Délai de ${timeoutMs}ms dépassé - causes possibles:`);
+      console.error('- Connexion internet instable ou lente');
+      console.error('- Règles de sécurité Firestore restrictives');
+      console.error('- Données non sérialisables dans l\'objet room');
+      console.error('- Trafic élevé ou limitations Firebase');
+    }
+    
+    throw error;
+  }
+};
 
 export default function Room() {
   const router = useRouter();
@@ -365,6 +479,9 @@ export default function Room() {
     );
   }
 
+  function handleInviteFriend(event: GestureResponderEvent): void {
+    setInviteModalVisible(true);
+  }
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
