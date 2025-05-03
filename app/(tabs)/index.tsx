@@ -1,6 +1,6 @@
 "use client"
 
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Alert } from "react-native"
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Alert, TextInput } from "react-native"
 import { LinearGradient } from "expo-linear-gradient"
 import { useAuth } from "@/contexts/AuthContext"
 import BottomTabBar from "@/components/BottomTabBar"
@@ -10,6 +10,9 @@ import { useRouter } from 'expo-router'
 import NetInfo from '@react-native-community/netinfo'
 import { gameCategories, GameMode, GameCategory } from '@/app/data/gameModes'
 import { useEffect } from 'react'
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import React from 'react';
+import { collection, query, where, getDocs, getFirestore, doc, updateDoc } from '@react-native-firebase/firestore';
 
 interface Room {
   id?: string;
@@ -58,6 +61,8 @@ export default function HomeScreen() {
   const { user } = useAuth();
   const router = useRouter();
   const { add: createRoom, loading: isCreatingRoom } = useFirestore<Room>('rooms');
+  const [partyCode, setPartyCode] = React.useState('');
+  const [loading, setLoading] = React.useState(false);
 
   // Ajouter un log pour suivre l'état de chargement
   useEffect(() => {
@@ -239,6 +244,64 @@ export default function HomeScreen() {
     }
   };
   
+  const handleJoinGame = async () => {
+    if (!partyCode.trim()) {
+      Alert.alert('Erreur', 'Veuillez entrer un code de partie');
+      return;
+    }
+    setLoading(true);
+    try {
+      const db = getFirestore();
+      const roomsRef = collection(db, 'rooms');
+      const q = query(roomsRef, where('code', '==', partyCode.toUpperCase()));
+      const querySnapshot = await getDocs(q);
+      if (querySnapshot.empty) {
+        Alert.alert('Erreur', 'Code de partie invalide');
+        return;
+      }
+      const roomDoc = querySnapshot.docs[0];
+      if (!roomDoc) {
+        Alert.alert('Erreur', 'Salle introuvable');
+        return;
+      }
+      const room = roomDoc.data();
+      if (room.status !== 'waiting') {
+        Alert.alert('Erreur', 'Cette partie a déjà commencé');
+        return;
+      }
+      if (room.players.length >= room.maxPlayers) {
+        Alert.alert('Erreur', 'Cette partie est pleine');
+        return;
+      }
+      if (!user) {
+        Alert.alert('Erreur', 'Utilisateur non authentifié');
+        return;
+      }
+      if (room.players.includes(user.uid)) {
+        Alert.alert('Erreur', 'Vous êtes déjà dans cette partie');
+        return;
+      }
+      // Ajouter le joueur courant à la salle dans Firestore
+      const roomRef = doc(db, 'rooms', roomDoc.id);
+      const newPlayer = {
+        id: user.uid,
+        username: user.pseudo || 'Joueur',
+        displayName: user.pseudo || 'Joueur',
+        isHost: false,
+        isReady: false,
+        avatar: `https://i.pravatar.cc/150?img=${Math.floor(Math.random() * 70)}`,
+      };
+      await updateDoc(roomRef, {
+        players: [...room.players, newPlayer]
+      });
+      router.push(`/room/${roomDoc.id}`);
+    } catch (error) {
+      Alert.alert('Erreur', 'Une erreur est survenue lors de la recherche de la partie');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   // Améliorer le rendu des cartes pour s'assurer que les événements sont correctement attachés
   const renderGameModeCard = (game: GameMode, isGridItem = false) => {
     // Créer un gestionnaire d'événements séparé pour faciliter le débogage
@@ -370,6 +433,38 @@ export default function HomeScreen() {
       >
         {/* TopBar */}
         <TopBar />
+
+        {/* Champ code + bouton QR */}
+        <View style={styles.codeRow}>
+          <View style={styles.codeInputContainer}>
+            <TextInput
+              style={styles.codeInputText}
+              placeholder="Entre le code de la partie"
+              placeholderTextColor="#C7B8F5"
+              value={partyCode}
+              onChangeText={setPartyCode}
+              selectionColor="#A259FF"
+              autoCapitalize="characters"
+              maxLength={8}
+              returnKeyType="done"
+              onSubmitEditing={handleJoinGame}
+            />
+          </View>
+          <TouchableOpacity
+            style={styles.qrButton}
+            onPress={handleJoinGame}
+            activeOpacity={0.85}
+          >
+            <LinearGradient
+              colors={["#A259FF", "#C471F5"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.qrGradient}
+            >
+              <MaterialCommunityIcons name="qrcode-scan" size={30} color="#fff" />
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
         
         <ScrollView 
           style={styles.scrollView}
@@ -385,6 +480,19 @@ export default function HomeScreen() {
         
         <BottomTabBar />
       </LinearGradient>
+      {/* Loader overlay */}
+      {loading && (
+        <View style={{
+          position: 'absolute',
+          left: 0, right: 0, top: 0, bottom: 0,
+          backgroundColor: 'rgba(20,10,40,0.5)',
+          justifyContent: 'center', alignItems: 'center', zIndex: 1000
+        }}>
+          <View style={{ backgroundColor: 'rgba(0,0,0,0.7)', borderRadius: 16, padding: 24 }}>
+            <Text style={{ color: '#fff', fontSize: 18 }}>Connexion à la partie...</Text>
+          </View>
+        </View>
+      )}
     </View>
   );
 }
@@ -546,5 +654,57 @@ const styles = StyleSheet.create({
   },
   disabledCard: {
     opacity: 0.6,
+  },
+  codeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 24,
+    marginBottom: 16,
+    paddingHorizontal: 20,
+  },
+  codeInputContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(20, 10, 40, 0.96)',
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: '#3D2956',
+    height: 45,
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+    marginRight: 16,
+    shadowColor: '#A259FF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  codeInputText: {
+    color: '#E5DFFB',
+    fontSize: 14,
+    fontWeight: '400',
+    letterSpacing: 0.2,
+    fontFamily: 'System',
+    padding: 0,
+  },
+  qrButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    overflow: 'hidden',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#A259FF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.18,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  qrGradient: {
+    flex: 1,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 7,
   },
 });

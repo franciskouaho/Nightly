@@ -4,6 +4,7 @@ import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { useAuth } from '@/contexts/AuthContext';
+import { LinearGradient } from 'expo-linear-gradient';
 
 type TopBarProps = {
   showNotificationButton?: boolean;
@@ -33,8 +34,18 @@ export default function TopBar({
       
       <View style={styles.rightContainer}>
         {showNotificationButton && (
-          <TouchableOpacity style={styles.iconButton} onPress={handleNotificationPress}>
-            <Feather name="bell" size={22} color="#FFFFFF" />
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => router.push('/(tabs)/profil')}
+          >
+            <LinearGradient
+              colors={["#A259FF", "#C471F5"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={{ borderRadius: 12, padding: 7 }}
+            >
+              <Feather name="settings" size={22} color="#FFFFFF" />
+            </LinearGradient>
           </TouchableOpacity>
         )}
         {rightButtons}
