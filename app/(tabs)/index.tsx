@@ -398,11 +398,6 @@ export default function HomeScreen() {
             <Text style={styles.categorySubtitle}>{category.subtitle}</Text>
           ) : null}
         </View>
-        {category.id !== 'packs' && (
-          <TouchableOpacity style={styles.rulesButton}>
-            <Text style={styles.rulesText}>règles</Text>
-          </TouchableOpacity>
-        )}
       </View>
       
       {category.id === 'packs' ? (
