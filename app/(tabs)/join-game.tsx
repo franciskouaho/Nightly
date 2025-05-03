@@ -8,14 +8,14 @@ import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import BottomTabBar from '@/components/BottomTabBar';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
-import { collection, query, where, getDocs, getFirestore } from '@react-native-firebase/firestore';
+import { collection, query, where, getDocs, getFirestore, doc, updateDoc } from '@react-native-firebase/firestore';
 import LoadingOverlay from '@/components/LoadingOverlay';
 
 interface Room {
   id: string;
   name: string;
   gameMode: string;
-  currentPhase: 'waiting' | 'playing' | 'finished';
+  status: 'waiting' | 'playing' | 'finished';
   players: string[];
   maxPlayers: number;
 }
@@ -45,9 +45,13 @@ export default function JoinGameScreen() {
       }
 
       const roomDoc = querySnapshot.docs[0];
+      if (!roomDoc) {
+        Alert.alert('Erreur', 'Salle introuvable');
+        return;
+      }
       const room = roomDoc.data() as Room;
 
-      if (room.currentPhase !== 'waiting') {
+      if (room.status !== 'waiting') {
         Alert.alert('Erreur', 'Cette partie a déjà commencé');
         return;
       }
@@ -57,10 +61,29 @@ export default function JoinGameScreen() {
         return;
       }
 
-      if (room.players.includes(user?.uid || '')) {
+      if (!user) {
+        Alert.alert('Erreur', 'Utilisateur non authentifié');
+        return;
+      }
+
+      if (room.players.includes(user.uid)) {
         Alert.alert('Erreur', 'Vous êtes déjà dans cette partie');
         return;
       }
+
+      // Ajouter le joueur courant à la salle dans Firestore
+      const roomRef = doc(db, 'rooms', roomDoc.id);
+      const newPlayer = {
+        id: user.uid,
+        username: user.pseudo || 'Joueur',
+        displayName: user.pseudo || 'Joueur',
+        isHost: false,
+        isReady: false,
+        avatar: `https://i.pravatar.cc/150?img=${Math.floor(Math.random() * 70)}`,
+      };
+      await updateDoc(roomRef, {
+        players: [...room.players, newPlayer]
+      });
 
       router.push(`/room/${roomDoc.id}`);
     } catch (error) {
@@ -102,7 +125,7 @@ export default function JoinGameScreen() {
         </View>
       </LinearGradient>
       <BottomTabBar />
-      <LoadingOverlay visible={loading} />
+      {loading && <LoadingOverlay />}
     </View>
   );
 }
