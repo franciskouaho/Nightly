@@ -17,16 +17,16 @@ interface Room {
   gameId: string;
   createdBy: string;
   host: string;
-  players: {
+  players: Array<{
     id: string;
     username: string;
     displayName: string;
     isHost: boolean;
     isReady: boolean;
     avatar: string;
-  }[];
+  }>;
   createdAt: string;
-  status: string;
+  status: 'waiting' | 'playing' | 'finished';
   maxPlayers: number;
 }
 
@@ -57,18 +57,9 @@ export default function HomeScreen() {
   const getUserDisplayName = (user: any) => {
     if (!user) return "Joueur";
     
-    // Vérifier les propriétés courantes pour les objets utilisateur
-    if (typeof user.displayName === 'string' && user.displayName.trim() !== '') {
-      return user.displayName;
-    }
-    
-    if (typeof user.email === 'string' && user.email.trim() !== '') {
-      // Utiliser seulement la partie avant @ de l'email
-      return user.email.split('@')[0];
-    }
-    
-    if (typeof user.username === 'string' && user.username.trim() !== '') {
-      return user.username;
+    // Utiliser le pseudo de l'utilisateur
+    if (typeof user.pseudo === 'string' && user.pseudo.trim() !== '') {
+      return user.pseudo;
     }
     
     // Fallback si aucun nom disponible
@@ -84,6 +75,23 @@ export default function HomeScreen() {
       Alert.alert(
         'Connexion requise',
         'Vous devez être connecté pour créer une salle de jeu.',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
+    // Vérifier que l'utilisateur a un UID
+    console.log('👤 Informations utilisateur:', {
+      uid: user.uid,
+      pseudo: user.pseudo,
+      createdAt: user.createdAt
+    });
+
+    if (!user.uid) {
+      console.error('❌ UID utilisateur manquant');
+      Alert.alert(
+        'Erreur de connexion',
+        'Votre session utilisateur est invalide. Veuillez vous reconnecter.',
         [{ text: 'OK' }]
       );
       return;
@@ -108,6 +116,7 @@ export default function HomeScreen() {
       console.log('🎮 Création d\'une salle pour le mode:', game.id);
       
       const roomId = generateUniqueId(6);
+      const displayName = getUserDisplayName(user);
       
       // Préparer les données pour Firebase
       const roomData: Room = {
@@ -118,8 +127,8 @@ export default function HomeScreen() {
         host: user.uid,
         players: [{
           id: user.uid,
-          username: getUserDisplayName(user),
-          displayName: getUserDisplayName(user),
+          username: displayName,
+          displayName: displayName,
           isHost: true,
           isReady: true,
           avatar: `https://i.pravatar.cc/150?img=${Math.floor(Math.random() * 70)}`,
@@ -128,8 +137,32 @@ export default function HomeScreen() {
         status: "waiting",
         maxPlayers: 8,
       };
+
+      // Vérifier qu'il n'y a pas de valeurs undefined
+      const validateRoomData = (data: any): boolean => {
+        const checkValue = (value: any, path: string = ''): boolean => {
+          if (value === undefined) {
+            console.error(`❌ Valeur undefined trouvée dans ${path}`);
+            return false;
+          }
+          if (Array.isArray(value)) {
+            return value.every((item, index) => checkValue(item, `${path}[${index}]`));
+          }
+          if (value && typeof value === 'object') {
+            return Object.entries(value).every(([key, val]) => 
+              checkValue(val, path ? `${path}.${key}` : key)
+            );
+          }
+          return true;
+        };
+        return checkValue(data);
+      };
+
+      if (!validateRoomData(roomData)) {
+        throw new Error('Données de salle invalides : valeurs undefined détectées');
+      }
   
-      console.log('📤 Enregistrement dans Firebase avec les données:', roomData);
+      console.log('📤 Enregistrement dans Firebase avec les données:', JSON.stringify(roomData, null, 2));
       
       try {
         // Créer la salle dans Firebase avec un timeout pour éviter une attente infinie

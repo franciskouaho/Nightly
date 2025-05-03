@@ -10,7 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import BottomTabBar from '@/components/BottomTabBar';
 
 export default function ProfileScreen() {
-  const { user, logout } = useAuth();
+  const { user, signOut } = useAuth();
   const router = useRouter();
 
   const handleLogout = () => {
@@ -25,9 +25,16 @@ export default function ProfileScreen() {
         {
           text: 'Déconnexion',
           style: 'destructive',
-          onPress: () => {
-            logout();
-            router.replace('/(auth)/login');
+          onPress: async () => {
+            try {
+              await signOut();
+              router.replace('/(auth)/login');
+            } catch (error) {
+              Alert.alert(
+                'Erreur',
+                'Une erreur est survenue lors de la déconnexion. Veuillez réessayer.'
+              );
+            }
           },
         },
       ]
@@ -47,10 +54,10 @@ export default function ProfileScreen() {
         {/* Header with profile information */}
         <View style={styles.profileHeader}>
           <View style={styles.avatarContainer}>
-            <Text style={styles.avatarText}>{user?.displayName?.charAt(0) || '?'}</Text>
+            <Text style={styles.avatarText}>{user?.pseudo?.charAt(0) || '?'}</Text>
           </View>
           
-          <Text style={styles.username}>{user?.displayName}</Text>
+          <Text style={styles.username}>{user?.pseudo || 'Joueur'}</Text>
         </View>
         
         {/* Settings Section */}
