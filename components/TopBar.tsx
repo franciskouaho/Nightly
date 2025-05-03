@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Text, Alert } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
@@ -19,7 +19,7 @@ export default function TopBar({
 
   const handleNotificationPress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    router.push('/notifications');
+    Alert.alert('Notifications', 'Cette fonctionnalité sera bientôt disponible !');
   };
 
   return (
@@ -27,14 +27,17 @@ export default function TopBar({
       <View style={styles.leftContainer}>
         <View style={styles.greetingContainer}>
           <Text style={styles.greeting}>Bonjour </Text>
-          <Text style={styles.userName}>{user?.displayName || user?.username}</Text>
+          <Text style={styles.userName}>{user?.pseudo}</Text>
         </View>
       </View>
       
       <View style={styles.rightContainer}>
-       <TouchableOpacity style={styles.iconButton} onPress={handleNotificationPress}>
+        {showNotificationButton && (
+          <TouchableOpacity style={styles.iconButton} onPress={handleNotificationPress}>
             <Feather name="bell" size={22} color="#FFFFFF" />
           </TouchableOpacity>
+        )}
+        {rightButtons}
       </View>
     </View>
   );

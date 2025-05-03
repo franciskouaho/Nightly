@@ -5,26 +5,30 @@ import { LinearGradient } from "expo-linear-gradient"
 import { useAuth } from "@/contexts/AuthContext"
 import BottomTabBar from "@/components/BottomTabBar"
 import TopBar from "@/components/TopBar"
-import { useFirebaseRooms } from '@/hooks/useFirebaseRooms'
+import { useFirestore } from '@/hooks/useFirestore'
 import { useRouter } from 'expo-router'
 import NetInfo from '@react-native-community/netinfo'
-import { getFirestore } from 'firebase/firestore'
-import { initializeApp, getApp, getApps } from 'firebase/app'
 import { gameCategories, GameMode, GameCategory } from '@/app/data/gameModes'
+import { useEffect } from 'react'
 
-// Firebase initialization for mobile app
-const firebaseConfig = {
-  apiKey: "AIzaSyDmbs5e0IKgAOGU6WR0M-YRBl3XJqlfFWE",
-  authDomain: "nightly-b1c29.firebaseapp.com",
-  projectId: "nightly-b1c29",
-  storageBucket: "nightly-b1c29.appspot.com",
-  messagingSenderId: "227468565320",
-  appId: "1:227468565320:web:7c3c7240eae4a391a7a457"
-};
-
-// Initialize Firebase app
-const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-const db = getFirestore(app);
+interface Room {
+  id: string;
+  name: string;
+  gameId: string;
+  createdBy: string;
+  host: string;
+  players: {
+    id: string;
+    username: string;
+    displayName: string;
+    isHost: boolean;
+    isReady: boolean;
+    avatar: string;
+  }[];
+  createdAt: string;
+  status: string;
+  maxPlayers: number;
+}
 
 // Fonction utilitaire pour générer des IDs uniques sans dépendre de crypto
 const generateUniqueId = (length: number = 6) => {
@@ -42,7 +46,12 @@ const generateUniqueId = (length: number = 6) => {
 export default function HomeScreen() {
   const { user } = useAuth();
   const router = useRouter();
-  const { createRoom: createFirebaseRoom, loading: isCreatingRoom } = useFirebaseRooms(db);
+  const { add: createRoom, loading: isCreatingRoom } = useFirestore<Room>('rooms');
+
+  // Ajouter un log pour suivre l'état de chargement
+  useEffect(() => {
+    console.log('🔄 État de création de salle:', isCreatingRoom);
+  }, [isCreatingRoom]);
 
   // Fonction utilitaire pour obtenir le nom d'affichage de l'utilisateur
   const getUserDisplayName = (user: any) => {
@@ -64,19 +73,6 @@ export default function HomeScreen() {
     
     // Fallback si aucun nom disponible
     return "Joueur";
-  };
-
-  // Fonction qui crée un objet room avec les propriétés requises
-  const createRoom = (game: GameMode) => {
-    console.log('⭐ createRoom appelé avec le jeu:', game.name);
-    return {
-      id: generateUniqueId(6),
-      gameId: game.id,
-      name: game.name,
-      players: [],
-      createdAt: new Date().toISOString(),
-      status: "waiting"
-    };
   };
 
   const createGameRoom = async (game: GameMode) => {
@@ -111,23 +107,22 @@ export default function HomeScreen() {
   
       console.log('🎮 Création d\'une salle pour le mode:', game.id);
       
-      const room = createRoom(game);
-      console.log('📦 Objet room créé:', room);
+      const roomId = generateUniqueId(6);
       
       // Préparer les données pour Firebase
-      const roomData = {
-        id: room.id, // Utiliser le même ID pour la cohérence
-        name: `${game.name}`,  // Simplement utiliser le nom du jeu
+      const roomData: Room = {
+        id: roomId,
+        name: game.name,
         gameId: game.id,
-        createdBy: user.uid || '',
-        host: user.uid || '',
+        createdBy: user.uid,
+        host: user.uid,
         players: [{
           id: user.uid,
-          username: getUserDisplayName(user), // Utiliser getUserDisplayName plutôt que directement user.email
+          username: getUserDisplayName(user),
           displayName: getUserDisplayName(user),
           isHost: true,
           isReady: true,
-          avatar: user.photoURL || `https://i.pravatar.cc/150?img=1`,
+          avatar: `https://i.pravatar.cc/150?img=${Math.floor(Math.random() * 70)}`,
         }],
         createdAt: new Date().toISOString(),
         status: "waiting",
@@ -144,19 +139,19 @@ export default function HomeScreen() {
         
         // Race entre la création de room et le timeout
         await Promise.race([
-          createFirebaseRoom(roomData),
+          createRoom(roomData),
           timeoutPromise
         ]);
         
-        console.log('✅ Salle créée avec succès dans Firebase:', room.id);
+        console.log('✅ Salle créée avec succès dans Firebase:', roomId);
         
         // Rediriger vers la page room avec l'ID seulement
-        console.log('🔄 Tentative de redirection vers:', `/room/${room.id}`);
+        console.log('🔄 Tentative de redirection vers:', `/room/${roomId}`);
         
         // Forcer un délai avant la navigation pour éviter les problèmes de timing
         setTimeout(() => {
           console.log('➡️ Exécution de la redirection maintenant');
-          router.push(`/room/${room.id}`);
+          router.push(`/room/${roomId}`);
         }, 500);
         
         return true;
@@ -186,6 +181,7 @@ export default function HomeScreen() {
     // Créer un gestionnaire d'événements séparé pour faciliter le débogage
     const handlePress = async () => {
       console.log('🖱️ Clic sur le mode de jeu:', game.name);
+      console.log('📊 État de création:', isCreatingRoom);
       
       // Désactiver temporairement l'interaction pendant la création
       if (isCreatingRoom) {
@@ -193,13 +189,17 @@ export default function HomeScreen() {
         return;
       }
       
-      // Appeler la fonction de création et attendre sa complétion
-      const result = await createGameRoom(game);
-      
-      if (result) {
-        console.log('✅ Création de la salle réussie, redirection en cours...');
-      } else {
-        console.log('❌ La création de la salle a échoué');
+      try {
+        // Appeler la fonction de création et attendre sa complétion
+        const result = await createGameRoom(game);
+        
+        if (result) {
+          console.log('✅ Création de la salle réussie, redirection en cours...');
+        } else {
+          console.log('❌ La création de la salle a échoué');
+        }
+      } catch (error) {
+        console.error('❌ Erreur lors de la création de la salle:', error);
       }
     };
     

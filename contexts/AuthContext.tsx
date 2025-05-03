@@ -4,9 +4,21 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import auth from '@react-native-firebase/auth';
 import { FirebaseError } from 'firebase/app';
 import firestore from '@react-native-firebase/firestore';
+import { useFirestore } from '@/hooks/useFirestore';
+
+interface User {
+  uid: string;
+  pseudo: string;
+  createdAt: string;
+}
+
+interface Username {
+  uid: string;
+  createdAt: string;
+}
 
 interface AuthContextType {
-  user: any | null;
+  user: User | null;
   signIn: (username: string) => Promise<void>;
   signOut: () => Promise<void>;
   signInWithPseudo: (pseudo: string) => Promise<string>;
@@ -15,12 +27,22 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<any | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const { get: getUsername } = useFirestore<Username>('usernames');
+  const { get: getUser } = useFirestore<User>('users');
 
   useEffect(() => {
     // Écouter les changements d'état de l'authentification
-    const unsubscribe = auth().onAuthStateChanged((user) => {
-      setUser(user);
+    const unsubscribe = auth().onAuthStateChanged(async (firebaseUser) => {
+      if (firebaseUser) {
+        // Récupérer les données utilisateur depuis Firestore
+        const userData = await getUser(firebaseUser.uid);
+        if (userData) {
+          setUser(userData);
+        }
+      } else {
+        setUser(null);
+      }
     });
 
     return () => unsubscribe();
@@ -30,9 +52,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const trimmedPseudo = pseudo.trim().toLowerCase();
 
     // Vérifie si le pseudo est déjà pris
-    const db = firestore();
-    const existingDoc = await db.collection('usernames').doc(trimmedPseudo).get();
-    if (existingDoc.exists()) {
+    const existingUsername = await getUsername(trimmedPseudo);
+    if (existingUsername) {
       throw new Error('Pseudo déjà pris');
     }
 
@@ -41,15 +62,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const uid = userCredential.user.uid;
 
     // Sauvegarde du pseudo lié à l'UID
-    await db.collection('usernames').doc(trimmedPseudo).set({
+    await firestore().collection('usernames').doc(trimmedPseudo).set({
       uid: uid,
       createdAt: new Date().toISOString(),
     });
 
-    await db.collection('users').doc(uid).set({
+    const userData: User = {
+      uid,
       pseudo: trimmedPseudo,
       createdAt: new Date().toISOString(),
-    });
+    };
+
+    await firestore().collection('users').doc(uid).set(userData);
+    setUser(userData);
 
     return uid;
   };
@@ -65,6 +90,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     try {
       await auth().signOut();
+      setUser(null);
     } catch (error: any) {
       throw new Error('Erreur lors de la déconnexion');
     }
