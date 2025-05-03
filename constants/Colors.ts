@@ -20,8 +20,17 @@ export default {
     tabIconSelected: tintColorLight,
     gradient: {
       purple: {
-        from: "#7D04FC",
-        to: "#891CFC",
+        from: "#A259FF",
+        to: "#C471F5",
+      },
+      purpleDark: {
+        from: "#A259FF",
+        to: "#6B18FF",
+      },
+      darkPurple: {
+        from: "#0E1117",
+        to: "#21101C",
+        middle: "#661A59"
       },
       green: {
         from: "#28AF6E",
@@ -51,8 +60,17 @@ export default {
     tabIconSelected: tintColorDark,
     gradient: {
       purple: {
-        from: "#7D04FC",
-        to: "#891CFC",
+        from: "#A259FF",
+        to: "#C471F5",
+      },
+      purpleDark: {
+        from: "#A259FF",
+        to: "#6B18FF",
+      },
+      darkPurple: {
+        from: "#0E1117",
+        to: "#21101C",
+        middle: "#661A59"
       },
       green: {
         from: "#28AF6E",

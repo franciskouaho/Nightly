@@ -361,8 +361,9 @@ export default function RoomScreen() {
     <View style={styles.container}>
       <StatusBar style="light" />
       <LinearGradient
-        colors={['#4b277d', '#2d1b4e']}
-        style={styles.gradient}
+        colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
+        locations={[0, 0.2, 0.5, 0.8, 1]}
+        style={styles.background}
       >
         <View style={styles.header}>
           <TouchableOpacity
@@ -474,7 +475,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  gradient: {
+  background: {
     flex: 1,
   },
   loadingContainer: {

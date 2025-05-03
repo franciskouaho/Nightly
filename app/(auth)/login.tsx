@@ -41,42 +41,43 @@ export default function LoginScreen() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={["#1a0933", "#321a5e"]}
-        style={StyleSheet.absoluteFill}
-      />
-      
-      <View style={styles.content}>
-        <View style={styles.header}>
-          <Ionicons name="game-controller" size={60} color="#fff" />
-          <Text style={styles.title}>Nightly</Text>
-          <Text style={styles.subtitle}>Entrez votre pseudo pour jouer</Text>
-        </View>
-
-        <View style={styles.form}>
-          <View style={styles.inputContainer}>
-            <Ionicons name="person-outline" size={24} color="#fff" />
-            <TextInput
-              style={styles.input}
-              placeholder="Votre pseudo"
-              placeholderTextColor="rgba(255, 255, 255, 0.5)"
-              value={username}
-              onChangeText={setUsername}
-              autoCapitalize="none"
-              maxLength={20}
-            />
+        colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
+        locations={[0, 0.2, 0.5, 0.8, 1]}
+        style={styles.background}
+      >
+        <View style={styles.content}>
+          <View style={styles.header}>
+            <Ionicons name="game-controller" size={60} color="#fff" />
+            <Text style={styles.title}>Nightly</Text>
+            <Text style={styles.subtitle}>Entrez votre pseudo pour jouer</Text>
           </View>
 
-          <TouchableOpacity
-            style={[styles.button, isLoading && styles.buttonDisabled]}
-            onPress={handleLogin}
-            disabled={isLoading}
-          >
-            <Text style={styles.buttonText}>
-              {isLoading ? 'Connexion...' : 'Jouer'}
-            </Text>
-          </TouchableOpacity>
+          <View style={styles.form}>
+            <View style={styles.inputContainer}>
+              <Ionicons name="person-outline" size={24} color="#fff" />
+              <TextInput
+                style={styles.input}
+                placeholder="Votre pseudo"
+                placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                value={username}
+                onChangeText={setUsername}
+                autoCapitalize="none"
+                maxLength={20}
+              />
+            </View>
+
+            <TouchableOpacity
+              style={[styles.button, isLoading && styles.buttonDisabled]}
+              onPress={handleLogin}
+              disabled={isLoading}
+            >
+              <Text style={styles.buttonText}>
+                {isLoading ? 'Connexion...' : 'Jouer'}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      </LinearGradient>
     </View>
   );
 }
@@ -137,5 +138,8 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  background: {
+    flex: 1,
   },
 });

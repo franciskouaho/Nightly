@@ -97,7 +97,8 @@ export default function JoinGameScreen() {
     <View style={styles.container}>
       <StatusBar style="light" />
       <LinearGradient
-        colors={['#4b277d', '#2d1b4e']}
+        colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
+        locations={[0, 0.2, 0.5, 0.8, 1]}
         style={styles.gradient}
       >
         <View style={styles.content}>

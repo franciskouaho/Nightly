@@ -280,7 +280,7 @@ export default function HomeScreen() {
         testID={`game-mode-${game.id}`}
       >
         <LinearGradient
-          colors={game.colors}
+          colors={[game.colors[0] || "#A259FF", game.colors[1] || "#C471F5"]}
           style={[
             styles.modeGradient, 
             { 
@@ -364,7 +364,8 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={["#1A0938", "#2D1155"]}
+        colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
+        locations={[0, 0.2, 0.5, 0.8, 1]}
         style={styles.background}
       >
         {/* TopBar */}

@@ -43,25 +43,24 @@ export default function SplashScreen() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={['#1a0933', '#321a5e', '#4b277d']}
+        colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
+        locations={[0, 0.2, 0.5, 0.8, 1]}
         style={styles.background}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      />
-
-      <Animated.View 
-        style={[
-          styles.contentContainer,
-          { 
-            opacity: fadeAnim,
-            transform: [{ scale: scaleAnim }]
-          }
-        ]}
       >
-        <Ionicons name="game-controller" size={80} color="#fff" />
-        <Text style={styles.title}>Cosmic Quest</Text>
-        <Text style={styles.subtitle}>Préparez-vous à jouer</Text>
-      </Animated.View>
+        <Animated.View 
+          style={[
+            styles.contentContainer,
+            { 
+              opacity: fadeAnim,
+              transform: [{ scale: scaleAnim }]
+            }
+          ]}
+        >
+          <Ionicons name="game-controller" size={80} color="#fff" />
+          <Text style={styles.title}>Cosmic Quest</Text>
+          <Text style={styles.subtitle}>Préparez-vous à jouer</Text>
+        </Animated.View>
+      </LinearGradient>
     </View>
   );
 }

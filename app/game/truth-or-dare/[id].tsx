@@ -104,7 +104,8 @@ export default function TruthOrDareGameScreen() {
       const player = game.players?.find((p: any) => String(p.id) === String(game.currentPlayerId));
       return (
         <LinearGradient
-          colors={["#181028", "#2d1b4e", "#1a102a"]}
+          colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
+          locations={[0, 0.2, 0.5, 0.8, 1]}
           style={styles.gradientBg}
         >
           <StatusBar style="light" />

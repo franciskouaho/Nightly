@@ -47,7 +47,8 @@ export default function ProfileScreen() {
       <StatusBar style="light" />
       
       <LinearGradient
-        colors={['#1a0933', '#321a5e']}
+        colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
+        locations={[0, 0.2, 0.5, 0.8, 1]}
         style={styles.background}
       />
       
