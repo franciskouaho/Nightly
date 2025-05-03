@@ -257,6 +257,15 @@ export default function Room() {
             }
           }
 
+          // REDIRECTION AUTOMATIQUE SI LA PARTIE COMMENCE
+          if (data.status === 'playing' && roomData?.status !== 'playing') {
+            if (data.gameId === 'action-verite') {
+              router.replace(`/game/truth-or-dare/${id}`);
+            } else {
+              router.replace(`/game/${id}?gameId=${data.gameId}`);
+            }
+          }
+
           setIsLoading(false);
         } else {
           setError('Cette salle n\'existe plus');
@@ -272,7 +281,7 @@ export default function Room() {
 
     // Clean up listener on unmount
     return () => unsubscribe();
-  }, [id, user, db]);
+  }, [id, user, db, router]);
 
   // Mettre à jour l'utilisateur actuel lorsque les données sont disponibles
   useEffect(() => {
