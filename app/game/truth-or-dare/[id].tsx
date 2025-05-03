@@ -97,7 +97,11 @@ export default function TruthOrDareGameScreen() {
 
   // PHASE 2 : Question ou Action
   if (game.phase === 'question' || game.phase === 'action') {
-    const player = game.players?.find((p: any) => p.id === game.currentPlayerId);
+    console.log('currentPlayerId:', game.currentPlayerId);
+    console.log('players:', game.players);
+    const player = game.players?.find((p: any) => String(p.id) === String(game.currentPlayerId));
+    console.log('player trouvé:', player);
+    const playerName = player?.name || 'Le joueur';
     // On s'assure que c'est bien une string
     let questionText = '';
     if (game.currentQuestion && typeof (game.currentQuestion as any).text === 'string') {
@@ -110,9 +114,7 @@ export default function TruthOrDareGameScreen() {
     return (
       <View style={styles.container}>
         <StatusBar style="light" />
-        <Text style={styles.questionText}>
-          {player?.name} a choisi {game.currentChoice === 'verite' ? 'Vérité' : 'Action'}
-        </Text>
+        <Text style={styles.questionText}>{playerName} a choisi {game.currentChoice === 'verite' ? 'Vérité' : 'Action'}</Text>
         <Text style={styles.questionText}>{questionText}</Text>
         {isCurrentPlayer && (
           <>
@@ -128,28 +130,18 @@ export default function TruthOrDareGameScreen() {
     );
   }
 
-  // PHASE 3 : Résultat (à compléter)
+  // PHASE 3 : Résultat
   if (game.phase === 'resultat') {
-    console.log('Results Phase Question:', game.currentQuestion);
+    const player = game.players?.find((p: any) => String(p.id) === String(game.currentPlayerId));
+    const playerName = player?.name || 'Le joueur';
     return (
-      <ResultsPhase
-        answers={[]}
-        scores={game.scores}
-        players={game.players}
-        question={typeof game.currentQuestion === 'object' && game.currentQuestion !== null
-          ? {
-              id: game.currentQuestion.id || String(Math.random()),
-              text: typeof game.currentQuestion.text === 'string' ? game.currentQuestion.text : '',
-              theme: game.currentQuestion.theme || game.currentChoice || '',
-              roundNumber: game.currentRound
-            }
-          : null}
-        targetPlayer={game.players?.find((p: any) => p.id === game.currentPlayerId) || null}
-        onNextRound={handleNextRound}
-        isLastRound={game.currentRound === game.totalRounds}
-        timer={game.timer}
-        gameId={id || ''}
-      />
+      <View style={styles.container}>
+        <StatusBar style="light" />
+        <Text style={styles.questionText}>Tour terminé pour {playerName}</Text>
+        <TouchableOpacity style={styles.nextButton} onPress={handleNextRound}>
+          <Text style={styles.nextButtonText}>Tour suivant</Text>
+        </TouchableOpacity>
+      </View>
     );
   }
 
@@ -159,24 +151,13 @@ export default function TruthOrDareGameScreen() {
   async function handleChoice(choice: 'verite' | 'action') {
     const db = getFirestore();
     const filtered = questions.filter(q => q.type === choice);
-    if (filtered.length === 0) {
-      await updateDoc(doc(db, 'games', String(id)), {
-        currentChoice: choice,
-        currentQuestion: {
-          id: String(Math.random()),
-          text: '',
-          theme: choice,
-          roundNumber: game?.currentRound || 1
-        },
-        phase: choice === 'verite' ? 'question' : 'action'
-      });
-      return;
+    let questionText = '';
+    if (filtered.length > 0) {
+      const randomQuestion = filtered[Math.floor(Math.random() * filtered.length)] as any;
+      questionText = typeof randomQuestion.text === 'string'
+        ? randomQuestion.text
+        : (randomQuestion.text && typeof randomQuestion.text === 'object' && 'text' in randomQuestion.text ? randomQuestion.text.text : '');
     }
-    const randomQuestion = filtered[Math.floor(Math.random() * filtered.length)] as any;
-    // On force le champ text à être une string
-    const questionText = randomQuestion && typeof randomQuestion.text === 'string'
-      ? randomQuestion.text
-      : (randomQuestion && typeof randomQuestion.text === 'object' && randomQuestion.text && 'text' in randomQuestion.text ? randomQuestion.text.text : '');
     await updateDoc(doc(db, 'games', String(id)), {
       currentChoice: choice,
       currentQuestion: {
@@ -206,14 +187,13 @@ export default function TruthOrDareGameScreen() {
   async function handleNextRound() {
     const db = getFirestore();
     if (!game) return;
-    // Trouver l'index du joueur courant
+    // Sélectionne le prochain joueur (séquentiel)
     const currentIndex = game.players.findIndex((p: any) => p.id === game.currentPlayerId);
-    // Passer au joueur suivant (boucle)
     const nextIndex = (currentIndex + 1) % game.players.length;
     const nextPlayer = game.players[nextIndex];
     if (!nextPlayer) return;
     await updateDoc(doc(db, 'games', String(id)), {
-      currentPlayerId: nextPlayer && nextPlayer.id ? String(nextPlayer.id) : '',
+      currentPlayerId: nextPlayer.id,
       phase: 'choix',
       currentChoice: null,
       currentQuestion: null,

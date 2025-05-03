@@ -245,7 +245,7 @@ export default function RoomScreen() {
         currentQuestion: firstQuestion,
         answers: [],
         players: room.players.map(p => ({
-          id: p.id,
+          id: String(p.id),
           name: p.displayName || p.username,
           avatar: p.avatar
         })),
@@ -264,7 +264,8 @@ export default function RoomScreen() {
           scores: {},
           gameMode: room.gameMode || room.gameId,
           hostId: room.host
-        }
+        },
+        currentPlayerId: randomPlayer ? String(randomPlayer.id) : ''
       };
 
       // 3. Create the game document
