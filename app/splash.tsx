@@ -57,7 +57,7 @@ export default function SplashScreen() {
           ]}
         >
           <Ionicons name="game-controller" size={80} color="#fff" />
-          <Text style={styles.title}>Cosmic Quest</Text>
+          <Text style={styles.title}>Nightly</Text>
           <Text style={styles.subtitle}>Préparez-vous à jouer</Text>
         </Animated.View>
       </LinearGradient>
@@ -79,6 +79,7 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   contentContainer: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },

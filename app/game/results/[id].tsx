@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -7,6 +7,7 @@ import { FontAwesome5, Ionicons } from '@expo/vector-icons';
 import Confetti from 'react-native-confetti';
 import { Player } from '@/types/gameTypes';
 import { getFirestore, doc, getDoc } from '@react-native-firebase/firestore';
+import RoundedButton from '@/components/RoundedButton';
 
 type PlayerScore = Player & { score: number };
 
@@ -86,19 +87,20 @@ export default function GameResultsScreen() {
   const renderPlayerItem = ({ item, index }: { item: PlayerScore; index: number }) => (
     <View style={[
       styles.playerCard, 
-      index === 0 ? styles.winnerCard : null
+      index === 0 ? styles.winnerCard : null,
+      index === 0 ? { elevation: 8, shadowColor: '#FFD700', shadowOpacity: 0.6, shadowRadius: 16 } : { elevation: 2 }
     ]}>
       {renderRankBadge(index)}
       
       <View style={styles.playerInfo}>
-        <View style={styles.avatarContainer}>
-          <Text style={styles.avatarText}>{item.name.charAt(0)}</Text>
+        <View style={[styles.avatarContainer, index === 0 && { borderWidth: 2, borderColor: '#FFD700', backgroundColor: '#fffbe6' }]}>
+          <Text style={[styles.avatarText, index === 0 && { color: '#FFD700' }]}>{item.name.charAt(0)}</Text>
         </View>
-        <Text style={styles.playerName}>{item.name}</Text>
+        <Text style={[styles.playerName, index === 0 && { color: '#FFD700', fontWeight: 'bold', fontSize: 22 }]}>{item.name}</Text>
       </View>
       
       <View style={styles.scoreContainer}>
-        <Text style={styles.scoreText}>{item.score}</Text>
+        <Text style={[styles.scoreText, index === 0 && { color: '#FFD700', fontSize: 28 }]}>{item.score}</Text>
         <Text style={styles.scoreLabel}>points</Text>
       </View>
     </View>
@@ -133,7 +135,9 @@ export default function GameResultsScreen() {
       
       <View style={styles.header}>
         <Text style={styles.title}>Résultats finaux</Text>
-        <Text style={styles.subtitle}>Félicitations à tous !</Text>
+        <Text style={styles.subtitle}>
+          {players.length > 0 ? `Bravo ${players[0].name} !` : "Félicitations à tous !"}
+        </Text>
       </View>
       
       <View style={styles.resultsContainer}>
@@ -146,20 +150,20 @@ export default function GameResultsScreen() {
       </View>
       
       <View style={styles.buttonsContainer}>
-        <TouchableOpacity
-          style={[styles.button, styles.primaryButton]}
+        <RoundedButton
+          title="Rejouer"
           onPress={handlePlayAgain}
-        >
-          <Text style={styles.buttonText}>Rejouer</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={[styles.button, styles.secondaryButton]}
+          style={[styles.button, styles.primaryButton]}
+          textStyle={styles.buttonText}
+          icon={<Ionicons name="refresh" size={18} color="#fff" style={styles.buttonIcon} />}
+        />
+        <RoundedButton
+          title="Accueil"
           onPress={handleReturnHome}
-        >
-          <Ionicons name="home" size={18} color="#ffffff" style={styles.buttonIcon} />
-          <Text style={styles.buttonText}>Accueil</Text>
-        </TouchableOpacity>
+          style={[styles.button, styles.secondaryButton]}
+          textStyle={styles.buttonText}
+          icon={<Ionicons name="home" size={18} color="#fff" style={styles.buttonIcon} />}
+        />
       </View>
     </View>
   );
@@ -290,12 +294,6 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     flexDirection: 'row',
     justifyContent: 'center',
-  },
-  primaryButton: {
-    backgroundColor: '#694ED6',
-  },
-  secondaryButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
   },
   buttonText: {
     color: '#ffffff',

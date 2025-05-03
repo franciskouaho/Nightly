@@ -200,11 +200,16 @@ export default function TruthOrDareGameScreen() {
 
   if (isGameOver) {
     return (
-      <View style={styles.container}>
+      <LinearGradient
+        colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
+        locations={[0, 0.2, 0.5, 0.8, 1]}
+        style={styles.gradientBg}
+      >
         <StatusBar style="light" />
-        <Text style={styles.questionText}>Partie terminée !</Text>
-        <Text style={styles.questionText}>Redirection vers les résultats...</Text>
-      </View>
+        <Text style={[styles.questionText, { fontSize: 30, marginBottom: 16 }]}>🎉 Partie terminée !</Text>
+        <Text style={[styles.questionText, { fontSize: 20, marginBottom: 32 }]}>Redirection vers les résultats...</Text>
+        <AnimatedEllipsis style={{ marginBottom: 0 }} />
+      </LinearGradient>
     );
   }
 
