@@ -39,6 +39,11 @@ export default function GameRouter() {
         return;
       }
 
+      if (mode === 'know-or-drink') {
+        router.replace(`/game/know-or-drink/${id}`);
+        return;
+      }
+
       Alert.alert('Erreur', `Mode de jeu inconnu: ${mode}`);
     };
     redirect();

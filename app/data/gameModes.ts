@@ -61,7 +61,7 @@ export const gameCategories: GameCategory[] = [
     subtitle: 'Plusieurs téléphones',
     games: [
       {
-        id: 'soit-tu-sais-soit-tu-bois',
+        id: 'know-or-drink',
         name: 'SOIT TU SAIS SOIT TU BOIS',
         description: 'Un mode ludique avec un niveau de difficulté progressif.',
         image: require('@/assets/jeux/soit-tu-sais-soit-tu-bois.png'),
