@@ -1,0 +1,56 @@
+export interface Player {
+  id: string;
+  name: string;
+  avatar?: string;
+}
+
+export interface Question {
+  id: string;
+  text: string;
+  theme: string;
+  roundNumber: number;
+}
+
+export interface Answer {
+  id: string;
+  text: string;
+  playerId: string;
+  playerName: string;
+  isOwnAnswer?: boolean;
+}
+
+export enum GamePhase {
+  LOADING = 'loading',
+  QUESTION = 'question',
+  WAITING = 'waiting',
+  VOTE = 'vote',
+  WAITING_FOR_VOTE = 'waiting_for_vote',
+  RESULTS = 'results'
+}
+
+export interface GameState {
+  phase: GamePhase;
+  currentRound: number;
+  totalRounds: number;
+  targetPlayer: Player | null;
+  currentQuestion: Question | null;
+  answers: Answer[];
+  players: Player[];
+  scores: Record<string, number>;
+  theme: string;
+  timer: number | null;
+  currentUserState?: {
+    isTargetPlayer: boolean;
+    hasAnswered: boolean;
+    hasVoted: boolean;
+  };
+  game?: {
+    currentPhase: string;
+    currentRound: number;
+    totalRounds: number;
+    scores: Record<string, number>;
+    gameMode: string;
+    hostId?: string;
+  };
+  allPlayersVoted?: boolean;
+} 
