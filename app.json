@@ -37,9 +37,9 @@
             "useFrameworks": "static"
           }
         }
-      ]
       ],
-      
+      "expo-localization"
+    ],
     "assetBundlePatterns": [
       "**/*"
     ],

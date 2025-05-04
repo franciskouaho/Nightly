@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { getAuth, onAuthStateChanged, signInAnonymously } from '@react-native-firebase/auth';
 import { collection, doc, getDoc, setDoc, getFirestore } from '@react-native-firebase/firestore';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 interface User {
   uid: string;
@@ -24,6 +25,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const { identifyUser, resetUser, trackEvent } = useAnalytics();
 
   useEffect(() => {
     const auth = getAuth();
@@ -33,13 +35,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const db = getFirestore();
           const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
           if (userDoc.exists()) {
-            setUser(userDoc.data() as User);
+            const userData = userDoc.data() as User;
+            setUser(userData);
+            // Identifier l'utilisateur dans PostHog
+            identifyUser(userData.uid, {
+              pseudo: userData.pseudo,
+              createdAt: userData.createdAt
+            });
           }
         } catch (err) {
           setError(err as Error);
         }
       } else {
         setUser(null);
+        resetUser();
       }
       setLoading(false);
     });
@@ -77,6 +86,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
       await setDoc(doc(db, 'users', uid), userData);
       setUser(userData);
+
+      // Track sign in event
+      trackEvent('user_signed_in', {
+        pseudo,
+        uid
+      });
     } catch (err) {
       setError(err as Error);
       throw err;
@@ -90,6 +105,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const auth = getAuth();
       await auth.signOut();
       setUser(null);
+      resetUser();
+      trackEvent('user_signed_out');
     } catch (err) {
       setError(err as Error);
       throw err;
