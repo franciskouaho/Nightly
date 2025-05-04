@@ -24,7 +24,6 @@ const questions = {
     'Quelle situation fait le plus douter {playerName} de ses capacités ?',
   ],
   'truth-or-dare': [
-    // Questions de vérité
     { type: 'verite', text: 'Quelle est la chose la plus embarrassante que tu as faite en public ?' },
     { type: 'verite', text: "As-tu déjà menti à quelqu'un dans cette pièce ?" },
     { type: 'verite', text: 'Quel est ton plus grand regret ?' },
@@ -41,7 +40,6 @@ const questions = {
     { type: 'verite', text: 'Quelle est la chose la plus embarrassante dans ton historique de recherche ?' },
     { type: 'verite', text: 'Quel est le mensonge le plus important que tu aies dit ?' },
 
-    // Actions
     { type: 'action', text: 'Imite un animal pendant 30 secondes' },
     { type: 'action', text: 'Envoie un message embarrassant à la dernière personne avec qui tu as parlé' },
     { type: 'action', text: 'Montre les 3 dernières photos de ta galerie' },
@@ -70,4 +68,4 @@ async function uploadQuestions() {
   process.exit(0);
 }
 
-uploadQuestions().catch(console.error); 
+uploadQuestions().catch(console.error);

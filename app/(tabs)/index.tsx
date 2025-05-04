@@ -1,6 +1,6 @@
 "use client"
 
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Alert, TextInput } from "react-native"
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Alert, TextInput, ImageBackground } from "react-native"
 import { LinearGradient } from "expo-linear-gradient"
 import { useAuth } from "@/contexts/AuthContext"
 import TopBar from "@/components/TopBar"
@@ -33,22 +33,8 @@ interface Room {
   code: string;
 }
 
-// Fonction utilitaire pour générer des IDs uniques sans dépendre de crypto
-const generateUniqueId = (length: number = 6) => {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  const timestamp = new Date().getTime().toString(36);
-  let result = timestamp.substring(timestamp.length - 2);
-  
-  for (let i = 0; i < length - 2; i++) {
-    result += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
-  
-  return result;
-};
-
-// Fonction utilitaire pour générer un code court unique
 const generateRoomCode = (length = 6) => {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Pas de O, 0, I, 1
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let code = '';
   for (let i = 0; i < length; i++) {
     code += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -63,28 +49,23 @@ export default function HomeScreen() {
   const [partyCode, setPartyCode] = React.useState('');
   const [loading, setLoading] = React.useState(false);
 
-  // Ajouter un log pour suivre l'état de chargement
   useEffect(() => {
     console.log('🔄 État de création de salle:', isCreatingRoom);
   }, [isCreatingRoom]);
 
-  // Fonction utilitaire pour obtenir le nom d'affichage de l'utilisateur
   const getUserDisplayName = (user: any) => {
     if (!user) return "Joueur";
     
-    // Utiliser le pseudo de l'utilisateur
     if (typeof user.pseudo === 'string' && user.pseudo.trim() !== '') {
       return user.pseudo;
     }
     
-    // Fallback si aucun nom disponible
     return "Joueur";
   };
 
   const createGameRoom = async (game: GameMode) => {
     console.log('👉 Fonction createGameRoom appelée pour:', game.name);
     
-    // Vérifier que l'utilisateur est connecté
     if (!user) {
       console.log('❌ Utilisateur non connecté');
       Alert.alert(
@@ -95,7 +76,6 @@ export default function HomeScreen() {
       return;
     }
 
-    // Vérifier que l'utilisateur a un UID
     console.log('👤 Informations utilisateur:', {
       uid: user.uid,
       pseudo: user.pseudo,
@@ -112,10 +92,8 @@ export default function HomeScreen() {
       return;
     }
     
-    // Afficher l'indicateur de chargement
     console.log('⌛ Début du processus de création de salle...');
     
-    // Vérifier la connexion internet avec gestion d'erreurs
     try {
       const netInfo = await NetInfo.fetch();
       console.log('📶 État de la connexion:', netInfo.isConnected);
@@ -132,10 +110,8 @@ export default function HomeScreen() {
       
       const displayName = getUserDisplayName(user);
       
-      // Générer un code court unique pour la room
       const shortCode = generateRoomCode(6);
       
-      // Préparer les données pour Firebase (sans champ 'id')
       const roomData: Omit<Room, 'id'> & { code: string } = {
         name: game.name,
         gameId: game.id,
@@ -155,7 +131,6 @@ export default function HomeScreen() {
         code: shortCode,
       };
 
-      // Vérifier qu'il n'y a pas de valeurs undefined
       const validateRoomData = (data: any): boolean => {
         const checkValue = (value: any, path: string = ''): boolean => {
           if (value === undefined) {
@@ -182,12 +157,10 @@ export default function HomeScreen() {
       console.log('📤 Enregistrement dans Firebase avec les données:', JSON.stringify(roomData, null, 2));
       
       try {
-        // Créer la salle dans Firebase avec un timeout plus long et une meilleure gestion des erreurs
         const timeoutPromise = new Promise((_, reject) => {
           setTimeout(() => reject(new Error('Délai d\'attente dépassé lors de la création de la salle')), 30000); // Augmenté à 30 secondes
         });
         
-        // Race entre la création de room et le timeout
         const createdRoomId = await Promise.race([
           createRoom(roomData),
           timeoutPromise
@@ -199,25 +172,14 @@ export default function HomeScreen() {
         
         console.log('✅ Salle créée avec succès dans Firebase:', createdRoomId);
         
-        // Rediriger vers la page room avec l'ID Firestore
         console.log('🔄 Tentative de redirection vers:', `/room/${createdRoomId}`);
-        Alert.alert(
-          'Salle créée !',
-          `Code d'invitation : ${shortCode}\nPartage-le avec tes amis pour qu'ils rejoignent la salle !`,
-          [
-            { text: 'OK', onPress: () => {
-              setTimeout(() => {
-                router.push(`/room/${createdRoomId}`);
-              }, 500);
-            }}
-          ]
-        );
+
+        router.push(`/room/${createdRoomId}`);
         
         return true;
       } catch (firebaseError) {
         console.error('🔥 Erreur Firebase:', firebaseError);
         
-        // Gestion spécifique des erreurs Firebase
         if (firebaseError instanceof Error) {
           let errorMessage = 'Une erreur est survenue lors de la création de la salle.';
           
@@ -280,7 +242,6 @@ export default function HomeScreen() {
         Alert.alert('Erreur', 'Vous êtes déjà dans cette partie');
         return;
       }
-      // Ajouter le joueur courant à la salle dans Firestore
       const roomRef = doc(db, 'rooms', roomDoc.id);
       const newPlayer = {
         id: user.uid,
@@ -301,21 +262,17 @@ export default function HomeScreen() {
     }
   };
   
-  // Améliorer le rendu des cartes pour s'assurer que les événements sont correctement attachés
   const renderGameModeCard = (game: GameMode, isGridItem = false) => {
-    // Créer un gestionnaire d'événements séparé pour faciliter le débogage
     const handlePress = async () => {
       console.log('🖱️ Clic sur le mode de jeu:', game.name);
       console.log('📊 État de création:', isCreatingRoom);
       
-      // Désactiver temporairement l'interaction pendant la création
       if (isCreatingRoom) {
         console.log('⏳ Création de salle en cours, veuillez patienter...');
         return;
       }
       
       try {
-        // Appeler la fonction de création et attendre sa complétion
         const result = await createGameRoom(game);
         
         if (result) {
@@ -327,6 +284,30 @@ export default function HomeScreen() {
         console.error('❌ Erreur lors de la création de la salle:', error);
       }
     };
+    
+    if (isGridItem) {
+      return (
+        <TouchableOpacity
+          key={game.id}
+          style={[styles.modeCard, styles.gridModeCard]}
+          onPress={handlePress}
+          activeOpacity={0.8}
+          disabled={isCreatingRoom}
+          testID={`game-mode-${game.id}`}
+        >
+          <ImageBackground
+            source={game.image}
+            style={styles.cardImageBackground}
+            imageStyle={{ borderRadius: 20 }}
+            resizeMode="cover"
+          >
+            <View style={styles.overlay}>
+              <Text style={styles.cardTitle}>{game.name}</Text>
+            </View>
+          </ImageBackground>
+        </TouchableOpacity>
+      );
+    }
     
     return (
       <TouchableOpacity 
@@ -388,7 +369,6 @@ export default function HomeScreen() {
     );
   };
   
-  // Rendu d'une catégorie de jeu avec ses modes
   const renderGameCategory = (category: GameCategory) => (
     <View key={category.id} style={styles.categorySection}>
       <View style={styles.categoryHeader}>
@@ -401,7 +381,6 @@ export default function HomeScreen() {
       </View>
       
       {category.id === 'packs' ? (
-        // Affichage en grid pour la catégorie "NOS PACKS LES PLUS JOUÉS"
         <View style={styles.gridContainer}>
           {category.games.map((game: GameMode) => (
             <View key={game.id} style={styles.gridItem}>
@@ -410,7 +389,6 @@ export default function HomeScreen() {
           ))}
         </View>
       ) : (
-        // Affichage en colonne pour les autres catégories
         <View style={styles.gameModesColumn}>
           {category.games.map((game: GameMode) => renderGameModeCard(game))}
         </View>
@@ -425,10 +403,8 @@ export default function HomeScreen() {
         locations={[0, 0.2, 0.5, 0.8, 1]}
         style={styles.background}
       >
-        {/* TopBar */}
         <TopBar />
 
-        {/* Champ code + bouton QR */}
         <View style={styles.codeRow}>
           <View style={styles.codeInputContainer}>
             <TextInput
@@ -465,14 +441,11 @@ export default function HomeScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollViewContent}
         >
-          {/* Content Container */}
           <View style={styles.contentContainer}>
-            {/* Sections de jeu */}
             {gameCategories.map(renderGameCategory)}
           </View>
         </ScrollView>
       </LinearGradient>
-      {/* Loader overlay */}
       {loading && (
         <View style={{
           position: 'absolute',
@@ -586,7 +559,7 @@ const styles = StyleSheet.create({
   },
   modeDescription: {
     color: 'white',
-    fontSize: 10,
+    fontSize: 12,
     lineHeight: 14,
   },
   modeTagContainer: {
@@ -612,7 +585,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   gridItem: {
-    width: '48%', // ~50% moins marge
+    width: '48%',
     marginBottom: 16,
   },
   gridModeCard: {
@@ -698,5 +671,29 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 7,
+  },
+  cardImageBackground: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    height: 140,
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  overlay: {
+    width: '100%',
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    paddingVertical: 12,
+    alignItems: 'center',
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+  },
+  cardTitle: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 17,
+    textShadowColor: 'rgba(0,0,0,0.5)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
 });
