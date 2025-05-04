@@ -31,6 +31,7 @@ interface GameState {
   timer: number | null;
   votes: Record<string, string>;
   theme?: string;
+  winningAnswerId?: string;
 }
 
 export default function ListenButDontJudgeScreen() {
@@ -54,6 +55,14 @@ export default function ListenButDontJudgeScreen() {
     });
     return () => unsubscribe();
   }, [id]);
+
+  useEffect(() => {
+    if (game && game.currentRound >= game.totalRounds && game.phase === 'results') {
+      setTimeout(() => {
+        router.replace(`/game/results/${id}`);
+      }, 2000);
+    }
+  }, [game, id, router]);
 
   const handleSubmitAnswer = async () => {
     if (!game || !user || !answer.trim()) return;
@@ -85,17 +94,22 @@ export default function ListenButDontJudgeScreen() {
 
   const handleVote = async (answerId: string) => {
     if (!game || !user) return;
-    
     try {
       const db = getFirestore();
       const gameRef = doc(db, 'games', String(id));
-      
       const votes = game.votes || {};
       votes[user.uid] = answerId;
-
+      // Trouver le joueur qui a écrit la réponse gagnante
+      const winningAnswer = game.answers.find(a => a.id === answerId);
+      let scores = { ...game.scores };
+      if (winningAnswer) {
+        scores[winningAnswer.playerId] = (scores[winningAnswer.playerId] || 0) + 1;
+      }
       await updateDoc(gameRef, {
         votes,
-        phase: 'results'
+        phase: 'results',
+        winningAnswerId: answerId,
+        scores
       });
     } catch (error) {
       Alert.alert('Erreur', 'Impossible de soumettre le vote');
@@ -276,6 +290,7 @@ export default function ListenButDontJudgeScreen() {
             timer={game.timer}
             gameId={String(id ?? "")}
             totalRounds={game.totalRounds}
+            winningAnswerId={game.winningAnswerId}
           />
         )}
       </View>

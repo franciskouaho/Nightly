@@ -48,10 +48,6 @@ export default function GameResultsScreen() {
     };
   }, [confettiRef, id]);
   
-  const handlePlayAgain = () => {
-    router.push(`/room/${id}`);
-  };
-  
   const handleReturnHome = () => {
     router.push('/');
   };
@@ -151,16 +147,9 @@ export default function GameResultsScreen() {
       
       <View style={styles.buttonsContainer}>
         <RoundedButton
-          title="Rejouer"
-          onPress={handlePlayAgain}
-          style={[styles.button, styles.primaryButton]}
-          textStyle={styles.buttonText}
-          icon={<Ionicons name="refresh" size={18} color="#fff" style={styles.buttonIcon} />}
-        />
-        <RoundedButton
           title="Accueil"
           onPress={handleReturnHome}
-          style={[styles.button, styles.secondaryButton]}
+          style={[styles.button]}
           textStyle={styles.buttonText}
           icon={<Ionicons name="home" size={18} color="#fff" style={styles.buttonIcon} />}
         />

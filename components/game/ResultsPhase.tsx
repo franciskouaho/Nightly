@@ -14,6 +14,7 @@ interface ResultsPhaseProps {
   timer: number | null;
   gameId: string;
   totalRounds?: number;
+  winningAnswerId?: string;
 }
 
 export default function ResultsPhase({
@@ -27,13 +28,14 @@ export default function ResultsPhase({
   timer,
   gameId,
   totalRounds = 1,
+  winningAnswerId,
 }: ResultsPhaseProps) {
   const sortedPlayers = [...players].sort((a, b) => (scores[b.id] || 0) - (scores[a.id] || 0));
+  const winningAnswer = answers.find(a => a.id === winningAnswerId);
+  const winnerPlayer = players.find(p => p.id === winningAnswer?.playerId);
 
   return (
     <View style={styles.container}>
-    
-
       <View style={styles.header}>
         <Text style={styles.title}>Résultats</Text>
         {timer !== null && (
@@ -49,10 +51,20 @@ export default function ResultsPhase({
         </Text>
       </View>
 
+      {/* Affichage du gagnant du tour */}
+      {winningAnswer && winnerPlayer && (
+        <View style={styles.winnerContainer}>
+          <Text style={styles.winnerText}>🎉 {winnerPlayer.name} a gagné ce tour !</Text>
+          <Text style={styles.winnerAnswer}>
+            "{winningAnswer.text}"
+          </Text>
+        </View>
+      )}
+
       <ScrollView style={styles.answersContainer}>
         {answers.map((answer) => (
-          <View key={answer.id} style={styles.answerContainer}>
-            <Text style={styles.answerText}>{answer.text}</Text>
+          <View key={answer.id} style={[styles.answerContainer, answer.id === winningAnswerId && styles.winningAnswerContainer]}>
+            <Text style={[styles.answerText, answer.id === winningAnswerId && styles.winningAnswerText]}>{answer.text}</Text>
             <Text style={styles.playerName}>- {answer.playerName}</Text>
           </View>
         ))}
@@ -166,6 +178,35 @@ const styles = StyleSheet.create({
     width: '100%',
     color: '#ffffff',
     fontSize: 16,
+    fontWeight: 'bold',
+  },
+  winnerContainer: {
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    alignItems: 'center',
+  },
+  winnerText: {
+    color: '#FFD700',
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 6,
+    textAlign: 'center',
+  },
+  winnerAnswer: {
+    color: '#fff',
+    fontSize: 16,
+    fontStyle: 'italic',
+    textAlign: 'center',
+  },
+  winningAnswerContainer: {
+    borderColor: '#FFD700',
+    borderWidth: 2,
+    backgroundColor: 'rgba(255, 215, 0, 0.08)',
+  },
+  winningAnswerText: {
+    color: '#FFD700',
     fontWeight: 'bold',
   },
 }); 

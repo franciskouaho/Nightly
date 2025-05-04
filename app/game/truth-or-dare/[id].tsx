@@ -388,6 +388,18 @@ export default function TruthOrDareGameScreen() {
         <StatusBar style="light" />
         <Text style={styles.questionText}>Tour {game.currentRound} / {game.totalRounds}</Text>
         <Text style={styles.questionText}>Tour terminé pour {playerName}</Text>
+        {/* Affichage des scores */}
+        <View style={styles.scoreBoard}>
+          <Text style={styles.scoreBoardTitle}>Scores</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {game?.players.map((player: any) => (
+              <View key={player.id} style={styles.scoreItem}>
+                <Text style={styles.scoreName}>{player.name}</Text>
+                <Text style={styles.scoreValue}>{getPlayerScore(player.id)}</Text>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
         <RoundedButton
           title="Tour suivant"
           onPress={handleNextRound}
