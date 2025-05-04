@@ -54,6 +54,12 @@ export default function ProfileScreen() {
       <ScrollView style={styles.content}>
         {/* Header with profile information */}
         <View style={styles.profileHeader}>
+          <TouchableOpacity 
+            style={styles.backButton} 
+            onPress={() => router.back()}
+          >
+            <MaterialCommunityIcons name="arrow-left" size={24} color="white" />
+          </TouchableOpacity>
           <View style={styles.avatarContainer}>
             <Text style={styles.avatarText}>{user?.pseudo?.charAt(0) || '?'}</Text>
           </View>
@@ -88,15 +94,47 @@ export default function ProfileScreen() {
             <Text style={styles.settingText}>Politique de confidentialité</Text>
             <MaterialCommunityIcons name="chevron-right" size={24} color="rgba(255,255,255,0.7)" />
           </TouchableOpacity>
-          
-          <RoundedButton
-            title="Déconnexion"
-            onPress={handleLogout}
-            style={styles.logoutButton}
-            textStyle={styles.logoutText}
-            icon={<MaterialCommunityIcons name="logout" size={24} color="#ff6b6b" />}
-          />
+
+          {/* Carte Passe Premium */}
+          <View style={styles.premiumCard}>
+            <Text style={styles.premiumTitle}>PASSE PREMIUM</Text>
+            <View style={styles.premiumFeaturesList}>
+              <View style={styles.premiumFeatureRow}>
+                <MaterialCommunityIcons name="lock" size={24} color="#7B6EF6" style={styles.premiumIcon} />
+                <Text style={styles.premiumFeatureText}><Text style={{fontWeight: 'bold'}}>Débloque tous </Text>les modes</Text>
+              </View>
+              <View style={styles.premiumFeatureRow}>
+                <MaterialCommunityIcons name="fire" size={24} color="#FFB300" style={styles.premiumIcon} />
+                <Text style={styles.premiumFeatureText}>Un nouveau pack <Text style={{fontWeight: 'bold'}}>chaque semaine</Text></Text>
+              </View>
+              <View style={styles.premiumFeatureRow}>
+                <MaterialCommunityIcons name="help-circle" size={24} color="#FFD600" style={styles.premiumIcon} />
+                <Text style={styles.premiumFeatureText}><Text style={{fontWeight: 'bold'}}>Accès gratuit</Text> pour tes amis</Text>
+              </View>
+              <View style={styles.premiumFeatureRow}>
+                <MaterialCommunityIcons name="diamond" size={24} color="#00E0CA" style={styles.premiumIcon} />
+                <Text style={styles.premiumFeatureText}><Text style={{fontWeight: 'bold'}}>Résiliable à</Text> tout moment</Text>
+              </View>
+            </View>
+            <View style={styles.premiumBottomRow}>
+              <TouchableOpacity style={styles.premiumButton}>
+                <Text style={styles.premiumButtonText}>Essayer le premium</Text>
+              </TouchableOpacity>
+              <View style={styles.premiumOfferTextContainer}>
+                <Text style={styles.premiumOfferMain}>Gratuit 3 jours</Text>
+                <Text style={styles.premiumOfferSub}>puis 5,99€ par semaine</Text>
+              </View>
+            </View>
+          </View>
         </View>
+        
+        <RoundedButton
+          title="Déconnexion"
+          onPress={handleLogout}
+          style={styles.logoutButton}
+          textStyle={styles.logoutText}
+          icon={<MaterialCommunityIcons name="logout" size={24} color="#ff6b6b" />}
+        />
         
         <View style={styles.bottomSpace} />
       </ScrollView>
@@ -123,6 +161,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingBottom: 20,
+    position: 'relative',
+  },
+  backButton: {
+    position: 'absolute',
+    left: 20,
+    top: 0,
+    zIndex: 1,
   },
   avatarContainer: {
     width: 100,
@@ -187,5 +232,87 @@ const styles = StyleSheet.create({
   },
   bottomSpace: {
     height: 80,
+  },
+  premiumCard: {
+    backgroundColor: 'rgba(33, 16, 28, 0.2)',
+    borderRadius: 22,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.10)',
+    padding: 24,
+    marginBottom: 28,
+    marginTop: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
+    elevation: 5,
+  },
+  premiumTitle: {
+    color: '#694ED6',
+    fontWeight: 'bold',
+    fontSize: 22,
+    marginBottom: 20,
+    letterSpacing: 1,
+    textAlign: 'left',
+  },
+  premiumFeaturesList: {
+    marginBottom: 18,
+  },
+  premiumFeatureRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  premiumIcon: {
+    width: 28,
+    textAlign: 'center',
+  },
+  premiumFeatureText: {
+    color: 'white',
+    fontSize: 16,
+    marginLeft: 14,
+    flex: 1,
+  },
+  premiumBottomRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 18,
+    justifyContent: 'space-between',
+  },
+  premiumButton: {
+    backgroundColor: '#694ED6',
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 22,
+    marginRight: 12,
+    shadowColor: '#694ED6',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  premiumButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+    letterSpacing: 0.2,
+  },
+  premiumOfferTextContainer: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+    maxWidth: 120,
+  },
+  premiumOfferMain: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 15,
+    marginBottom: 2,
+  },
+  premiumOfferSub: {
+    color: 'white',
+    fontSize: 11,
+    opacity: 0.7,
+    flexWrap: 'wrap',
   },
 });
