@@ -45,6 +45,7 @@ interface Room {
   host: string;
   maxPlayers: number;
   code: string;
+  gameDocId?: string;
 }
 
 // Interface pour les données de création de salle
@@ -190,12 +191,13 @@ export default function RoomScreen() {
         console.log('[DEBUG ROOM] roomData:', roomData);
 
         // Redirection automatique pour tous les joueurs quand la partie commence
-        if (roomData.status === 'playing' && roomData.gameId && roomData.gameId.length > 0) {
-          if (
-            roomData.gameMode === 'action-verite' ||
-            roomData.gameMode === 'truth-or-dare'
-          ) {
-            router.replace(`/game/truth-or-dare/${roomData.gameId}`);
+        if (roomData.status === 'playing' && roomData.gameDocId) {
+          if (roomData.gameMode === 'action-verite') {
+            router.replace(`/game/truth-or-dare/${roomData.gameDocId}`);
+          } else if (roomData.gameMode === 'on-ecoute-mais-on-ne-juge-pas') {
+            router.replace(`/game/listen-but-don-t-judge/${roomData.gameDocId}`);
+          } else {
+            router.replace(`/game/${roomData.gameDocId}`);
           }
         }
       } else {
@@ -246,7 +248,7 @@ export default function RoomScreen() {
         roundNumber: 1
       };
       
-      const gameData: GameState = {
+      const gameData: GameState & { gameId: string } = {
         phase: GamePhase.QUESTION,
         currentRound: 1,
         totalRounds: 4,
@@ -274,7 +276,8 @@ export default function RoomScreen() {
           gameMode: room.gameMode || room.gameId,
           hostId: room.host
         },
-        currentPlayerId: randomPlayer ? String(randomPlayer.id) : ''
+        currentPlayerId: randomPlayer ? String(randomPlayer.id) : '',
+        gameId: room.gameId
       };
 
       // 3. Create the game document
@@ -284,12 +287,12 @@ export default function RoomScreen() {
       await updateDoc(doc(db, 'rooms', room.id), {
         status: 'playing',
         startedAt: new Date().toISOString(),
-        gameId: gameRef.id,
+        gameDocId: gameRef.id,
         gameMode: room.gameMode || room.gameId
       });
 
       // 5. Navigate to the game
-      if (room.gameId === 'action-verite') {
+      if (room.gameId === 'truth-or-dare') {
         router.push(`/game/truth-or-dare/${gameRef.id}`);
       } else {
         router.push(`/game/${gameRef.id}`);

@@ -13,6 +13,7 @@ interface ResultsPhaseProps {
   isLastRound: boolean;
   timer: number | null;
   gameId: string;
+  totalRounds?: number;
 }
 
 export default function ResultsPhase({
@@ -24,12 +25,15 @@ export default function ResultsPhase({
   onNextRound,
   isLastRound,
   timer,
-  gameId
+  gameId,
+  totalRounds = 1,
 }: ResultsPhaseProps) {
   const sortedPlayers = [...players].sort((a, b) => (scores[b.id] || 0) - (scores[a.id] || 0));
 
   return (
     <View style={styles.container}>
+    
+
       <View style={styles.header}>
         <Text style={styles.title}>Résultats</Text>
         {timer !== null && (
@@ -39,7 +43,9 @@ export default function ResultsPhase({
 
       <View style={styles.questionContainer}>
         <Text style={styles.questionText}>
-          {question?.text ? question.text.replace('{player}', targetPlayer?.name || 'le joueur') : 'Question en cours de chargement...'}
+          {question?.text
+            ? question.text.replace('{playerName}', targetPlayer?.name || 'le joueur')
+            : 'Question en cours de chargement...'}
         </Text>
       </View>
 
@@ -151,12 +157,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   nextButton: {
-    backgroundColor: '#5d6dff',
+    width: '100%',
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
   },
   nextButtonText: {
+    width: '100%',
     color: '#ffffff',
     fontSize: 16,
     fontWeight: 'bold',

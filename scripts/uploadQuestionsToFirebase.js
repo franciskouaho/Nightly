@@ -13,7 +13,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const questions = {
-  'on-ecoute-mais-on-ne-juge-pas': [
+  'listen-but-don-t-judge': [
     'Si {playerName} devait confesser un péché mignon, lequel serait-ce ?',
     "Quelle est la pire habitude de {playerName} qu'il/elle n'admettra jamais publiquement ?",
     'Comment {playerName} réagirait face à un compliment sincère mais inattendu ?',

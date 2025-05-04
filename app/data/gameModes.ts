@@ -28,7 +28,7 @@ export const gameCategories: GameCategory[] = [
     subtitle: 'Plusieurs téléphones',
     games: [
       {
-        id: 'on-ecoute-mais-on-ne-juge-pas',
+        id: 'listen-but-don-t-judge',
         name: 'ON ÉCOUTE MAIS ON NE JUGE PAS',
         description: 'Un mode gratuit pour rigoler tranquillement entre potes.',
         image: require('@/assets/jeux/on-ecoute-mais-on-juge-pas.png'),
@@ -81,7 +81,7 @@ export const gameCategories: GameCategory[] = [
     subtitle: '',
     games: [
       {
-        id: 'action-verite',
+        id: 'truth-or-dare',
         name: 'ACTION OU VÉRITÉ',
         description: 'Le classique revisité avec des défis exclusifs.',
         image: require('@/assets/jeux/action-verite.png'),

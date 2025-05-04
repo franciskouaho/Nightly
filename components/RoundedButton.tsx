@@ -1,7 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import Colors from '../constants/Colors';
+import Colors from '@/constants/Colors';
 
 interface RoundedButtonProps {
   title: string;
@@ -63,6 +63,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     minWidth: 180,
     alignSelf: 'center',
+    width: '100%',
   },
   disabledButton: {
     opacity: 0.5,

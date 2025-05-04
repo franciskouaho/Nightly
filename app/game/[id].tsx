@@ -1,157 +1,48 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Alert, ActivityIndicator } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
-import { getApp } from 'firebase/app';
-import RoundedButton from '@/components/RoundedButton';
+import { Alert } from 'react-native';
+import { getFirestore, doc, getDoc } from '@react-native-firebase/firestore';
 
-export default function GameScreen() {
+export default function GameRouter() {
   const router = useRouter();
-  const { id, gameId } = useLocalSearchParams(); // id = id du game, gameId = mode de jeu
-  const [questions, setQuestions] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const { id, gameId } = useLocalSearchParams();
 
-  // Charger le gameId depuis Firestore si non passé en paramètre
   useEffect(() => {
-    const fetchGameIdAndQuestions = async () => {
-      setLoading(true);
-      try {
-        let mode = gameId;
-        if (!mode) {
-          // Charger le doc de la partie pour récupérer le gameId
-          const db = getFirestore(getApp());
-          const gameDoc = await getDoc(doc(db, 'games', String(id)));
-          if (gameDoc.exists()) {
-            mode = gameDoc.data().gameId;
-          }
-        }
-        if (mode === 'action-verite') {
-          router.replace(`/game/truth-or-dare/${id}`);
-          return;
-        }
-        if (!mode) {
-          Alert.alert('Erreur', 'Aucun mode de jeu trouvé');
-          return;
-        }
-        // Charger les questions du bon mode
-        const db = getFirestore(getApp());
-        const docRef = doc(db, 'gameQuestions', String(mode));
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setQuestions(docSnap.data().questions);
+    const redirect = async () => {
+      let mode = gameId;
+      console.log('🔄 Mode à chercher (param):', mode);
+      if (!mode) {
+        const db = getFirestore();
+        const gameDoc = await getDoc(doc(db, 'games', String(id)));
+        if (gameDoc.exists()) {
+          console.log('gameDoc data:', gameDoc.data());
+          mode = gameDoc.data()?.gameId;
+          console.log('Mode extrait du doc games:', mode);
         } else {
-          Alert.alert('Erreur', 'Aucune question trouvée pour ce mode');
+          console.log('Pas de doc games trouvé pour id:', id);
+          Alert.alert('Erreur', `Aucun document de jeu trouvé pour l'id: ${id}`);
+          return;
         }
-      } catch (e) {
-        Alert.alert('Erreur', 'Impossible de charger les questions');
-      } finally {
-        setLoading(false);
       }
+      if (!mode) {
+        Alert.alert('Erreur', 'Aucun mode de jeu trouvé dans le document games.');
+        return;
+      }
+
+      if (mode === 'truth-or-dare') {
+        router.replace(`/game/truth-or-dare/${id}`);
+        return;
+      }
+
+      if (mode === 'listen-but-don-t-judge') {
+        router.replace(`/game/listen-but-don-t-judge/${id}`);
+        return;
+      }
+
+      Alert.alert('Erreur', `Mode de jeu inconnu: ${mode}`);
     };
-    fetchGameIdAndQuestions();
+    redirect();
   }, [id, gameId, router]);
 
-  const handleNext = () => {
-    if (currentIndex < questions.length - 1) {
-      setCurrentIndex(i => i + 1);
-    } else {
-      Alert.alert('Fin', 'Tu as terminé toutes les questions !', [
-        { text: 'Accueil', onPress: () => router.push('/') }
-      ]);
-    }
-  };
-
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        <LinearGradient 
-          colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
-          locations={[0, 0.2, 0.5, 0.8, 1]}
-          style={styles.background} 
-        />
-        <ActivityIndicator size="large" color="#fff" />
-        <Text style={{ color: '#fff', marginTop: 20 }}>Chargement des questions...</Text>
-      </View>
-    );
-  }
-
-  if (questions.length === 0) {
-    return (
-      <View style={styles.container}>
-        <LinearGradient 
-          colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
-          locations={[0, 0.2, 0.5, 0.8, 1]}
-          style={styles.background} 
-        />
-        <Text style={{ color: '#fff', marginTop: 20 }}>Aucune question pour ce mode.</Text>
-      </View>
-    );
-  }
-
-  const currentQuestion = questions[currentIndex];
-
-  return (
-    <View style={styles.container}>
-      <StatusBar style="light" />
-      <LinearGradient 
-        colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
-        locations={[0, 0.2, 0.5, 0.8, 1]}
-        style={styles.background} 
-      />
-      <View style={styles.content}>
-        <Text style={styles.messageTitle}>
-          Question {currentIndex + 1}/{questions.length}
-        </Text>
-        <Text style={styles.messageText}>{currentQuestion.text || currentQuestion}</Text>
-        {Array.isArray(currentQuestion.choices) && currentQuestion.choices.length > 0 && (
-          <View style={{ width: '100%' }}>
-            {currentQuestion.choices.map((choice: string) => (
-              <RoundedButton
-                key={choice}
-                title={choice}
-                onPress={handleNext}
-                style={styles.choiceButton}
-                textStyle={styles.choiceText}
-              />
-            ))}
-          </View>
-        )}
-        <RoundedButton
-          title={currentIndex < questions.length - 1 ? 'Question suivante' : 'Terminer'}
-          onPress={handleNext}
-          style={styles.nextButton}
-          textStyle={styles.nextButtonText}
-        />
-      </View>
-    </View>
-  );
+  return null;
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  background: {
-    position: 'absolute', left: 0, right: 0, top: 0, bottom: 0,
-  },
-  content: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20, paddingTop: 40 },
-  messageTitle: { fontSize: 24, fontWeight: 'bold', color: '#fff', marginBottom: 16, textAlign: 'center' },
-  messageText: { fontSize: 18, color: '#e0e0e0', textAlign: 'center', lineHeight: 28, marginBottom: 30 },
-  choiceButton: {
-    backgroundColor: '#5D6DFF', padding: 15, borderRadius: 12, marginVertical: 8, width: '100%', alignItems: 'center'
-  },
-  choiceText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
-  nextButton: {
-    backgroundColor: '#5D6DFF',
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    borderRadius: 12,
-    marginTop: 30,
-  },
-  nextButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 18,
-  }
-});
