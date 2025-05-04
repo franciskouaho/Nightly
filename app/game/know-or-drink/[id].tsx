@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput, Animated, Dimensions } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput, Animated } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { getFirestore, doc, onSnapshot, updateDoc, getDoc } from '@react-native-firebase/firestore';
 import { useAuth } from '@/contexts/AuthContext';
@@ -8,14 +8,12 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { GamePhase, Player } from '@/types/gameTypes';
 
 interface FirebaseQuestion {
-  text: {
-    type: string;
-    question: string;
-    answer: string;
-  };
-  id: string;
-  roundNumber: number;
-  theme: string;
+  type: string;
+  question: string;
+  answer: string;
+  id?: string;
+  roundNumber?: number;
+  theme?: string;
 }
 
 interface KnowOrDrinkGameState {
@@ -55,8 +53,6 @@ interface KnowOrDrinkGameState {
   questions: FirebaseQuestion[];
 }
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-
 export default function KnowOrDrinkGame() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
@@ -66,8 +62,6 @@ export default function KnowOrDrinkGame() {
   const [answer, setAnswer] = useState('');
   const [showAnswerInput, setShowAnswerInput] = useState(false);
   const [isEnd, setIsEnd] = useState(false);
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const scaleAnim = useRef(new Animated.Value(0.9)).current;
 
   useEffect(() => {
     if (!id || !user) return;
@@ -87,22 +81,6 @@ export default function KnowOrDrinkGame() {
 
     return () => unsubscribe();
   }, [id, user]);
-
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 500,
-        useNativeDriver: true,
-      }),
-      Animated.spring(scaleAnim, {
-        toValue: 1,
-        friction: 8,
-        tension: 40,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, []);
 
   const handleKnow = async () => {
     if (!gameState || !user) return;
@@ -215,81 +193,124 @@ export default function KnowOrDrinkGame() {
     return (
       <View style={styles.progressBarContainer}>
         <View style={styles.progressBarTrack}>
-          <Animated.View 
-            style={[
-              styles.progressBarFill, 
-              { 
-                width: `${progress * 100}%`,
-                backgroundColor: '#A259FF',
-              }
-            ]} 
-          />
+          <View style={[styles.progressBarFill, { flex: progress }]} />
+          <View style={{ flex: 1 - progress }} />
         </View>
-        <Text style={styles.progressText}>
-          Tour {gameState.currentRound}/{gameState.totalRounds}
+        <Text style={styles.progressBarText}>
+          {gameState.currentRound}/{gameState.totalRounds}
         </Text>
       </View>
     );
   };
 
   const renderQuestionPhase = () => {
-    if (!gameState || !gameState.currentQuestion) return null;
-
+    console.log('🎮 Rendu de la phase question');
+    console.log('❓ Question actuelle dans le rendu:', JSON.stringify(gameState?.currentQuestion, null, 2));
     return (
-      <Animated.View 
-        style={[
-          styles.questionContainer,
-          {
-            opacity: fadeAnim,
-            transform: [{ scale: scaleAnim }]
-          }
-        ]}
-      >
-        <LinearGradient
-          colors={['#A259FF', '#C471F5']}
-          style={styles.questionGradient}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-        >
-          <Text style={styles.questionText}>
-            {gameState.currentQuestion.text.question}
-          </Text>
-          
-          {showAnswerInput ? (
-            <View style={styles.answerInputContainer}>
+      <View style={styles.container}>
+        <View style={styles.contentContainer}>
+          {gameState?.currentQuestion?.type && (
+            <View style={{
+              width: '100%',
+              maxWidth: 200,
+              alignSelf: 'center',
+              marginBottom: 14,
+              borderRadius: 16,
+              backgroundColor: 'rgba(30, 20, 40, 0.55)',
+              paddingVertical: 8,
+              paddingHorizontal: 18,
+              shadowColor: '#A259FF',
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.15,
+              shadowRadius: 8,
+              elevation: 6,
+              backdropFilter: 'blur(8px)',
+              alignItems: 'center',
+            }}>
+              <Text style={{ color: '#C471F5', fontWeight: 'bold', fontSize: 15, letterSpacing: 1 }}>
+                {getTypeLabel(gameState.currentQuestion.type)}
+              </Text>
+            </View>
+          )}
+          {renderProgressBar()}
+          <View style={{
+            width: '100%',
+            maxWidth: 400,
+            alignSelf: 'center',
+            marginBottom: 24,
+            borderRadius: 20,
+            backgroundColor: 'rgba(30, 20, 40, 0.55)',
+            padding: 20,
+            shadowColor: '#A259FF',
+            shadowOffset: { width: 0, height: 6 },
+            shadowOpacity: 0.18,
+            shadowRadius: 12,
+            elevation: 8,
+            backdropFilter: 'blur(8px)',
+          }}>
+            <Text style={{
+              color: '#fff',
+              fontSize: 22,
+              fontWeight: '600',
+              textAlign: 'center',
+              lineHeight: 30,
+              marginTop: 2,
+              marginBottom: 2,
+              textShadowColor: 'rgba(0,0,0,0.18)',
+              textShadowOffset: { width: 0, height: 1 },
+              textShadowRadius: 2,
+            }}>
+              {gameState?.currentQuestion?.question || 'Aucune question disponible'}
+            </Text>
+          </View>
+          {gameState?.currentUserState?.[user?.uid]?.hasAnswered && gameState.phase === 'question' ? (
+            <Text style={styles.waitingText}>En attente des autres joueurs...</Text>
+          ) : showAnswerInput ? (
+            <View style={styles.answerContainer}>
               <TextInput
                 style={styles.answerInput}
+                placeholder="Ta réponse..."
+                placeholderTextColor="#AAAAAA"
                 value={answer}
                 onChangeText={setAnswer}
-                placeholder="Votre réponse..."
-                placeholderTextColor="#C7B8F5"
                 multiline
+                numberOfLines={3}
               />
-              <TouchableOpacity
-                style={styles.submitButton}
+              <TouchableOpacity 
+                style={[styles.button, !answer.trim() && styles.buttonDisabled]} 
                 onPress={handleSubmitAnswer}
+                disabled={!answer.trim()}
               >
-                <Text style={styles.submitButtonText}>Valider</Text>
+                <LinearGradient
+                  colors={['#A259FF', '#C471F5']}
+                  style={styles.buttonGradient}
+                >
+                  <Text style={styles.buttonText}>VALIDER</Text>
+                </LinearGradient>
               </TouchableOpacity>
             </View>
           ) : (
             <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={[styles.actionButton, styles.knowButton]}
-                onPress={handleKnow}
-              >
-                <Text style={styles.buttonText}>Je sais</Text>
+              <TouchableOpacity style={styles.button} onPress={handleKnow}>
+                <LinearGradient
+                  colors={['#A259FF', '#C471F5']}
+                  style={styles.buttonGradient}
+                >
+                  <Text style={styles.buttonText}>JE SAIS</Text>
+                </LinearGradient>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.actionButton, styles.dontKnowButton]}
-                onPress={handleDontKnow}
-              >
-                <Text style={styles.buttonText}>Je ne sais pas</Text>
+              <TouchableOpacity style={styles.button} onPress={handleDontKnow}>
+                <LinearGradient
+                  colors={['#FF5252', '#FF7676']}
+                  style={styles.buttonGradient}
+                >
+                  <Text style={styles.buttonText}>JE NE SAIS PAS</Text>
+                </LinearGradient>
               </TouchableOpacity>
             </View>
           )}
-        </LinearGradient>
-      </Animated.View>
+        </View>
+      </View>
     );
   };
 
@@ -332,75 +353,98 @@ export default function KnowOrDrinkGame() {
     </View>
   );
 
+  // Détermine le statut d'un joueur à la fin du tour
   const getPlayerStatus = (playerId: string) => {
-    if (!gameState?.playerAnswers?.[playerId]) return 'waiting';
+    if (!gameState) return { label: '', icon: '', color: '' };
     const playerAnswer = gameState.playerAnswers[playerId];
-    if (playerAnswer.knows) return 'knows';
-    return 'dont-know';
+    if (!playerAnswer) return { label: '', icon: '', color: '' };
+    const correctAnswer = gameState.currentQuestion?.answer?.toLowerCase().trim();
+    const playerResponse = playerAnswer.answer?.toLowerCase().trim();
+    const isCorrect = playerAnswer.knows && playerResponse === correctAnswer;
+    const wasAccused = playerAnswer.isAccused;
+    const wasAccusedBy = playerAnswer.accusedBy || [];
+    // Cas pour le joueur
+    if (!playerAnswer.knows) {
+      return { label: 'Ne savait pas', icon: '❌', color: '#FF5252' };
+    }
+    if (isCorrect) {
+      if (!wasAccused) {
+        return { label: 'Bonne réponse', icon: '✅', color: '#4CAF50' };
+      } else {
+        return { label: 'Bonne réponse mais accusé', icon: '⚠️', color: '#FF9800' };
+      }
+    } else {
+      if (!wasAccused) {
+        return { label: 'A menti sans être accusé', icon: '😏', color: '#A259FF' };
+      } else {
+        return { label: 'A menti et accusé', icon: '🚨', color: '#FF5252' };
+      }
+    }
   };
 
+  // Détermine le statut d'accusateur pour chaque joueur
   const getAccuserStatus = (playerId: string) => {
-    if (!gameState?.playerAnswers?.[playerId]) return 'waiting';
-    const playerAnswer = gameState.playerAnswers[playerId];
-    if (playerAnswer.isAccused) return 'accused';
-    return 'not-accused';
+    if (!gameState) return null;
+    // On cherche si ce joueur a accusé quelqu'un
+    const accused = Object.entries(gameState.playerAnswers).find(
+      ([, answer]) => answer.accusedBy && answer.accusedBy.includes(playerId)
+    );
+    if (!accused) return null;
+    const [targetId, targetAnswer] = accused;
+    const correctAnswer = gameState.currentQuestion?.answer?.toLowerCase().trim();
+    const targetResponse = targetAnswer.answer?.toLowerCase().trim();
+    const isTargetCorrect = targetAnswer.knows && targetResponse === correctAnswer;
+    if (!targetAnswer.knows || !isTargetCorrect) {
+      // L'accusation était juste
+      return { label: 'Bonne accusation', icon: '⚡️', color: '#4CAF50', target: targetId };
+    } else {
+      // L'accusation était fausse
+      return { label: 'Accusation à tort', icon: '❌', color: '#FF5252', target: targetId };
+    }
   };
 
+  // Passe au tour suivant ou termine la partie
   const handleNextRound = async () => {
     if (!gameState || !user) return;
-    
+    if (gameState.currentRound >= gameState.totalRounds) {
+      setIsEnd(true);
+      return;
+    }
     try {
       const db = getFirestore();
       const gameRef = doc(db, 'games', String(id));
-      
-      const nextRound = gameState.currentRound + 1;
-      if (nextRound > gameState.totalRounds) {
-        setIsEnd(true);
+      // Récupère les questions depuis gameQuestions/know-or-drink
+      const questionsRef = doc(db, 'gameQuestions', 'know-or-drink');
+      const questionsDoc = await getDoc(questionsRef);
+      let questionsArr = [];
+      if (questionsDoc.exists()) {
+        const data = questionsDoc.data();
+        if (Array.isArray(data)) {
+          questionsArr = data.filter(Boolean);
+        } else if (data && Array.isArray(data.questions)) {
+          questionsArr = data.questions.filter(Boolean);
+        } else if (data && typeof data === 'object') {
+          questionsArr = Object.values(data).filter(Boolean);
+        }
+      }
+      if (questionsArr.length === 0) {
+        Alert.alert('Erreur', 'Aucune question disponible dans la base de données.');
         return;
       }
-
+      const nextQuestion = questionsArr[Math.floor(Math.random() * questionsArr.length)];
       await updateDoc(gameRef, {
-        currentRound: nextRound,
+        currentRound: gameState.currentRound + 1,
         phase: 'question',
-        currentQuestion: null,
+        currentUserState: {},
         playerAnswers: {},
-        [`currentUserState.${user.uid}`]: {
-          isTargetPlayer: false,
-          hasAnswered: false,
-          hasVoted: false
-        }
+        currentQuestion: nextQuestion,
       });
     } catch (error) {
       Alert.alert('Erreur', 'Impossible de passer au tour suivant');
     }
   };
 
-  const allPlayersAnswered = () => {
-    if (!gameState?.players) return false;
-    return gameState.players.every(player => 
-      gameState.playerAnswers?.[player.id]?.hasAnswered
-    );
-  };
-
-  const allPlayersVoted = () => {
-    if (!gameState?.players) return false;
-    return gameState.players.every(player => 
-      gameState.currentUserState?.[player.id]?.hasVoted
-    );
-  };
-
-  const computeScores = () => {
-    if (!gameState?.players) return {};
-    const newScores = { ...gameState.scores };
-    
-    gameState.players.forEach(player => {
-      const score = calculateScore(player.id);
-      newScores[player.id] = (newScores[player.id] || 0) + score;
-    });
-    
-    return newScores;
-  };
-
+  // Affichage de la fin de partie
   const renderEndScreen = () => (
     <View style={styles.container}>
       <View style={styles.contentContainer}>
@@ -422,7 +466,7 @@ export default function KnowOrDrinkGame() {
       <View style={styles.contentContainer}>
         <Text style={styles.phaseTitle}>Résultats</Text>
         <Text style={styles.correctAnswer}>
-          Réponse correcte : {gameState?.currentQuestion?.text?.answer}
+          Réponse correcte : {gameState?.currentQuestion?.answer}
         </Text>
         {gameState?.players.map((player) => {
           const playerAnswer = gameState?.playerAnswers?.[player.id];
@@ -467,6 +511,24 @@ export default function KnowOrDrinkGame() {
     </View>
   );
 
+  // Vérifie si tous les joueurs ont répondu (phase question)
+  const allPlayersAnswered = () => {
+    if (!gameState || !gameState.players || !gameState.playerAnswers) return false;
+    return gameState.players.every(
+      (player) => !!gameState.playerAnswers[player.id] && typeof gameState.playerAnswers[player.id]?.knows === 'boolean'
+    );
+  };
+
+  // Nouvelle fonction pour vérifier si tous les joueurs ont voté
+  const allPlayersVoted = () => {
+    if (!gameState || !gameState.players || !gameState.currentUserState) return false;
+    // Supposons que chaque joueur a un état dans gameState.currentUserState sous la forme { [playerId]: { hasVoted: boolean } }
+    return gameState.players.every(
+      (player) => gameState.currentUserState && gameState.currentUserState[player.id]?.hasVoted === true
+    );
+  };
+
+  // Dans useEffect, remplacer la logique d'accusation :
   useEffect(() => {
     if (!gameState || !user) return;
     const db = getFirestore();
@@ -490,6 +552,73 @@ export default function KnowOrDrinkGame() {
     }
   }, [gameState?.phase, gameState?.currentRound, gameState?.totalRounds, id]);
 
+  // Fonction pour calculer les scores de tous les joueurs (variante points complète)
+  const computeScores = () => {
+    if (!gameState) return {};
+    let newScores: Record<string, number> = { ...gameState.scores };
+    const correctAnswer = gameState.currentQuestion?.answer?.toLowerCase().trim();
+
+    // 1. Initialisation : chaque joueur garde son score précédent
+    gameState.players.forEach((player) => {
+      newScores[player.id] = newScores[player.id] || 0;
+    });
+
+    // 2. Points pour les réponses
+    gameState.players.forEach((player) => {
+      const answer = gameState.playerAnswers[player.id];
+      if (!answer) return;
+      const playerResponse = answer.answer?.toLowerCase().trim();
+      const isCorrect = answer.knows && playerResponse === correctAnswer;
+      const wasAccused = answer.isAccused;
+      // Cas : ne sait pas
+      if (!answer.knows) {
+        // 0 point
+        return;
+      }
+      // Cas : sait et pas accusé
+      if (isCorrect && !wasAccused) {
+        newScores[player.id] += 1;
+        return;
+      }
+      // Cas : sait et accusé à raison
+      if (isCorrect && wasAccused) {
+        newScores[player.id] -= 1;
+        return;
+      }
+      // Cas : ment sans être accusé
+      if (!isCorrect && !wasAccused) {
+        newScores[player.id] += 1;
+        return;
+      }
+      // Cas : ment et accusé
+      // (pas de point, mais l'accusateur gère le transfert)
+    });
+
+    // 3. Points pour les accusateurs
+    gameState.players.forEach((accuser) => {
+      // Cherche qui il a accusé
+      const accusedEntry = Object.entries(gameState.playerAnswers).find(
+        ([, answer]) => answer.accusedBy && answer.accusedBy.includes(accuser.id)
+      );
+      if (!accusedEntry) return;
+      const [accusedId, accusedAnswer] = accusedEntry;
+      const accusedResponse = accusedAnswer.answer?.toLowerCase().trim();
+      const accusedIsCorrect = accusedAnswer.knows && accusedResponse === correctAnswer;
+      // Si l'accusé mentait (accusation juste)
+      if (!accusedAnswer.knows || !accusedIsCorrect) {
+        newScores[accuser.id] += 1;
+        newScores[accusedId] -= 1;
+      } else {
+        // Accusation à tort
+        newScores[accuser.id] -= 1;
+        newScores[accusedId] += 1;
+      }
+    });
+
+    return newScores;
+  };
+
+  // Effet pour mettre à jour les scores à la phase results
   useEffect(() => {
     if (!gameState || !user) return;
     if (gameState.phase === 'results') {
@@ -499,6 +628,21 @@ export default function KnowOrDrinkGame() {
       updateDoc(gameRef, { scores: newScores });
     }
   }, [gameState?.phase]);
+
+  // Ajoute la fonction utilitaire pour rendre le type plus user-friendly
+  function getTypeLabel(type: string) {
+    switch (type) {
+      case 'cultureG': return 'Culture Générale';
+      case 'cultureGHard': return 'Culture G (Difficile)';
+      case 'culturePop': return 'Culture Pop';
+      case 'cultureGeek': return 'Culture Geek';
+      case 'cultureArt': return 'Art & Littérature';
+      case 'hard': return 'Hardcore';
+      case 'devinette': return 'Devinette';
+      case 'verite': return 'Vérité';
+      default: return type.charAt(0).toUpperCase() + type.slice(1);
+    }
+  }
 
   if (loading) {
     return (
@@ -524,13 +668,12 @@ export default function KnowOrDrinkGame() {
     <View style={styles.container}>
       <LinearGradient
         colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
+        locations={[0, 0.2, 0.5, 0.8, 1]}
         style={styles.background}
       >
-        {renderProgressBar()}
-        {gameState?.phase === 'question' && renderQuestionPhase()}
-        {gameState?.phase === 'accusation' && renderAccusationPhase()}
-        {gameState?.phase === 'results' && renderResultsPhase()}
-        {isEnd && renderEndScreen()}
+        {gameState.phase === GamePhase.QUESTION && renderQuestionPhase()}
+        {gameState.phase === GamePhase.VOTE && renderAccusationPhase()}
+        {gameState.phase === GamePhase.RESULTS && renderResultsPhase()}
       </LinearGradient>
     </View>
   );
@@ -725,22 +868,24 @@ const styles = StyleSheet.create({
   progressBarTrack: {
     flex: 1,
     height: 8,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 4,
+    backgroundColor: '#3D2956',
+    borderRadius: 8,
     overflow: 'hidden',
     flexDirection: 'row',
     marginRight: 12,
   },
   progressBarFill: {
-    height: '100%',
-    borderRadius: 4,
+    backgroundColor: '#C471F5',
+    borderRadius: 8,
+    height: 8,
   },
-  progressText: {
-    color: '#fff',
-    textAlign: 'center',
-    marginTop: 8,
-    fontSize: 12,
-    opacity: 0.7,
+  progressBarText: {
+    color: '#E5DFFB',
+    fontSize: 18,
+    fontWeight: '500',
+    minWidth: 48,
+    textAlign: 'right',
+    fontFamily: 'System',
   },
   statusIcon: {
     fontSize: 24,
@@ -791,52 +936,5 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.18,
     shadowRadius: 8,
     elevation: 6,
-  },
-  questionContainer: {
-    flex: 1,
-    padding: 20,
-    justifyContent: 'center',
-  },
-  questionGradient: {
-    borderRadius: 20,
-    padding: 24,
-    shadowColor: '#A259FF',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  answerInputContainer: {
-    marginTop: 20,
-  },
-  submitButton: {
-    backgroundColor: '#A259FF',
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-    marginTop: 16,
-  },
-  submitButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  actionButton: {
-    flex: 1,
-    marginHorizontal: 8,
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  knowButton: {
-    backgroundColor: '#4CAF50',
-  },
-  dontKnowButton: {
-    backgroundColor: '#F44336',
   },
 }); 
