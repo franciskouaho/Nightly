@@ -4,15 +4,21 @@ export const useAnalytics = () => {
   const posthog = usePostHog();
 
   const trackEvent = (eventName: string, properties?: Record<string, any>) => {
-    posthog.capture(eventName, properties);
+    if (posthog) {
+      posthog.capture(eventName, properties);
+    }
   };
 
   const identifyUser = (userId: string, properties?: Record<string, any>) => {
-    posthog.identify(userId, properties);
+    if (posthog) {
+      posthog.identify(userId, properties);
+    }
   };
 
   const resetUser = () => {
-    posthog.reset();
+    if (posthog) {
+      posthog.reset();
+    }
   };
 
   return {

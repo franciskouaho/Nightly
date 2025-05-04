@@ -37,7 +37,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (userDoc.exists()) {
             const userData = userDoc.data() as User;
             setUser(userData);
-            // Identifier l'utilisateur dans PostHog
             identifyUser(userData.uid, {
               pseudo: userData.pseudo,
               createdAt: userData.createdAt

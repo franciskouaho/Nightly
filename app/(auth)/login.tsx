@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'expo-router';
@@ -10,7 +10,7 @@ import { Ionicons } from '@expo/vector-icons';
 export default function LoginScreen() {
   const [username, setUsername] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { signInWithPseudo } = useAuth();
+  const { signIn } = useAuth();
   const router = useRouter();
 
   const handleLogin = async () => {
@@ -26,7 +26,7 @@ export default function LoginScreen() {
 
     setIsLoading(true);
     try {
-      await signInWithPseudo(username);
+      await signIn(username);
       router.replace('/(tabs)');
     } catch (error: any) {
       Alert.alert(
@@ -39,7 +39,10 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
       <LinearGradient
         colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
         locations={[0, 0.2, 0.5, 0.8, 1]}
@@ -78,7 +81,7 @@ export default function LoginScreen() {
           </View>
         </View>
       </LinearGradient>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
