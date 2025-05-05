@@ -39,8 +39,8 @@ export default function GameRouter() {
         return;
       }
 
-      if (mode === 'know-or-drink') {
-        router.replace(`/game/know-or-drink/${id}`);
+      if (mode === 'genius-or-liar') {
+        router.replace(`/game/genius-or-liar/${id}`);
         return;
       }
 

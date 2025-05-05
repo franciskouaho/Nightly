@@ -61,10 +61,10 @@ export const gameCategories: GameCategory[] = [
     subtitle: 'Plusieurs téléphones',
     games: [
       {
-        id: 'know-or-drink',
-        name: 'SOIT TU SAIS SOIT TU BOIS',
-        description: 'Un mode ludique avec un niveau de difficulté progressif.',
-        image: require('@/assets/jeux/soit-tu-sais-soit-tu-bois.png'),
+        id: 'genius-or-liar',
+        name: 'GENIE OU MENTEUR',
+        description: 'Un mode ludique où vous devez prouver vos connaissances ou assumer vos gages.',
+        image: require('@/assets/jeux/genius-or-liar.png'),
         colors: ["rgba(20, 20, 40, 0.8)", "rgba(40, 40, 80, 0.9)"],
         borderColor: "#212121",
         shadowColor: "#212121",

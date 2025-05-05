@@ -1733,7 +1733,7 @@ const questions = {
     { type: "verite", text: "Est-ce que l’humour peut sauver une relation en crise ?" },
     { type: "verite", text: "Est-ce que les opposés s’attirent… ou se détruisent ?" }
   ],
-  "know-or-drink": [
+  "genius-or-liar": [
     { type: "cultureG", question: "Quel est le plus long fleuve du monde ?", answer: "Le Nil" },
     { type: "cultureG", question: "Quelle est la monnaie utilisée au Royaume-Uni ?", answer: "La livre sterling" },
     { type: "cultureG", question: "Quel est le plus haut sommet du monde ?", answer: "L'Everest" },
