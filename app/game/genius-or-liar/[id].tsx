@@ -55,6 +55,7 @@ interface KnowOrDrinkGameState {
   };
   gameMode: 'points' | 'gages';
   questions: FirebaseQuestion[];
+  askedQuestions?: string[];
 }
 
 export default function KnowOrDrinkGame() {
@@ -264,7 +265,7 @@ export default function KnowOrDrinkGame() {
               textShadowOffset: { width: 0, height: 1 },
               textShadowRadius: 2,
             }}>
-              {gameState?.currentQuestion?.text?.question || 'Aucune question disponible'}
+              {gameState?.currentQuestion?.question || 'Aucune question disponible'}
             </Text>
           </View>
           {gameState?.currentUserState?.[user?.uid]?.hasAnswered && gameState.phase === 'question' ? (
@@ -417,31 +418,39 @@ export default function KnowOrDrinkGame() {
     try {
       const db = getFirestore();
       const gameRef = doc(db, 'games', String(id));
-      // Récupère les questions depuis gameQuestions/know-or-drink
-      const questionsRef = doc(db, 'gameQuestions', 'know-or-drink');
+      // Récupère les questions depuis gameQuestions/genius-or-liar
+      const questionsRef = doc(db, 'gameQuestions', 'genius-or-liar');
       const questionsDoc = await getDoc(questionsRef);
       let questionsArr = [];
       if (questionsDoc.exists()) {
         const data = questionsDoc.data();
-        if (Array.isArray(data)) {
-          questionsArr = data.filter(Boolean);
-        } else if (data && Array.isArray(data.questions)) {
+        console.log('🔥 Firestore data:', data);
+        if (Array.isArray(data.questions)) {
           questionsArr = data.questions.filter(Boolean);
-        } else if (data && typeof data === 'object') {
-          questionsArr = Object.values(data).filter(Boolean);
         }
       }
-      if (questionsArr.length === 0) {
-        Alert.alert('Erreur', 'Aucune question disponible dans la base de données.');
+      // Liste des index déjà posés
+      const askedIndexes = gameState.askedQuestions || [];
+      console.log('questionsArr:', questionsArr);
+      console.log('askedIndexes:', askedIndexes);
+      // On filtre les questions déjà posées
+      const availableQuestions = questionsArr
+        .map((q, idx) => ({ ...q, _idx: idx }))
+        .filter(q => !askedIndexes.includes(q._idx));
+      console.log('availableQuestions:', availableQuestions);
+      if (availableQuestions.length === 0) {
+        Alert.alert('Erreur', 'Plus de questions disponibles.');
         return;
       }
-      const nextQuestion = questionsArr[Math.floor(Math.random() * questionsArr.length)];
+      // Tire une nouvelle question au hasard
+      const nextQuestion = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
       await updateDoc(gameRef, {
         currentRound: gameState.currentRound + 1,
         phase: 'question',
         currentUserState: {},
         playerAnswers: {},
         currentQuestion: nextQuestion,
+        askedQuestions: [...askedIndexes, nextQuestion._idx], // On stocke l'index de la question posée
       });
     } catch (error) {
       Alert.alert('Erreur', 'Impossible de passer au tour suivant');
