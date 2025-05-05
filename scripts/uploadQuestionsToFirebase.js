@@ -2064,7 +2064,57 @@ const questions = {
     { type: "devinette", question: "Je peux être cassé sans être touché. Qui suis-je ?", answer: "Une promesse" },
     { type: "devinette", question: "Je suis en haut d'une montagne, j'ai une clé mais pas de porte. Qui suis-je ?", answer: "Un clavier" },
     { type: "devinette", question: "Qu'est-ce qui est noir quand c'est propre et blanc quand c'est sale ?", answer: "Un tableau noir" }
-  ]
+  ], 
+  "never-have-i-ever-hot": [
+  {
+    "text": "Je n’ai jamais embrassé quelqu’un lors d’une soirée.",
+    "type": "coquin"
+  },
+  {
+    "text": "Je n’ai jamais envoyé un message sexy.",
+    "type": "coquin"
+  },
+  {
+    "text": "Je n’ai jamais dormi nu(e).",
+    "type": "sage"
+  },
+  {
+    "text": "Je n’ai jamais eu de coup de foudre au premier regard.",
+    "type": "sage"
+  },
+  {
+    "text": "Je n’ai jamais flirté avec un(e) inconnu(e) dans un bar.",
+    "type": "coquin"
+  },
+  {
+    "text": "Je n’ai jamais utilisé d’application de rencontre.",
+    "type": "sage"
+  },
+  {
+    "text": "Je n’ai jamais fait un rêve érotique sur un ami.",
+    "type": "coquin"
+  },
+  {
+    "text": "Je n’ai jamais menti sur mon nombre de partenaires.",
+    "type": "coquin"
+  },
+  {
+    "text": "Je n’ai jamais regardé une série romantique en cachette.",
+    "type": "sage"
+  },
+  {
+    "text": "Je n’ai jamais eu un crush pour un prof ou collègue.",
+    "type": "coquin"
+  },
+  {
+    "text": "Je n’ai jamais fantasmé sur quelqu’un dans cette pièce.",
+    "type": "coquin"
+  },
+  {
+    "text": "Je n’ai jamais eu un rendez-vous foireux.",
+    "type": "sage"
+  }
+]
 };
 
 async function uploadQuestions() {

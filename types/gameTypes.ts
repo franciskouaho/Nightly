@@ -9,6 +9,7 @@ export interface Question {
   text: string;
   theme: string;
   roundNumber: number;
+  type?: 'coquin' | 'sage';
 }
 
 export interface Answer {
@@ -25,7 +26,8 @@ export enum GamePhase {
   WAITING = 'waiting',
   VOTE = 'vote',
   WAITING_FOR_VOTE = 'waiting_for_vote',
-  RESULTS = 'results'
+  RESULTS = 'results',
+  END = 'end'
 }
 
 export interface GameState {

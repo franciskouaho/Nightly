@@ -44,6 +44,11 @@ export default function GameRouter() {
         return;
       }
 
+       if (mode === 'never-have-i-ever-hot') {
+        router.replace(`/game/never-have-i-ever-hot/${id}`);
+        return;
+      }
+
       Alert.alert('Erreur', `Mode de jeu inconnu: ${mode}`);
     };
     redirect();
