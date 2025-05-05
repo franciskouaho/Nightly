@@ -4,8 +4,13 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { PaperProvider } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import '@/config/firebase';
+import NotificationService from '@/services/notifications';
 
 export default function RootLayout() {
+  useEffect(() => {
+    NotificationService.initialize();
+  }, []);
+
   return (
     <SafeAreaProvider>
       <PaperProvider>
