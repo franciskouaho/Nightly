@@ -4,7 +4,6 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { getFirestore, doc, onSnapshot, updateDoc, getDoc } from '@react-native-firebase/firestore';
 import { useAuth } from '@/contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { GamePhase, Player } from '@/types/gameTypes';
 
 interface FirebaseQuestion {
@@ -49,7 +48,7 @@ interface KnowOrDrinkGameState {
       accusedBy: string[];
     };
   };
-  gameMode: 'points' | 'drinks';
+  gameMode: 'points' | 'gages';
   questions: FirebaseQuestion[];
 }
 
@@ -175,14 +174,14 @@ export default function KnowOrDrinkGame() {
       } else {
         return 0; // 0 point si ne sait pas
       }
-    } else { // Mode boisson
+    } else { // Mode gages
       if (playerAnswer.knows) {
         if (playerAnswer.isAccused) {
-          return 2; // Boit 2 gorgées si accusé à raison
+          return 2; // Reçoit 2 gages si accusé à raison
         }
-        return 0; // Ne boit pas si sait la réponse
+        return 0; // Pas de gage si sait la réponse
       } else {
-        return 1; // Boit 1 gorgée si ne sait pas
+        return 1; // Reçoit 1 gage si ne sait pas
       }
     }
   };
