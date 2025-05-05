@@ -1,0 +1,12 @@
+{
+  "functions": {
+    "source": "cloud-functions",
+    "predeploy": [
+      "yarn --cwd \"$RESOURCE_DIR\" build"
+    ]
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  }
+}
