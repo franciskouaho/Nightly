@@ -4044,6 +4044,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@revenuecat/purchases-typescript-internal@npm:13.29.1":
+  version: 13.29.1
+  resolution: "@revenuecat/purchases-typescript-internal@npm:13.29.1"
+  checksum: 10c0/be14555edc45766c5ec44a68768cc789acba79d5686d1c318fc36ae3c60faf56ffaa090bc706e991ebdbbe092739bf02359261e1bea3a960cba3d19b0054215d
+  languageName: node
+  linkType: hard
+
 "@rtsao/scc@npm:^1.1.0":
   version: 1.1.0
   resolution: "@rtsao/scc@npm:1.1.0"
@@ -11666,6 +11673,7 @@ __metadata:
     react-native-country-flag: "npm:^2.0.2"
     react-native-gesture-handler: "npm:~2.20.2"
     react-native-paper: "npm:^5.14.0"
+    react-native-purchases: "npm:^8.9.5"
     react-native-qrcode-svg: "npm:^6.3.15"
     react-native-reanimated: "npm:~3.16.1"
     react-native-safe-area-context: "npm:4.12.0"
@@ -12796,6 +12804,18 @@ __metadata:
     react-native: "*"
     react-native-safe-area-context: "*"
   checksum: 10c0/5ffa063512d69239672b02912a0c7d75425d6363ea84d0fef896ae68b3cf5e567b377f71ad9af0e3aa70e9dc1cd040dd4b3ca683048863436a8aff75666c94bf
+  languageName: node
+  linkType: hard
+
+"react-native-purchases@npm:^8.9.5":
+  version: 8.9.6
+  resolution: "react-native-purchases@npm:8.9.6"
+  dependencies:
+    "@revenuecat/purchases-typescript-internal": "npm:13.29.1"
+  peerDependencies:
+    react: ">= 16.6.3"
+    react-native: "*"
+  checksum: 10c0/e5a279ff3681b915bfce2896a84f8f755cdc6cb81a6308938cdb46408135c6d5fb9b3b786ca0e78ac898edcb360741f9c0ce0b163e60bca0161ff85c0fb2935b
   languageName: node
   linkType: hard
 
