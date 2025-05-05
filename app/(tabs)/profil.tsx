@@ -1,6 +1,6 @@
 "use client"
 
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -8,10 +8,12 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import RoundedButton from '@/components/RoundedButton';
+import PaywallModal from '@/components/PaywallModal';
 
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
   const router = useRouter();
+  const [showPaywall, setShowPaywall] = useState(false);
 
   const handleLogout = () => {
     Alert.alert(
@@ -44,6 +46,10 @@ export default function ProfileScreen() {
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
+      <PaywallModal 
+        isVisible={showPaywall}
+        onClose={() => setShowPaywall(false)}
+      />
       
       <LinearGradient
         colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
@@ -117,7 +123,10 @@ export default function ProfileScreen() {
               </View>
             </View>
             <View style={styles.premiumBottomRow}>
-              <TouchableOpacity style={styles.premiumButton}>
+              <TouchableOpacity 
+                style={styles.premiumButton}
+                onPress={() => setShowPaywall(true)}
+              >
                 <Text style={styles.premiumButtonText}>Essayer le premium</Text>
               </TouchableOpacity>
               <View style={styles.premiumOfferTextContainer}>
