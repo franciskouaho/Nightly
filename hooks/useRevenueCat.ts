@@ -1,3 +1,4 @@
+/*
 import { useState, useEffect } from 'react';
 import { Platform } from 'react-native';
 import Purchases, { CustomerInfo, PurchasesOffering } from 'react-native-purchases';
@@ -52,4 +53,4 @@ function useRevenueCat() {
     return { currentOffering, customerInfo, isProMember };
 }
 
-export default useRevenueCat; 
+export default useRevenueCat; */

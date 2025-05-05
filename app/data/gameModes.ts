@@ -42,7 +42,7 @@ export const gameCategories: GameCategory[] = [
       },
       {
         id: 'never-have-i-ever-hot',
-        name: 'Je n’ai jamais 🔞',
+        name: 'JE N’AI JAMAIS 🔞',
         description: 'Questions coquines et déplacées... Prêts à assumer ?',
         image: require('@/assets/jeux/hot.png'),
         colors: ["rgba(90, 10, 50, 0.8)", "rgba(130, 20, 80, 0.9)"],

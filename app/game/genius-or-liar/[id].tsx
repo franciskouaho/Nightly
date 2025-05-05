@@ -13,6 +13,11 @@ interface FirebaseQuestion {
   id?: string;
   roundNumber?: number;
   theme?: string;
+  text?: {
+    type: string;
+    question: string;
+    answer: string;
+  };
 }
 
 interface KnowOrDrinkGameState {
@@ -259,7 +264,7 @@ export default function KnowOrDrinkGame() {
               textShadowOffset: { width: 0, height: 1 },
               textShadowRadius: 2,
             }}>
-              {gameState?.currentQuestion?.question || 'Aucune question disponible'}
+              {gameState?.currentQuestion?.text?.question || 'Aucune question disponible'}
             </Text>
           </View>
           {gameState?.currentUserState?.[user?.uid]?.hasAnswered && gameState.phase === 'question' ? (
@@ -492,9 +497,11 @@ export default function KnowOrDrinkGame() {
                   {score > 0 ? `+${score}` : score} point{score !== 1 ? 's' : ''}
                 </Text>
               ) : (
-                <Text style={styles.drinksText}>
-                  {score} gorgée{score !== 1 ? 's' : ''} à boire
-                </Text>
+                score > 0 && (
+                  <Text style={styles.drinksText}>
+                    {score} gorgée{score !== 1 ? 's' : ''} à boire
+                  </Text>
+                )
               )}
             </View>
           );
@@ -792,17 +799,17 @@ const styles = StyleSheet.create({
     fontFamily: 'System',
   },
   resultCard: {
-    backgroundColor: 'rgba(42, 42, 42, 0.8)',
-    padding: 20,
-    borderRadius: 16,
-    marginBottom: 15,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
+    backgroundColor: 'rgba(30, 20, 40, 0.45)',
+    padding: 22,
+    borderRadius: 22,
+    marginBottom: 18,
+    borderWidth: 1.5,
+    borderColor: 'rgba(162, 89, 255, 0.18)',
+    shadowColor: '#A259FF',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
+    elevation: 8,
     width: '100%',
     maxWidth: 400,
   },
