@@ -38,14 +38,6 @@ const questions = {
     },
     {
       type: "action",
-      text: "À genoux, fais une demande en mariage dramatique à ton verre/ta boisson. Avec discours inclus."
-    },
-    {
-      type: "action",
-      text: "Ferme les yeux. Quelqu'un te fait goûter 3 trucs. Tu dois deviner ce que c'est. Si tu te trompes 2 fois, tu bois un mélange de tout."
-    },
-    {
-      type: "action",
       text: "Reproduis la pose la plus sexy que tu connais sur un meuble."
     },
     {
@@ -299,10 +291,6 @@ const questions = {
     {
       type: "action",
       text: "Fais une imitation de quelqu'un du groupe… comme s'il/elle était en plein rencard torride."
-    },
-    {
-      type: "action",
-      text: "Tu dois deviner la couleur des sous-vêtements de 2 personnes. S'il y a une erreur… tu bois une gorgée (ou un gage)."
     },
     {
       type: "action",
@@ -711,10 +699,6 @@ const questions = {
     {
       type: "action",
       text: "Faites un vote à main levée : qui aurait le plus de chance de finir en couple avec quelqu’un ici ? Le ou la gagnante choisit un partenaire pour une danse lente improvisée."
-    },
-    {
-      type: "action",
-      text: "Le groupe forme deux équipes. Chacune doit inventer une “publicité sexy” pour une boisson imaginaire. Présentation obligatoire devant tout le monde !"
     },
     {
       type: "action",
