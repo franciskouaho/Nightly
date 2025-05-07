@@ -24,8 +24,8 @@ export interface GameCategory {
 export const gameCategories: GameCategory[] = [
   {
     id: 'nightly_modes',
-    title: 'NIGHTLY MODES',
-    subtitle: 'Plusieurs téléphones',
+    title: 'SUGGESTION DE LA SEMAINE',
+    subtitle: '',
     games: [
       {
         id: 'listen-but-don-t-judge',
@@ -38,6 +38,26 @@ export const gameCategories: GameCategory[] = [
         tag: 'GRATUIT',
         tagColor: "#8E24AA",
         premium: false,
+        interactive: 'write'
+      },
+    ]
+  },
+  {
+    id: 'packs',
+    title: 'TOUT LES JEUX',
+    subtitle: '',
+    games: [
+      {
+        id: 'genius-or-liar',
+        name: 'GENIE OU MENTEUR',
+        description: 'Un mode ludique où vous devez prouver vos connaissances ou assumer vos gages.',
+        image: require('@/assets/jeux/genius-or-liar.png'),
+        colors: ["rgba(20, 20, 40, 0.8)", "rgba(40, 40, 80, 0.9)"],
+        borderColor: "#212121",
+        shadowColor: "#212121",
+        tag: 'PREMIUM',
+        tagColor: "#D81B60",
+        premium: true,
         interactive: 'write'
       },
       {
@@ -53,33 +73,6 @@ export const gameCategories: GameCategory[] = [
         premium: true,
         interactive: 'write'
       },
-    ]
-  },
-  {
-    id: 'jeu_de_soiree',
-    title: 'JEU DE SOIRÉE',
-    subtitle: 'Plusieurs téléphones',
-    games: [
-      {
-        id: 'genius-or-liar',
-        name: 'GENIE OU MENTEUR',
-        description: 'Un mode ludique où vous devez prouver vos connaissances ou assumer vos gages.',
-        image: require('@/assets/jeux/genius-or-liar.png'),
-        colors: ["rgba(20, 20, 40, 0.8)", "rgba(40, 40, 80, 0.9)"],
-        borderColor: "#212121",
-        shadowColor: "#212121",
-        tag: 'PREMIUM',
-        tagColor: "#D81B60",
-        premium: true,
-        interactive: 'write'
-      },
-    ]
-  },
-  {
-    id: 'packs',
-    title: 'NOS PACKS LES PLUS JOUÉS',
-    subtitle: '',
-    games: [
       {
         id: 'truth-or-dare',
         name: 'ACTION OU VÉRITÉ',
