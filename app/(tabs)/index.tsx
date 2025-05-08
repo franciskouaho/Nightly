@@ -79,7 +79,8 @@ export default function HomeScreen() {
     console.log('👤 Informations utilisateur:', {
       uid: user.uid,
       pseudo: user.pseudo,
-      createdAt: user.createdAt
+      createdAt: user.createdAt,
+      avatar: user.avatar
     });
 
     if (!user.uid) {
@@ -123,7 +124,7 @@ export default function HomeScreen() {
           displayName: displayName,
           isHost: true,
           isReady: true,
-          avatar: `https://i.pravatar.cc/150?img=${Math.floor(Math.random() * 70)}`,
+          avatar: user.avatar || `https://i.pravatar.cc/150?img=${Math.floor(Math.random() * 70)}`,
         }],
         createdAt: new Date().toISOString(),
         status: "waiting",
@@ -238,7 +239,7 @@ export default function HomeScreen() {
         Alert.alert('Erreur', 'Utilisateur non authentifié');
         return;
       }
-      if (room.players.includes(user.uid)) {
+      if (room.players.some(p => p.id === user.uid)) {
         Alert.alert('Erreur', 'Vous êtes déjà dans cette partie');
         return;
       }
@@ -249,14 +250,15 @@ export default function HomeScreen() {
         displayName: user.pseudo || 'Joueur',
         isHost: false,
         isReady: false,
-        avatar: `https://i.pravatar.cc/150?img=${Math.floor(Math.random() * 70)}`,
+        avatar: user.avatar || `https://i.pravatar.cc/150?img=${Math.floor(Math.random() * 70)}`,
       };
       await updateDoc(roomRef, {
         players: [...room.players, newPlayer]
       });
       router.push(`/room/${roomDoc.id}`);
     } catch (error) {
-      Alert.alert('Erreur', 'Une erreur est survenue lors de la recherche de la partie');
+      console.error('Erreur lors de la jonction de la salle:', error);
+      Alert.alert('Erreur', 'Impossible de rejoindre la salle');
     } finally {
       setLoading(false);
     }
