@@ -7,7 +7,7 @@ import { getFirestore, doc, onSnapshot, updateDoc, getDoc } from '@react-native-
 import { useAuth } from '@/contexts/AuthContext';
 import RoundedButton from '@/components/RoundedButton';
 import ResultsPhase from '@/components/game/ResultsPhase';
-import { useInAppReview } from '@/hooks/useInAppReview';
+import useInAppReview from '@/hooks/useInAppReview';
 
 interface Player {
   id: string;
@@ -16,7 +16,7 @@ interface Player {
 }
 
 interface GameState {
-  phase: 'question' | 'answer' | 'vote' | 'results';
+  phase: 'question' | 'answer' | 'vote' | 'results' | 'choix';
   currentRound: number;
   totalRounds: number;
   targetPlayer: Player | null;
@@ -51,7 +51,14 @@ export default function ListenButDontJudgeScreen() {
     const gameRef = doc(db, 'games', String(id));
     const unsubscribe = onSnapshot(gameRef, (docSnap) => {
       if (docSnap.exists()) {
-        setGame(docSnap.data() as GameState);
+        const gameData = docSnap.data() as GameState;
+        // Si la phase est 'choix', on la change en 'question'
+        if (gameData.phase === 'choix') {
+          updateDoc(gameRef, {
+            phase: 'question'
+          });
+        }
+        setGame(gameData);
       }
       setLoading(false);
     });
@@ -125,30 +132,57 @@ export default function ListenButDontJudgeScreen() {
     const db = getFirestore();
     const gameRef = doc(db, 'games', String(id));
 
-    // Sélectionne un nouveau joueur cible (différent du précédent si possible)
-    let nextTarget = null;
-    if (game.players.length > 1) {
-      const otherPlayers = game.players.filter(p => p.id !== game.targetPlayer?.id);
-      nextTarget = otherPlayers[Math.floor(Math.random() * otherPlayers.length)];
-    } else {
-      nextTarget = game.players[0];
+    try {
+      // Sélectionne un nouveau joueur cible (différent du précédent si possible)
+      let nextTarget = null;
+      if (game.players.length > 1) {
+        const otherPlayers = game.players.filter(p => p.id !== game.targetPlayer?.id);
+        nextTarget = otherPlayers[Math.floor(Math.random() * otherPlayers.length)];
+      } else {
+        nextTarget = game.players[0];
+      }
+
+      // Récupère les questions
+      const questionsRef = doc(db, 'gameQuestions', 'listen-but-don-t-judge');
+      const questionsDoc = await getDoc(questionsRef);
+      
+      console.log('Questions document exists:', questionsDoc.exists());
+      console.log('Questions data:', questionsDoc.data());
+      
+      if (!questionsDoc.exists()) {
+        Alert.alert('Erreur', 'Impossible de récupérer les questions');
+        return;
+      }
+
+      const questions = questionsDoc.data()?.questions;
+      console.log('Questions array:', questions);
+      
+      if (!questions || !Array.isArray(questions) || questions.length === 0) {
+        Alert.alert('Erreur', 'Aucune question disponible');
+        return;
+      }
+
+      // Prend une question aléatoire
+      const nextQuestion = questions[Math.floor(Math.random() * questions.length)];
+      console.log('Selected question:', nextQuestion);
+      
+      if (!nextQuestion) {
+        Alert.alert('Erreur', 'Impossible de sélectionner une question');
+        return;
+      }
+
+      await updateDoc(gameRef, {
+        currentRound: (game.currentRound || 1) + 1,
+        targetPlayer: nextTarget,
+        currentQuestion: typeof nextQuestion === 'string' ? { text: nextQuestion } : nextQuestion,
+        answers: [],
+        votes: {},
+        phase: 'question'
+      });
+    } catch (error) {
+      console.error('Erreur lors du passage au tour suivant:', error);
+      Alert.alert('Erreur', 'Une erreur est survenue lors du passage au tour suivant');
     }
-
-    // Récupère les questions
-    const questionsRef = doc(db, 'gameQuestions', 'listen-but-don-t-judge');
-    const questionsDoc = await getDoc(questionsRef);
-    const questions = (questionsDoc && questionsDoc.exists() && questionsDoc.data()?.questions) ? questionsDoc.data().questions : [];
-    // Prend une question aléatoire (tu peux améliorer pour éviter les doublons)
-    const nextQuestion = questions[Math.floor(Math.random() * questions.length)];
-
-    await updateDoc(gameRef, {
-      currentRound: (game.currentRound || 1) + 1,
-      targetPlayer: nextTarget,
-      currentQuestion: typeof nextQuestion === 'string' ? { text: nextQuestion } : nextQuestion,
-      answers: [],
-      votes: {},
-      phase: 'question'
-    });
   };
 
   if (loading) {

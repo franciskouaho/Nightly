@@ -8,8 +8,7 @@ import { GameState, GamePhase } from '@/types/gameTypes';
 import { LinearGradient } from 'expo-linear-gradient';
 import RoundedButton from '@/components/RoundedButton';
 import { Animated } from 'react-native';
-import { useInAppReview } from '@/hooks/useInAppReview';
-
+import useInAppReview from '@/hooks/useInAppReview';
 interface TruthOrDareQuestion { text: string; type: string; }
 
 // Ajout du type local pour ce mode de jeu
