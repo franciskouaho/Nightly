@@ -55,4 +55,5 @@ export interface GameState {
     hostId?: string;
   };
   allPlayersVoted?: boolean;
+  currentPlayerId?: string;
 } 

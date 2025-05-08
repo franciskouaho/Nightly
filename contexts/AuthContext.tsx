@@ -4,18 +4,20 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { getAuth, onAuthStateChanged, signInAnonymously } from '@react-native-firebase/auth';
 import { collection, doc, getDoc, setDoc, getFirestore } from '@react-native-firebase/firestore';
 import { useAnalytics } from '@/hooks/useAnalytics';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface User {
   uid: string;
   pseudo: string;
   createdAt: string;
+  avatar: string;
 }
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   error: Error | null;
-  signIn: (pseudo: string) => Promise<void>;
+  signIn: (pseudo: string, avatar: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -55,7 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => unsubscribe();
   }, []);
 
-  const signIn = async (pseudo: string) => {
+  const signIn = async (pseudo: string, avatar: string) => {
     try {
       setLoading(true);
       const auth = getAuth();
@@ -74,14 +76,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Sauvegarder le pseudo
       await setDoc(doc(db, 'usernames', pseudo.toLowerCase()), {
         uid,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        avatar,
       });
 
       // Sauvegarder les informations de l'utilisateur
       const userData = {
         uid,
         pseudo,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        avatar,
       };
       await setDoc(doc(db, 'users', uid), userData);
       setUser(userData);
@@ -89,7 +93,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Track sign in event
       trackEvent('user_signed_in', {
         pseudo,
-        uid
+        uid,
+        avatar,
       });
     } catch (err) {
       setError(err as Error);
@@ -103,6 +108,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const auth = getAuth();
       await auth.signOut();
+      
+      // Effacer toutes les données locales
+      await AsyncStorage.clear();
+      
+      // Réinitialiser l'état
       setUser(null);
       resetUser();
       trackEvent('user_signed_out');
