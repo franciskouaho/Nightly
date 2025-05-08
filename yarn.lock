@@ -11759,6 +11759,7 @@ __metadata:
     react-native-confetti: "npm:^0.1.0"
     react-native-country-flag: "npm:^2.0.2"
     react-native-gesture-handler: "npm:~2.20.2"
+    react-native-in-app-review: "npm:^4.3.5"
     react-native-paper: "npm:^5.14.0"
     react-native-purchases: "npm:^8.9.5"
     react-native-qrcode-svg: "npm:^6.3.15"
@@ -12866,6 +12867,13 @@ __metadata:
   peerDependencies:
     react: ^16.6.0 || ^17.0.0 || ^18.0.0
   checksum: 10c0/61ec9807878d8545750fa20f04a85189e59ebacba7a66c3feb14640bead8216d7bcf781c47432e7ab20bad57e4bf0a9a261cc34b9e83c35d981be1e28251e201
+  languageName: node
+  linkType: hard
+
+"react-native-in-app-review@npm:^4.3.5":
+  version: 4.3.5
+  resolution: "react-native-in-app-review@npm:4.3.5"
+  checksum: 10c0/7adbfd91f6ad7a84f2148728c5387bf8d80f0bf4cb5229bf4d8ea728051c90bda297ecc1c8564921622667bf9cdc1c288b4e57ab30c090d6397f01d55d349247
   languageName: node
   linkType: hard
 

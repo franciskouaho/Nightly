@@ -7,6 +7,7 @@ import { getFirestore, doc, onSnapshot, updateDoc, getDoc } from '@react-native-
 import { useAuth } from '@/contexts/AuthContext';
 import RoundedButton from '@/components/RoundedButton';
 import ResultsPhase from '@/components/game/ResultsPhase';
+import { useInAppReview } from '@/hooks/useInAppReview';
 
 interface Player {
   id: string;
@@ -38,6 +39,7 @@ export default function ListenButDontJudgeScreen() {
   const { id } = useLocalSearchParams();
   const { user } = useAuth();
   const router = useRouter();
+  const { requestReview } = useInAppReview();
   const [game, setGame] = useState<GameState | null>(null);
   const [loading, setLoading] = useState(true);
   const [answer, setAnswer] = useState('');
@@ -58,11 +60,13 @@ export default function ListenButDontJudgeScreen() {
 
   useEffect(() => {
     if (game && game.currentRound >= game.totalRounds && game.phase === 'results') {
-      setTimeout(() => {
+      const timeout = setTimeout(async () => {
+        await requestReview();
         router.replace(`/game/results/${id}`);
       }, 2000);
+      return () => clearTimeout(timeout);
     }
-  }, [game, id, router]);
+  }, [game, id, router, requestReview]);
 
   const handleSubmitAnswer = async () => {
     if (!game || !user || !answer.trim()) return;

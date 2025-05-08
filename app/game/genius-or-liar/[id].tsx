@@ -5,6 +5,7 @@ import { getFirestore, doc, onSnapshot, updateDoc, getDoc } from '@react-native-
 import { useAuth } from '@/contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { GamePhase, Player } from '@/types/gameTypes';
+import { useInAppReview } from '@/hooks/useInAppReview';
 
 interface FirebaseQuestion {
   type: string;
@@ -62,6 +63,7 @@ export default function KnowOrDrinkGame() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const { user } = useAuth();
+  const { requestReview } = useInAppReview();
   const [gameState, setGameState] = useState<KnowOrDrinkGameState | null>(null);
   const [loading, setLoading] = useState(true);
   const [answer, setAnswer] = useState('');
@@ -660,6 +662,17 @@ export default function KnowOrDrinkGame() {
       default: return type.charAt(0).toUpperCase() + type.slice(1);
     }
   }
+
+  useEffect(() => {
+    if (gameState && gameState.currentRound > gameState.totalRounds) {
+      setIsEnd(true);
+      const timeout = setTimeout(async () => {
+        await requestReview();
+        router.replace(`/game/results/${id}`);
+      }, 2000);
+      return () => clearTimeout(timeout);
+    }
+  }, [gameState, id, router, requestReview]);
 
   if (loading) {
     return (
