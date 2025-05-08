@@ -124,7 +124,7 @@ export default function HomeScreen() {
           displayName: displayName,
           isHost: true,
           isReady: true,
-          avatar: user.avatar || `https://i.pravatar.cc/150?img=${Math.floor(Math.random() * 70)}`,
+          avatar: user.avatar,
         }],
         createdAt: new Date().toISOString(),
         status: "waiting",
@@ -250,7 +250,7 @@ export default function HomeScreen() {
         displayName: user.pseudo || 'Joueur',
         isHost: false,
         isReady: false,
-        avatar: user.avatar || `https://i.pravatar.cc/150?img=${Math.floor(Math.random() * 70)}`,
+        avatar: user.avatar,
       };
       await updateDoc(roomRef, {
         players: [...room.players, newPlayer]

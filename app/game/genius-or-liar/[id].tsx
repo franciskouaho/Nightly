@@ -5,7 +5,7 @@ import { getFirestore, doc, onSnapshot, updateDoc, getDoc } from '@react-native-
 import { useAuth } from '@/contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { GamePhase, Player } from '@/types/gameTypes';
-import { useInAppReview } from '@/hooks/useInAppReview';
+import useInAppReview from '@/hooks/useInAppReview';
 
 interface FirebaseQuestion {
   type: string;
@@ -81,6 +81,8 @@ export default function KnowOrDrinkGame() {
         const data = doc.data() as KnowOrDrinkGameState;
         console.log('📝 Données du jeu:', JSON.stringify(data, null, 2));
         console.log('❓ Question actuelle:', JSON.stringify(data.currentQuestion, null, 2));
+        console.log('🎮 Phase du jeu:', data.phase);
+        console.log('👥 Joueurs:', data.players);
         setGameState(data);
       }
       setLoading(false);
@@ -267,9 +269,17 @@ export default function KnowOrDrinkGame() {
               textShadowOffset: { width: 0, height: 1 },
               textShadowRadius: 2,
             }}>
-              {gameState?.currentQuestion?.question 
-                || gameState?.currentQuestion?.text?.question 
-                || 'Aucune question disponible'}
+              {(() => {
+                console.log('Current question:', gameState?.currentQuestion);
+                if (gameState?.currentQuestion?.question) {
+                  return gameState.currentQuestion.question;
+                } else if (gameState?.currentQuestion?.text?.question) {
+                  return gameState.currentQuestion.text.question;
+                } else if (typeof gameState?.currentQuestion === 'string') {
+                  return gameState.currentQuestion;
+                }
+                return 'Aucune question disponible';
+              })()}
             </Text>
           </View>
           {gameState?.currentUserState?.[user?.uid]?.hasAnswered && gameState.phase === 'question' ? (
@@ -429,34 +439,39 @@ export default function KnowOrDrinkGame() {
       if (questionsDoc.exists()) {
         const data = questionsDoc.data();
         console.log('🔥 Firestore data:', data);
+        console.log('📚 Questions disponibles:', data.questions?.length);
         if (Array.isArray(data.questions)) {
           questionsArr = data.questions.filter(Boolean);
+          console.log('✅ Questions filtrées:', questionsArr.length);
         }
+      } else {
+        console.log('❌ Document questions non trouvé');
       }
       // Liste des index déjà posés
       const askedIndexes = gameState.askedQuestions || [];
-      console.log('questionsArr:', questionsArr);
-      console.log('askedIndexes:', askedIndexes);
+      console.log('📝 Index déjà posés:', askedIndexes);
       // On filtre les questions déjà posées
       const availableQuestions = questionsArr
         .map((q, idx) => ({ ...q, _idx: idx }))
         .filter(q => !askedIndexes.includes(q._idx));
-      console.log('availableQuestions:', availableQuestions);
+      console.log('🎲 Questions disponibles:', availableQuestions.length);
       if (availableQuestions.length === 0) {
         Alert.alert('Erreur', 'Plus de questions disponibles.');
         return;
       }
       // Tire une nouvelle question au hasard
       const nextQuestion = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
+      console.log('🎯 Question sélectionnée:', nextQuestion);
       await updateDoc(gameRef, {
         currentRound: gameState.currentRound + 1,
         phase: 'question',
         currentUserState: {},
         playerAnswers: {},
         currentQuestion: nextQuestion,
-        askedQuestions: [...askedIndexes, nextQuestion._idx], // On stocke l'index de la question posée
+        askedQuestions: [...askedIndexes, nextQuestion._idx],
       });
     } catch (error) {
+      console.error('❌ Erreur lors du passage au tour suivant:', error);
       Alert.alert('Erreur', 'Impossible de passer au tour suivant');
     }
   };
@@ -467,7 +482,6 @@ export default function KnowOrDrinkGame() {
       <View style={styles.contentContainer}>
         <Text style={styles.phaseTitle}>Fin de la partie !</Text>
         <Text style={styles.correctAnswer}>Merci d'avoir joué 🎉</Text>
-        {/* On peut afficher ici le classement final, les scores, etc. */}
         {gameState?.players.map((player) => (
           <View key={player.id} style={styles.resultCard}>
             <Text style={styles.playerName}>{player.name}</Text>
@@ -674,6 +688,47 @@ export default function KnowOrDrinkGame() {
     }
   }, [gameState, id, router, requestReview]);
 
+  const renderChoicePhase = () => (
+    <View style={styles.container}>
+      <View style={styles.contentContainer}>
+        <Text style={styles.phaseTitle}>Choisissez votre mode de jeu</Text>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={styles.button} onPress={() => handleGameModeSelect('points')}>
+            <LinearGradient
+              colors={['#A259FF', '#C471F5']}
+              style={styles.buttonGradient}
+            >
+              <Text style={styles.buttonText}>MODE POINTS</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={() => handleGameModeSelect('gages')}>
+            <LinearGradient
+              colors={['#FF5252', '#FF7676']}
+              style={styles.buttonGradient}
+            >
+              <Text style={styles.buttonText}>MODE GAGES</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  );
+
+  const handleGameModeSelect = async (mode: 'points' | 'gages') => {
+    if (!gameState || !user) return;
+    try {
+      const db = getFirestore();
+      const gameRef = doc(db, 'games', String(id));
+      await updateDoc(gameRef, {
+        gameMode: mode,
+        phase: 'question'
+      });
+    } catch (error) {
+      console.error('❌ Erreur lors de la sélection du mode:', error);
+      Alert.alert('Erreur', 'Impossible de sélectionner le mode de jeu');
+    }
+  };
+
   if (loading) {
     return (
       <View style={styles.container}>
@@ -704,9 +759,10 @@ export default function KnowOrDrinkGame() {
         locations={[0, 0.2, 0.5, 0.8, 1]}
         style={styles.background}
       >
-        {gameState.phase === GamePhase.QUESTION && renderQuestionPhase()}
-        {gameState.phase === GamePhase.VOTE && renderAccusationPhase()}
-        {gameState.phase === GamePhase.RESULTS && renderResultsPhase()}
+        {gameState.phase === 'choix' && renderChoicePhase()}
+        {gameState.phase === 'question' && renderQuestionPhase()}
+        {gameState.phase === 'vote' && renderAccusationPhase()}
+        {gameState.phase === 'results' && renderResultsPhase()}
       </LinearGradient>
     </KeyboardAvoidingView>
   );

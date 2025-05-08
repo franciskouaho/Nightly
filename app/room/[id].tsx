@@ -10,6 +10,7 @@ import { GameState, GamePhase, Player, Question } from '@/types/gameTypes';
 import RulesDrawer from '@/components/room/RulesDrawer';
 import InviteModal from '@/components/room/InviteModal';
 import RoundedButton from '@/components/RoundedButton';
+import Avatar from '@/components/Avatar';
 
 // Type pour l'utilisateur
 interface User {
@@ -430,10 +431,13 @@ export default function RoomScreen() {
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
               <View style={styles.playerCard}>
-                <Image
-                  source={{ uri: item.avatar || `https://i.pravatar.cc/150?img=${Math.floor(Math.random() * 70)}` }}
-                  style={styles.playerAvatar}
-                />
+                <View style={{ marginRight: 10 }}>
+                  <Avatar
+                    source={item.avatar}
+                    size={40}
+                    username={item.displayName || item.username}
+                  />
+                </View>
                 <View style={styles.playerInfo}>
                   <Text style={styles.playerName}>{item.displayName || item.username}</Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>

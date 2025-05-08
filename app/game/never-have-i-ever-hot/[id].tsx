@@ -9,7 +9,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/contexts/AuthContext';
 import { GamePhase } from '@/types/gameTypes';
 import { getFirestore, doc, onSnapshot, updateDoc, getDoc } from '@react-native-firebase/firestore';
-import { useInAppReview } from '@/hooks/useInAppReview';
+import useInAppReview from '@/hooks/useInAppReview';
 
 interface FirebaseQuestion {
   text: string | { text: string };
