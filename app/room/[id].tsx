@@ -249,7 +249,7 @@ export default function RoomScreen() {
       };
       
       const gameData: GameState & { gameId: string } = {
-        phase: GamePhase.QUESTION,
+        phase: GamePhase.CHOIX,
         currentRound: 1,
         totalRounds: 4,
         targetPlayer: randomPlayer,
@@ -269,7 +269,7 @@ export default function RoomScreen() {
           hasVoted: false
         },
         game: {
-          currentPhase: 'question',
+          currentPhase: GamePhase.CHOIX,
           currentRound: 1,
           totalRounds: 4,
           scores: {},
