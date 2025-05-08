@@ -4,7 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { getFirestore, doc, onSnapshot, updateDoc, getDoc } from '@react-native-firebase/firestore';
 import { useAuth } from '@/contexts/AuthContext';
-import { GameState } from '@/types/gameTypes';
+import { GameState, GamePhase } from '@/types/gameTypes';
 import { LinearGradient } from 'expo-linear-gradient';
 import RoundedButton from '@/components/RoundedButton';
 import { Animated } from 'react-native';
@@ -216,7 +216,7 @@ export default function TruthOrDareGameScreen() {
   const isCurrentPlayer = game.currentPlayerId === user.uid;
 
   // PHASE 1 : Choix Action/Vérité
-  if (game.phase === 'choix') {
+  if (game.phase === GamePhase.CHOIX) {
     if (isCurrentPlayer) {
       const player = game.players?.find((p: any) => String(p.id) === String(game.currentPlayerId));
       return (

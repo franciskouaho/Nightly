@@ -22,6 +22,7 @@ export interface Answer {
 
 export enum GamePhase {
   LOADING = 'loading',
+  CHOIX = 'choix',
   QUESTION = 'question',
   WAITING = 'waiting',
   VOTE = 'vote',
