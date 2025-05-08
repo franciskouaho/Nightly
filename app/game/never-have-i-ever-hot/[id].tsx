@@ -1,13 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Pressable, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
-import { Player } from '@/types/gameTypes';
+import { Player, Question as GameQuestion } from '@/types/gameTypes';
 import RoundedButton from '@/components/RoundedButton';
 import { router } from 'expo-router';
 import { useGame } from '@/hooks/useGame';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/contexts/AuthContext';
 import { GamePhase } from '@/types/gameTypes';
+import { getFirestore, doc, onSnapshot, updateDoc, getDoc } from '@react-native-firebase/firestore';
+
+interface FirebaseQuestion {
+  text: string | { text: string };
+  type: string;
+}
+
+interface GameState {
+  phase: GamePhase;
+  currentRound: number;
+  totalRounds: number;
+  targetPlayer: Player | null;
+  currentQuestion: GameQuestion | null;
+  answers: any[];
+  players: Player[];
+  scores: Record<string, number>;
+  theme: string;
+  timer: number | null;
+}
 
 function ModeSelector({ onSelect, isTarget }: { onSelect: (mode: 'never' | 'ever' | null) => void, isTarget: boolean }) {
   if (!isTarget) {
@@ -58,47 +77,62 @@ export default function NeverHaveIEverHotGame() {
   const { id } = useLocalSearchParams();
   const { gameState, updateGameState } = useGame(id as string);
   const { user } = useAuth();
-  const [currentQuestion, setCurrentQuestion] = useState<any>(null);
+  const [currentQuestion, setCurrentQuestion] = useState<GameQuestion | null>(null);
   const [isInverted, setIsInverted] = useState(false);
   const [answers, setAnswers] = useState<Record<string, boolean | null>>({});
   const [mode, setMode] = useState<'never' | 'ever' | null>(null);
-  const [currentRound, setCurrentRound] = useState(1);
+  const [askedQuestions, setAskedQuestions] = useState<string[]>([]);
   const TOTAL_ROUNDS = 4;
 
   useEffect(() => {
     if (gameState?.currentQuestion) {
-      setCurrentQuestion(gameState.currentQuestion);
+      const question = gameState.currentQuestion;
+      setCurrentQuestion(question);
       setIsInverted(false);
       const initialAnswers: Record<string, boolean | null> = {};
       gameState.players.forEach((p: Player) => {
         if (p.id !== gameState.targetPlayer?.id) initialAnswers[p.id] = null;
       });
       setAnswers(initialAnswers);
+      // Ajouter la question actuelle à la liste des questions posées
+      if (question.text) {
+        setAskedQuestions(prev => [...prev, question.text]);
+      }
     }
   }, [gameState?.currentQuestion, gameState?.targetPlayer?.id]);
 
   const getQuestionText = () => {
-    if (!currentQuestion?.text?.text) return '';
+    if (!currentQuestion) return '';
+
+    let questionText = '';
+    if (typeof currentQuestion.text === 'string') {
+      questionText = currentQuestion.text;
+    } else if (
+      currentQuestion.text &&
+      typeof currentQuestion.text === 'object' &&
+      (currentQuestion.text as { text?: string }).text
+    ) {
+      questionText = (currentQuestion.text as { text: string }).text;
+    }
+
+    if (!questionText) return '';
+
     if (mode === 'ever') {
-      return currentQuestion.text.text.replace("Je n'ai jamais", "J'ai déjà");
+      return questionText.replace("Je n'ai jamais", "J'ai déjà");
     }
     return isInverted
-      ? currentQuestion.text.text.replace("Je n'ai jamais", "J'ai déjà")
-      : currentQuestion.text.text;
+      ? questionText.replace("Je n'ai jamais", "J'ai déjà")
+      : questionText;
   };
 
   const handleAnswer = (playerId: string, value: boolean) => {
     setAnswers(prev => ({ ...prev, [playerId]: value }));
   };
 
-  const handleNextRound = () => {
+  const handleNextRound = async () => {
     if (!gameState) return;
-    const players = gameState.players;
-    const currentIdx = players.findIndex((p: Player) => p.id === gameState.targetPlayer?.id);
-    const nextIdx = (currentIdx + 1) % players.length;
-    
-    if (currentRound >= TOTAL_ROUNDS) {
-      // Fin du jeu
+
+    if (gameState.currentRound >= TOTAL_ROUNDS) {
       updateGameState({
         ...gameState,
         phase: GamePhase.END,
@@ -108,14 +142,84 @@ export default function NeverHaveIEverHotGame() {
       return;
     }
 
-    setCurrentRound(prev => prev + 1);
-    setMode(null); // Réinitialiser le mode pour le nouveau joueur
-    updateGameState({
-      ...gameState,
-      currentRound: currentRound + 1,
-      phase: GamePhase.QUESTION,
-      targetPlayer: players[nextIdx],
+    // Récupérer une nouvelle question aléatoire
+    const db = getFirestore();
+    const questionsRef = doc(db, 'gameQuestions', 'never-have-i-ever-hot');
+    getDoc(questionsRef).then((questionsDoc) => {
+      if (questionsDoc.exists()) {
+        const data = questionsDoc.data();
+        if (data && Array.isArray(data.questions)) {
+          const questionsArr = data.questions.filter(Boolean) as FirebaseQuestion[];
+          // Filtrer les questions déjà posées
+          const availableQuestions = questionsArr.filter(q => {
+            const questionText = typeof q.text === 'string' 
+              ? q.text 
+              : (q.text && typeof q.text === 'object' && 'text' in q.text)
+                ? q.text.text
+                : '';
+            return !askedQuestions.includes(questionText);
+          });
+          
+          if (availableQuestions.length === 0) {
+            // Si toutes les questions ont été posées, réinitialiser la liste
+            setAskedQuestions([]);
+            const randomQuestion = questionsArr[Math.floor(Math.random() * questionsArr.length)];
+            if (!randomQuestion) return;
+            
+            const questionText = typeof randomQuestion.text === 'string' 
+              ? randomQuestion.text 
+              : (randomQuestion.text && typeof randomQuestion.text === 'object' && 'text' in randomQuestion.text)
+                ? randomQuestion.text.text
+                : '';
+            
+            const nextQuestion: GameQuestion = {
+              id: String(Math.random()),
+              text: questionText,
+              theme: 'hot',
+              roundNumber: gameState.currentRound + 1
+            };
+            
+            updateGameStateWithNewQuestion(nextQuestion);
+          } else {
+            const randomQuestion = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
+            if (!randomQuestion) return;
+            
+            const questionText = typeof randomQuestion.text === 'string' 
+              ? randomQuestion.text 
+              : (randomQuestion.text && typeof randomQuestion.text === 'object' && 'text' in randomQuestion.text)
+                ? randomQuestion.text.text
+                : '';
+            
+            const nextQuestion: GameQuestion = {
+              id: String(Math.random()),
+              text: questionText,
+              theme: 'hot',
+              roundNumber: gameState.currentRound + 1
+            };
+            
+            updateGameStateWithNewQuestion(nextQuestion);
+          }
+        }
+      }
     });
+  };
+
+  const updateGameStateWithNewQuestion = (nextQuestion: GameQuestion) => {
+    if (!gameState) return;
+    
+    const nextPlayerIndex = (gameState.players.findIndex(p => p.id === gameState.targetPlayer?.id) + 1) % gameState.players.length;
+    const nextPlayer = gameState.players[nextPlayerIndex];
+    
+    if (nextPlayer) {
+      setMode(null);
+      updateGameState({
+        ...gameState,
+        currentQuestion: nextQuestion,
+        targetPlayer: nextPlayer,
+        currentRound: gameState.currentRound + 1,
+        phase: GamePhase.QUESTION
+      });
+    }
   };
 
   if (!gameState) {
@@ -164,12 +268,12 @@ export default function NeverHaveIEverHotGame() {
       style={styles.container}
     >
       <View style={styles.header}>
-        <Text style={styles.title}>JEU DE CARTES : JE N'AI JAMAIS {mode === 'ever' && 'OU J\'AI DÉJÀ'} 🔞</Text>
+        <Text style={styles.title}>JEU DE CARTES : JE N'AI JAMAIS {mode === 'ever' ? 'OU J\'AI DÉJÀ' : ''} 🔞</Text>
         <View style={styles.progressRow}>
           <View style={styles.progressBarTrack}>
-            <View style={[styles.progressBarFill, { width: `${(currentRound / TOTAL_ROUNDS) * 100}%` }]} />
+            <View style={[styles.progressBarFill, { width: `${(gameState.currentRound / TOTAL_ROUNDS) * 100}%` }]} />
           </View>
-          <Text style={styles.progressTextRight}>{`${currentRound}/${TOTAL_ROUNDS}`}</Text>
+          <Text style={styles.progressTextRight}>{`${gameState.currentRound}/${TOTAL_ROUNDS}`}</Text>
         </View>
         {isTarget ? (
           <Text style={styles.subtitle}>
@@ -177,7 +281,7 @@ export default function NeverHaveIEverHotGame() {
           </Text>
         ) : (
           <Text style={styles.subtitle}>
-            {gameState.targetPlayer?.name} va lire la question à voix haute !
+            {gameState.targetPlayer?.name || 'Le joueur'} va lire la question à voix haute !
           </Text>
         )}
       </View>
@@ -192,7 +296,7 @@ export default function NeverHaveIEverHotGame() {
 
       {isTarget && (
         <RoundedButton
-          title={currentRound === TOTAL_ROUNDS ? "Terminer le jeu" : "Tour suivant"}
+          title={gameState.currentRound === TOTAL_ROUNDS ? "Terminer le jeu" : "Tour suivant"}
           onPress={handleNextRound}
           style={styles.nextButton}
           textStyle={styles.nextButtonText}
