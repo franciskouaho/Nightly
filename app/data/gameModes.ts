@@ -43,9 +43,42 @@ export const gameCategories: GameCategory[] = [
     ]
   },
   {
-    id: 'packs',
-    title: 'TOUT LES JEUX',
-    subtitle: '',
+    id: 'same_room',
+    title: 'DANS LA MÊME PIÈCE',
+    subtitle: 'À jouer dans la même pièce, ensemble !',
+    games: [
+      {
+        id: 'truth-or-dare',
+        name: 'ACTION OU VÉRITÉ',
+        description: 'Le classique revisité avec des défis exclusifs.',
+        image: require('@/assets/jeux/action-verite.png'),
+        colors: ["rgba(50, 90, 150, 0.8)", "rgba(80, 120, 200, 0.9)"],
+        borderColor: "#3F51B5",
+        shadowColor: "#3F51B5",
+        tag: 'PREMIUM',
+        tagColor: '#D81B60',
+        premium: false,
+        interactive: 'action'
+      },
+      {
+        id: 'never-have-i-ever-hot',
+        name: "JE N'AI JAMAIS 🔞",
+        description: 'Questions coquines et déplacées... Prêts à assumer ?',
+        image: require('@/assets/jeux/hot.png'),
+        colors: ["rgba(90, 10, 50, 0.8)", "rgba(130, 20, 80, 0.9)"],
+        borderColor: "#D81B60",
+        shadowColor: "#D81B60",
+        tag: 'PREMIUM',
+        tagColor: "#D81B60",
+        premium: false,
+        interactive: 'write'
+      },
+    ]
+  },
+  {
+    id: 'online',
+    title: 'À DISTANCE',
+    subtitle: 'Pour jouer même quand on n\'est pas ensemble',
     games: [
       {
         id: 'genius-or-liar',
@@ -57,34 +90,8 @@ export const gameCategories: GameCategory[] = [
         shadowColor: "#212121",
         tag: 'PREMIUM',
         tagColor: "#D81B60",
-        premium: true,
-        interactive: 'write'
-      },
-      {
-        id: 'never-have-i-ever-hot',
-        name: 'JE N’AI JAMAIS 🔞',
-        description: 'Questions coquines et déplacées... Prêts à assumer ?',
-        image: require('@/assets/jeux/hot.png'),
-        colors: ["rgba(90, 10, 50, 0.8)", "rgba(130, 20, 80, 0.9)"],
-        borderColor: "#D81B60",
-        shadowColor: "#D81B60",
-        tag: 'PREMIUM',
-        tagColor: "#D81B60",
-        premium: true,
-        interactive: 'write'
-      },
-      {
-        id: 'truth-or-dare',
-        name: 'ACTION OU VÉRITÉ',
-        description: 'Le classique revisité avec des défis exclusifs.',
-        image: require('@/assets/jeux/action-verite.png'),
-        colors: ["rgba(50, 90, 150, 0.8)", "rgba(80, 120, 200, 0.9)"],
-        borderColor: "#3F51B5",
-        shadowColor: "#3F51B5",
-        tag: '',
-        tagColor: "",
         premium: false,
-        interactive: 'action'
+        interactive: 'write'
       },
     ]
   }

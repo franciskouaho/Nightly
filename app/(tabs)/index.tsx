@@ -239,7 +239,7 @@ export default function HomeScreen() {
         Alert.alert('Erreur', 'Utilisateur non authentifié');
         return;
       }
-      if (room.players.some(p => p.id === user.uid)) {
+      if (room.players.some((p: any) => p.id === user.uid)) {
         Alert.alert('Erreur', 'Vous êtes déjà dans cette partie');
         return;
       }
@@ -303,6 +303,11 @@ export default function HomeScreen() {
             imageStyle={{ borderRadius: 20 }}
             resizeMode="cover"
           >
+            {game.tag ? (
+              <View style={[styles.modeTagContainer, styles.gridModeTagContainer, { backgroundColor: game.tagColor }]}> 
+                <Text style={styles.modeTagText}>{game.tag}</Text>
+              </View>
+            ) : null}
             <View style={styles.overlay}>
               <Text style={styles.cardTitle}>{game.name}</Text>
             </View>
@@ -382,7 +387,7 @@ export default function HomeScreen() {
         </View>
       </View>
       
-      {category.id === 'packs' ? (
+      {['packs', 'same_room', 'online'].includes(category.id) ? (
         <View style={styles.gridContainer}>
           {category.games.map((game: GameMode) => (
             <View key={game.id} style={styles.gridItem}>
