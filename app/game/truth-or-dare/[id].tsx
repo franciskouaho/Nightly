@@ -8,6 +8,7 @@ import { GameState, GamePhase } from '@/types/gameTypes';
 import { LinearGradient } from 'expo-linear-gradient';
 import RoundedButton from '@/components/RoundedButton';
 import { Animated } from 'react-native';
+import { useInAppReview } from '@/hooks/useInAppReview';
 
 interface TruthOrDareQuestion { text: string; type: string; }
 
@@ -136,6 +137,7 @@ export default function TruthOrDareGameScreen() {
   const id = Array.isArray(idParam) ? idParam[0] : idParam || '';
   const { user } = useAuth();
   const router = useRouter();
+  const { requestReview } = useInAppReview();
   const [game, setGame] = useState<TruthOrDareGameState | null>(null);
   const [loading, setLoading] = useState(true);
   const [questions, setQuestions] = useState<TruthOrDareQuestion[]>([]);
@@ -180,14 +182,15 @@ export default function TruthOrDareGameScreen() {
   useEffect(() => {
     if (game && game.currentRound > game.totalRounds) {
       setIsGameOver(true);
-      const timeout = setTimeout(() => {
+      const timeout = setTimeout(async () => {
+        await requestReview();
         router.replace(`/game/results/${id}`);
       }, 2000);
       return () => clearTimeout(timeout);
     } else {
       setIsGameOver(false);
     }
-  }, [game, id, router]);
+  }, [game, id, router, requestReview]);
 
   if (loading || !game || !user) {
     return (

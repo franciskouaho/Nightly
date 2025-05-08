@@ -9,6 +9,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/contexts/AuthContext';
 import { GamePhase } from '@/types/gameTypes';
 import { getFirestore, doc, onSnapshot, updateDoc, getDoc } from '@react-native-firebase/firestore';
+import { useInAppReview } from '@/hooks/useInAppReview';
 
 interface FirebaseQuestion {
   text: string | { text: string };
@@ -77,6 +78,7 @@ export default function NeverHaveIEverHotGame() {
   const { id } = useLocalSearchParams();
   const { gameState, updateGameState } = useGame(id as string);
   const { user } = useAuth();
+  const { requestReview } = useInAppReview();
   const [currentQuestion, setCurrentQuestion] = useState<GameQuestion | null>(null);
   const [isInverted, setIsInverted] = useState(false);
   const [answers, setAnswers] = useState<Record<string, boolean | null>>({});
@@ -235,6 +237,14 @@ export default function NeverHaveIEverHotGame() {
 
   // Écran de fin de partie
   if (gameState.phase === GamePhase.END) {
+    useEffect(() => {
+      const timeout = setTimeout(async () => {
+        await requestReview();
+        router.replace('/');
+      }, 2000);
+      return () => clearTimeout(timeout);
+    }, [requestReview]);
+
     return (
       <LinearGradient
         colors={["#D81B60", "#661A59", "#21101C"]}
@@ -248,8 +258,6 @@ export default function NeverHaveIEverHotGame() {
           onPress={() => { 
             router.replace('/');
           }}
-          style={styles.endButton}
-          textStyle={styles.endButtonText}
         />
       </LinearGradient>
     );

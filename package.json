@@ -54,6 +54,7 @@
     "react-native-confetti": "^0.1.0",
     "react-native-country-flag": "^2.0.2",
     "react-native-gesture-handler": "~2.20.2",
+    "react-native-in-app-review": "^4.3.5",
     "react-native-paper": "^5.14.0",
     "react-native-purchases": "^8.9.5",
     "react-native-qrcode-svg": "^6.3.15",
