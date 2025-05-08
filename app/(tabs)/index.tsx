@@ -433,7 +433,7 @@ export default function HomeScreen() {
               end={{ x: 1, y: 1 }}
               style={styles.qrGradient}
             >
-              <MaterialCommunityIcons name="qrcode-scan" size={30} color="#fff" />
+              <MaterialCommunityIcons name="login" size={30} color="#fff" />
             </LinearGradient>
           </TouchableOpacity>
         </View>
