@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Alert, ActivityIndicator, TextInput } from 'react-native';
+import { View, Text, StyleSheet, Alert, ActivityIndicator, TextInput, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -175,126 +175,132 @@ export default function ListenButDontJudgeScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
+    >
       <StatusBar style="light" />
       <LinearGradient 
         colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
         locations={[0, 0.2, 0.5, 0.8, 1]}
         style={styles.background} 
       />
-      <View style={styles.content}>
-        <View style={styles.progressRow}>
-          <View style={styles.progressBarBackground}>
-            <View
-              style={[
-                styles.progressBarFill,
-                { width: `${(game.currentRound / game.totalRounds) * 100}%` }
-              ]}
-            />
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
+        <View style={[styles.content, { flex: 1 }]}>
+          <View style={styles.progressRow}>
+            <View style={styles.progressBarBackground}>
+              <View
+                style={[
+                  styles.progressBarFill,
+                  { width: `${(game.currentRound / game.totalRounds) * 100}%` }
+                ]}
+              />
+            </View>
+            <Text style={styles.progressText}>
+              Tour {game.currentRound}/{game.totalRounds}
+            </Text>
           </View>
-          <Text style={styles.progressText}>
-            Tour {game.currentRound}/{game.totalRounds}
-          </Text>
-        </View>
-        {game.phase === 'question' && (
-          user?.uid !== game.targetPlayer?.id ? (
-            <View style={styles.questionContainer}>
-              <View style={styles.questionCard}>
-                <Text style={styles.questionText}>
-                  {typeof game.currentQuestion === 'string'
-                    ? game.currentQuestion.replace('{playerName}', game.targetPlayer?.name || 'le joueur')
-                    : (game.currentQuestion?.text
-                        ? game.currentQuestion.text.replace('{playerName}', game.targetPlayer?.name || 'le joueur')
-                        : '')}
-                </Text>
-              </View>
-              <TextInput
-                style={styles.input}
-                placeholder="Votre réponse..."
-                placeholderTextColor="#666"
-                value={answer}
-                onChangeText={setAnswer}
-                multiline
-                maxLength={200}
-              />
-              <RoundedButton
-                title="Soumettre"
-                onPress={handleSubmitAnswer}
-                disabled={isSubmitting || !answer.trim()}
-                style={styles.submitButton}
-              />
-            </View>
-          ) : (
-            <View style={styles.questionContainer}>
-              <View style={styles.questionCard}>
-                <Text style={styles.waitingText}>
-                  Les autres joueurs répondent à une question sur toi...
-                </Text>
-              </View>
-            </View>
-          )
-        )}
-        {game.phase === 'vote' && (
-          user?.uid === game.targetPlayer?.id ? (
-            <View style={styles.voteContainer}>
-              <View style={styles.questionCard}>
-                <Text style={styles.questionText}>
-                  {typeof game.currentQuestion === 'string'
-                    ? game.currentQuestion.replace('{playerName}', game.targetPlayer?.name || 'le joueur')
-                    : (game.currentQuestion?.text
-                        ? game.currentQuestion.text.replace('{playerName}', game.targetPlayer?.name || 'le joueur')
-                        : '')}
-                </Text>
-              </View>
-              <Text style={styles.voteTitle}>Votez pour la meilleure réponse :</Text>
-              {game.answers.map((answer) => (
-                <RoundedButton
-                  key={answer.id}
-                  title={answer.text}
-                  onPress={() => handleVote(answer.id)}
-                  style={styles.voteButton}
+          {game.phase === 'question' && (
+            user?.uid !== game.targetPlayer?.id ? (
+              <View style={styles.questionContainer}>
+                <View style={styles.questionCard}>
+                  <Text style={styles.questionText}>
+                    {typeof game.currentQuestion === 'string'
+                      ? game.currentQuestion.replace('{playerName}', game.targetPlayer?.name || 'le joueur')
+                      : (game.currentQuestion?.text
+                          ? game.currentQuestion.text.replace('{playerName}', game.targetPlayer?.name || 'le joueur')
+                          : '')}
+                  </Text>
+                </View>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Votre réponse..."
+                  placeholderTextColor="#666"
+                  value={answer}
+                  onChangeText={setAnswer}
+                  multiline
+                  maxLength={200}
                 />
-              ))}
-            </View>
-          ) : (
-            <View style={styles.voteContainer}>
-              <View style={styles.questionCard}>
-                <Text style={styles.waitingText}>
-                  En attente du vote de la personne cible...
-                </Text>
+                <RoundedButton
+                  title="Soumettre"
+                  onPress={handleSubmitAnswer}
+                  disabled={isSubmitting || !answer.trim()}
+                  style={styles.submitButton}
+                />
               </View>
-            </View>
-          )
-        )}
-        {game.phase === 'results' && (
-          <ResultsPhase
-            answers={game.answers}
-            scores={game.scores}
-            players={game.players}
-            question={(() => {
-              const q = typeof game.currentQuestion === 'string'
-                ? { text: game.currentQuestion }
-                : (game.currentQuestion && typeof game.currentQuestion === 'object')
-                  ? game.currentQuestion
-                  : { text: '' };
-              return {
-                id: '1',
-                text: typeof q.text === 'string' ? q.text : '',
-                theme: typeof game.theme === 'string' ? game.theme : '',
-                roundNumber: game.currentRound || 1
-              };
-            })()}
-            targetPlayer={game.targetPlayer}
-            onNextRound={handleNextRound}
-            isLastRound={game.currentRound === game.totalRounds}
-            timer={game.timer}
-            gameId={String(id ?? "")}
-            totalRounds={game.totalRounds}
-            winningAnswerId={game.winningAnswerId}
-          />
-        )}
-      </View>
-    </View>
+            ) : (
+              <View style={styles.questionContainer}>
+                <View style={styles.questionCard}>
+                  <Text style={styles.waitingText}>
+                    Les autres joueurs répondent à une question sur toi...
+                  </Text>
+                </View>
+              </View>
+            )
+          )}
+          {game.phase === 'vote' && (
+            user?.uid === game.targetPlayer?.id ? (
+              <View style={styles.voteContainer}>
+                <View style={styles.questionCard}>
+                  <Text style={styles.questionText}>
+                    {typeof game.currentQuestion === 'string'
+                      ? game.currentQuestion.replace('{playerName}', game.targetPlayer?.name || 'le joueur')
+                      : (game.currentQuestion?.text
+                          ? game.currentQuestion.text.replace('{playerName}', game.targetPlayer?.name || 'le joueur')
+                          : '')}
+                  </Text>
+                </View>
+                <Text style={styles.voteTitle}>Votez pour la meilleure réponse :</Text>
+                {game.answers.map((answer) => (
+                  <RoundedButton
+                    key={answer.id}
+                    title={answer.text}
+                    onPress={() => handleVote(answer.id)}
+                    style={styles.voteButton}
+                  />
+                ))}
+              </View>
+            ) : (
+              <View style={styles.voteContainer}>
+                <View style={styles.questionCard}>
+                  <Text style={styles.waitingText}>
+                    En attente du vote de la personne cible...
+                  </Text>
+                </View>
+              </View>
+            )
+          )}
+          {game.phase === 'results' && (
+            <ResultsPhase
+              answers={game.answers}
+              scores={game.scores}
+              players={game.players}
+              question={(() => {
+                const q = typeof game.currentQuestion === 'string'
+                  ? { text: game.currentQuestion }
+                  : (game.currentQuestion && typeof game.currentQuestion === 'object')
+                    ? game.currentQuestion
+                    : { text: '' };
+                return {
+                  id: '1',
+                  text: typeof q.text === 'string' ? q.text : '',
+                  theme: typeof game.theme === 'string' ? game.theme : '',
+                  roundNumber: game.currentRound || 1
+                };
+              })()}
+              targetPlayer={game.targetPlayer}
+              onNextRound={handleNextRound}
+              isLastRound={game.currentRound === game.totalRounds}
+              timer={game.timer}
+              gameId={String(id ?? "")}
+              totalRounds={game.totalRounds}
+              winningAnswerId={game.winningAnswerId}
+            />
+          )}
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 

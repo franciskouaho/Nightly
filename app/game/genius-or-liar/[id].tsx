@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput, Animated } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput, Animated, KeyboardAvoidingView, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { getFirestore, doc, onSnapshot, updateDoc, getDoc } from '@react-native-firebase/firestore';
 import { useAuth } from '@/contexts/AuthContext';
@@ -682,7 +682,10 @@ export default function KnowOrDrinkGame() {
   }
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
       <LinearGradient
         colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
         locations={[0, 0.2, 0.5, 0.8, 1]}
@@ -692,7 +695,7 @@ export default function KnowOrDrinkGame() {
         {gameState.phase === GamePhase.VOTE && renderAccusationPhase()}
         {gameState.phase === GamePhase.RESULTS && renderResultsPhase()}
       </LinearGradient>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
