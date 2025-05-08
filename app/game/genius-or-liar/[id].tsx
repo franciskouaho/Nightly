@@ -265,7 +265,9 @@ export default function KnowOrDrinkGame() {
               textShadowOffset: { width: 0, height: 1 },
               textShadowRadius: 2,
             }}>
-              {gameState?.currentQuestion?.question || 'Aucune question disponible'}
+              {gameState?.currentQuestion?.question 
+                || gameState?.currentQuestion?.text?.question 
+                || 'Aucune question disponible'}
             </Text>
           </View>
           {gameState?.currentUserState?.[user?.uid]?.hasAnswered && gameState.phase === 'question' ? (
