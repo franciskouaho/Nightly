@@ -17,8 +17,9 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo.png",
-        "backgroundColor": "#4b277d"
+        "backgroundColor": "#4b277d",
       },
+      "versionCode": 2,
       "package": "com.emplica.nightly",
       "googleServicesFile": "./google-services.json"
     },
