@@ -6143,6 +6143,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cloud-functions@workspace:cloud-functions":
+  version: 0.0.0-use.local
+  resolution: "cloud-functions@workspace:cloud-functions"
+  dependencies:
+    "@types/node": "npm:^22.15.3"
+    firebase-admin: "npm:^13.3.0"
+    firebase-functions: "npm:^6.3.2"
+    ts-node: "npm:^10.9.2"
+    typescript: "npm:^5.3.3"
+  languageName: unknown
+  linkType: soft
+
 "co@npm:^4.6.0":
   version: 4.6.0
   resolution: "co@npm:4.6.0"
@@ -8619,18 +8631,6 @@ __metadata:
   checksum: 10c0/33e77fd29bddc2d9bb78ab3eb854c165909201f88c75faa8272e35899e2d35a8a642a15e7420ef945e1f64a9670d6aa3ec744106b2aa42be68ca5114025954ca
   languageName: node
   linkType: hard
-
-"functions@workspace:cloud-functions":
-  version: 0.0.0-use.local
-  resolution: "functions@workspace:cloud-functions"
-  dependencies:
-    "@types/node": "npm:^22.15.3"
-    firebase-admin: "npm:^13.3.0"
-    firebase-functions: "npm:^6.3.2"
-    ts-node: "npm:^10.9.2"
-    typescript: "npm:^5.3.3"
-  languageName: unknown
-  linkType: soft
 
 "gaxios@npm:^6.0.0, gaxios@npm:^6.0.2, gaxios@npm:^6.1.1":
   version: 6.7.1
