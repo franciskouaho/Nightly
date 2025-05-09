@@ -44,5 +44,4 @@ yarn-error.*
 
 app-example
 /.idea/
-/cloud-functions/serviceAccountKey.json
 /.idea/*
