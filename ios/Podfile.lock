@@ -1264,6 +1264,9 @@ PODS:
   - Firebase/Messaging (11.12.0):
     - Firebase/CoreOnly
     - FirebaseMessaging (~> 11.12.0)
+  - Firebase/Storage (11.12.0):
+    - Firebase/CoreOnly
+    - FirebaseStorage (~> 11.12.0)
   - FirebaseAppCheckInterop (11.12.0)
   - FirebaseAuth (11.12.0):
     - FirebaseAppCheckInterop (~> 11.0)
@@ -1318,6 +1321,13 @@ PODS:
     - GoogleUtilities/UserDefaults (~> 8.0)
     - nanopb (~> 3.30910.0)
   - FirebaseSharedSwift (11.12.0)
+  - FirebaseStorage (11.12.0):
+    - FirebaseAppCheckInterop (~> 11.0)
+    - FirebaseAuthInterop (~> 11.0)
+    - FirebaseCore (~> 11.12.0)
+    - FirebaseCoreExtension (~> 11.12.0)
+    - GoogleUtilities/Environment (~> 8.0)
+    - GTMSessionFetcher/Core (< 5.0, >= 3.4)
   - fmt (11.0.2)
   - glog (0.3.5)
   - GoogleDataTransport (10.1.0):
@@ -3111,6 +3121,10 @@ PODS:
     - FirebaseCoreExtension
     - React-Core
     - RNFBApp
+  - RNFBStorage (22.1.0):
+    - Firebase/Storage (= 11.12.0)
+    - React-Core
+    - RNFBApp
   - RNGestureHandler (2.20.2):
     - DoubleConversion
     - glog
@@ -3404,6 +3418,7 @@ DEPENDENCIES:
   - "RNFBAuth (from `../node_modules/@react-native-firebase/auth`)"
   - "RNFBFirestore (from `../node_modules/@react-native-firebase/firestore`)"
   - "RNFBMessaging (from `../node_modules/@react-native-firebase/messaging`)"
+  - "RNFBStorage (from `../node_modules/@react-native-firebase/storage`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNPurchases (from `../node_modules/react-native-purchases`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
@@ -3427,6 +3442,7 @@ SPEC REPOS:
     - FirebaseInstallations
     - FirebaseMessaging
     - FirebaseSharedSwift
+    - FirebaseStorage
     - GoogleDataTransport
     - GoogleUtilities
     - "gRPC-C++"
@@ -3618,6 +3634,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-firebase/firestore"
   RNFBMessaging:
     :path: "../node_modules/@react-native-firebase/messaging"
+  RNFBStorage:
+    :path: "../node_modules/@react-native-firebase/storage"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
   RNPurchases:
@@ -3667,6 +3685,7 @@ SPEC CHECKSUMS:
   FirebaseInstallations: 41189d8b11007152d9e46ec844019f38a0a4282a
   FirebaseMessaging: 3a5de79d8dce82b70815123c05dfb8825111f15d
   FirebaseSharedSwift: d2475748a2d2a36242ed13baa34b2acda846c925
+  FirebaseStorage: 2fb852c0ffe18c2af9661b25c41f814b2e8c4b05
   fmt: 01b82d4ca6470831d1cc0852a1af644be019e8f6
   glog: 08b301085f15bcbb6ff8632a8ebaf239aae04e6a
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
@@ -3745,6 +3764,7 @@ SPEC CHECKSUMS:
   RNFBAuth: a2219d06d829cfa03cba8465edb16f5068e3d7f6
   RNFBFirestore: 3918061bc777c22b902df9e345fbb651daf4415d
   RNFBMessaging: fef744ae75df2d990c5cfeb0ac895876c7a04bfc
+  RNFBStorage: b2f2deb7928e5732ff58b4895d75badc0aa4590a
   RNGestureHandler: de2b7ccdbf18766609fb9490c7f11c18805705a3
   RNPurchases: 44561894fbf72dbf21c3c82533951bd075e8fa96
   RNReanimated: 758e433dea58eb219208bd209ef91a6f8ee096fb

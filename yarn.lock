@@ -3826,6 +3826,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native-firebase/storage@npm:^22.1.0":
+  version: 22.1.0
+  resolution: "@react-native-firebase/storage@npm:22.1.0"
+  peerDependencies:
+    "@react-native-firebase/app": 22.1.0
+  checksum: 10c0/54a7bf684362eff4802d6200aeffe55e1bebfbc81050bb9252646bcbec1dbe0e16816e19664d4a1e1bc5045417ff73442b76fe9c05ca95334f9703b4444b890d
+  languageName: node
+  linkType: hard
+
 "@react-native/assets-registry@npm:0.76.9":
   version: 0.76.9
   resolution: "@react-native/assets-registry@npm:0.76.9"
@@ -11719,6 +11728,7 @@ __metadata:
     "@react-native-firebase/auth": "npm:^22.1.0"
     "@react-native-firebase/firestore": "npm:^22.1.0"
     "@react-native-firebase/messaging": "npm:^22.1.0"
+    "@react-native-firebase/storage": "npm:^22.1.0"
     "@react-navigation/bottom-tabs": "npm:^7.2.0"
     "@react-navigation/native": "npm:^7.0.14"
     "@types/jest": "npm:^29.5.12"
