@@ -2,10 +2,12 @@ import { useEffect } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Alert } from 'react-native';
 import { getFirestore, doc, getDoc } from '@react-native-firebase/firestore';
+import { useGameAnalytics } from '@/hooks/useGameAnalytics';
 
 export default function GameRouter() {
   const router = useRouter();
   const { id, gameId } = useLocalSearchParams();
+  const gameAnalytics = useGameAnalytics();
 
   useEffect(() => {
     const redirect = async () => {
@@ -18,6 +20,9 @@ export default function GameRouter() {
           console.log('gameDoc data:', gameDoc.data());
           mode = gameDoc.data()?.gameId;
           console.log('Mode extrait du doc games:', mode);
+          
+          // Track le début du jeu
+          await gameAnalytics.trackGameStart(String(id), mode);
         } else {
           console.log('Pas de doc games trouvé pour id:', id);
           Alert.alert('Erreur', `Aucun document de jeu trouvé pour l'id: ${id}`);
@@ -44,7 +49,7 @@ export default function GameRouter() {
         return;
       }
 
-       if (mode === 'never-have-i-ever-hot') {
+      if (mode === 'never-have-i-ever-hot') {
         router.replace(`/game/never-have-i-ever-hot/${id}`);
         return;
       }

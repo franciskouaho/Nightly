@@ -3773,6 +3773,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native-firebase/analytics@npm:^22.1.0":
+  version: 22.1.0
+  resolution: "@react-native-firebase/analytics@npm:22.1.0"
+  dependencies:
+    superstruct: "npm:^2.0.2"
+  peerDependencies:
+    "@react-native-firebase/app": 22.1.0
+  checksum: 10c0/23a458ca41730367559fded9b92b5481e1c378086556776aac3ab8342d398d90819650e14d32ccc61243e344f508dcc87bd6e23ab2d9adc6500174c83f0eb95e
+  languageName: node
+  linkType: hard
+
 "@react-native-firebase/app@npm:^22.1.0":
   version: 22.1.0
   resolution: "@react-native-firebase/app@npm:22.1.0"
@@ -11724,6 +11735,7 @@ __metadata:
     "@expo/vector-icons": "npm:^14.0.2"
     "@react-native-async-storage/async-storage": "npm:^1.21.0"
     "@react-native-community/netinfo": "npm:^11.3.1"
+    "@react-native-firebase/analytics": "npm:^22.1.0"
     "@react-native-firebase/app": "npm:^22.1.0"
     "@react-native-firebase/auth": "npm:^22.1.0"
     "@react-native-firebase/firestore": "npm:^22.1.0"
@@ -14396,6 +14408,13 @@ __metadata:
   version: 8.2.5
   resolution: "sudo-prompt@npm:8.2.5"
   checksum: 10c0/c17bcc852112c11addcdfb8630fad1a236823887959f133ba47de9fcec22c03aafc49bbb35184ab7f13a78e625fb8324b86d5aa21b73b15d601aee71fb9b976e
+  languageName: node
+  linkType: hard
+
+"superstruct@npm:^2.0.2":
+  version: 2.0.2
+  resolution: "superstruct@npm:2.0.2"
+  checksum: 10c0/c6853db5240b4920f47b3c864dd1e23ede6819ea399ad29a65387d746374f6958c5f1c5b7e5bb152d9db117a74973e5005056d9bb83c24e26f18ec6bfae4a718
   languageName: node
   linkType: hard
 

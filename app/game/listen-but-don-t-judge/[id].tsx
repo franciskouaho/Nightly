@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Alert, ActivityIndicator, TextInput, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import RoundedButton from '@/components/RoundedButton';
 import ResultsPhase from '@/components/game/ResultsPhase';
 import useInAppReview from '@/hooks/useInAppReview';
+import { useListenButDontJudgeAnalytics } from '@/hooks/useListenButDontJudgeAnalytics';
 
 interface Player {
   id: string;
@@ -40,10 +41,12 @@ export default function ListenButDontJudgeScreen() {
   const { user } = useAuth();
   const router = useRouter();
   const { requestReview } = useInAppReview();
+  const gameAnalytics = useListenButDontJudgeAnalytics();
   const [game, setGame] = useState<GameState | null>(null);
   const [loading, setLoading] = useState(true);
   const [answer, setAnswer] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const gameStartTime = useRef(Date.now());
 
   useEffect(() => {
     if (!id) return;
@@ -67,13 +70,18 @@ export default function ListenButDontJudgeScreen() {
 
   useEffect(() => {
     if (game && game.currentRound >= game.totalRounds && game.phase === 'results') {
+      const gameDuration = Date.now() - gameStartTime.current;
+      
+      // Track la fin du jeu
+      gameAnalytics.trackGameComplete(String(id), game.totalRounds, gameDuration);
+      
       const timeout = setTimeout(async () => {
         await requestReview();
         router.replace(`/game/results/${id}`);
       }, 2000);
       return () => clearTimeout(timeout);
     }
-  }, [game, id, router, requestReview]);
+  }, [game, id, router, requestReview, gameAnalytics]);
 
   const handleSubmitAnswer = async () => {
     if (!game || !user || !answer.trim()) return;
@@ -89,6 +97,9 @@ export default function ListenButDontJudgeScreen() {
         playerId: user.uid,
         playerName: user.pseudo || 'Joueur'
       };
+
+      // Track le début de l'histoire
+      await gameAnalytics.trackStoryStart(String(id), user.uid);
 
       await updateDoc(gameRef, {
         answers: [...(game.answers || []), newAnswer],
@@ -110,6 +121,13 @@ export default function ListenButDontJudgeScreen() {
       const gameRef = doc(db, 'games', String(id));
       const votes = game.votes || {};
       votes[user.uid] = answerId;
+
+      // Track le vote
+      const votedAnswer = game.answers.find(a => a.id === answerId);
+      if (votedAnswer) {
+        await gameAnalytics.trackVote(String(id), user.uid, votedAnswer.playerId, 'yes');
+      }
+
       // Trouver le joueur qui a écrit la réponse gagnante
       const winningAnswer = game.answers.find(a => a.id === answerId);
       let scores = { ...game.scores };
@@ -133,6 +151,9 @@ export default function ListenButDontJudgeScreen() {
     const gameRef = doc(db, 'games', String(id));
 
     try {
+      // Track la fin du round
+      await gameAnalytics.trackRoundComplete(String(id), game.currentRound, game.totalRounds);
+
       // Sélectionne un nouveau joueur cible (différent du précédent si possible)
       let nextTarget = null;
       if (game.players.length > 1) {
@@ -146,16 +167,12 @@ export default function ListenButDontJudgeScreen() {
       const questionsRef = doc(db, 'gameQuestions', 'listen-but-don-t-judge');
       const questionsDoc = await getDoc(questionsRef);
       
-      console.log('Questions document exists:', questionsDoc.exists());
-      console.log('Questions data:', questionsDoc.data());
-      
       if (!questionsDoc.exists()) {
         Alert.alert('Erreur', 'Impossible de récupérer les questions');
         return;
       }
 
       const questions = questionsDoc.data()?.questions;
-      console.log('Questions array:', questions);
       
       if (!questions || !Array.isArray(questions) || questions.length === 0) {
         Alert.alert('Erreur', 'Aucune question disponible');
@@ -164,7 +181,6 @@ export default function ListenButDontJudgeScreen() {
 
       // Prend une question aléatoire
       const nextQuestion = questions[Math.floor(Math.random() * questions.length)];
-      console.log('Selected question:', nextQuestion);
       
       if (!nextQuestion) {
         Alert.alert('Erreur', 'Impossible de sélectionner une question');

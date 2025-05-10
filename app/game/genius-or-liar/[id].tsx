@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput, Animated, KeyboardAvoidingView, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { getFirestore, doc, onSnapshot, updateDoc, getDoc } from '@react-native-firebase/firestore';
@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { GamePhase, Player } from '@/types/gameTypes';
 import useInAppReview from '@/hooks/useInAppReview';
+import { useGeniusOrLiarAnalytics } from '@/hooks/useGeniusOrLiarAnalytics';
 
 interface FirebaseQuestion {
   type: string;
@@ -64,11 +65,13 @@ export default function KnowOrDrinkGame() {
   const router = useRouter();
   const { user } = useAuth();
   const { requestReview } = useInAppReview();
+  const gameAnalytics = useGeniusOrLiarAnalytics();
   const [gameState, setGameState] = useState<KnowOrDrinkGameState | null>(null);
   const [loading, setLoading] = useState(true);
   const [answer, setAnswer] = useState('');
   const [showAnswerInput, setShowAnswerInput] = useState(false);
   const [isEnd, setIsEnd] = useState(false);
+  const gameStartTime = useRef(Date.now());
 
   useEffect(() => {
     if (!id || !user) return;
@@ -103,6 +106,9 @@ export default function KnowOrDrinkGame() {
       const db = getFirestore();
       const gameRef = doc(db, 'games', String(id));
       
+      // Track la réponse du joueur
+      await gameAnalytics.trackAnswer(String(id), user.uid, answer.trim());
+
       await updateDoc(gameRef, {
         [`playerAnswers.${user.uid}`]: {
           knows: true,
@@ -126,6 +132,9 @@ export default function KnowOrDrinkGame() {
       const db = getFirestore();
       const gameRef = doc(db, 'games', String(id));
       
+      // Track la réponse du joueur (ne sait pas)
+      await gameAnalytics.trackAnswer(String(id), user.uid, 'dont_know');
+
       await updateDoc(gameRef, {
         [`playerAnswers.${user.uid}`]: {
           knows: false,
@@ -147,6 +156,9 @@ export default function KnowOrDrinkGame() {
       const db = getFirestore();
       const gameRef = doc(db, 'games', String(id));
       
+      // Track le vote du joueur
+      await gameAnalytics.trackVote(String(id), user.uid, targetPlayerId, 'liar');
+
       await updateDoc(gameRef, {
         [`playerAnswers.${targetPlayerId}.isAccused`]: true,
         [`playerAnswers.${targetPlayerId}.accusedBy`]: [...(gameState.playerAnswers[targetPlayerId]?.accusedBy || []), user.uid],
@@ -162,6 +174,10 @@ export default function KnowOrDrinkGame() {
     try {
       const db = getFirestore();
       const gameRef = doc(db, 'games', String(id));
+      
+      // Track le vote du joueur (pas d'accusation)
+      await gameAnalytics.trackVote(String(id), user.uid, 'none', 'genius');
+
       await updateDoc(gameRef, {
         [`currentUserState.${user.uid}.hasVoted`]: true
       });
@@ -432,6 +448,13 @@ export default function KnowOrDrinkGame() {
     try {
       const db = getFirestore();
       const gameRef = doc(db, 'games', String(id));
+      // Track la fin du round
+      await gameAnalytics.trackRoundComplete(
+        String(id),
+        gameState.currentRound,
+        gameState.totalRounds,
+        gameState.playerAnswers[gameState.currentPlayerId]?.knows || false
+      );
       // Récupère les questions depuis gameQuestions/genius-or-liar
       const questionsRef = doc(db, 'gameQuestions', 'genius-or-liar');
       const questionsDoc = await getDoc(questionsRef);
@@ -728,6 +751,26 @@ export default function KnowOrDrinkGame() {
       Alert.alert('Erreur', 'Impossible de sélectionner le mode de jeu');
     }
   };
+
+  useEffect(() => {
+    if (gameState && gameState.currentRound >= gameState.totalRounds && gameState.phase === 'results') {
+      const gameDuration = Date.now() - gameStartTime.current;
+      
+      // Track la fin du jeu
+      gameAnalytics.trackGameComplete(
+        String(id),
+        gameState.totalRounds,
+        gameDuration,
+        gameState.scores[user?.uid || '']
+      );
+      
+      const timeout = setTimeout(async () => {
+        await requestReview();
+        router.replace(`/game/results/${id}`);
+      }, 2000);
+      return () => clearTimeout(timeout);
+    }
+  }, [gameState, id, router, requestReview, gameAnalytics, user]);
 
   if (loading) {
     return (
