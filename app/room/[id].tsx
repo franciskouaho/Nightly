@@ -175,7 +175,10 @@ export default function RoomScreen() {
   const [loading, setLoading] = useState(true);
   const [isRulesDrawerVisible, setIsRulesDrawerVisible] = useState(false);
   const [inviteModalVisible, setInviteModalVisible] = useState(false);
-
+  const [isStartingGame, setIsStartingGame] = useState(false);
+  const [hasReadRules, setHasReadRules] = useState(false);
+  const [showRulesOnReady, setShowRulesOnReady] = useState(false);
+  const [isReadyClicked, setIsReadyClicked] = useState(false);
 
   useEffect(() => {
     if (!id || !user) return;
@@ -217,6 +220,39 @@ export default function RoomScreen() {
 
   const handleStartGame = async () => {
     if (!room || !user) return;
+    
+    // Réinitialiser l'état de lecture des règles
+    setHasReadRules(false);
+    // Afficher les règles avant de démarrer la partie
+    setIsRulesDrawerVisible(true);
+    setIsStartingGame(true);
+  };
+
+  const handleRulesClose = async () => {
+    setIsRulesDrawerVisible(false);
+    
+    // Si on était en train de démarrer la partie et que les règles ont été lues
+    if (isStartingGame && hasReadRules) {
+      setIsStartingGame(false);
+      await startGame();
+    } else if (isStartingGame) {
+      // Si on ferme sans avoir lu les règles, on annule le démarrage
+      setIsStartingGame(false);
+      Alert.alert(
+        'Règles non lues',
+        'Veuillez lire les règles avant de démarrer la partie.',
+        [{ text: 'OK' }]
+      );
+    }
+  };
+
+  const handleRulesConfirm = () => {
+    setHasReadRules(true);
+    handleRulesClose();
+  };
+
+  const startGame = async () => {
+    if (!room || !user) return;
 
     try {
       const db = getFirestore();
@@ -233,7 +269,8 @@ export default function RoomScreen() {
         throw new Error('Questions not found for this game mode');
       }
       
-      const questions = questionsDoc.data().questions;
+      const data = questionsDoc.data();
+      const questions = data?.questions;
       if (!questions || questions.length === 0) {
         throw new Error('No questions available for this game mode');
       }
@@ -359,6 +396,24 @@ export default function RoomScreen() {
     }
   };
 
+  const handleConfirmRulesOnReady = async () => {
+    setShowRulesOnReady(false);
+    if (isReadyClicked && room && user) {
+      try {
+        const db = getFirestore();
+        const updatedPlayers = room.players.map(p =>
+          String(p.id) === String(user?.uid) ? { ...p, isReady: true } : p
+        );
+        await updateDoc(doc(db, 'rooms', room.id), {
+          players: updatedPlayers
+        });
+      } catch (error) {
+        Alert.alert('Erreur', 'Impossible de se mettre prêt');
+      }
+    }
+    setIsReadyClicked(false);
+  };
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -461,23 +516,9 @@ export default function RoomScreen() {
         {user?.uid !== room.host && room.status === 'waiting' && room.id && !room.players.find(p => String(p.id) === String(user?.uid))?.isReady && (
           <RoundedButton
             title="Je suis prêt !"
-            onPress={async () => {
-              try {
-                const db = getFirestore();
-                const updatedPlayers = room.players.map(p =>
-                  String(p.id) === String(user?.uid) ? { ...p, isReady: true } : p
-                );
-                console.log('user:', user);
-                console.log('updatedPlayers:', updatedPlayers);
-                console.log('room.id:', room.id);
-                await updateDoc(doc(db, 'rooms', room.id), {
-                  players: updatedPlayers
-                });
-                console.log('Mise à jour réussie !');
-              } catch (error) {
-                console.log('Erreur Firestore:', error);
-                Alert.alert('Erreur', 'Impossible de se mettre prêt');
-              }
+            onPress={() => {
+              setShowRulesOnReady(true);
+              setIsReadyClicked(true);
             }}
             style={styles.readyButton}
           />
@@ -504,8 +545,9 @@ export default function RoomScreen() {
 
         <RulesDrawer
           visible={isRulesDrawerVisible}
-          onClose={() => setIsRulesDrawerVisible(false)}
+          onClose={handleRulesClose}
           gameId={room?.gameId}
+          isStartingGame={false}
         />
       </LinearGradient>
     </View>

@@ -1,12 +1,15 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { View, Text, Modal, TouchableOpacity, ScrollView, StyleSheet, Animated } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, ScrollView, StyleSheet, Animated, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { doc, getDoc, getFirestore } from '@react-native-firebase/firestore';
+import { LinearGradient } from 'expo-linear-gradient';
 
 type RulesDrawerProps = {
   visible: boolean;
   onClose: () => void;
+  onConfirm?: () => void;
   gameId?: string;
+  isStartingGame?: boolean;
 };
 
 interface GameRule {
@@ -15,7 +18,9 @@ interface GameRule {
   emoji: string;
 }
 
-const RulesDrawer = ({ visible, onClose, gameId }: RulesDrawerProps) => {
+const windowHeight = Dimensions.get('window').height;
+
+const RulesDrawer = ({ visible, onClose, onConfirm, gameId, isStartingGame }: RulesDrawerProps) => {
   const slideAnimation = useRef(new Animated.Value(0)).current;
   const [rules, setRules] = useState<GameRule[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,7 +38,8 @@ const RulesDrawer = ({ visible, onClose, gameId }: RulesDrawerProps) => {
       const rulesDoc = await getDoc(rulesRef);
       
       if (rulesDoc.exists()) {
-        setRules(rulesDoc.data().rules || []);
+        const data = rulesDoc.data();
+        setRules(data?.rules ?? []);
       } else {
         // Règles par défaut si aucune règle n'est trouvée
         setRules([
@@ -92,6 +98,11 @@ const RulesDrawer = ({ visible, onClose, gameId }: RulesDrawerProps) => {
       animationType="none"
       onRequestClose={onClose}
     >
+      <LinearGradient
+        colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
+        locations={[0, 0.2, 0.5, 0.8, 1]}
+        style={StyleSheet.absoluteFill}
+      />
       <View style={styles.overlay}>
         <TouchableOpacity 
           style={styles.backdrop} 
@@ -127,6 +138,15 @@ const RulesDrawer = ({ visible, onClose, gameId }: RulesDrawerProps) => {
                 ))
               )}
             </ScrollView>
+
+            {isStartingGame && (
+              <TouchableOpacity 
+                style={styles.confirmButton}
+                onPress={onConfirm}
+              >
+                <Text style={styles.confirmButtonText}>J'ai lu les règles, démarrer la partie</Text>
+              </TouchableOpacity>
+            )}
           </View>
         </Animated.View>
       </View>
@@ -177,7 +197,7 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: 0,
-    maxHeight: '100%',
+    maxHeight: windowHeight * 0.45,
   },
   ruleCard: {
     backgroundColor: '#3D2956',
@@ -211,7 +231,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     marginTop: 20,
-  }
+  },
+  confirmButton: {
+    backgroundColor: '#A259FF',
+    padding: 16,
+    borderRadius: 12,
+    marginTop: 20,
+    alignItems: 'center',
+    marginBottom: -16,
+  },
+  confirmButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });
 
 export default RulesDrawer;
