@@ -6,6 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuthAnalytics } from '@/hooks/useAuthAnalytics';
 
 const profils = [
   require('@/assets/profils/chat.png'),
@@ -32,6 +33,7 @@ export default function LoginScreen() {
   const [selectedProfile, setSelectedProfile] = useState(profils[0]);
   const { signIn } = useAuth();
   const router = useRouter();
+  const authAnalytics = useAuthAnalytics();
 
   const handleLogin = async () => {
     if (!username) {
@@ -49,8 +51,15 @@ export default function LoginScreen() {
       // Convertir l'image en URI
       const avatarUri = Image.resolveAssetSource(selectedProfile).uri;
       await signIn(username, avatarUri);
+      
+      // Track le succès de la connexion
+      await authAnalytics.trackLogin('username', true);
+      
       router.replace('/(tabs)');
     } catch (error: any) {
+      // Track l'échec de la connexion
+      await authAnalytics.trackLogin('username', false);
+      
       Alert.alert(
         'Erreur',
         error.message || 'Impossible de se connecter'

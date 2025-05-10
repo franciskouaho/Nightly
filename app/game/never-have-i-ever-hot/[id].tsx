@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Pressable, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Player, Question as GameQuestion } from '@/types/gameTypes';
@@ -10,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { GamePhase } from '@/types/gameTypes';
 import { getFirestore, doc, onSnapshot, updateDoc, getDoc } from '@react-native-firebase/firestore';
 import useInAppReview from '@/hooks/useInAppReview';
+import { useNeverHaveIEverHotAnalytics } from '@/hooks/useNeverHaveIEverHotAnalytics';
 
 interface FirebaseQuestion {
   text: string | { text: string };
@@ -79,11 +80,13 @@ export default function NeverHaveIEverHotGame() {
   const { gameState, updateGameState } = useGame(id as string);
   const { user } = useAuth();
   const { requestReview } = useInAppReview();
+  const gameAnalytics = useNeverHaveIEverHotAnalytics();
   const [currentQuestion, setCurrentQuestion] = useState<GameQuestion | null>(null);
   const [isInverted, setIsInverted] = useState(false);
   const [answers, setAnswers] = useState<Record<string, boolean | null>>({});
   const [mode, setMode] = useState<'never' | 'ever' | null>(null);
   const [askedQuestions, setAskedQuestions] = useState<string[]>([]);
+  const gameStartTime = useRef(Date.now());
   const TOTAL_ROUNDS = 4;
 
   useEffect(() => {
@@ -100,8 +103,11 @@ export default function NeverHaveIEverHotGame() {
       if (question.text) {
         setAskedQuestions(prev => [...prev, question.text]);
       }
+
+      // Track le début de la question
+      gameAnalytics.trackQuestionStart(String(id), question.id);
     }
-  }, [gameState?.currentQuestion, gameState?.targetPlayer?.id]);
+  }, [gameState?.currentQuestion, gameState?.targetPlayer?.id, gameAnalytics, id]);
 
   const getQuestionText = () => {
     if (!currentQuestion) return '';
@@ -129,12 +135,20 @@ export default function NeverHaveIEverHotGame() {
 
   const handleAnswer = (playerId: string, value: boolean) => {
     setAnswers(prev => ({ ...prev, [playerId]: value }));
+    
+    // Track la réponse du joueur
+    gameAnalytics.trackPlayerResponse(String(id), playerId, value ? 'yes' : 'no');
   };
 
   const handleNextRound = async () => {
     if (!gameState) return;
 
     if (gameState.currentRound >= TOTAL_ROUNDS) {
+      const gameDuration = Date.now() - gameStartTime.current;
+      
+      // Track la fin du jeu
+      gameAnalytics.trackGameComplete(String(id), TOTAL_ROUNDS, gameDuration);
+      
       updateGameState({
         ...gameState,
         phase: GamePhase.END,
@@ -143,6 +157,20 @@ export default function NeverHaveIEverHotGame() {
       });
       return;
     }
+
+    // Track la fin du round
+    const responseCounts = Object.values(answers).reduce((acc, val) => {
+      if (val === true) acc.yes++;
+      if (val === false) acc.no++;
+      return acc;
+    }, { yes: 0, no: 0 });
+    
+    await gameAnalytics.trackRoundComplete(
+      String(id),
+      gameState.currentRound,
+      TOTAL_ROUNDS,
+      responseCounts
+    );
 
     // Récupérer une nouvelle question aléatoire
     const db = getFirestore();
@@ -240,10 +268,10 @@ export default function NeverHaveIEverHotGame() {
     useEffect(() => {
       const timeout = setTimeout(async () => {
         await requestReview();
-        router.replace('/');
+        router.replace(`/game/results/${id}`);
       }, 2000);
       return () => clearTimeout(timeout);
-    }, [requestReview]);
+    }, [gameState?.phase, id, router, requestReview]);
 
     return (
       <LinearGradient

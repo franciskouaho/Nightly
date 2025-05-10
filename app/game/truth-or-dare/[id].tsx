@@ -9,6 +9,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import RoundedButton from '@/components/RoundedButton';
 import { Animated } from 'react-native';
 import useInAppReview from '@/hooks/useInAppReview';
+import { useTruthOrDareAnalytics } from '@/hooks/useTruthOrDareAnalytics';
+
 interface TruthOrDareQuestion { text: string; type: string; }
 
 // Ajout du type local pour ce mode de jeu
@@ -137,6 +139,7 @@ export default function TruthOrDareGameScreen() {
   const { user } = useAuth();
   const router = useRouter();
   const { requestReview } = useInAppReview();
+  const gameAnalytics = useTruthOrDareAnalytics();
   const [game, setGame] = useState<TruthOrDareGameState | null>(null);
   const [loading, setLoading] = useState(true);
   const [questions, setQuestions] = useState<TruthOrDareQuestion[]>([]);
@@ -144,6 +147,7 @@ export default function TruthOrDareGameScreen() {
   const [voteTimer, setVoteTimer] = useState(10);
   const [canValidateVote, setCanValidateVote] = useState(false);
   const [voteHandled, setVoteHandled] = useState(false);
+  const gameStartTime = useRef(Date.now());
 
   useEffect(() => {
     if (!id) return;
@@ -181,6 +185,11 @@ export default function TruthOrDareGameScreen() {
   useEffect(() => {
     if (game && game.currentRound > game.totalRounds) {
       setIsGameOver(true);
+      const gameDuration = Date.now() - gameStartTime.current;
+      
+      // Track la fin du jeu
+      gameAnalytics.trackGameComplete(id, game.totalRounds, gameDuration);
+      
       const timeout = setTimeout(async () => {
         await requestReview();
         router.replace(`/game/results/${id}`);
@@ -189,7 +198,7 @@ export default function TruthOrDareGameScreen() {
     } else {
       setIsGameOver(false);
     }
-  }, [game, id, router, requestReview]);
+  }, [game, id, router, requestReview, gameAnalytics]);
 
   if (loading || !game || !user) {
     return (
@@ -539,25 +548,20 @@ export default function TruthOrDareGameScreen() {
 
   // --- Handlers synchronisés ---
   async function handleChoice(choice: 'verite' | 'action') {
-    const db = getFirestore();
-    const filtered = questions.filter(q => q.type === choice);
-    let questionText = '';
-    if (filtered.length > 0) {
-      const randomQuestion = filtered[Math.floor(Math.random() * filtered.length)] as any;
-      questionText = typeof randomQuestion.text === 'string'
-        ? randomQuestion.text
-        : (randomQuestion.text && typeof randomQuestion.text === 'object' && 'text' in randomQuestion.text ? randomQuestion.text.text : '');
+    if (!game || !user) return;
+    
+    try {
+      const db = getFirestore();
+      await updateDoc(doc(db, 'games', id), {
+        currentChoice: choice,
+        phase: 'question'
+      });
+      
+      // Track le choix
+      await gameAnalytics.trackChoice(id, choice);
+    } catch (error) {
+      console.error('Erreur lors du choix:', error);
     }
-    await updateDoc(doc(db, 'games', String(id)), {
-      currentChoice: choice,
-      currentQuestion: {
-        id: String(Math.random()),
-        text: questionText,
-        theme: choice,
-        roundNumber: game?.currentRound || 1
-      },
-      phase: choice === 'verite' ? 'question' : 'action'
-    });
   }
 
   async function handleValidate() {
@@ -577,68 +581,43 @@ export default function TruthOrDareGameScreen() {
   }
 
   async function handleVote(vote: 'yes' | 'no') {
-    if (!user) return;
-    const db = getFirestore();
-    await updateDoc(doc(db, 'games', String(id)), {
-      [`votes.${user.uid}`]: vote
-    });
-
-    // Vérifier si tous les joueurs ont voté
-    const gameDoc = await getDoc(doc(db, 'games', String(id)));
-    if (gameDoc.exists()) {
-      const gameData = gameDoc.data() as TruthOrDareGameState;
-      if (!gameData) return;
-
-      const totalVoters = gameData.players.length - 1;
-      const votes = gameData.votes || {};
-      
-      if (Object.keys(votes).length === totalVoters) {
-        // Tous les joueurs ont voté, on passe à la phase suivante
-        const yes = Object.values(votes).filter(v => v === 'yes').length;
-        const no = Object.values(votes).filter(v => v === 'no').length;
-        
-        let points = 0;
-        if (yes > no) points = 1;
-        else if (no > yes) points = 0;
-        
-        const scores = { ...gameData.scores };
-        scores[gameData.currentPlayerId] = (scores[gameData.currentPlayerId] || 0) + points;
-
-        // Sélectionne le prochain joueur
-        const currentIndex = gameData.players.findIndex((p: any) => String(p.id) === String(gameData.currentPlayerId));
-        const nextIndex = (currentIndex + 1) % gameData.players.length;
-        const nextPlayer = gameData.players[nextIndex];
-
-        if (nextPlayer) {
-          await updateDoc(doc(db, 'games', String(id)), {
-            scores,
-            currentPlayerId: nextPlayer.id,
-            phase: 'choix',
-            currentChoice: null,
-            currentQuestion: null,
-            currentRound: gameData.currentRound + 1,
-            votes: {}
-          });
+    if (!game || !user) return;
+    
+    try {
+      const db = getFirestore();
+      const voteField = game.spectators?.includes(user.uid) ? 'spectatorVotes' : 'votes';
+      await updateDoc(doc(db, 'games', id), {
+        [voteField]: {
+          ...game[voteField],
+          [user.uid]: vote
         }
-      }
+      });
+      
+      // Track le vote
+      await gameAnalytics.trackVote(id, vote, user.uid);
+    } catch (error) {
+      console.error('Erreur lors du vote:', error);
     }
   }
 
   async function handleNextRound() {
-    const db = getFirestore();
     if (!game) return;
-    // Sélectionne le prochain joueur (séquentiel)
-    const currentIndex = game.players.findIndex((p: any) => p.id === game.currentPlayerId);
-    const nextIndex = (currentIndex + 1) % game.players.length;
-    const nextPlayer = game.players[nextIndex];
-    if (!nextPlayer) return;
-    await updateDoc(doc(db, 'games', String(id)), {
-      currentPlayerId: nextPlayer.id,
-      phase: 'choix',
-      currentChoice: null,
-      currentQuestion: null,
-      currentRound: game.currentRound + 1
-    });
+    
+    try {
+      const db = getFirestore();
+      await updateDoc(doc(db, 'games', id), {
+        currentRound: game.currentRound + 1,
+        phase: 'choice',
+        currentChoice: null,
+        votes: {},
+        spectatorVotes: {}
+      });
+      
+      // Track la fin du round
+      await gameAnalytics.trackRoundComplete(id, game.currentRound, game.totalRounds);
+    } catch (error) {
+      console.error('Erreur lors du passage au round suivant:', error);
+    }
   }
 
   return null;
