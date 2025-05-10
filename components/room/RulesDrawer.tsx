@@ -1,14 +1,65 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { View, Text, Modal, TouchableOpacity, ScrollView, StyleSheet, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { doc, getDoc, getFirestore } from '@react-native-firebase/firestore';
 
 type RulesDrawerProps = {
   visible: boolean;
   onClose: () => void;
+  gameId?: string;
 };
 
-const RulesDrawer = ({ visible, onClose }: RulesDrawerProps) => {
+interface GameRule {
+  title: string;
+  description: string;
+  emoji: string;
+}
+
+const RulesDrawer = ({ visible, onClose, gameId }: RulesDrawerProps) => {
   const slideAnimation = useRef(new Animated.Value(0)).current;
+  const [rules, setRules] = useState<GameRule[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (visible && gameId) {
+      fetchRules();
+    }
+  }, [visible, gameId]);
+
+  const fetchRules = async () => {
+    try {
+      const db = getFirestore();
+      const rulesRef = doc(db, 'rules', gameId || '');
+      const rulesDoc = await getDoc(rulesRef);
+      
+      if (rulesDoc.exists()) {
+        setRules(rulesDoc.data().rules || []);
+      } else {
+        // Règles par défaut si aucune règle n'est trouvée
+        setRules([
+          {
+            title: "RÈGLES GÉNÉRALES",
+            description: "Un joueur est désigné aléatoirement à chaque tour.",
+            emoji: "🎲"
+          },
+          {
+            title: "PARTICIPATION",
+            description: "Tous les joueurs doivent participer activement.",
+            emoji: "👥"
+          },
+          {
+            title: "SCORING",
+            description: "Les points sont attribués selon les règles spécifiques du jeu.",
+            emoji: "🏆"
+          }
+        ]);
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement des règles:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (visible) {
@@ -62,27 +113,19 @@ const RulesDrawer = ({ visible, onClose }: RulesDrawerProps) => {
             </View>
 
             <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-              <Text style={styles.subtitle}>PLUSIEURS TÉLÉPHONES</Text>
-              <View style={styles.ruleCard}>
-                <Text style={styles.emoji}>🎲</Text>
-                <Text style={styles.ruleText}>Un joueur est désigné aléatoirement.</Text>
-              </View>
-              <View style={styles.ruleCard}>
-                <Text style={styles.emoji}>🤔</Text>
-                <Text style={styles.ruleText}>Tous les joueurs reçoivent la même question concernant le joueur visé.</Text>
-              </View>
-              <View style={styles.ruleCard}>
-                <Text style={styles.emoji}>👀</Text>
-                <Text style={styles.ruleText}>Chaque joueur y répond de manière anonyme.</Text>
-              </View>
-              <View style={styles.ruleCard}>
-                <Text style={styles.emoji}>📦</Text>
-                <Text style={styles.ruleText}>Le joueur désigné lit toutes les réponses et vote pour sa préférée.</Text>
-              </View>
-              <View style={styles.scoreContainer}>
-                <Text style={styles.scoreText}>Le joueur dont la réponse est choisie :</Text>
-                <Text style={styles.pointsText}>+1 pt.</Text>
-              </View>
+              {loading ? (
+                <Text style={styles.loadingText}>Chargement des règles...</Text>
+              ) : (
+                rules.map((rule, index) => (
+                  <View key={index} style={styles.ruleCard}>
+                    <Text style={styles.emoji}>{rule.emoji}</Text>
+                    <View style={styles.ruleContent}>
+                      <Text style={styles.ruleTitle}>{rule.title}</Text>
+                      <Text style={styles.ruleText}>{rule.description}</Text>
+                    </View>
+                  </View>
+                ))
+              )}
             </ScrollView>
           </View>
         </Animated.View>
@@ -136,54 +179,39 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
     maxHeight: '100%',
   },
-  subtitle: {
-    fontSize: 15,
-    color: '#C7B8F5',
-    textAlign: 'center',
-    marginBottom: 20,
-    fontWeight: '600',
-    letterSpacing: 0.5,
-  },
   ruleCard: {
     backgroundColor: '#3D2956',
     borderRadius: 18,
     padding: 16,
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: 14,
   },
   emoji: {
     fontSize: 28,
     marginRight: 14,
   },
+  ruleContent: {
+    flex: 1,
+  },
+  ruleTitle: {
+    color: '#C7B8F5',
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
   ruleText: {
     color: '#fff',
     fontSize: 15,
-    flex: 1,
     lineHeight: 20,
     fontWeight: '500',
   },
-  scoreContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 22,
-    paddingHorizontal: 10,
-    backgroundColor: '#3D2956',
-    borderRadius: 16,
-    paddingVertical: 12,
-    marginBottom: 10,
-  },
-  scoreText: {
-    color: '#fff',
-    fontSize: 15,
-    fontWeight: '500',
-  },
-  pointsText: {
+  loadingText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
-  },
+    textAlign: 'center',
+    marginTop: 20,
+  }
 });
 
 export default RulesDrawer;

@@ -1,16 +1,13 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore, setDoc, doc } from 'firebase/firestore';
 
-//node scripts/uploadQuestionsToFirebase.js
-
 const firebaseConfig = {
   apiKey: 'AIzaSyCaXTVinkd4OIMqhGAXENme4tVvDUG4CzA',
   authDomain: 'drink-dare.firebaseapp.com',
   projectId: 'drink-dare',
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+//node scripts/uploadQuestionsToFirebase.js
 
 const questions = {
   'listen-but-don-t-judge': [
@@ -366,7 +363,7 @@ const questions = {
     },
     {
       type: "action",
-      text: "Choisis un joueur. Donne-lui un défi sexy à faire maintenant ou un secret à révéler. S’il refuse, c’est à toi de le faire."
+      text: "Choisis un joueur. Donne-lui un défi sexy à faire maintenant ou un secret à révéler. S'il refuse, c'est à toi de le faire."
     },
     {
       type: "action",
@@ -378,15 +375,15 @@ const questions = {
     },
     {
       type: "action",
-      text: "Choisis un partenaire et faites une scène où vous êtes deux collègues qui cachent leur relation... mais se retrouvent coincés dans l’ascenseur."
+      text: "Choisis un partenaire et faites une scène où vous êtes deux collègues qui cachent leur relation... mais se retrouvent coincés dans l'ascenseur."
     },
     {
       type: "action",
-      text: "Raconte un rêve érotique que tu n’as jamais osé raconter. Sinon, invente-le, mais joue-le sérieusement."
+      text: "Raconte un rêve érotique que tu n'as jamais osé raconter. Sinon, invente-le, mais joue-le sérieusement."
     },
     {
       type: "action",
-      text: "Envoie un message vocal à quelqu’un en simulant une dispute de couple passionnée… seul."
+      text: "Envoie un message vocal à quelqu'un en simulant une dispute de couple passionnée… seul."
     },
     {
       type: "action",
@@ -406,7 +403,7 @@ const questions = {
     },
     {
       type: "action",
-      text: "Tu es hypnotisé : dès qu’on dit le mot \"bisou\", tu dois faire une danse ridicule. Effet valable 2 fois."
+      text: "Tu es hypnotisé : dès qu'on dit le mot \"bisou\", tu dois faire une danse ridicule. Effet valable 2 fois."
     },
     {
       type: "action",
@@ -414,7 +411,7 @@ const questions = {
     },
     {
       type: "action",
-      text: "Invente une technique de drague totalement absurde, mais vends-la comme si c’était révolutionnaire."
+      text: "Invente une technique de drague totalement absurde, mais vends-la comme si c'était révolutionnaire."
     },
     {
       type: "action",
@@ -434,19 +431,19 @@ const questions = {
     },
     {
       type: "action",
-      text: "Tu dois choisir un joueur qui t’attire le plus… et lui faire ta déclaration"
+      text: "Tu dois choisir un joueur qui t'attire le plus… et lui faire ta déclaration"
     },
     {
       type: "action",
-      text: "Fais une battle de regards langoureux avec quelqu’un. Celui qui craque doit avouer son plus grand \"crush impossible\"."
+      text: "Fais une battle de regards langoureux avec quelqu'un. Celui qui craque doit avouer son plus grand \"crush impossible\"."
     },
     {
       type: "action",
-      text: "Choisis un joueur. Devinez simultanément l’un pour l’autre : la partie du corps que vous préférez chez l’autre."
+      text: "Choisis un joueur. Devinez simultanément l'un pour l'autre : la partie du corps que vous préférez chez l'autre."
     },
     {
       type: "action",
-      text: "Fais une improvisation : ton ex débarque dans la soirée et c’est hyper gênant. À toi de gérer."
+      text: "Fais une improvisation : ton ex débarque dans la soirée et c'est hyper gênant. À toi de gérer."
     },
     {
       type: "action",
@@ -454,15 +451,15 @@ const questions = {
     },
     {
       type: "action",
-      text: "Mime une scène de film romantique version “18+” sans un mot. Le groupe doit deviner le film."
+      text: "Mime une scène de film romantique version \"18+\" sans un mot. Le groupe doit deviner le film."
     },
     {
       type: "action",
-      text: "Choisis un joueur. Dites à tour de rôle une phrase de drague nulle jusqu’à ce que l’un abandonne en riant."
+      text: "Choisis un joueur. Dites à tour de rôle une phrase de drague nulle jusqu'à ce que l'un abandonne en riant."
     },
     {
       type: "action",
-      text: "Prends un vêtement ou accessoire d’un autre joueur et explique pourquoi ça te rend fou/folle."
+      text: "Prends un vêtement ou accessoire d'un autre joueur et explique pourquoi ça te rend fou/folle."
     },
     {
       type: "action",
@@ -474,7 +471,7 @@ const questions = {
     },
     {
       type: "action",
-      text: "Raconte ta pire situation \"presque hot\" qui s’est transformée en gros fail."
+      text: "Raconte ta pire situation \"presque hot\" qui s'est transformée en gros fail."
     },
     {
       type: "action",
@@ -486,7 +483,7 @@ const questions = {
     },
     {
       type: "action",
-      text: "Fais semblant d’avoir une obsession pour les pieds. Convaincs le groupe que c’est la nouvelle mode."
+      text: "Fais semblant d'avoir une obsession pour les pieds. Convaincs le groupe que c'est la nouvelle mode."
     },
     {
       type: "action",
@@ -522,7 +519,7 @@ const questions = {
     },
     {
       type: "action",
-      text: "Fais une déclaration de rupture à quelqu’un… alors que vous n’avez jamais été ensemble."
+      text: "Fais une déclaration de rupture à quelqu'un… alors que vous n'avez jamais été ensemble."
     },
     {
       type: "action",
@@ -534,7 +531,7 @@ const questions = {
     },
     {
       type: "action",
-      text: "Tu es en manque affectif. Joue une scène où tu supplies une personne du groupe de t’aimer."
+      text: "Tu es en manque affectif. Joue une scène où tu supplies une personne du groupe de t'aimer."
     },
     {
       type: "action",
@@ -542,7 +539,7 @@ const questions = {
     },
     {
       type: "action",
-      text: "Chante \"Je t’aime\" en regardant quelqu’un… mais avec une voix ridicule de cartoon."
+      text: "Chante \"Je t'aime\" en regardant quelqu'un… mais avec une voix ridicule de cartoon."
     },
     {
       type: "action",
@@ -550,11 +547,11 @@ const questions = {
     },
     {
       type: "action",
-      text: "Tu es “coupable de charme”. Plaide ta cause comme si tu étais au tribunal."
+      text: "Tu es \"coupable de charme\". Plaide ta cause comme si tu étais au tribunal."
     },
     {
       type: "action",
-      text: "Invente une scène où tu es surpris en train d’embrasser quelqu’un du groupe… par erreur."
+      text: "Invente une scène où tu es surpris en train d'embrasser quelqu'un du groupe… par erreur."
     },
     {
       type: "action",
@@ -562,7 +559,7 @@ const questions = {
     },
     {
       type: "action",
-      text: "Choisis un joueur. Donnez-vous mutuellement un “non-dit gênant” à avouer à haute voix."
+      text: "Choisis un joueur. Donnez-vous mutuellement un \"non-dit gênant\" à avouer à haute voix."
     },
     {
       type: "action",
@@ -578,11 +575,11 @@ const questions = {
     },
     {
       type: "action",
-      text: "Donne ton “kink” inventé le plus absurde. Fais croire qu’il est réel."
+      text: "Donne ton \"kink\" inventé le plus absurde. Fais croire qu'il est réel."
     },
     {
       type: "action",
-      text: "Pose tes mains sur les joues de quelqu’un et dis-lui : “Je ne pensais pas tomber amoureux/se… et pourtant.”"
+      text: "Pose tes mains sur les joues de quelqu'un et dis-lui : \"Je ne pensais pas tomber amoureux/se… et pourtant.\""
     },
     {
       type: "action",
@@ -602,23 +599,23 @@ const questions = {
     },
     {
       type: "action",
-      text: "Fais une imitation sensuelle d’un animal de ton choix pendant 10 secondes."
+      text: "Fais une imitation sensuelle d'un animal de ton choix pendant 10 secondes."
     },
     {
       type: "action",
-      text: "Fais semblant d’avoir un énorme secret amoureux à révéler… mais en parlant dans une langue inventée."
+      text: "Fais semblant d'avoir un énorme secret amoureux à révéler… mais en parlant dans une langue inventée."
     },
     {
       type: "action",
-      text: "Compose un “message vocal de rupture gênant” à envoyer à une plante, une chaise ou ton coussin."
+      text: "Compose un \"message vocal de rupture gênant\" à envoyer à une plante, une chaise ou ton coussin."
     },
     {
       type: "action",
-      text: "Fais un massage de l’air à une personne en mimant chaque geste avec un maximum de sensualité absurde."
+      text: "Fais un massage de l'air à une personne en mimant chaque geste avec un maximum de sensualité absurde."
     },
     {
       type: "action",
-      text: "Imagine que tu découvres que tu as matché sur Tinder avec quelqu’un ici. Joue la réaction."
+      text: "Imagine que tu découvres que tu as matché sur Tinder avec quelqu'un ici. Joue la réaction."
     },
     {
       type: "action",
@@ -626,7 +623,7 @@ const questions = {
     },
     {
       type: "action",
-      text: "Fais semblant de lire une lettre d’amour… qui a été écrite pour toi par erreur."
+      text: "Fais semblant de lire une lettre d'amour… qui a été écrite pour toi par erreur."
     },
     {
       type: "action",
@@ -634,11 +631,11 @@ const questions = {
     },
     {
       type: "action",
-      text: "Tu es en date… et tu réalises que c’est avec ta cousine. Improvise la scène en 30 secondes."
+      text: "Tu es en date… et tu réalises que c'est avec ta cousine. Improvise la scène en 30 secondes."
     },
     {
       type: "action",
-      text: "Crée ton propre langage de séduction et utilise-le pour séduire quelqu’un du groupe."
+      text: "Crée ton propre langage de séduction et utilise-le pour séduire quelqu'un du groupe."
     },
     {
       type: "action",
@@ -654,7 +651,7 @@ const questions = {
     },
     {
       type: "action",
-      text: "Tu es prof de séduction à l’ancienne. Donne 3 règles “classiques” de flirt d’époque."
+      text: "Tu es prof de séduction à l'ancienne. Donne 3 règles \"classiques\" de flirt d'époque."
     },
     {
       type: "action",
@@ -662,19 +659,19 @@ const questions = {
     },
     {
       type: "action",
-      text: "Choisis un joueur. Faites semblant de vivre un chagrin d’amour ensemble. Grosse scène, larmes et tout."
+      text: "Choisis un joueur. Faites semblant de vivre un chagrin d'amour ensemble. Grosse scène, larmes et tout."
     },
     {
       type: "action",
-      text: "Tu es obsédé par le regard d’un joueur. Fais un monologue dramatique en parlant de ses yeux."
+      text: "Tu es obsédé par le regard d'un joueur. Fais un monologue dramatique en parlant de ses yeux."
     },
     {
       type: "action",
-      text: "Invente le nom d’une secte de l’amour, et fais ton discours de recrutement à tout le groupe."
+      text: "Invente le nom d'une secte de l'amour, et fais ton discours de recrutement à tout le groupe."
     },
     {
       type: "action",
-      text: "Tu es dans un épisode de télé réalité “séduction à l’aveugle”. Fais ton pitch de présentation sans utiliser le mot “amour”."
+      text: "Tu es dans un épisode de télé réalité \"séduction à l'aveugle\". Fais ton pitch de présentation sans utiliser le mot \"amour\"."
     },
     {
       type: "action",
@@ -690,15 +687,15 @@ const questions = {
     },
     {
       type: "action",
-      text: "Faites une chaîne humaine : chaque joueur doit murmurer à l’oreille de son voisin son \"fantasme de vacances\". Le dernier dit tout à voix haute (sans révéler les prénoms !)."
+      text: "Faites une chaîne humaine : chaque joueur doit murmurer à l'oreille de son voisin son \"fantasme de vacances\". Le dernier dit tout à voix haute (sans révéler les prénoms !)."
     },
     {
       type: "action",
-      text: "Tout le monde ferme les yeux. L’organisateur touche discrètement 2 personnes. Elles doivent se lancer un regard intense sans rien dire pendant 1 tour. Le reste du groupe essaie de les deviner."
+      text: "Tout le monde ferme les yeux. L'organisateur touche discrètement 2 personnes. Elles doivent se lancer un regard intense sans rien dire pendant 1 tour. Le reste du groupe essaie de les deviner."
     },
     {
       type: "action",
-      text: "Faites un vote à main levée : qui aurait le plus de chance de finir en couple avec quelqu’un ici ? Le ou la gagnante choisit un partenaire pour une danse lente improvisée."
+      text: "Faites un vote à main levée : qui aurait le plus de chance de finir en couple avec quelqu'un ici ? Le ou la gagnante choisit un partenaire pour une danse lente improvisée."
     },
     {
       type: "action",
@@ -706,11 +703,11 @@ const questions = {
     },
     {
       type: "action",
-      text: "Organisez une fausse “élection du crush de la soirée” : chaque joueur vote anonymement. Le ou la gagnante donne un gage à quelqu’un."
+      text: "Organisez une fausse \"élection du crush de la soirée\" : chaque joueur vote anonymement. Le ou la gagnante donne un gage à quelqu'un."
     },
     {
       type: "action",
-      text: "Chaque joueur écrit un compliment chaud ou gênant anonymement. On les tire au sort, et chacun doit deviner qui l’a écrit."
+      text: "Chaque joueur écrit un compliment chaud ou gênant anonymement. On les tire au sort, et chacun doit deviner qui l'a écrit."
     },
     {
       type: "action",
@@ -718,7 +715,7 @@ const questions = {
     },
     {
       type: "action",
-      text: "Tout le monde écrit un mot “tabou” sur un papier. Si quelqu’un prononce l’un de ces mots pendant 10 minutes, il doit relever un gage collectif."
+      text: "Tout le monde écrit un mot \"tabou\" sur un papier. Si quelqu'un prononce l'un de ces mots pendant 10 minutes, il doit relever un gage collectif."
     },
     {
       type: "action",
@@ -742,7 +739,7 @@ const questions = {
     },
     {
       type: "action",
-      text: "Faites un \"tour d’imitations\" : chaque joueur imite la démarche de quelqu’un d’autre ici. Le groupe doit deviner la cible."
+      text: "Faites un \"tour d'imitations\" : chaque joueur imite la démarche de quelqu'un d'autre ici. Le groupe doit deviner la cible."
     },
     {
       type: "action",
@@ -754,7 +751,7 @@ const questions = {
     },
     {
       type: "action",
-      text: "Tout le monde fait un mime d’orgasme en 3 secondes. Le plus convaincant donne un gage à quelqu’un."
+      text: "Tout le monde fait un mime d'orgasme en 3 secondes. Le plus convaincant donne un gage à quelqu'un."
     },
     {
       type: "action",
@@ -762,19 +759,19 @@ const questions = {
     },
     {
       type: "action",
-      text: "Tous les joueurs votent pour “la personne qui a sûrement un dossier très chaud dans son téléphone”. Le/la gagnant doit avouer ou inventer une histoire plausible."
+      text: "Tous les joueurs votent pour \"la personne qui a sûrement un dossier très chaud dans son téléphone\". Le/la gagnant doit avouer ou inventer une histoire plausible."
     },
     {
       type: "action",
-      text: "Le groupe choisit 3 objets dans la pièce. Chacun doit inventer une déclaration d’amour torride à l’un d’eux."
+      text: "Le groupe choisit 3 objets dans la pièce. Chacun doit inventer une déclaration d'amour torride à l'un d'eux."
     },
     {
       type: "action",
-      text: "En ronde, chaque joueur doit dire la partie du corps qu’il trouve la plus sexy chez les autres (pas les mêmes !). Aucun droit de se répéter."
+      text: "En ronde, chaque joueur doit dire la partie du corps qu'il trouve la plus sexy chez les autres (pas les mêmes !). Aucun droit de se répéter."
     },
     {
       type: "action",
-      text: "Faites un blind test “sons de plaisir”… mais en imitant vous-mêmes. Le plus convaincant devient le “maître du jeu” pour 2 tours."
+      text: "Faites un blind test \"sons de plaisir\"... mais en imitant vous-mêmes. Le plus convaincant devient le \"maître du jeu\" pour 2 tours."
     },
     {
       type: "action",
@@ -786,27 +783,30 @@ const questions = {
     },
     {
       type: "action",
-      text: "Faites un “top 3 des couples impossibles” dans la pièce. Chaque “couple” désigné doit se faire un compliment sincère."
+      text: "Faites un \"top 3 des couples impossibles\" dans la pièce. Chaque \"couple\" désigné doit se faire un compliment sincère."
     },
     {
       type: "action",
-      text: "Tout le monde fait une imitation d’un.e ex toxique pendant 15 secondes. Le groupe vote pour la plus réaliste."
+      text: "Tout le monde fait une imitation d'un.e ex toxique pendant 15 secondes. Le groupe vote pour la plus réaliste."
     },
     {
       type: "action",
-      text: "Le joueur au plus grand sourire lance un défi à l’ensemble du groupe : tous doivent le réaliser en même temps (danse, phrase, mimique…)."
+      text: "Le joueur au plus grand sourire lance un défi à l'ensemble du groupe : tous doivent le réaliser en même temps (danse, phrase, mimique…)."
     },
     {
       type: "action",
-      text: "Le groupe désigne celui ou celle qui “cacherait le plus de secrets”. Cette personne doit répondre à 3 mini-questions (osées mais pas trop) posées par le groupe."
+      text: "Le groupe désigne celui ou celle qui \"cacherait le plus de secrets\". Cette personne doit répondre à 3 mini-questions (osées mais pas trop) posées par le groupe."
     },
     {
       type: "action",
-      text: "Formez des duos. Chaque duo fait une impro : “comment j’ai dragué dans une bibliothèque”."
+      text: "Formez des duos. Chaque duo fait une impro : \"comment j'ai dragué dans une bibliothèque\"."
     },
     {
       type: "action",
-      text: "Tout le monde donne une note de 1 à 10 à la “vibe sexy” des autres. Moyenne à calculer. Le ou la gagnant donne un gage au dernier."
+      text: "Tout le monde donne une note de 1 à 10 à la \"vibe sexy\" des autres. Moyenne à calculer. Le ou la gagnant donne un gage au dernier."
+    },
+    {
+      text: "Tout le monde donne une note de 1 à 10 à la \"vibe sexy\" des autres. Moyenne à calculer. Le ou la gagnant donne un gage au dernier."
     },
     {
       type: "action",
@@ -814,11 +814,11 @@ const questions = {
     },
     {
       type: "action",
-      text: "En cercle : chacun dit “le mot qui le fait rougir” (réel ou inventé). Le plus marrant fait une impro de pub avec ce mot."
+      text: "En cercle : chacun dit \"le mot qui le fait rougir\" (réel ou inventé). Le plus marrant fait une impro de pub avec ce mot."
     },
     {
       type: "action",
-      text: "Faites un “challenge du regard” collectif. Chacun fixe quelqu’un. Celui qui rit en premier reçoit un gage collectif."
+      text: "Faites un \"challenge du regard\" collectif. Chacun fixe quelqu'un. Celui qui rit en premier reçoit un gage collectif."
     },
     {
       type: "action",
@@ -826,11 +826,11 @@ const questions = {
     },
     {
       type: "action",
-      text: "Choisissez ensemble “le joueur le plus discret”. Il ou elle doit se faire passer pour le plus chaud/chaude pendant 1 minute."
+      text: "Choisissez ensemble \"le joueur le plus discret\". Il ou elle doit se faire passer pour le plus chaud/chaude pendant 1 minute."
     },
     {
       type: "action",
-      text: "Faites un “débat” en équipe : est-ce mieux un baiser long ou court ? Chaque équipe doit défendre sa position… passionnément."
+      text: "Faites un \"débat\" en équipe : est-ce mieux un baiser long ou court ? Chaque équipe doit défendre sa position… passionnément."
     },
     {
       type: "action",
@@ -850,19 +850,19 @@ const questions = {
     },
     {
       type: "action",
-      text: "À tour de rôle : chaque joueur doit complimenter la personne qu’il pense être “la plus dangereusement attirante” dans la pièce."
+      text: "À tour de rôle : chaque joueur doit complimenter la personne qu'il pense être \"la plus dangereusement attirante\" dans la pièce."
     },
     {
       type: "action",
-      text: "En cercle : dites chacun un mot doux, un mot coquin et un mot complètement absurde. L’ensemble devient un slogan."
+      text: "En cercle : dites chacun un mot doux, un mot coquin et un mot complètement absurde. L'ensemble devient un slogan."
     },
     {
       type: "action",
-      text: "Tour de “télépathie sexy” : chaque joueur écrit en secret la personne qu’il/elle embrasserait. Si deux se matchent, ils partagent une anecdote coquine."
+      text: "Tour de \"télépathie sexy\" : chaque joueur écrit en secret la personne qu'il/elle embrasserait. Si deux se matchent, ils partagent une anecdote coquine."
     },
     {
       type: "action",
-      text: "Faites le jeu du “chaud-froid” avec un objet : le groupe guide un joueur jusqu’à un objet “sexy symbolique” caché dans la pièce."
+      text: "Faites le jeu du \"chaud-froid\" avec un objet : le groupe guide un joueur jusqu'à un objet \"sexy symbolique\" caché dans la pièce."
     },
     {
       type: "action",
@@ -870,11 +870,11 @@ const questions = {
     },
     {
       type: "action",
-      text: "Tout le monde écrit une \"situation de tension romantique\" plausible. On tire au sort, et deux joueurs l’improvisent."
+      text: "Tout le monde écrit une \"situation de tension romantique\" plausible. On tire au sort, et deux joueurs l'improvisent."
     },
     {
       type: "action",
-      text: "En groupe, imaginez le scénario d’un film où tous les joueurs sont colocataires… avec secrets amoureux. Mettez un twist à la fin."
+      text: "En groupe, imaginez le scénario d'un film où tous les joueurs sont colocataires… avec secrets amoureux. Mettez un twist à la fin."
     },
     {
       type: "action",
@@ -882,7 +882,7 @@ const questions = {
     },
     {
       type: "verite",
-      text: "As-tu déjà eu un rêve sexy impliquant quelqu’un ici ? Tu peux répondre juste par \"oui\" ou \"non\"."
+      text: "As-tu déjà eu un rêve sexy impliquant quelqu'un ici ? Tu peux répondre juste par \"oui\" ou \"non\"."
     },
     {
       type: "verite",
@@ -910,7 +910,7 @@ const questions = {
     },
     {
       type: "verite",
-      text: "As-tu déjà espionné quelqu’un ici sur les réseaux en scred ? Qui et pourquoi ?"
+      text: "As-tu déjà espionné quelqu'un ici sur les réseaux en scred ? Qui et pourquoi ?"
     },
     {
       type: "verite",
@@ -918,11 +918,11 @@ const questions = {
     },
     {
       type: "verite",
-      text: "As-tu déjà été attiré(e) par le copain / la copine de quelqu’un que tu connaissais ?"
+      text: "As-tu déjà été attiré(e) par le copain / la copine de quelqu'un que tu connaissais ?"
     },
     {
       type: "verite",
-      text: "Quelle est l’habitude la plus étrange que tu as quand personne ne te regarde ?"
+      text: "Quelle est l'habitude la plus étrange que tu as quand personne ne te regarde ?"
     },
     {
       type: "verite",
@@ -946,7 +946,7 @@ const questions = {
     },
     {
       type: "verite",
-      text: "Quelle est la phrase qu’on t’a dite au lit qui t’a fait exploser de rire ?"
+      text: "Quelle est la phrase qu'on t'a dite au lit qui t'a fait exploser de rire ?"
     },
     {
       type: "verite",
@@ -954,7 +954,7 @@ const questions = {
     },
     {
       type: "verite",
-      text: "Es-tu déjà sorti(e) avec deux personnes en même temps, sans qu’elles le sachent ?"
+      text: "Es-tu déjà sorti(e) avec deux personnes en même temps, sans qu'elles le sachent ?"
     },
     {
       type: "verite",
@@ -970,27 +970,27 @@ const questions = {
     },
     {
       type: "verite",
-      text: "Quelle est ta zone érogène préférée (à toi) et celle que tu aimes le plus chez l’autre ?"
+      text: "Quelle est ta zone érogène préférée (à toi) et celle que tu aimes le plus chez l'autre ?"
     },
     {
       type: "verite",
-      text: "As-tu déjà regretté d’avoir couché avec quelqu’un ? Pourquoi ?"
+      text: "As-tu déjà regretté d'avoir couché avec quelqu'un ? Pourquoi ?"
     },
     {
       type: "verite",
-      text: "Quelle est ta plus grande gêne dans les jeux de ce soir jusqu’ici ?"
+      text: "Quelle est ta plus grande gêne dans les jeux de ce soir jusqu'ici ?"
     },
     {
       type: "verite",
-      text: "Quelle est la chose la plus inattendue qui t’a excité un jour ?"
+      text: "Quelle est la chose la plus inattendue qui t'a excité un jour ?"
     },
     {
       type: "verite",
-      text: "As-tu déjà eu envie d’embrasser quelqu’un ici ? (Tu peux dire \"peut-être\"... ou \"préciser\".)"
+      text: "As-tu déjà eu envie d'embrasser quelqu'un ici ? (Tu peux dire \"peut-être\"... ou \"préciser\".)"
     },
     {
       type: "verite",
-      text: "Quelle est la chose que tu n’as jamais osé faire… mais que tu aimerais essayer ?"
+      text: "Quelle est la chose que tu n'as jamais osé faire… mais que tu aimerais essayer ?"
     },
     {
       type: "verite",
@@ -998,7 +998,7 @@ const questions = {
     },
     {
       type: "verite",
-      text: "Si tu pouvais faire un bisou à quelqu’un ici... en toute impunité... ce serait qui ?"
+      text: "Si tu pouvais faire un bisou à quelqu'un ici... en toute impunité... ce serait qui ?"
     },
     {
       type: "verite",
@@ -1006,7 +1006,7 @@ const questions = {
     },
     {
       type: "verite",
-      text: "As-tu déjà flirté juste pour te venger de quelqu’un ?"
+      text: "As-tu déjà flirté juste pour te venger de quelqu'un ?"
     },
     {
       type: "verite",
@@ -1014,47 +1014,47 @@ const questions = {
     },
     {
       type: "verite",
-      text: "Quelle est la chose que tu n’avoues jamais sur tes goûts amoureux ?"
+      text: "Quelle est la chose que tu n'avoues jamais sur tes goûts amoureux ?"
     },
     {
       type: "verite",
-      text: "As-tu déjà pensé à quelqu’un d’autre pendant un moment intime ? (Sans dire qui.)"
+      text: "As-tu déjà pensé à quelqu'un d'autre pendant un moment intime ? (Sans dire qui.)"
     },
     {
       type: "verite",
-      text: "Quelle est la chose la plus stupide que tu aies faite pour te faire remarquer par quelqu’un ?"
+      text: "Quelle est la chose la plus stupide que tu aies faite pour te faire remarquer par quelqu'un ?"
     },
     {
       type: "verite",
-      text: "Es-tu déjà tombé(e) amoureux(se) de quelqu’un qui ne te connaissait même pas ?"
+      text: "Es-tu déjà tombé(e) amoureux(se) de quelqu'un qui ne te connaissait même pas ?"
     },
     {
       type: "verite",
-      text: "Quelle est la chose la plus taboue qui t’intrigue ?"
+      text: "Quelle est la chose la plus taboue qui t'intrigue ?"
     },
     {
       type: "verite",
-      text: "Quelle est la personne ici qui t’a surpris(e) le plus ce soir (positivement ou pas) ?"
+      text: "Quelle est la personne ici qui t'a surpris(e) le plus ce soir (positivement ou pas) ?"
     },
     {
       type: "verite",
-      text: "As-tu déjà fait semblant d’être plus innocent que tu ne l’es vraiment ?"
+      text: "As-tu déjà fait semblant d'être plus innocent que tu ne l'es vraiment ?"
     },
     {
       type: "verite",
-      text: "Quelle est ta plus grosse contradiction amoureuse (ex : tu veux ça, mais tu fais l’inverse) ?"
+      text: "Quelle est ta plus grosse contradiction amoureuse (ex : tu veux ça, mais tu fais l'inverse) ?"
     },
     {
       type: "verite",
-      text: "Si quelqu’un ici te proposait un massage sensuel, accepterais-tu ? Si oui, qui ?"
+      text: "Si quelqu'un ici te proposait un massage sensuel, accepterais-tu ? Si oui, qui ?"
     },
     {
       type: "verite",
-      text: "Quelle est l’odeur ou le détail physique qui peut te faire craquer sans raison ?"
+      text: "Quelle est l'odeur ou le détail physique qui peut te faire craquer sans raison ?"
     },
     {
       type: "verite",
-      text: "As-tu déjà inventé une version \"romantique\" d’une histoire juste pour ne pas passer pour un chaud(e) ?"
+      text: "As-tu déjà inventé une version \"romantique\" d'une histoire juste pour ne pas passer pour un chaud(e) ?"
     },
     {
       type: "verite",
@@ -1062,15 +1062,15 @@ const questions = {
     },
     {
       type: "verite",
-      text: "As-tu déjà eu une relation ou un coup de cœur qui t’a un peu obsédé ?"
+      text: "As-tu déjà eu une relation ou un coup de cœur qui t'a un peu obsédé ?"
     },
     {
       type: "verite",
-      text: "Quelle est la chanson qui te donne envie de t’ambiancer… dans un lit ?"
+      text: "Quelle est la chanson qui te donne envie de t'ambiancer… dans un lit ?"
     },
     {
       type: "verite",
-      text: "Es-tu déjà tombé amoureux(se) d’un ami/une amie ? L’as-tu avoué ?"
+      text: "Es-tu déjà tombé amoureux(se) d'un ami/une amie ? L'as-tu avoué ?"
     },
     {
       type: "verite",
@@ -1086,15 +1086,15 @@ const questions = {
     },
     {
       type: "verite",
-      text: "As-tu déjà inventé un mensonge énorme pour impressionner quelqu’un ?"
+      text: "As-tu déjà inventé un mensonge énorme pour impressionner quelqu'un ?"
     },
     {
       type: "verite",
-      text: "Quelle est la chose que tu fais toujours en cachette alors que tu sais que ce n’est pas très mature ?"
+      text: "Quelle est la chose que tu fais toujours en cachette alors que tu sais que ce n'est pas très mature ?"
     },
     {
       type: "verite",
-      text: "Quel est le film ou la série que tu adores mais que tu as honte d’aimer ?"
+      text: "Quel est le film ou la série que tu adores mais que tu as honte d'aimer ?"
     },
     {
       type: "verite",
@@ -1118,7 +1118,7 @@ const questions = {
     },
     {
       type: "verite",
-      text: "Si on regardait ton historique de navigation d’aujourd’hui, quelle est la recherche la plus absurde qu’on y trouverait ?"
+      text: "Si on regardait ton historique de navigation d'aujourd'hui, quelle est la recherche la plus absurde qu'on y trouverait ?"
     },
     {
       type: "verite",
@@ -1126,7 +1126,7 @@ const questions = {
     },
     {
       type: "verite",
-      text: "Quelle est ta plus grande honte d’enfance ?"
+      text: "Quelle est ta plus grande honte d'enfance ?"
     },
     {
       type: "verite",
@@ -1142,11 +1142,11 @@ const questions = {
     },
     {
       type: "verite",
-      text: "Quelle est la pire avance qu’on t’ai faite ?"
+      text: "Quelle est la pire avance qu'on t'ai faite ?"
     },
     {
       type: "verite",
-      text: "Quelle est la pire avance qu’on tu aies faite ?"
+      text: "Quelle est la pire avance qu'on tu aies faite ?"
     },
     {
       type: "verite",
@@ -1170,7 +1170,7 @@ const questions = {
     },
     {
       type: "verite",
-      text: "Quel est ton plus grand défaut… que tu n’arrives pas à corriger ?"
+      text: "Quel est ton plus grand défaut… que tu n'arrives pas à corriger ?"
     },
     {
       type: "verite",
@@ -1182,19 +1182,19 @@ const questions = {
     },
     {
       type: "verite",
-      text: "Si tu devais échanger ta vie avec celle de quelqu’un ici pendant 3 jours, qui choisirais-tu ?"
+      text: "Si tu devais échanger ta vie avec celle de quelqu'un ici pendant 3 jours, qui choisirais-tu ?"
     },
     {
       type: "verite",
-      text: "Quelle est la chose la plus stupide pour laquelle tu t’es déjà battu(e) ?"
+      text: "Quelle est la chose la plus stupide pour laquelle tu t'es déjà battu(e) ?"
     },
     {
       type: "verite",
-      text: "Quelle est la chose qui te rend jaloux plus vite que tu ne veux l’admettre ?"
+      text: "Quelle est la chose qui te rend jaloux plus vite que tu ne veux l'admettre ?"
     },
     {
       type: "verite",
-      text: "Quel est l’objet que tu possèdes et dont tu aurais vraiment honte s’il tombait entre de mauvaises mains ?"
+      text: "Quel est l'objet que tu possèdes et dont tu aurais vraiment honte s'il tombait entre de mauvaises mains ?"
     },
     {
       type: "verite",
@@ -1202,7 +1202,7 @@ const questions = {
     },
     {
       type: "verite",
-      text: "Quelle est la dernière chose qui t’a fait pleurer (même un peu) ?"
+      text: "Quelle est la dernière chose qui t'a fait pleurer (même un peu) ?"
     },
     {
       type: "verite",
@@ -1210,19 +1210,19 @@ const questions = {
     },
     {
       type: "verite",
-      text: "Quelle est la qualité que tu envies secrètement chez quelqu’un ici ?"
+      text: "Quelle est la qualité que tu envies secrètement chez quelqu'un ici ?"
     },
     {
       type: "verite",
-      text: "As-tu déjà trahi quelqu’un (même un tout petit peu) pour sauver ta peau ?"
+      text: "As-tu déjà trahi quelqu'un (même un tout petit peu) pour sauver ta peau ?"
     },
     {
       type: "verite",
-      text: "As-tu déjà été convaincu que quelqu’un t’aimait bien… et découvert que non ?"
+      text: "As-tu déjà été convaincu que quelqu'un t'aimait bien… et découvert que non ?"
     },
     {
       type: "verite",
-      text: "Quelle est la pire critique qu’on t’ait jamais faite ?"
+      text: "Quelle est la pire critique qu'on t'ait jamais faite ?"
     },
     {
       type: "verite",
@@ -1234,7 +1234,7 @@ const questions = {
     },
     {
       type: "verite",
-      text: "As-tu déjà gardé un secret très longtemps, au point de l’oublier toi-même ?"
+      text: "As-tu déjà gardé un secret très longtemps, au point de l'oublier toi-même ?"
     },
     {
       type: "verite",
@@ -1254,7 +1254,7 @@ const questions = {
     },
     {
       type: "verite",
-      text: "As-tu déjà été jaloux(se) de l’amitié entre deux autres personnes ?"
+      text: "As-tu déjà été jaloux(se) de l'amitié entre deux autres personnes ?"
     },
     {
       type: "verite",
@@ -1262,7 +1262,7 @@ const questions = {
     },
     {
       type: "verite",
-      text: "Quel est ton “talent inutile” préféré ?"
+      text: "Quel est ton \"talent inutile\" préféré ?"
     },
     {
       type: "verite",
@@ -1274,7 +1274,7 @@ const questions = {
     },
     {
       type: "verite",
-      text: "Quelle est l’erreur que tu refais tout le temps, malgré toi ?"
+      text: "Quelle est l'erreur que tu refais tout le temps, malgré toi ?"
     },
     {
       type: "verite",
@@ -1286,11 +1286,11 @@ const questions = {
     },
     {
       type: "verite",
-      text: "As-tu déjà fait semblant d’aimer quelque chose (musique, film, hobby) juste pour te faire accepter ?"
+      text: "As-tu déjà fait semblant d'aimer quelque chose (musique, film, hobby) juste pour te faire accepter ?"
     },
     {
       type: "verite",
-      text: "Si tu pouvais demander pardon à quelqu’un, ce serait à qui, et pour quoi ?"
+      text: "Si tu pouvais demander pardon à quelqu'un, ce serait à qui, et pour quoi ?"
     },
     {
       type: "verite",
@@ -1302,15 +1302,15 @@ const questions = {
     },
     {
       type: "verite",
-      text: "Quel est le plus gros défaut qu’on pardonne trop facilement dans la société ?"
+      text: "Quel est le plus gros défaut qu'on pardonne trop facilement dans la société ?"
     },
     {
       type: "verite",
-      text: "Entre tous les joueurs, qui a l’air d’avoir eu la pire période au collège ?"
+      text: "Entre tous les joueurs, qui a l'air d'avoir eu la pire période au collège ?"
     },
     {
       type: "verite",
-      text: "Si quelqu’un ici devait devenir président, qui ce serait ? Et quel serait son premier décret ?"
+      text: "Si quelqu'un ici devait devenir président, qui ce serait ? Et quel serait son premier décret ?"
     },
     {
       type: "verite",
@@ -1326,7 +1326,7 @@ const questions = {
     },
     {
       type: "verite",
-      text: "Est-ce mieux d’être trop honnête ou un peu manipulateur dans la vie ?"
+      text: "Est-ce mieux d'être trop honnête ou un peu manipulateur dans la vie ?"
     },
     {
       type: "verite",
@@ -1334,7 +1334,7 @@ const questions = {
     },
     {
       type: "verite",
-      text: "Peut-on être ami avec quelqu’un dont on ne respecte pas les choix de vie ?"
+      text: "Peut-on être ami avec quelqu'un dont on ne respecte pas les choix de vie ?"
     },
     {
       type: "verite",
@@ -1346,11 +1346,11 @@ const questions = {
     },
     {
       type: "verite",
-      text: "Quel est le joueur ici qui aurait le plus de chances de tout plaquer et partir vivre à l’étranger sans prévenir ?"
+      text: "Quel est le joueur ici qui aurait le plus de chances de tout plaquer et partir vivre à l'étranger sans prévenir ?"
     },
     {
       type: "verite",
-      text: "Faut-il toujours dire ce qu’on pense ou savoir se taire ? Donne un exemple concret."
+      text: "Faut-il toujours dire ce qu'on pense ou savoir se taire ? Donne un exemple concret."
     },
     {
       type: "verite",
@@ -1370,15 +1370,15 @@ const questions = {
     },
     {
       type: "verite",
-      text: "Lequel d’entre vous finirait le plus vite dans un \"triangle amoureux\" sans le vouloir ?"
+      text: "Lequel d'entre vous finirait le plus vite dans un \"triangle amoureux\" sans le vouloir ?"
     },
     {
       type: "verite",
-      text: "Est-ce qu’on peut aimer deux personnes sincèrement en même temps ? Qui ici aurait déjà pu le faire ?"
+      text: "Est-ce qu'on peut aimer deux personnes sincèrement en même temps ? Qui ici aurait déjà pu le faire ?"
     },
     {
       type: "verite",
-      text: "Quelle est la qualité qu’on surestime le plus chez les gens ?"
+      text: "Quelle est la qualité qu'on surestime le plus chez les gens ?"
     },
     {
       type: "verite",
@@ -1390,11 +1390,11 @@ const questions = {
     },
     {
       type: "verite",
-      text: "Dans cette pièce, qui a l’air le plus naïf ? Et le plus manipulateur ?"
+      text: "Dans cette pièce, qui a l'air le plus naïf ? Et le plus manipulateur ?"
     },
     {
       type: "verite",
-      text: "Est-ce que l’amitié fille-garçon fonctionne vraiment ? Justifiez avec un exemple vécu."
+      text: "Est-ce que l'amitié fille-garçon fonctionne vraiment ? Justifiez avec un exemple vécu."
     },
     {
       type: "verite",
@@ -1402,11 +1402,11 @@ const questions = {
     },
     {
       type: "verite",
-      text: "Entre l’intelligence, l’humour, et le physique, que faut-il prioriser ? (Chacun donne son ordre.)"
+      text: "Entre l'intelligence, l'humour, et le physique, que faut-il prioriser ? (Chacun donne son ordre.)"
     },
     {
       type: "verite",
-      text: "Quelle est la chose qu’on juge trop vite chez les autres ?"
+      text: "Quelle est la chose qu'on juge trop vite chez les autres ?"
     },
     {
       type: "verite",
@@ -1414,7 +1414,7 @@ const questions = {
     },
     {
       type: "verite",
-      text: "Est-ce mieux de toujours plaire à tout le monde ou d’assumer d’être clivant ?"
+      text: "Est-ce mieux de toujours plaire à tout le monde ou d'assumer d'être clivant ?"
     },
     {
       type: "verite",
@@ -1422,7 +1422,7 @@ const questions = {
     },
     {
       type: "verite",
-      text: "Est-ce que l’amour à distance peut vraiment fonctionner ? Qui ici y croit encore ?"
+      text: "Est-ce que l'amour à distance peut vraiment fonctionner ? Qui ici y croit encore ?"
     },
     {
       type: "verite",
@@ -1430,15 +1430,15 @@ const questions = {
     },
     {
       type: "verite",
-      text: "Est-ce qu’on peut vraiment changer quelqu’un ? Ou les gens ne changent jamais ?"
+      text: "Est-ce qu'on peut vraiment changer quelqu'un ? Ou les gens ne changent jamais ?"
     },
     {
       type: "verite",
-      text: "Est-ce que les apparences comptent plus qu’on veut bien l’avouer ? Chacun répond."
+      text: "Est-ce que les apparences comptent plus qu'on veut bien l'avouer ? Chacun répond."
     },
     {
       type: "verite",
-      text: "Quelle est la meilleure chose qu’on pourrait faire tous ensemble en tant que groupe ?"
+      text: "Quelle est la meilleure chose qu'on pourrait faire tous ensemble en tant que groupe ?"
     },
     {
       type: "verite",
@@ -1446,15 +1446,15 @@ const questions = {
     },
     {
       type: "verite",
-      text: "Quelle est la plus grande peur sociale que vous avez, même si c’est irrationnel ?"
+      text: "Quelle est la plus grande peur sociale que vous avez, même si c'est irrationnel ?"
     },
     {
       type: "verite",
-      text: "Qui ici a l’air de donner les meilleurs conseils ? Et qui les pires ?"
+      text: "Qui ici a l'air de donner les meilleurs conseils ? Et qui les pires ?"
     },
     {
       type: "verite",
-      text: "Est-ce qu’il vaut mieux blesser par la vérité ou mentir pour protéger ?"
+      text: "Est-ce qu'il vaut mieux blesser par la vérité ou mentir pour protéger ?"
     },
     {
       type: "verite",
@@ -1462,7 +1462,7 @@ const questions = {
     },
     {
       type: "verite",
-      text: "Est-ce que l’on peut être totalement soi-même dans un groupe ? Chacun répond par oui ou non (et pourquoi)."
+      text: "Est-ce que l'on peut être totalement soi-même dans un groupe ? Chacun répond par oui ou non (et pourquoi)."
     },
     {
       type: "verite",
@@ -1486,7 +1486,7 @@ const questions = {
     },
     {
       type: "verite",
-      text: "Est-ce qu’un secret peut vraiment ne jamais ressortir ? Donnez un contre-exemple vécu ou imaginé."
+      text: "Est-ce qu'un secret peut vraiment ne jamais ressortir ? Donnez un contre-exemple vécu ou imaginé."
     },
     {
       type: "verite",
@@ -1498,7 +1498,7 @@ const questions = {
     },
     {
       type: "verite",
-      text: "As-tu déjà couché avec quelqu’un juste pour voir ce que ça donnerait ? Regret ou pas ?"
+      text: "As-tu déjà couché avec quelqu'un juste pour voir ce que ça donnerait ? Regret ou pas ?"
     },
     {
       type: "verite",
@@ -1510,15 +1510,15 @@ const questions = {
     },
     {
       type: "verite",
-      text: "Quel est ton plus gros fantasme que tu n’as encore jamais osé tenter ?"
+      text: "Quel est ton plus gros fantasme que tu n'as encore jamais osé tenter ?"
     },
     {
       type: "verite",
-      text: "As-tu déjà eu une relation purement physique qui a mal tourné ? Que s’est-il passé ?"
+      text: "As-tu déjà eu une relation purement physique qui a mal tourné ? Que s'est-il passé ?"
     },
     {
       type: "verite",
-      text: "Quel est ton \"red flag\" préféré (celui qui devrait t’alerter, mais que tu trouves sexy) ?"
+      text: "Quel est ton \"red flag\" préféré (celui qui devrait t'alerter, mais que tu trouves sexy) ?"
     },
     {
       type: "verite",
@@ -1530,7 +1530,7 @@ const questions = {
     },
     {
       type: "verite",
-      text: "As-tu déjà couché avec quelqu’un en pensant à une autre personne ?"
+      text: "As-tu déjà couché avec quelqu'un en pensant à une autre personne ?"
     },
     {
       type: "verite",
@@ -1538,11 +1538,11 @@ const questions = {
     },
     {
       type: "verite",
-      text: "As-tu déjà envoyé une photo \"sensible\" à quelqu’un que tu ne connaissais pas très bien ?"
+      text: "As-tu déjà envoyé une photo \"sensible\" à quelqu'un que tu ne connaissais pas très bien ?"
     },
     {
       type: "verite",
-      text: "Quelle est la situation la plus gênante qui t’ait coupé net dans un moment intime ?"
+      text: "Quelle est la situation la plus gênante qui t'ait coupé net dans un moment intime ?"
     },
     {
       type: "verite",
@@ -1550,15 +1550,15 @@ const questions = {
     },
     {
       type: "verite",
-      text: "As-tu déjà été surpris(e) par un coloc, un parent ou un inconnu pendant l’acte ?"
+      text: "As-tu déjà été surpris(e) par un coloc, un parent ou un inconnu pendant l'acte ?"
     },
     {
       type: "verite",
-      text: "As-tu déjà fantasmé sur un(e) professeur(e), un supérieur hiérarchique ou quelqu’un d'inaccessible ?"
+      text: "As-tu déjà fantasmé sur un(e) professeur(e), un supérieur hiérarchique ou quelqu'un d'inaccessible ?"
     },
     {
       type: "verite",
-      text: "Quelle est la chose la plus étrange qui t’a excité(e) un jour ?"
+      text: "Quelle est la chose la plus étrange qui t'a excité(e) un jour ?"
     },
     {
       type: "verite",
@@ -1570,11 +1570,11 @@ const questions = {
     },
     {
       type: "verite",
-      text: "Tu dois passer une nuit avec une personne ici... mais sans jamais l’avouer. Qui choisis-tu ?"
+      text: "Tu dois passer une nuit avec une personne ici... mais sans jamais l'avouer. Qui choisis-tu ?"
     },
     {
       type: "verite",
-      text: "As-tu déjà simulé par pure politesse ou pour que ça s’arrête plus vite ? Raconte."
+      text: "As-tu déjà simulé par pure politesse ou pour que ça s'arrête plus vite ? Raconte."
     },
     {
       type: "verite",
@@ -1582,11 +1582,11 @@ const questions = {
     },
     {
       type: "verite",
-      text: "As-tu déjà couché avec quelqu’un le jour même de votre rencontre ? Raconte si c’était une réussite… ou pas."
+      text: "As-tu déjà couché avec quelqu'un le jour même de votre rencontre ? Raconte si c'était une réussite… ou pas."
     },
     {
       type: "verite",
-      text: "Es-tu déjà resté(e) avec quelqu’un juste parce que le sexe était bon ?"
+      text: "Es-tu déjà resté(e) avec quelqu'un juste parce que le sexe était bon ?"
     },
     {
       type: "verite",
@@ -1598,15 +1598,15 @@ const questions = {
     },
     {
       type: "verite",
-      text: "As-tu déjà été tenté(e) par un plan à trois ? Est-ce que tu l’as fait ?"
+      text: "As-tu déjà été tenté(e) par un plan à trois ? Est-ce que tu l'as fait ?"
     },
     {
       type: "verite",
-      text: "Quel est le scénario de film ou de série qui t’a le plus fait fantasmer ?"
+      text: "Quel est le scénario de film ou de série qui t'a le plus fait fantasmer ?"
     },
     {
       type: "verite",
-      text: "Quelle est la phrase de drague la plus directe qu’on t’ait dite… et qui a (ou pas) marché ?"
+      text: "Quelle est la phrase de drague la plus directe qu'on t'ait dite… et qui a (ou pas) marché ?"
     },
     {
       type: "verite",
@@ -1614,11 +1614,11 @@ const questions = {
     },
     {
       type: "verite",
-      text: "As-tu déjà regretté de ne pas avoir couché avec quelqu’un ? Qu’est-ce qui t’a retenu ?"
+      text: "As-tu déjà regretté de ne pas avoir couché avec quelqu'un ? Qu'est-ce qui t'a retenu ?"
     },
     {
       type: "verite",
-      text: "As-tu déjà eu un \"crush sexuel\" sur quelqu’un ici ? Même juste physique ?"
+      text: "As-tu déjà eu un \"crush sexuel\" sur quelqu'un ici ? Même juste physique ?"
     },
     {
       type: "verite",
@@ -1626,11 +1626,11 @@ const questions = {
     },
     {
       type: "verite",
-      text: "As-tu déjà eu un fou rire incontrôlable pendant l’acte ? Pourquoi ?"
+      text: "As-tu déjà eu un fou rire incontrôlable pendant l'acte ? Pourquoi ?"
     },
     {
       type: "verite",
-      text: "Quelle est la chose que tu n’avoues jamais sur tes envies... mais que tu espères secrètement ?"
+      text: "Quelle est la chose que tu n'avoues jamais sur tes envies... mais que tu espères secrètement ?"
     },
     {
       type: "verite",
@@ -1646,7 +1646,7 @@ const questions = {
     },
     {
       type: "verite",
-      text: "Quel est ton avis sur les coups d’un soir ? C’est un bon souvenir ou une suite d’échecs ?"
+      text: "Quel est ton avis sur les coups d'un soir ? C'est un bon souvenir ou une suite d'échecs ?"
     },
     {
       type: "verite",
@@ -1658,7 +1658,7 @@ const questions = {
     },
     {
       type: "verite",
-      text: "As-tu déjà dit “je t’aime” juste pour obtenir quelque chose de charnel ?"
+      text: "As-tu déjà dit \"je t'aime\" juste pour obtenir quelque chose de charnel ?"
     },
     {
       type: "verite",
@@ -1670,11 +1670,11 @@ const questions = {
     },
     {
       type: "verite",
-      text: "As-tu déjà été tenté(e) par l’échange, l’ouverture de couple, ou quelque chose hors norme ?"
+      text: "As-tu déjà été tenté(e) par l'échange, l'ouverture de couple, ou quelque chose hors norme ?"
     },
     {
       type: "verite",
-      text: "Quelle est la pire chose que quelqu’un t’ait dite juste après l’acte ?"
+      text: "Quelle est la pire chose que quelqu'un t'ait dite juste après l'acte ?"
     },
     {
       type: "verite",
@@ -1682,11 +1682,11 @@ const questions = {
     },
     {
       type: "verite",
-      text: "Quel est l’endroit où tu rêves de faire l’amour un jour ?"
+      text: "Quel est l'endroit où tu rêves de faire l'amour un jour ?"
     },
     {
       type: "verite",
-      text: "As-tu déjà caché à tes potes une histoire torride parce que \"c’était trop\" ?"
+      text: "As-tu déjà caché à tes potes une histoire torride parce que \"c'était trop\" ?"
     },
     {
       type: "verite",
@@ -1696,26 +1696,26 @@ const questions = {
       type: "verite",
       text: "Es-tu du genre à prendre ton temps… ou à foncer direct quand il y a une forte tension ?"
     },
-    { type: "verite", text: "Faut-il dire à un ami qu’on n’aime pas son ou sa partenaire ?" },
+    { type: "verite", text: "Faut-il dire à un ami qu'on n'aime pas son ou sa partenaire ?" },
     { type: "verite", text: "Peut-on vraiment rester ami avec un ex ? Ou est-ce toujours une bombe à retardement ?" },
     { type: "verite", text: "Vaut-il mieux être extrêmement beau ou extrêmement intelligent ?" },
-    { type: "verite", text: "Est-ce que pardonner une trahison, c’est forcément être faible ?" },
+    { type: "verite", text: "Est-ce que pardonner une trahison, c'est forcément être faible ?" },
     { type: "verite", text: "Peut-on construire une vraie relation sans jamais se disputer ?" },
     { type: "verite", text: "Est-ce que les réseaux sociaux ont pourri nos relations… ou les ont rendues plus authentiques ?" },
-    { type: "verite", text: "Est-ce que l’argent rend les gens plus heureux ou juste plus seuls ?" },
+    { type: "verite", text: "Est-ce que l'argent rend les gens plus heureux ou juste plus seuls ?" },
     { type: "verite", text: "Mieux vaut vivre une passion intense qui ne dure pas… ou une relation tranquille et stable ?" },
     { type: "verite", text: "Est-ce que tout le monde mérite une seconde chance ?" },
     { type: "verite", text: "Peut-on vraiment tomber amoureux sans jamais se voir en vrai ?" },
     { type: "verite", text: "Est-ce que le pardon doit être automatique dans une amitié forte ?" },
-    { type: "verite", text: "Est-ce qu’on peut être heureux en couple si on n’a pas confiance à 100 % ?" },
-    { type: "verite", text: "L’infidélité émotionnelle est-elle pire que l’infidélité physique ?" },
-    { type: "verite", text: "Est-ce qu’on peut réussir sa vie sans jamais tomber amoureux ?" },
-    { type: "verite", text: "Est-ce qu’il faut dire la vérité à quelqu’un qui ne veut pas l’entendre ?" },
-    { type: "verite", text: "Est-ce que la jalousie est une preuve d’amour… ou un poison inutile ?" },
-    { type: "verite", text: "Mieux vaut vivre seul que mal accompagné… ou l’inverse ?" },
-    { type: "verite", text: "Est-ce qu’on peut vraiment \"changer\" quelqu’un qu’on aime, ou faut-il l’accepter comme il est ?" },
-    { type: "verite", text: "Est-ce que l’humour peut sauver une relation en crise ?" },
-    { type: "verite", text: "Est-ce que les opposés s’attirent… ou se détruisent ?" }
+    { type: "verite", text: "Est-ce qu'on peut être heureux en couple si on n'a pas confiance à 100 % ?" },
+    { type: "verite", text: "L'infidélité émotionnelle est-elle pire que l'infidélité physique ?" },
+    { type: "verite", text: "Est-ce qu'on peut réussir sa vie sans jamais tomber amoureux ?" },
+    { type: "verite", text: "Est-ce qu'il faut dire la vérité à quelqu'un qui ne veut pas l'entendre ?" },
+    { type: "verite", text: "Est-ce que la jalousie est une preuve d'amour… ou un poison inutile ?" },
+    { type: "verite", text: "Mieux vaut vivre seul que mal accompagné… ou l'inverse ?" },
+    { type: "verite", text: "Est-ce qu'on peut vraiment \"changer\" quelqu'un qu'on aime, ou faut-il l'accepter comme il est ?" },
+    { type: "verite", text: "Est-ce que l'humour peut sauver une relation en crise ?" },
+    { type: "verite", text: "Est-ce que les opposés s'attirent… ou se détruisent ?" }
   ],
   "genius-or-liar": [
     { type: "cultureG", question: "Quel est le plus long fleuve du monde ?", answer: "Le Nil" },
@@ -1740,33 +1740,33 @@ const questions = {
     { type: "cultureG", question: "Quel est le symbole chimique de l'eau ?", answer: "H2O" },
     { type: "cultureG", question: "Qui a écrit 'L'Étranger' ?", answer: "Albert Camus" },
     { type: "cultureG", question: "Quel est le sport national du Japon ?", answer: "Le sumo" },
-    { type: "cultureG", question: "Quel est l’organe principal de la respiration humaine ?", answer: "Les poumons" },
+    { type: "cultureG", question: "Quel est l'organe principal de la respiration humaine ?", answer: "Les poumons" },
     { type: "cultureG", question: "Quelle est la couleur du sang des poulpes ?", answer: "Bleu" },
     { type: "cultureG", question: "Quel pays est le berceau des Jeux Olympiques ?", answer: "La Grèce" },
-    { type: "cultureG", question: "Quelle est la capitale de l’Argentine ?", answer: "Buenos Aires" },
-    { type: "cultureG", question: "Quel est l’animal le plus rapide du monde ?", answer: "Le guépard" },
+    { type: "cultureG", question: "Quelle est la capitale de l'Argentine ?", answer: "Buenos Aires" },
+    { type: "cultureG", question: "Quel est l'animal le plus rapide du monde ?", answer: "Le guépard" },
     { type: "cultureG", question: "Quel est le plus grand désert chaud du monde ?", answer: "Le Sahara" },
-    { type: "cultureG", question: "Qui a inventé l’imprimerie ?", answer: "Gutenberg" },
+    { type: "cultureG", question: "Qui a inventé l'imprimerie ?", answer: "Gutenberg" },
     { type: "cultureG", question: "Quel est le plus grand archipel du monde ?", answer: "L'Indonésie" },
     { type: "cultureG", question: "Combien de dents possède un adulte normalement constitué ?", answer: "32" },
     { type: "cultureG", question: "Quelle est la capitale de la Turquie ?", answer: "Ankara" },
-    { type: "cultureG", question: "Quel est l’ingrédient principal du guacamole ?", answer: "L'avocat" },
+    { type: "cultureG", question: "Quel est l'ingrédient principal du guacamole ?", answer: "L'avocat" },
     { type: "cultureG", question: "Quel pays est aussi appelé le Pays des Mille Collines ?", answer: "Le Rwanda" },
-    { type: "cultureG", question: "Quelle est la langue officielle de l’Égypte ?", answer: "L’arabe" },
-    { type: "cultureG", question: "Combien de couleurs composent l’arc-en-ciel ?", answer: "7" },
+    { type: "cultureG", question: "Quelle est la langue officielle de l'Égypte ?", answer: "L'arabe" },
+    { type: "cultureG", question: "Combien de couleurs composent l'arc-en-ciel ?", answer: "7" },
     { type: "cultureG", question: "Quel animal est le symbole de la sagesse ?", answer: "Le hibou" },
     { type: "cultureG", question: "Quel est le métal liquide à température ambiante ?", answer: "Le mercure" },
     { type: "cultureG", question: "Qui a découvert la pénicilline ?", answer: "Alexander Fleming" },
     { type: "cultureG", question: "Quel est le nom du satellite naturel de la Terre ?", answer: "La Lune" },
-    { type: "cultureG", question: "Quel pays a pour drapeau une feuille d’érable ?", answer: "Le Canada" },
-    { type: "cultureG", question: "Quel fruit est aussi appelé ‘fruit défendu’ ?", answer: "La pomme" },
-    { type: "cultureG", question: "Quelle est la monnaie utilisée en Allemagne ?", answer: "L’euro" },
+    { type: "cultureG", question: "Quel pays a pour drapeau une feuille d'érable ?", answer: "Le Canada" },
+    { type: "cultureG", question: "Quel fruit est aussi appelé 'fruit défendu' ?", answer: "La pomme" },
+    { type: "cultureG", question: "Quelle est la monnaie utilisée en Allemagne ?", answer: "L'euro" },
     { type: "cultureG", question: "Combien de côtés possède un hexagone ?", answer: "6" },
     { type: "cultureG", question: "Quelle est la formule chimique du dioxyde de carbone ?", answer: "CO2" },
     { type: "cultureG", question: "Qui a écrit 'Le Petit Prince' ?", answer: "Antoine de Saint-Exupéry" },
-    { type: "cultureG", question: "Quel est le fleuve qui traverse l’Égypte ?", answer: "Le Nil" },
+    { type: "cultureG", question: "Quel est le fleuve qui traverse l'Égypte ?", answer: "Le Nil" },
     { type: "cultureG", question: "Combien de zéros y a-t-il dans un milliard ?", answer: "9" },
-    { type: "cultureG", question: "Quel est le plus grand pays d’Europe ?", answer: "La Russie" },
+    { type: "cultureG", question: "Quel est le plus grand pays d'Europe ?", answer: "La Russie" },
     { type: "cultureG", question: "Quelle est la capitale de la Suisse ?", answer: "Berne" },
     { type: "cultureG", question: "Quel est le nom du président actuel de la France (2024) ?", answer: "Emmanuel Macron" },
     { type: "cultureG", question: "Quelle est la ville la plus peuplée du monde ?", answer: "Tokyo" },
@@ -1785,21 +1785,21 @@ const questions = {
     { type: "cultureGHard", question: "Quel est le plus grand désert froid du monde ?", answer: "L'Antarctique" },
     { type: "cultureGHard", question: "Quel est le nom du plus long tunnel ferroviaire du monde ?", answer: "Le tunnel de base du Gothard" },
     { type: "cultureGHard", question: "Quelle est la mer qui a la plus haute salinité naturelle ?", answer: "La mer Morte" },
-    { type: "cultureGHard", question: "Quel est le plus haut sommet d’Amérique du Sud ?", answer: "L'Aconcagua" },
+    { type: "cultureGHard", question: "Quel est le plus haut sommet d'Amérique du Sud ?", answer: "L'Aconcagua" },
     { type: "cultureGHard", question: "Quel est le nom de la plus grande barrière de corail au monde ?", answer: "La Grande Barrière de corail" },
     { type: "cultureGHard", question: "Quelle est la capitale du Kazakhstan ?", answer: "Astana" },
-    { type: "cultureGHard", question: "Quel pays est entouré entièrement par l’Afrique du Sud ?", answer: "Le Lesotho" },
+    { type: "cultureGHard", question: "Quel pays est entouré entièrement par l'Afrique du Sud ?", answer: "Le Lesotho" },
     { type: "cultureGHard", question: "Quel est le nom du canal qui relie la mer Méditerranée à la mer Rouge ?", answer: "Le canal de Suez" },
-    { type: "cultureGHard", question: "Quelle est la langue officielle de l’Iran ?", answer: "Le persan" },
-    { type: "cultureGHard", question: "Quel pays possède le plus grand nombre d’îles au monde ?", answer: "La Suède" },
-    { type: "cultureGHard", question: "Quel est le nom du volcan le plus actif d’Italie ?", answer: "L’Etna" },
+    { type: "cultureGHard", question: "Quelle est la langue officielle de l'Iran ?", answer: "Le persan" },
+    { type: "cultureGHard", question: "Quel pays possède le plus grand nombre d'îles au monde ?", answer: "La Suède" },
+    { type: "cultureGHard", question: "Quel est le nom du volcan le plus actif d'Italie ?", answer: "L'Etna" },
     { type: "cultureGHard", question: "Quel est le nom du courant océanique chaud qui influence le climat européen ?", answer: "Le Gulf Stream" },
-    { type: "cultureGHard", question: "Quel est le nom du détroit entre l’Afrique et l’Europe ?", answer: "Le détroit de Gibraltar" },
+    { type: "cultureGHard", question: "Quel est le nom du détroit entre l'Afrique et l'Europe ?", answer: "Le détroit de Gibraltar" },
     { type: "cultureGHard", question: "Quelle est la deuxième langue la plus parlée au monde ?", answer: "L'espagnol" },
     { type: "cultureGHard", question: "Quel pays a été le premier à accorder le droit de vote aux femmes ?", answer: "La Nouvelle-Zélande" },
-    { type: "cultureGHard", question: "Quel est le nom de l’auteur de 'Guerre et Paix' ?", answer: "Léon Tolstoï" },
+    { type: "cultureGHard", question: "Quel est le nom de l'auteur de 'Guerre et Paix' ?", answer: "Léon Tolstoï" },
     { type: "cultureGHard", question: "Quelle ville est surnommée la 'Venise du Nord' ?", answer: "Bruges" },
-    { type: "cultureGHard", question: "Quel est le nom de l’ancien empire ayant pour capitale Tenochtitlan ?", answer: "L’Empire aztèque" },  { type: "cultureGHard", question: "Quelle est la capitale de la Mongolie ?", answer: "Oulan-Bator" },
+    { type: "cultureGHard", question: "Quel est le nom de l'ancien empire ayant pour capitale Tenochtitlan ?", answer: "L'Empire aztèque" },  { type: "cultureGHard", question: "Quelle est la capitale de la Mongolie ?", answer: "Oulan-Bator" },
     { type: "cultureGHard", question: "Quel est le plus long fleuve d'Asie ?", answer: "Le Yangtsé" },
     { type: "cultureGHard", question: "Qui a composé la Symphonie No. 9 en ré mineur ?", answer: "Ludwig van Beethoven" },
     { type: "cultureGHard", question: "Quel est le point culminant de l'Amérique du Nord ?", answer: "Le Denali (Mont McKinley)" },
@@ -1817,10 +1817,10 @@ const questions = {
     { type: "culturePop", question: "Quel chanteur est l'auteur de la chanson 'Shape of You' ?", answer: "Ed Sheeran" },
     { type: "culturePop", question: "Dans quel film apparaît le personnage Jack Sparrow ?", answer: "Pirates des Caraïbes" },
     { type: "culturePop", question: "Quel est le nom complet de Lady Gaga ?", answer: "Stefani Joanne Angelina Germanotta" },
-    { type: "culturePop", question: "Quel groupe est connu pour l’album 'Dark Side of the Moon' ?", answer: "Pink Floyd" },
+    { type: "culturePop", question: "Quel groupe est connu pour l'album 'Dark Side of the Moon' ?", answer: "Pink Floyd" },
     { type: "culturePop", question: "Quelle série met en scène un trône de fer ?", answer: "Game of Thrones" },
     { type: "culturePop", question: "Qui chante 'Like a Prayer' ?", answer: "Madonna" },
-    { type: "culturePop", question: "Quel film d’animation met en scène un poisson clown nommé Nemo ?", answer: "Le Monde de Nemo" },
+    { type: "culturePop", question: "Quel film d'animation met en scène un poisson clown nommé Nemo ?", answer: "Le Monde de Nemo" },
     { type: "culturePop", question: "Dans quel film trouve-t-on le personnage du Joker incarné par Heath Ledger ?", answer: "The Dark Knight" },
     { type: "culturePop", question: "Quel est le vrai nom de Snoop Dogg ?", answer: "Calvin Cordozar Broadus Jr." },
     { type: "culturePop", question: "Quelle série Netflix met en scène des jeunes avec des super-pouvoirs dans une école ?", answer: "Umbrella Academy" },
@@ -1833,13 +1833,13 @@ const questions = {
     { type: "culturePop", question: "Dans quelle série apparaît Eleven ?", answer: "Stranger Things" },
     { type: "culturePop", question: "Quel est le nom du chanteur principal de U2 ?", answer: "Bono" },
     { type: "culturePop", question: "Quelle émission télévisée a révélé Jenifer en France ?", answer: "Star Academy" },
-    { type: "culturePop", question: "Quel film musical raconte l’histoire de P.T. Barnum ?", answer: "The Greatest Showman" },
+    { type: "culturePop", question: "Quel film musical raconte l'histoire de P.T. Barnum ?", answer: "The Greatest Showman" },
     { type: "culturePop", question: "Dans quel jeu vidéo trouve-t-on la princesse Zelda ?", answer: "The Legend of Zelda" },
     { type: "culturePop", question: "Quel rappeur français est connu pour 'Bande organisée' ?", answer: "Jul" },
     { type: "culturePop", question: "Qui joue le rôle de Deadpool ?", answer: "Ryan Reynolds" },
-    { type: "culturePop", question: "Quel est le vrai nom de l’artiste The Weeknd ?", answer: "Abel Tesfaye" },
+    { type: "culturePop", question: "Quel est le vrai nom de l'artiste The Weeknd ?", answer: "Abel Tesfaye" },
     { type: "culturePop", question: "Dans quelle saga retrouve-t-on Katniss Everdeen ?", answer: "Hunger Games" },
-    { type: "culturePop", question: "Quelle est la ville d’origine des Beatles ?", answer: "Liverpool" },
+    { type: "culturePop", question: "Quelle est la ville d'origine des Beatles ?", answer: "Liverpool" },
     { type: "culturePop", question: "Quel film Pixar met en scène des émotions personnifiées ?", answer: "Vice-Versa (Inside Out)" },
     { type: "culturePop", question: "Quel duo comique français est composé d'Omar et Fred ?", answer: "Omar et Fred" },
     { type: "culturePop", question: "Quel chanteur canadien est célèbre pour la chanson 'Baby' ?", answer: "Justin Bieber" },
@@ -1851,17 +1851,17 @@ const questions = {
     { type: "culturePop", question: "Quel acteur a incarné James Bond dans 'Skyfall' ?", answer: "Daniel Craig" },
     { type: "culturePop", question: "Dans quel dessin animé trouve-t-on le personnage de Rick Sanchez ?", answer: "Rick et Morty" },
     { type: "culturePop", question: "Quel film Disney met en scène une reine des glaces ?", answer: "La Reine des Neiges" },
-    { type: "culturePop", question: "Quelle chanteuse a sorti l’album 'Lemonade' ?", answer: "Beyoncé" },
+    { type: "culturePop", question: "Quelle chanteuse a sorti l'album 'Lemonade' ?", answer: "Beyoncé" },
     { type: "culturePop", question: "Quel film met en scène un panda expert en kung-fu ?", answer: "Kung Fu Panda" },
     { type: "culturePop", question: "Quel acteur joue Wolverine ?", answer: "Hugh Jackman" },
-    { type: "culturePop", question: "Quelle série raconte les aventures d’une famille royale britannique ?", answer: "The Crown" },
+    { type: "culturePop", question: "Quelle série raconte les aventures d'une famille royale britannique ?", answer: "The Crown" },
     { type: "culturePop", question: "Quel film a rendu célèbre la chanson 'My Heart Will Go On' ?", answer: "Titanic" },
     { type: "culturePop", question: "Quel personnage de Pixar est un cow-boy ?", answer: "Woody" },
-    { type: "culturePop", question: "Quel est le nom de l’univers partagé des films Marvel ?", answer: "MCU (Marvel Cinematic Universe)" },
+    { type: "culturePop", question: "Quel est le nom de l'univers partagé des films Marvel ?", answer: "MCU (Marvel Cinematic Universe)" },
     { type: "culturePop", question: "Quel acteur a joué Forrest Gump ?", answer: "Tom Hanks" },
     { type: "culturePop", question: "Quel chanteur a popularisé 'Blinding Lights' ?", answer: "The Weeknd" },
     { type: "culturePop", question: "Dans quelle série peut-on voir des dragons et des Marcheurs Blancs ?", answer: "Game of Thrones" },
-    { type: "culturePop", question: "Quelle série met en scène un bar nommé 'MacLaren’s Pub' ?", answer: "How I Met Your Mother" },
+    { type: "culturePop", question: "Quelle série met en scène un bar nommé 'MacLaren's Pub' ?", answer: "How I Met Your Mother" },
     { type: "culturePop", question: "Quel est le nom de la poupée star des années 2000 aux grands yeux ?", answer: "Bratz" },
     { type: "culturePop", question: "Quel groupe a chanté 'Bohemian Rhapsody' ?", answer: "Queen" },
     { type: "culturePop", question: "Quel film a remporté l'Oscar du meilleur film en 2020 ?", answer: "Parasite" },
@@ -1884,8 +1884,10 @@ const questions = {
     { type: "cultureGeek", question: "Dans quel manga trouve-t-on un Death Note ?", answer: "Death Note" },
     { type: "cultureGeek", question: "Quel super-héros porte un costume rouge et noir et casse souvent le 4e mur ?", answer: "Deadpool" },
     { type: "cultureGeek", question: "Dans quel jeu incarne-t-on Geralt de Riv ?", answer: "The Witcher" },
-    { type: "cultureGeek", question: "Quel est le nom de l’entreprise responsable de l'épidémie zombie dans Resident Evil ?", answer: "Umbrella Corporation" },
-    { type: "cultureGeek", question: "Quel est le nom du sorcier suprême dans l’univers Marvel ?", answer: "Doctor Strange" },
+    { type: "cultureGeek", question: "Quel est le nom de l'entreprise responsable de l'épidémie zombie dans Resident Evil ?", answer: "Umbrella Corporation" },
+    { type: "cultureGeek", question: "Quel est le nom du sorcier suprême dans l'univers Marvel ?", answer: "Doctor Strange" },
+    { type: "cultureGeek", question: "Quel est le nom de l'entreprise responsable de l'épidémie zombie dans Resident Evil ?", answer: "Umbrella Corporation" },
+    { type: "cultureGeek", question: "Quel est le nom du sorcier suprême dans l'univers Marvel ?", answer: "Doctor Strange" },
     { type: "cultureGeek", question: "Quel est le nom du vaisseau de Spock dans Star Trek ?", answer: "Enterprise" },
     { type: "cultureGeek", question: "Quel est le pouvoir principal de Magneto ?", answer: "Contrôler le métal" },
     { type: "cultureGeek", question: "Dans 'Naruto', quel est le nom du démon renard à neuf queues ?", answer: "Kurama" },
@@ -1893,7 +1895,7 @@ const questions = {
     { type: "cultureGeek", question: "Quelle entreprise développe le jeu 'Fortnite' ?", answer: "Epic Games" },
     { type: "cultureGeek", question: "Quel est le nom du monde virtuel dans 'Ready Player One' ?", answer: "OASIS" },
     { type: "cultureGeek", question: "Quelle série animée met en scène des pierres magiques appelées 'Gemmes du Chaos' ?", answer: "Steven Universe" },
-    { type: "cultureGeek", question: "Qui est l’ennemi juré de Sonic ?", answer: "Dr. Robotnik (Eggman)" },
+    { type: "cultureGeek", question: "Qui est l'ennemi juré de Sonic ?", answer: "Dr. Robotnik (Eggman)" },
     { type: "cultureGeek", question: "Dans quel univers évolue le personnage de Sephiroth ?", answer: "Final Fantasy VII" },
     { type: "cultureGeek", question: "Quel est le nom du jeu de rôle en ligne massivement multijoueur de Blizzard ?", answer: "World of Warcraft" },
     { type: "cultureGeek", question: "Quel est le vrai nom de Hulk ?", answer: "Bruce Banner" },
@@ -1912,7 +1914,7 @@ const questions = {
     { type: "cultureGeek", question: "Quel jeu de société implique de conquérir des territoires avec des dés ?", answer: "Risk" },
     { type: "cultureGeek", question: "Quel est le nom du créateur de Facebook ?", answer: "Mark Zuckerberg" },
     { type: "cultureGeek", question: "Quelle série met en scène un chimiste devenu fabricant de drogue ?", answer: "Breaking Bad" },
-    { type: "cultureGeek", question: "Dans 'One Piece', qui est le capitaine de l’équipage du chapeau de paille ?", answer: "Monkey D. Luffy" },
+    { type: "cultureGeek", question: "Dans 'One Piece', qui est le capitaine de l'équipage du chapeau de paille ?", answer: "Monkey D. Luffy" },
     { type: "cultureGeek", question: "Quel film met en scène un personnage appelé WALL-E ?", answer: "WALL-E" },
       
   
@@ -1949,26 +1951,26 @@ const questions = {
     { type: "cultureArt", question: "Quel auteur a écrit 'Notre-Dame de Paris' ?", answer: "Victor Hugo" },
     { type: "cultureArt", question: "Quel peintre hollandais est connu pour ses autoportraits et 'La Ronde de nuit' ?", answer: "Rembrandt" },
     { type: "cultureArt", question: "Quel instrument est au centre du concerto de Tchaïkovski le plus célèbre ?", answer: "Le violon" },
-    { type: "cultureArt", question: "Quelle est la nationalité de l’artiste Egon Schiele ?", answer: "Autrichienne" },
-    { type: "cultureArt", question: "Quel écrivain est l’auteur de 'Bel-Ami' ?", answer: "Guy de Maupassant" },
+    { type: "cultureArt", question: "Quelle est la nationalité de l'artiste Egon Schiele ?", answer: "Autrichienne" },
+    { type: "cultureArt", question: "Quel écrivain est l'auteur de 'Bel-Ami' ?", answer: "Guy de Maupassant" },
     { type: "cultureArt", question: "Qui a composé 'Les Quatre Saisons' ?", answer: "Antonio Vivaldi" },
     { type: "cultureArt", question: "Quel mouvement artistique est Andy Warhol associé ?", answer: "Pop Art" },
     { type: "cultureArt", question: "Quelle est la nationalité du peintre Gustav Klimt ?", answer: "Autrichienne" },
     { type: "cultureArt", question: "Quel poète a écrit 'Le Bateau Ivre' ?", answer: "Arthur Rimbaud" },
-    { type: "cultureArt", question: "Quel ballet raconte l’histoire d’une poupée mécanique ?", answer: "Coppélia" },
+    { type: "cultureArt", question: "Quel ballet raconte l'histoire d'une poupée mécanique ?", answer: "Coppélia" },
     { type: "cultureArt", question: "Quel musée est situé dans une ancienne gare à Paris ?", answer: "Musée d'Orsay" },
     { type: "cultureArt", question: "Quel peintre espagnol a eu une période 'bleue' ?", answer: "Pablo Picasso" },
-    { type: "cultureArt", question: "Quel dramaturge anglais est l’auteur de 'Macbeth' ?", answer: "William Shakespeare" },
+    { type: "cultureArt", question: "Quel dramaturge anglais est l'auteur de 'Macbeth' ?", answer: "William Shakespeare" },
     { type: "cultureArt", question: "Quelle artiste est connue pour ses performances avec des légumes ?", answer: "Marina Abramović" },
     { type: "cultureArt", question: "Quel est le nom du célèbre ballet avec la danse des petits cygnes ?", answer: "Le Lac des cygnes" },
     { type: "cultureArt", question: "Quel est le nom du sculpteur de 'La Liberté éclairant le monde' ?", answer: "Frédéric Auguste Bartholdi" },
     { type: "cultureArt", question: "Quelle pièce de théâtre française met en scène Harpagon ?", answer: "L'Avare" },
     { type: "cultureArt", question: "Quel architecte a conçu la Sagrada Familia ?", answer: "Antoni Gaudí" },
-    { type: "cultureArt", question: "Qui a peint 'Le Déjeuner sur l’herbe' ?", answer: "Édouard Manet" },
-    { type: "cultureArt", question: "Quel écrivain est l’auteur du 'Comte de Monte-Cristo' ?", answer: "Alexandre Dumas" },
+    { type: "cultureArt", question: "Qui a peint 'Le Déjeuner sur l'herbe' ?", answer: "Édouard Manet" },
+    { type: "cultureArt", question: "Quel écrivain est l'auteur du 'Comte de Monte-Cristo' ?", answer: "Alexandre Dumas" },
     { type: "cultureArt", question: "Quel est le nom du peintre italien auteur de 'La Naissance de Vénus' ?", answer: "Botticelli" },
     { type: "cultureArt", question: "Quel opéra de Puccini met en scène une geisha ?", answer: "Madama Butterfly" },
-    { type: "cultureArt", question: "Quel peintre est l’auteur de 'La Jeune Fille à la perle' ?", answer: "Johannes Vermeer" },
+    { type: "cultureArt", question: "Quel peintre est l'auteur de 'La Jeune Fille à la perle' ?", answer: "Johannes Vermeer" },
     { type: "cultureArt", question: "Quel écrivain allemand a écrit 'Faust' ?", answer: "Goethe" },
     { type: "cultureArt", question: "Quel artiste est célèbre pour son urinoir détourné en œuvre ?", answer: "Marcel Duchamp" },
     { type: "cultureArt", question: "Quel compositeur est connu pour la 'Marche nuptiale' ?", answer: "Mendelssohn" },
@@ -1977,17 +1979,17 @@ const questions = {
     { type: "cultureArt", question: "Quel est le nom du musée où se trouve 'La Joconde' ?", answer: "Le Louvre" },
     { type: "cultureArt", question: "Quel est le nom du dramaturge de 'Cyrano de Bergerac' ?", answer: "Edmond Rostand" },
     { type: "cultureArt", question: "Quel est le nom du théâtre antique de la tragédie grecque ?", answer: "Théâtre d'Épidaure" },
-    { type: "cultureArt", question: "Quel est le nom de l’auteur de 'Les Liaisons dangereuses' ?", answer: "Choderlos de Laclos" },
+    { type: "cultureArt", question: "Quel est le nom de l'auteur de 'Les Liaisons dangereuses' ?", answer: "Choderlos de Laclos" },
     { type: "cultureArt", question: "Quel artiste est célèbre pour ses silhouettes noires ?", answer: "Kara Walker" },
-    { type: "cultureArt", question: "Quel est le nom de la salle de concert parisienne connue pour sa coupole ?", answer: "L’Olympia" },
+    { type: "cultureArt", question: "Quel est le nom de la salle de concert parisienne connue pour sa coupole ?", answer: "L'Olympia" },
     { type: "cultureArt", question: "Quel écrivain italien a écrit 'La Divine Comédie' ?", answer: "Dante Alighieri" },
-    { type: "cultureArt", question: "Quel musicien est à l’origine de la 'Symphonie fantastique' ?", answer: "Hector Berlioz" },
-    { type: "cultureArt", question: "Quel artiste est associé à l’œuvre 'Campbell's Soup Cans' ?", answer: "Andy Warhol" },
+    { type: "cultureArt", question: "Quel musicien est à l'origine de la 'Symphonie fantastique' ?", answer: "Hector Berlioz" },
+    { type: "cultureArt", question: "Quel artiste est associé à l'œuvre 'Campbell's Soup Cans' ?", answer: "Andy Warhol" },
     { type: "cultureArt", question: "Quel écrivain français est connu pour 'Les Confessions' ?", answer: "Jean-Jacques Rousseau" },
     { type: "cultureArt", question: "Quel ballet met en scène des poupées mécaniques ?", answer: "Coppélia" },
     { type: "cultureArt", question: "Quel est le nom du célèbre théâtre londonien associé à Shakespeare ?", answer: "The Globe Theatre" },
     { type: "cultureArt", question: "Quel est le titre de la célèbre sculpture de Michel-Ange représentant Moïse ?", answer: "Moïse" },
-    { type: "cultureArt", question: "Quel est le nom de l’œuvre musicale qui accompagne souvent les feux d’artifice ?", answer: "Musique pour les feux d’artifice royaux (Haendel)" },
+    { type: "cultureArt", question: "Quel est le nom de l'œuvre musicale qui accompagne souvent les feux d'artifice ?", answer: "Musique pour les feux d'artifice royaux (Haendel)" },
     { type: "cultureArt", question: "Qui a peint 'Guernica' ?", answer: "Pablo Picasso" },
     { type: "cultureArt", question: "Quel est le nom du sculpteur du 'Penseur' ?", answer: "Auguste Rodin" },
     { type: "cultureArt", question: "Quel est le nom du compositeur de 'La Flûte enchantée' ?", answer: "Wolfgang Amadeus Mozart" },
@@ -2017,20 +2019,20 @@ const questions = {
     { type: "hard", question: "Quel est le nom du paradoxe célèbre de la mécanique quantique impliquant un chat ?", answer: "Paradoxe du chat de Schrödinger" },
     { type: "hard", question: "Quel pays détient le plus grand nombre de prix Nobel ?", answer: "Les États-Unis" },
     { type: "hard", question: "Quel est le nom du premier ordinateur ?", answer: "ENIAC" },
-    { type: "hard", question: "Quel est le nom du scientifique ayant découvert l’électromagnétisme ?", answer: "James Clerk Maxwell" },
+    { type: "hard", question: "Quel est le nom du scientifique ayant découvert l'électromagnétisme ?", answer: "James Clerk Maxwell" },
     { type: "hard", question: "Quel est le nom de la particule associée à la masse ?", answer: "Boson de Higgs" },
-    { type: "hard", question: "Quel philosophe grec a fondé l’Académie ?", answer: "Platon" },
+    { type: "hard", question: "Quel philosophe grec a fondé l'Académie ?", answer: "Platon" },
     { type: "hard", question: "Quelle est la distance de la lumière parcourue en un an appelée ?", answer: "Année-lumière" },
     { type: "hard", question: "Quel est le nom du mathématicien célèbre pour son triangle ?", answer: "Pascal" },
     { type: "hard", question: "Quel physicien est célèbre pour ses lois du mouvement ?", answer: "Isaac Newton" },
     { type: "hard", question: "Quel est le nom du philosophe allemand auteur de 'La Critique de la raison pure' ?", answer: "Emmanuel Kant" },
-    { type: "hard", question: "Quelle est la formule de l’énergie cinétique ?", answer: "Ec = 1/2 mv²" },
+    { type: "hard", question: "Quelle est la formule de l'énergie cinétique ?", answer: "Ec = 1/2 mv²" },
     { type: "hard", question: "Quel est le nom du processus qui transforme les neutrons en protons dans les étoiles ?", answer: "Fusion nucléaire" },
     { type: "hard", question: "Quel est le nom du plus grand télescope spatial lancé en 2021 ?", answer: "James Webb" },
-    { type: "hard", question: "Quel est le nom du mathématicien ayant posé les bases de l’informatique ?", answer: "Alan Turing" },
-    { type: "hard", question: "Quelle est l’unité de mesure de la fréquence ?", answer: "Hertz" },
+    { type: "hard", question: "Quel est le nom du mathématicien ayant posé les bases de l'informatique ?", answer: "Alan Turing" },
+    { type: "hard", question: "Quelle est l'unité de mesure de la fréquence ?", answer: "Hertz" },
     { type: "hard", question: "Quel est le nom du plus gros trou noir connu ?", answer: "TON 618" },
-    { type: "hard", question: "Quel scientifique est connu pour ses travaux sur l’hérédité chez les pois ?", answer: "Gregor Mendel" },
+    { type: "hard", question: "Quel scientifique est connu pour ses travaux sur l'hérédité chez les pois ?", answer: "Gregor Mendel" },
     { type: "hard", question: "Quel est le PIB nominal du Luxembourg en 2020 ?", answer: "Environ 72 milliards de dollars" },
     { type: "hard", question: "Quelle est la valeur approximative de la constante de Planck ?", answer: "6,62607015 × 10⁻³⁴ J·s" },
     { type: "hard", question: "Qui a développé la théorie des invariants ?", answer: "David Hilbert" },
@@ -2051,64 +2053,70 @@ const questions = {
   ], 
   "never-have-i-ever-hot": [
   {
-    "text": "Je n’ai jamais embrassé quelqu’un lors d’une soirée.",
+    "text": "Je n'ai jamais embrassé quelqu'un lors d'une soirée.",
     "type": "coquin"
   },
   {
-    "text": "Je n’ai jamais envoyé un message sexy.",
+    "text": "Je n'ai jamais envoyé un message sexy.",
     "type": "coquin"
   },
   {
-    "text": "Je n’ai jamais dormi nu(e).",
+    "text": "Je n'ai jamais dormi nu(e).",
     "type": "sage"
   },
   {
-    "text": "Je n’ai jamais eu de coup de foudre au premier regard.",
+    "text": "Je n'ai jamais eu de coup de foudre au premier regard.",
     "type": "sage"
   },
   {
-    "text": "Je n’ai jamais flirté avec un(e) inconnu(e) dans un bar.",
+    "text": "Je n'ai jamais flirté avec un(e) inconnu(e) dans un bar.",
     "type": "coquin"
   },
   {
-    "text": "Je n’ai jamais utilisé d’application de rencontre.",
+    "text": "Je n'ai jamais utilisé d'application de rencontre.",
     "type": "sage"
   },
   {
-    "text": "Je n’ai jamais fait un rêve érotique sur un ami.",
+    "text": "Je n'ai jamais fait un rêve érotique sur un ami.",
     "type": "coquin"
   },
   {
-    "text": "Je n’ai jamais menti sur mon nombre de partenaires.",
+    "text": "Je n'ai jamais menti sur mon nombre de partenaires.",
     "type": "coquin"
   },
   {
-    "text": "Je n’ai jamais regardé une série romantique en cachette.",
+    "text": "Je n'ai jamais regardé une série romantique en cachette.",
     "type": "sage"
   },
   {
-    "text": "Je n’ai jamais eu un crush pour un prof ou collègue.",
+    "text": "Je n'ai jamais eu un crush pour un prof ou collègue.",
     "type": "coquin"
   },
   {
-    "text": "Je n’ai jamais fantasmé sur quelqu’un dans cette pièce.",
+    "text": "Je n'ai jamais fantasmé sur quelqu'un dans cette pièce.",
     "type": "coquin"
   },
   {
-    "text": "Je n’ai jamais eu un rendez-vous foireux.",
+    "text": "Je n'ai jamais eu un rendez-vous foireux.",
     "type": "sage"
   }
 ]
 };
 
 async function uploadQuestions() {
-  for (const [gameId, questionsArray] of Object.entries(questions)) {
-    await setDoc(doc(db, 'gameQuestions', gameId), {
-      questions: questionsArray
-    });
-    console.log(`Questions uploaded for ${gameId}`);
+  try {
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    
+    for (const [category, questionsList] of Object.entries(questions)) {
+      await setDoc(doc(db, 'questions', category), { questions: questionsList });
+      console.log(`✅ Questions uploadées pour la catégorie : ${category}`);
+    }
+    
+    console.log('🎮 Toutes les questions ont été uploadées avec succès !');
+  } catch (error) {
+    console.error('❌ Erreur lors de l\'upload des questions:', error);
   }
-  process.exit(0);
 }
 
-uploadQuestions().catch(console.error);
+uploadQuestions();
