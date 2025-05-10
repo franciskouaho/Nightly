@@ -505,6 +505,7 @@ export default function RoomScreen() {
         <RulesDrawer
           visible={isRulesDrawerVisible}
           onClose={() => setIsRulesDrawerVisible(false)}
+          gameId={room?.gameId}
         />
       </LinearGradient>
     </View>
