@@ -230,6 +230,7 @@ export default function RoomScreen() {
 
   const handleRulesClose = async () => {
     setIsRulesDrawerVisible(false);
+    setShowRulesOnReady(false);
     
     // Si on était en train de démarrer la partie et que les règles ont été lues
     if (isStartingGame && hasReadRules) {
@@ -246,9 +247,18 @@ export default function RoomScreen() {
     }
   };
 
-  const handleRulesConfirm = () => {
+  const handleRulesConfirm = async () => {
     setHasReadRules(true);
-    handleRulesClose();
+    if (isStartingGame) {
+      setIsRulesDrawerVisible(false);
+      setIsStartingGame(false);
+      await startGame();
+    } else if (showRulesOnReady) {
+      await handleConfirmRulesOnReady();
+      setShowRulesOnReady(false);
+    } else {
+      setIsRulesDrawerVisible(false);
+    }
   };
 
   const startGame = async () => {
@@ -404,10 +414,21 @@ export default function RoomScreen() {
         const updatedPlayers = room.players.map(p =>
           String(p.id) === String(user?.uid) ? { ...p, isReady: true } : p
         );
+        
+        console.log('Mise à jour du statut prêt pour le joueur:', user.uid);
         await updateDoc(doc(db, 'rooms', room.id), {
           players: updatedPlayers
         });
+        
+        // Vérification que la mise à jour a réussi
+        const roomRef = doc(db, 'rooms', room.id);
+        const updatedRoomDoc = await getDoc(roomRef);
+        if (updatedRoomDoc.exists()) {
+          const updatedRoomData = updatedRoomDoc.data();
+          console.log('Statut mis à jour avec succès:', updatedRoomData);
+        }
       } catch (error) {
+        console.error('Erreur lors de la mise à jour du statut prêt:', error);
         Alert.alert('Erreur', 'Impossible de se mettre prêt');
       }
     }
@@ -544,10 +565,11 @@ export default function RoomScreen() {
         />
 
         <RulesDrawer
-          visible={isRulesDrawerVisible}
+          visible={isRulesDrawerVisible || showRulesOnReady}
           onClose={handleRulesClose}
+          onConfirm={handleRulesConfirm}
           gameId={room?.gameId}
-          isStartingGame={false}
+          isStartingGame={showRulesOnReady}
         />
       </LinearGradient>
     </View>
