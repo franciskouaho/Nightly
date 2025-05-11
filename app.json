@@ -24,7 +24,7 @@
         "foregroundImage": "./assets/images/logo.png",
         "backgroundColor": "#4b277d"
       },
-      "versionCode": 4,
+      "versionCode": 5,
       "package": "com.emplica.nightly",
       "googleServicesFile": "./google-services.json",
       "permissions": ["INTERNET"]
