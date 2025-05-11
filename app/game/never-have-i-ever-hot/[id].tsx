@@ -103,11 +103,50 @@ export default function NeverHaveIEverHotGame() {
       if (question.text) {
         setAskedQuestions(prev => [...prev, question.text]);
       }
-
       // Track le début de la question
       gameAnalytics.trackQuestionStart(String(id), question.id);
     }
   }, [gameState?.currentQuestion, gameState?.targetPlayer?.id, gameAnalytics, id]);
+
+  useEffect(() => {
+    if (gameState && gameState.phase === GamePhase.END) {
+      const timeout = setTimeout(async () => {
+        await requestReview();
+        router.replace(`/game/results/${id}`);
+      }, 2000);
+      return () => clearTimeout(timeout);
+    }
+  }, [gameState?.phase, id, router, requestReview]);
+
+  if (!gameState) {
+    return (
+      <LinearGradient 
+        colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
+        style={styles.container}
+      >
+        <Text style={styles.loadingText}>Chargement...</Text>
+      </LinearGradient>
+    );
+  }
+
+  if (gameState.phase === GamePhase.END) {
+    return (
+      <LinearGradient
+        colors={["#D81B60", "#661A59", "#21101C"]}
+        style={styles.endContainer}
+      >
+        <Text style={styles.celebrationEmoji}>🎉</Text>
+        <Text style={styles.endTitle}>Félicitations à tous !</Text>
+        <Text style={styles.endSubtitle}>Vous avez terminé la partie Je n'ai jamais 🔥</Text>
+        <RoundedButton
+          title="Retour à l'accueil"
+          onPress={() => {
+            router.replace('/');
+          }}
+        />
+      </LinearGradient>
+    );
+  }
 
   const getQuestionText = () => {
     if (!currentQuestion) return '';
@@ -251,45 +290,6 @@ export default function NeverHaveIEverHotGame() {
       });
     }
   };
-
-  if (!gameState) {
-    return (
-      <LinearGradient 
-        colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
-        style={styles.container}
-      >
-        <Text style={styles.loadingText}>Chargement...</Text>
-      </LinearGradient>
-    );
-  }
-
-  // Écran de fin de partie
-  if (gameState.phase === GamePhase.END) {
-    useEffect(() => {
-      const timeout = setTimeout(async () => {
-        await requestReview();
-        router.replace(`/game/results/${id}`);
-      }, 2000);
-      return () => clearTimeout(timeout);
-    }, [gameState?.phase, id, router, requestReview]);
-
-    return (
-      <LinearGradient
-        colors={["#D81B60", "#661A59", "#21101C"]}
-        style={styles.endContainer}
-      >
-        <Text style={styles.celebrationEmoji}>🎉</Text>
-        <Text style={styles.endTitle}>Félicitations à tous !</Text>
-        <Text style={styles.endSubtitle}>Vous avez terminé la partie Je n'ai jamais 🔥</Text>
-        <RoundedButton
-          title="Retour à l'accueil"
-          onPress={() => { 
-            router.replace('/');
-          }}
-        />
-      </LinearGradient>
-    );
-  }
 
   const userId = user?.uid;
   const isTarget = userId === gameState.targetPlayer?.id;
