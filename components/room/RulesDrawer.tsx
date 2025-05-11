@@ -139,12 +139,14 @@ const RulesDrawer = ({ visible, onClose, onConfirm, gameId, isStartingGame }: Ru
               )}
             </ScrollView>
 
-            {isStartingGame && (
+            {onConfirm && (
               <TouchableOpacity 
                 style={styles.confirmButton}
                 onPress={onConfirm}
               >
-                <Text style={styles.confirmButtonText}>J'ai lu les règles, démarrer la partie</Text>
+                <Text style={styles.confirmButtonText}>
+                  {isStartingGame ? "J'ai lu les règles, démarrer la partie" : "J'ai lu les règles"}
+                </Text>
               </TouchableOpacity>
             )}
           </View>
