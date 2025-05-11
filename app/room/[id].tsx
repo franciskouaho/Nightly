@@ -550,7 +550,7 @@ export default function RoomScreen() {
           <RoundedButton
             title="Démarrer la partie"
             onPress={handleStartGame}
-            disabled={!room.players.every(p => p.isReady)}
+            disabled={!room.players.every(p => p.isReady) || room.players.length < 2}
             style={styles.startButton}
             textStyle={styles.startButtonText}
           />
