@@ -6,10 +6,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 export default function SplashScreen() {
   const router = useRouter();
   const { user } = useAuth();
+  const { t } = useTranslation();
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
   const scaleAnim = React.useRef(new Animated.Value(0.9)).current;
 
@@ -57,8 +59,8 @@ export default function SplashScreen() {
           ]}
         >
           <Ionicons name="game-controller" size={80} color="#fff" />
-          <Text style={styles.title}>Nightly</Text>
-          <Text style={styles.subtitle}>Préparez-vous à jouer</Text>
+          <Text style={styles.title}>{t('splash.title')}</Text>
+          <Text style={styles.subtitle}>{t('splash.subtitle')}</Text>
         </Animated.View>
       </LinearGradient>
     </View>

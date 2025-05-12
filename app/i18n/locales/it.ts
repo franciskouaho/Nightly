@@ -1,0 +1,362 @@
+export default {
+  // General
+  app: {
+    name: 'Nightly',
+  },
+  
+  // Language screen
+  language: {
+    title: 'Lingua',
+    selectLanguage: 'Seleziona la tua lingua preferita per l\'app',
+    updated: 'Lingua aggiornata',
+    updatedMessage: 'La lingua dell\'app è stata modificata.',
+    error: 'Errore',
+    errorMessage: 'Impossibile cambiare la lingua.',
+  },
+
+  // Navigation
+  navigation: {
+    back: 'Indietro',
+    home: 'Home',
+    profile: 'Profilo',
+    settings: 'Impostazioni',
+  },
+
+  // Error messages
+  errors: {
+    general: 'Si è verificato un errore',
+    tryAgain: 'Per favore riprova',
+    networkError: 'Errore di rete',
+    authError: 'Errore di autenticazione',
+  },
+
+  // Authentication
+  auth: {
+    login: {
+      title: 'Accedi',
+      email: 'Email',
+      password: 'Password',
+      submit: 'Accedi',
+      forgotPassword: 'Password dimenticata?',
+      noAccount: 'Non hai un account?',
+      signUp: 'Registrati',
+      username: 'Il tuo nome utente',
+      usernameRequired: 'Per favore inserisci il tuo nome utente',
+      usernameLength: 'Il nome utente deve essere di almeno 3 caratteri',
+      enterUsername: 'Inserisci il tuo nome utente per giocare',
+      connecting: 'Connessione in corso...',
+      play: 'Gioca',
+    },
+    register: {
+      title: 'Registrazione',
+      email: 'Email',
+      password: 'Password',
+      confirmPassword: 'Conferma password',
+      submit: 'Registrati',
+      haveAccount: 'Hai già un account?',
+      login: 'Accedi',
+    },
+  },
+
+  // Profile
+  profile: {
+    title: 'Profilo',
+    edit: 'Modifica',
+    save: 'Salva',
+    cancel: 'Annulla',
+    username: 'Nome utente',
+    defaultUsername: 'Giocatore',
+    email: 'Email',
+    bio: 'Biografia',
+    avatar: 'Foto profilo',
+    changeAvatar: 'Cambia foto',
+    settings: 'Impostazioni',
+    logout: 'Esci',
+    logoutError: 'Si è verificato un errore durante il logout. Per favore riprova.',
+    contact: 'Contattaci',
+    contactEmail: 'Inviaci una email a support@cosmicquest.com',
+    premium: {
+      title: 'Pass Premium',
+      try: 'Prova premium',
+      free: 'Gratis 3 giorni',
+      price: 'poi 5,99€ a settimana',
+      features: {
+        unlock: 'Sblocca tutte le modalità',
+        weekly: 'Nuovo pacchetto ogni settimana',
+        friends: 'Accesso gratuito per i tuoi amici',
+        cancel: 'Annulla quando vuoi',
+      },
+    },
+  },
+
+  // Home
+  home: {
+    title: 'Home',
+    welcome: 'Benvenuto',
+    createGame: 'Crea partita',
+    joinGame: 'Unisciti a una partita',
+    enterCode: 'Inserisci codice',
+    join: 'Unisciti',
+    gameModes: {
+      title: 'Modalità di gioco',
+      classic: 'Classica',
+      custom: 'Personalizzata',
+      quick: 'Rapida',
+    },
+    errors: {
+      noConnection: 'Nessuna connessione internet. Per favore verifica la tua connessione e riprova.',
+      loginRequired: 'Devi effettuare l\'accesso per creare una stanza di gioco.',
+      invalidSession: 'La tua sessione utente non è valida. Per favore effettua nuovamente l\'accesso.',
+      roomCreationFailed: 'Impossibile creare la stanza',
+      invalidCode: 'Codice partita non valido',
+      roomNotFound: 'Stanza non trovata',
+      gameStarted: 'Questa partita è già iniziata',
+      roomFull: 'Questa partita è piena',
+      notAuthenticated: 'Utente non autenticato',
+      alreadyInGame: 'Sei già in questa partita',
+      serverTimeout: 'Il server sta impiegando troppo tempo a rispondere. Per favore riprova.',
+      networkError: 'Errore di rete: verifica la tua connessione internet',
+      permissionDenied: 'Accesso negato: verifica le regole di sicurezza di Firestore',
+    },
+    room: {
+      create: 'Crea stanza',
+      join: 'Unisciti alla stanza',
+      code: 'Codice stanza',
+      players: 'Giocatori',
+      status: {
+        waiting: 'In attesa',
+        playing: 'In gioco',
+        finished: 'Terminata',
+      },
+    },
+    codePlaceholder: "Inserisci il codice della partita",
+    loading: "Connessione alla partita in corso...",
+    categories: {
+      nightly_modes: "SUGGERIMENTO DELLA SETTIMANA",
+      same_room: "NELLA STESSA STANZA",
+      online: "A DISTANZA"
+    },
+    subtitles: {
+      same_room: "Gioca insieme nella stessa stanza!",
+      online: "Gioca anche quando non siete insieme"
+    },
+    games: {
+      "listen-but-don-t-judge": {
+        name: "ASCOLTA MA NON GIUDICARE",
+        description: "Una modalità gratuita per divertirsi con gli amici.",
+        tag: "GRATIS"
+      },
+      "truth-or-dare": {
+        name: "VERITÀ O SFOIDA",
+        description: "Il classico rivisitato con sfide esclusive.",
+        tag: "PREMIUM"
+      },
+      "never-have-i-ever-hot": {
+        name: "MAI MAI 🔞",
+        description: "Domande piccanti e audaci... Pronto a confessare?",
+        tag: "PREMIUM"
+      },
+      "genius-or-liar": {
+        name: "GENIO O BUGIARDO",
+        description: "Una modalità divertente in cui devi dimostrare le tue conoscenze o affrontare sfide.",
+        tag: "PREMIUM"
+      }
+    }
+  },
+
+  // Settings
+  settings: {
+    title: 'Impostazioni',
+    language: 'Lingua',
+    notifications: 'Notifiche',
+    theme: 'Tema',
+    privacy: 'Privacy',
+    about: 'Informazioni',
+    help: 'Aiuto',
+    darkMode: 'Tema scuro',
+    lightMode: 'Tema chiaro',
+    system: 'Sistema',
+  },
+
+  // Game
+  game: {
+    start: 'Inizia',
+    join: 'Unisciti',
+    leave: 'Esci',
+    players: 'Giocatori',
+    waiting: 'In attesa',
+    yourTurn: 'Il tuo turno',
+    gameOver: 'Fine del gioco',
+    winner: 'Vincitore',
+    draw: 'Pareggio',
+    error: "Errore",
+    unknownMode: "Modalità di gioco sconosciuta: {{mode}}",
+    notFound: "Nessun documento di gioco trovato per l'id: {{id}}",
+    noMode: "Nessuna modalità di gioco trovata nel documento games.",
+    loading: "Caricamento...",
+    results: {
+      title: "Risultati finali",
+      subtitle: "Congratulazioni a tutti!",
+      bravo: "Congratulazioni {{name}}!",
+      points: "punti",
+      home: "Home",
+      calculating: "Calcolo risultati..."
+    },
+    listenButDontJudge: {
+      waiting: "In attesa di altri giocatori...",
+      submit: "Invia",
+      vote: "Vota",
+      next: "Prossimo round",
+      errorSubmit: "Impossibile inviare la risposta",
+      errorVote: "Impossibile inviare il voto",
+      errorNext: "Errore nel passare al round successivo",
+      noQuestions: "Nessuna domanda disponibile",
+      endTitle: "Fine della partita!",
+      endSubtitle: "Grazie per aver giocato!"
+    },
+    truthOrDare: {
+      truth: "Verità!",
+      dare: "Sfida!",
+      submit: "Invia",
+      next: "Prossimo round",
+      errorSubmit: "Impossibile inviare la risposta",
+      errorVote: "Impossibile inviare il voto",
+      errorNext: "Errore nel passare al round successivo",
+      endTitle: "Fine della partita!",
+      endSubtitle: "Grazie per aver giocato a Verità o Sfida!"
+    },
+    geniusOrLiar: {
+      know: "Lo so!",
+      dontKnow: "Non lo so",
+      accuse: "Accusa",
+      skip: "Passa",
+      submit: "Invia",
+      next: "Prossimo round",
+      errorSubmit: "Impossibile inviare la risposta",
+      errorVote: "Impossibile inviare l'accusa",
+      errorNext: "Errore nel passare al round successivo",
+      endTitle: "Fine della partita!",
+      endSubtitle: "Grazie per aver giocato a Genio o Bugiardo!"
+    },
+    neverHaveIEverHot: {
+      never: "Mai",
+      ever: "Sì",
+      waiting: "In attesa della scelta del giocatore obiettivo...",
+      prepare: "Preparati a rispondere!",
+      submit: "Invia",
+      next: "Prossimo round",
+      errorSubmit: "Impossibile inviare la risposta",
+      endTitle: "Congratulazioni a tutti!",
+      endSubtitle: "Hai completato la partita di Mai Mai 🔥!",
+      home: "Torna alla home"
+    }
+  },
+
+  // Splash Screen
+  splash: {
+    title: 'Nightly',
+    subtitle: 'Preparati a giocare',
+    loading: 'Caricamento...',
+  },
+
+  room: {
+    loading: "Caricamento stanza...",
+    notFound: "Stanza non trovata",
+    codeLabel: "Codice stanza",
+    codeCopied: "Codice copiato negli appunti",
+    players: "Giocatori",
+    host: "Host",
+    ready: "Pronto!",
+    rules: "regole",
+    rulesNotRead: "Per favore leggi le regole prima di iniziare la partita.",
+    iAmReady: "Sono pronto!",
+    startGame: "Inizia la partita",
+    inviteTitle: "Unisciti alla mia partita",
+    inviteMessage: "Unisciti alla mia partita su Nightly! Codice: {{code}}",
+    error: "Errore",
+    errorLoading: "Impossibile caricare la stanza",
+    errorStart: "Impossibile iniziare la partita",
+    errorLeave: "Impossibile lasciare la stanza",
+    errorReady: "Impossibile impostare come pronto",
+    errorCopy: "Errore nel copiare il codice",
+    errorShare: "Errore nella condivisione",
+    successCopy: "Codice copiato negli appunti",
+    minPlayers: "Sono necessari almeno 2 giocatori per iniziare la partita.",
+    allReady: "Tutti i giocatori sono pronti!",
+    waiting: "In attesa di altri giocatori..."
+  },
+
+  paywall: {
+    title: 'Nightly Premium',
+    subtitle: 'ACCESSO ILLIMITATO',
+    tagline: 'GIOCA SENZA LIMITI',
+    features: {
+      unlimited: 'Accesso illimitato a tutte le modalità',
+      weekly: 'Nuove carte ogni settimana',
+      visuals: 'Temi visivi esclusivi',
+      characters: 'Personalizzazione personaggi',
+      updates: 'Aggiornamenti prioritari'
+    },
+    plans: {
+      weekly: {
+        badge: 'PASS',
+        title: 'Nightly Pass',
+        period: 'a settimana',
+        description: 'Perfetto per una serata o un weekend con gli amici'
+      },
+      monthly: {
+        badge: 'PARTY',
+        title: 'Nightly Party',
+        period: 'al mese',
+        description: 'Per giocatori regolari'
+      },
+      annual: {
+        badge: 'ALL ACCESS',
+        title: 'Nightly All Access',
+        period: 'all\'anno',
+        description: 'L\'offerta definitiva per i fan'
+      }
+    },
+    cta: 'Inizia ora',
+    footer: {
+      restore: 'Ripristina acquisti',
+      terms: 'Termini di utilizzo'
+    },
+    alerts: {
+      productUnavailable: {
+        title: 'Prodotto non disponibile',
+        message: 'L\'abbonamento non è disponibile al momento. Per favore riprova più tardi.'
+      },
+      success: {
+        title: 'Successo',
+        message: 'Grazie per il tuo acquisto!'
+      },
+      pending: {
+        title: 'Informazione',
+        message: 'Il tuo abbonamento è stato elaborato ma non è ancora attivo. Per favore riavvia l\'app.'
+      },
+      error: {
+        title: 'Errore',
+        message: 'L\'acquisto è fallito. Per favore riprova o scegli un altro metodo di pagamento.'
+      },
+      restoreSuccess: {
+        title: 'Successo',
+        message: 'Il tuo acquisto è stato ripristinato!'
+      },
+      restoreError: {
+        title: 'Errore',
+        message: 'Errore nel ripristinare gli acquisti'
+      },
+      termsError: {
+        title: 'Errore',
+        message: 'Impossibile aprire i termini di utilizzo'
+      }
+    },
+    prices: {
+      weekly: '3,99',
+      monthly: '7,99',
+      annual: '29,99',
+      currency: '€'
+    }
+  },
+}; 

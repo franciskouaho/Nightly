@@ -9,8 +9,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/contexts/AuthContext';
 import { GamePhase } from '@/types/gameTypes';
 import { getFirestore, doc, onSnapshot, updateDoc, getDoc } from '@react-native-firebase/firestore';
-import useInAppReview from '@/hooks/useInAppReview';
+import { useInAppReview } from '@/hooks/useInAppReview';
 import { useNeverHaveIEverHotAnalytics } from '@/hooks/useNeverHaveIEverHotAnalytics';
+import { useTranslation } from 'react-i18next';
 
 interface FirebaseQuestion {
   text: string | { text: string };
@@ -31,13 +32,14 @@ interface GameState {
 }
 
 function ModeSelector({ onSelect, isTarget }: { onSelect: (mode: 'never' | 'ever' | null) => void, isTarget: boolean }) {
+  const { t } = useTranslation();
   if (!isTarget) {
     return (
       <LinearGradient colors={["#0E1117", "#661A59"]} style={styles.modeSelectorContainer}>
         <View style={styles.waitingCard}>
           <ActivityIndicator size="large" color="#D81B60" style={styles.loadingIndicator} />
-          <Text style={styles.waitingText}>En attente du choix du joueur cible...</Text>
-          <Text style={styles.waitingSubtext}>Préparez-vous à répondre !</Text>
+          <Text style={styles.waitingText}>{t('game.neverHaveIEverHot.waiting')}</Text>
+          <Text style={styles.waitingSubtext}>{t('game.neverHaveIEverHot.prepare')}</Text>
         </View>
       </LinearGradient>
     );
@@ -55,7 +57,7 @@ function ModeSelector({ onSelect, isTarget }: { onSelect: (mode: 'never' | 'ever
         >
           <LinearGradient colors={["#D81B60", "#F44336", "#E040FB"]} style={styles.modeCard}>
             <Text style={styles.emoji}>❤️‍🔥</Text>
-            <Text style={styles.modeLabel}>Je n'ai jamais</Text>
+            <Text style={styles.modeLabel}>{t('game.neverHaveIEverHot.never')}</Text>
           </LinearGradient>
         </Pressable>
         <Pressable
@@ -67,7 +69,7 @@ function ModeSelector({ onSelect, isTarget }: { onSelect: (mode: 'never' | 'ever
         >
           <LinearGradient colors={["#8e0038", "#661A59", "#D81B60"]} style={styles.modeCard}>
             <Text style={styles.emoji}>💋</Text>
-            <Text style={styles.modeLabel}>J'ai déjà</Text>
+            <Text style={styles.modeLabel}>{t('game.neverHaveIEverHot.ever')}</Text>
           </LinearGradient>
         </Pressable>
       </View>
@@ -88,6 +90,7 @@ export default function NeverHaveIEverHotGame() {
   const [askedQuestions, setAskedQuestions] = useState<string[]>([]);
   const gameStartTime = useRef(Date.now());
   const TOTAL_ROUNDS = 4;
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (gameState?.currentQuestion) {
@@ -124,7 +127,7 @@ export default function NeverHaveIEverHotGame() {
         colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
         style={styles.container}
       >
-        <Text style={styles.loadingText}>Chargement...</Text>
+        <Text style={styles.loadingText}>{t('game.loading')}</Text>
       </LinearGradient>
     );
   }
@@ -136,10 +139,10 @@ export default function NeverHaveIEverHotGame() {
         style={styles.endContainer}
       >
         <Text style={styles.celebrationEmoji}>🎉</Text>
-        <Text style={styles.endTitle}>Félicitations à tous !</Text>
-        <Text style={styles.endSubtitle}>Vous avez terminé la partie Je n'ai jamais 🔥</Text>
+        <Text style={styles.endTitle}>{t('game.neverHaveIEverHot.endTitle')}</Text>
+        <Text style={styles.endSubtitle}>{t('game.neverHaveIEverHot.endSubtitle')}</Text>
         <RoundedButton
-          title="Retour à l'accueil"
+          title={t('game.neverHaveIEverHot.home')}
           onPress={() => {
             router.replace('/');
           }}
@@ -304,7 +307,7 @@ export default function NeverHaveIEverHotGame() {
       style={styles.container}
     >
       <View style={styles.header}>
-        <Text style={styles.title}>JEU DE CARTES : JE N'AI JAMAIS {mode === 'ever' ? 'OU J\'AI DÉJÀ' : ''} 🔞</Text>
+        <Text style={styles.title}>JEU DE CARTES : {t('game.neverHaveIEverHot.never').toUpperCase()} {mode === 'ever' ? t('game.neverHaveIEverHot.ever').toUpperCase() : ''} 🔞</Text>
         <View style={styles.progressRow}>
           <View style={styles.progressBarTrack}>
             <View style={[styles.progressBarFill, { width: `${(gameState.currentRound / TOTAL_ROUNDS) * 100}%` }]} />
@@ -312,13 +315,9 @@ export default function NeverHaveIEverHotGame() {
           <Text style={styles.progressTextRight}>{`${gameState.currentRound}/${TOTAL_ROUNDS}`}</Text>
         </View>
         {isTarget ? (
-          <Text style={styles.subtitle}>
-            Lisez la question à voix haute !
-          </Text>
+          <Text style={styles.subtitle}>{t('game.neverHaveIEverHot.readAloud')}</Text>
         ) : (
-          <Text style={styles.subtitle}>
-            {gameState.targetPlayer?.name || 'Le joueur'} va lire la question à voix haute !
-          </Text>
+          <Text style={styles.subtitle}>{t('game.neverHaveIEverHot.targetReads', { name: gameState.targetPlayer?.name || t('game.neverHaveIEverHot.player') })}</Text>
         )}
       </View>
 

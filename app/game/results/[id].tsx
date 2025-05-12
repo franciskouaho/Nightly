@@ -8,12 +8,14 @@ import Confetti from 'react-native-confetti';
 import { Player } from '@/types/gameTypes';
 import { getFirestore, doc, getDoc } from '@react-native-firebase/firestore';
 import RoundedButton from '@/components/RoundedButton';
+import { useTranslation } from 'react-i18next';
 
 type PlayerScore = Player & { score: number };
 
 export default function GameResultsScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
+  const { t } = useTranslation();
   
   const [players, setPlayers] = useState<PlayerScore[]>([]);
   const [loading, setLoading] = useState(true);
@@ -111,7 +113,7 @@ export default function GameResultsScreen() {
           style={styles.background}
         />
         <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Calcul des résultats...</Text>
+          <Text style={styles.loadingText}>{t('game.results.calculating')}</Text>
         </View>
       </View>
     );
@@ -130,9 +132,9 @@ export default function GameResultsScreen() {
       <Confetti ref={ref => setConfettiRef(ref)} />
       
       <View style={styles.header}>
-        <Text style={styles.title}>Résultats finaux</Text>
+        <Text style={styles.title}>{t('game.results.title')}</Text>
         <Text style={styles.subtitle}>
-          {players.length > 0 ? `Bravo ${players[0].name} !` : "Félicitations à tous !"}
+          {players.length > 0 ? t('game.results.bravo', { name: players[0].name }) : t('game.results.subtitle')}
         </Text>
       </View>
       
@@ -147,7 +149,7 @@ export default function GameResultsScreen() {
       
       <View style={styles.buttonsContainer}>
         <RoundedButton
-          title="Accueil"
+          title={t('game.results.home')}
           onPress={handleReturnHome}
           style={[styles.button]}
           textStyle={styles.buttonText}

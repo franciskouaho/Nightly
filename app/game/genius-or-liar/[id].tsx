@@ -5,8 +5,9 @@ import { getFirestore, doc, onSnapshot, updateDoc, getDoc } from '@react-native-
 import { useAuth } from '@/contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { GamePhase, Player } from '@/types/gameTypes';
-import useInAppReview from '@/hooks/useInAppReview';
+import { useInAppReview } from '@/hooks/useInAppReview';
 import { useGeniusOrLiarAnalytics } from '@/hooks/useGeniusOrLiarAnalytics';
+import { useTranslation } from 'react-i18next';
 
 interface FirebaseQuestion {
   type: string;
@@ -72,6 +73,7 @@ export default function KnowOrDrinkGame() {
   const [showAnswerInput, setShowAnswerInput] = useState(false);
   const [isEnd, setIsEnd] = useState(false);
   const gameStartTime = useRef(Date.now());
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!id || !user) return;
@@ -121,7 +123,7 @@ export default function KnowOrDrinkGame() {
       setAnswer('');
       setShowAnswerInput(false);
     } catch (error) {
-      Alert.alert('Erreur', 'Impossible de soumettre votre réponse');
+      Alert.alert(t('game.error'), t('game.geniusOrLiar.errorSubmit'));
     }
   };
 
@@ -145,7 +147,7 @@ export default function KnowOrDrinkGame() {
         [`currentUserState.${user.uid}.hasAnswered`]: true
       });
     } catch (error) {
-      Alert.alert('Erreur', 'Impossible de soumettre votre réponse');
+      Alert.alert(t('game.error'), t('game.geniusOrLiar.errorSubmit'));
     }
   };
 
@@ -165,7 +167,7 @@ export default function KnowOrDrinkGame() {
         [`currentUserState.${user.uid}.hasVoted`]: true
       });
     } catch (error) {
-      Alert.alert('Erreur', 'Impossible de soumettre l\'accusation');
+      Alert.alert(t('game.error'), t('game.geniusOrLiar.errorSubmit'));
     }
   };
 
@@ -182,7 +184,7 @@ export default function KnowOrDrinkGame() {
         [`currentUserState.${user.uid}.hasVoted`]: true
       });
     } catch (error) {
-      Alert.alert('Erreur', 'Impossible de valider votre choix');
+      Alert.alert(t('game.error'), t('game.geniusOrLiar.errorSubmit'));
     }
   };
 
@@ -304,7 +306,7 @@ export default function KnowOrDrinkGame() {
             <View style={styles.answerContainer}>
               <TextInput
                 style={styles.answerInput}
-                placeholder="Ta réponse..."
+                placeholder={t('game.geniusOrLiar.answerPlaceholder')}
                 placeholderTextColor="#AAAAAA"
                 value={answer}
                 onChangeText={setAnswer}
@@ -320,7 +322,7 @@ export default function KnowOrDrinkGame() {
                   colors={['#A259FF', '#C471F5']}
                   style={styles.buttonGradient}
                 >
-                  <Text style={styles.buttonText}>VALIDER</Text>
+                  <Text style={styles.buttonText}>{t('game.geniusOrLiar.validate')}</Text>
                 </LinearGradient>
               </TouchableOpacity>
             </View>
@@ -331,7 +333,7 @@ export default function KnowOrDrinkGame() {
                   colors={['#A259FF', '#C471F5']}
                   style={styles.buttonGradient}
                 >
-                  <Text style={styles.buttonText}>JE SAIS</Text>
+                  <Text style={styles.buttonText}>{t('game.geniusOrLiar.know')}</Text>
                 </LinearGradient>
               </TouchableOpacity>
               <TouchableOpacity style={styles.button} onPress={handleDontKnow}>
@@ -339,6 +341,7 @@ export default function KnowOrDrinkGame() {
                   colors={['#FF5252', '#FF7676']}
                   style={styles.buttonGradient}
                 >
+                  <Text style={styles.buttonText}>{t('game.geniusOrLiar.dontKnow')}</Text>
                   <Text style={styles.buttonText}>JE NE SAIS PAS</Text>
                 </LinearGradient>
               </TouchableOpacity>

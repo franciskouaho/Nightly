@@ -8,8 +8,9 @@ import { GameState, GamePhase } from '@/types/gameTypes';
 import { LinearGradient } from 'expo-linear-gradient';
 import RoundedButton from '@/components/RoundedButton';
 import { Animated } from 'react-native';
-import useInAppReview from '@/hooks/useInAppReview';
+import { useInAppReview } from '@/hooks/useInAppReview';
 import { useTruthOrDareAnalytics } from '@/hooks/useTruthOrDareAnalytics';
+import { useTranslation } from 'react-i18next';
 
 interface TruthOrDareQuestion { text: string; type: string; }
 
@@ -148,6 +149,7 @@ export default function TruthOrDareGameScreen() {
   const [canValidateVote, setCanValidateVote] = useState(false);
   const [voteHandled, setVoteHandled] = useState(false);
   const gameStartTime = useRef(Date.now());
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!id) return;
@@ -204,7 +206,7 @@ export default function TruthOrDareGameScreen() {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#6c5ce7" />
-        <Text style={styles.loadingText}>Chargement de la partie...</Text>
+        <Text style={styles.loadingText}>{t('game.loading')}</Text>
       </View>
     );
   }
@@ -217,8 +219,8 @@ export default function TruthOrDareGameScreen() {
         style={styles.gradientBg}
       >
         <StatusBar style="light" />
-        <Text style={[styles.questionText, { fontSize: 30, marginBottom: 16 }]}>🎉 Partie terminée !</Text>
-        <Text style={[styles.questionText, { fontSize: 20, marginBottom: 32 }]}>Redirection vers les résultats...</Text>
+        <Text style={[styles.questionText, { fontSize: 30, marginBottom: 16 }]}>{t('game.truthOrDare.endTitle')}</Text>
+        <Text style={[styles.questionText, { fontSize: 20, marginBottom: 32 }]}>{t('game.truthOrDare.endSubtitle')}</Text>
         <AnimatedEllipsis style={{ marginBottom: 0 }} />
       </LinearGradient>
     );
@@ -238,13 +240,13 @@ export default function TruthOrDareGameScreen() {
         >
           <StatusBar style="light" />
           <Text style={styles.playerText}>{player?.name || 'Joueur'}</Text>
-          <Text style={styles.chooseTaskText}>Choisis une action</Text>
+          <Text style={styles.chooseTaskText}>{t('game.truthOrDare.chooseTask')}</Text>
           <View style={styles.choiceButtonsRow}>
             <TouchableOpacity style={[styles.truthButton, styles.skewLeft]} onPress={() => handleChoice('verite')}>
-              <Text style={[styles.choiceButtonText, styles.skewTextLeft]}>Truth</Text>
+              <Text style={[styles.choiceButtonText, styles.skewTextLeft]}>{t('game.truthOrDare.truth')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.dareButton, styles.skewRight]} onPress={() => handleChoice('action')}>
-              <Text style={[styles.choiceButtonText, styles.skewTextRight]}>Dare</Text>
+              <Text style={[styles.choiceButtonText, styles.skewTextRight]}>{t('game.truthOrDare.dare')}</Text>
             </TouchableOpacity>
           </View>
         </LinearGradient>
@@ -263,9 +265,9 @@ export default function TruthOrDareGameScreen() {
             <View style={styles.avatarCircle}>
               <Text style={styles.avatarText}>{(player?.name || 'Joueur').charAt(0).toUpperCase()}</Text>
             </View>
-            <Text style={styles.spectatorTitle}>{player?.name || 'Le joueur'} réfléchit...</Text>
+            <Text style={styles.spectatorTitle}>{player?.name || 'Le joueur'} {t('game.truthOrDare.isThinking')}</Text>
             <AnimatedEllipsis style={styles.ellipsis} />
-            <Text style={styles.spectatorSubtitle}>Va-t-il choisir <Text style={{color:'#7c3aed', fontWeight:'bold'}}>Action</Text> ou <Text style={{color:'#f59e42', fontWeight:'bold'}}>Vérité</Text> ?</Text>
+            <Text style={styles.spectatorSubtitle}>{t('game.truthOrDare.willChoose')} <Text style={{color:'#7c3aed', fontWeight:'bold'}}>{t('game.truthOrDare.action')}</Text> {t('game.truthOrDare.or')} <Text style={{color:'#f59e42', fontWeight:'bold'}}>{t('game.truthOrDare.truth')}</Text>?</Text>
           </View>
         </LinearGradient>
       );
@@ -303,13 +305,13 @@ export default function TruthOrDareGameScreen() {
         {isCurrentPlayer && (
           <View style={{ marginTop: 48, width: '100%', maxWidth: 380 }}>
             <RoundedButton
-              title="J'ai répondu / fait l'action"
+              title={t('game.truthOrDare.iAnswered')}
               onPress={handleValidate}
               style={styles.gradientButton}
               textStyle={styles.gradientButtonText}
             />
             <RoundedButton
-              title="Je refuse"
+              title={t('game.truthOrDare.iRefuse')}
               onPress={handleRefuse}
               style={[styles.gradientButton, { marginTop: 16 }]}
               textStyle={styles.gradientButtonText}
@@ -342,12 +344,12 @@ export default function TruthOrDareGameScreen() {
           <View style={styles.voteCardShadow}>
             <View style={[styles.voteCard, { backgroundColor: cardBgColor }]}>
               <VoteProgressBar current={game.currentRound} total={game.totalRounds} />
-              <Text style={styles.voteTitle}>Vote en cours !</Text>
+              <Text style={styles.voteTitle}>{t('game.truthOrDare.voteInProgress')}</Text>
               <Text style={styles.voteSubtitle}>
-                Les autres joueurs décident si <Text style={{color: highlightColor, fontWeight: 'bold'}}>{playerName}</Text> a bien joué le jeu
+                {t('game.truthOrDare.otherPlayersDecide')} <Text style={{color: highlightColor, fontWeight: 'bold'}}>{playerName}</Text> {t('game.truthOrDare.playedGame')}
               </Text>
               <AnimatedEllipsis style={styles.ellipsis} />
-              <Text style={styles.voteCount}>{votesCount} / {totalVoters} votes</Text>
+              <Text style={styles.voteCount}>{votesCount} / {totalVoters} {t('game.truthOrDare.votes')}</Text>
             </View>
           </View>
         </LinearGradient>
@@ -362,28 +364,28 @@ export default function TruthOrDareGameScreen() {
         <View style={styles.voteCardShadow}>
           <View style={[styles.voteCard, { backgroundColor: cardBgColor }]}>
             <VoteProgressBar current={game.currentRound} total={game.totalRounds} />
-            <Text style={styles.voteTitle}>À toi de voter !</Text>
+            <Text style={styles.voteTitle}>{t('game.truthOrDare.vote')}</Text>
             <Text style={styles.voteSubtitle}>
-              Est-ce que <Text style={{color: highlightColor, fontWeight: 'bold'}}>{playerName}</Text> a bien joué le jeu ?
+              {t('game.truthOrDare.did')} <Text style={{color: highlightColor, fontWeight: 'bold'}}>{playerName}</Text> {t('game.truthOrDare.playedGame')}?
             </Text>
             <View style={styles.voteButtons}>
               <RoundedButton
-                title="Oui"
+                title={t('game.truthOrDare.yes')}
                 onPress={() => handleVote('yes')}
                 disabled={hasVoted}
                 style={styles.voteButton}
                 textStyle={styles.voteButtonText}
               />
               <RoundedButton
-                title="Non"
+                title={t('game.truthOrDare.no')}
                 onPress={() => handleVote('no')}
                 disabled={hasVoted}
                 style={styles.voteButton}
                 textStyle={styles.voteButtonText}
               />
             </View>
-            {hasVoted && <Text style={styles.voteThanks}>Merci pour ton vote !</Text>}
-            <Text style={styles.voteCount}>{votesCount} / {totalVoters} votes</Text>
+            {hasVoted && <Text style={styles.voteThanks}>{t('game.truthOrDare.thanksVote')}</Text>}
+            <Text style={styles.voteCount}>{votesCount} / {totalVoters} {t('game.truthOrDare.votes')}</Text>
           </View>
         </View>
       </LinearGradient>
@@ -397,11 +399,11 @@ export default function TruthOrDareGameScreen() {
     return (
       <View style={styles.container}>
         <StatusBar style="light" />
-        <Text style={styles.questionText}>Tour {game.currentRound} / {game.totalRounds}</Text>
-        <Text style={styles.questionText}>Tour terminé pour {playerName}</Text>
+        <Text style={styles.questionText}>{t('game.truthOrDare.round')} {game.currentRound} / {game.totalRounds}</Text>
+        <Text style={styles.questionText}>{t('game.truthOrDare.roundEnd')} {playerName}</Text>
         {/* Affichage des scores */}
         <View style={styles.scoreBoard}>
-          <Text style={styles.scoreBoardTitle}>Scores</Text>
+          <Text style={styles.scoreBoardTitle}>{t('game.truthOrDare.scores')}</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {game?.players.map((player: any) => (
               <View key={player.id} style={styles.scoreItem}>
@@ -412,7 +414,7 @@ export default function TruthOrDareGameScreen() {
           </ScrollView>
         </View>
         <RoundedButton
-          title="Tour suivant"
+          title={t('game.truthOrDare.next')}
           onPress={handleNextRound}
           style={styles.nextButton}
           textStyle={styles.nextButtonText}
@@ -534,7 +536,7 @@ export default function TruthOrDareGameScreen() {
   // Composant d'affichage des scores
   const ScoreBoard = () => (
     <View style={styles.scoreBoard}>
-      <Text style={styles.scoreBoardTitle}>Scores</Text>
+      <Text style={styles.scoreBoardTitle}>{t('game.truthOrDare.scores')}</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         {game?.players.map((player: any) => (
           <View key={player.id} style={styles.scoreItem}>

@@ -8,11 +8,13 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import PaywallModal from '@/components/PaywallModal';
+import { useTranslation } from 'react-i18next';
 
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
   const router = useRouter();
   const [showPaywall, setShowPaywall] = useState(false);
+  const { t } = useTranslation();
 
   const handleSignOut = async () => {
     try {
@@ -20,8 +22,8 @@ export default function ProfileScreen() {
       router.replace('/(auth)/login');
     } catch (error) {
       Alert.alert(
-        'Erreur',
-        'Une erreur est survenue lors de la déconnexion. Veuillez réessayer.'
+        t('errors.general'),
+        t('profile.logoutError')
       );
     }
   };
@@ -40,15 +42,17 @@ export default function ProfileScreen() {
         style={styles.background}
       />
       
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+          <MaterialCommunityIcons name="arrow-left" size={24} color="white" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>{t('profile.title')}</Text>
+        <View style={styles.headerRight} />
+      </View>
+      
       <ScrollView style={styles.content}>
         {/* Header with profile information */}
         <View style={styles.profileHeader}>
-          <TouchableOpacity 
-            style={styles.backButton} 
-            onPress={() => router.back()}
-          >
-            <MaterialCommunityIcons name="arrow-left" size={24} color="white" />
-          </TouchableOpacity>
           <View style={styles.avatarContainer}>
             {user?.avatar ? (
               <Image 
@@ -60,56 +64,50 @@ export default function ProfileScreen() {
             )}
           </View>
           
-          <Text style={styles.username}>{user?.pseudo || 'Joueur'}</Text>
+          <Text style={styles.username}>{user?.pseudo || t('profile.defaultUsername')}</Text>
         </View>
         
         {/* Settings Section */}
         <View style={styles.settingsSection}>
-          <Text style={styles.sectionTitle}>PARAMÈTRES</Text>
+          <Text style={styles.sectionTitle}>{t('settings.title').toUpperCase()}</Text>
           
           <TouchableOpacity style={styles.settingItem} onPress={() => router.push('../settings/language')}>
             <MaterialCommunityIcons name="translate" size={24} color="rgba(255,255,255,0.9)" />
-            <Text style={styles.settingText}>Langue</Text>
+            <Text style={styles.settingText}>{t('settings.language')}</Text>
             <MaterialCommunityIcons name="chevron-right" size={24} color="rgba(255,255,255,0.7)" />
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.settingItem} onPress={() => router.push('../settings/notifications')}>
-            <MaterialCommunityIcons name="bell" size={24} color="rgba(255,255,255,0.9)" />
-            <Text style={styles.settingText}>Notifications</Text>
-            <MaterialCommunityIcons name="chevron-right" size={24} color="rgba(255,255,255,0.7)" />
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.settingItem} onPress={() => Alert.alert('Contact', 'Envoyez-nous un email à support@cosmicquest.com')}>
+          <TouchableOpacity style={styles.settingItem} onPress={() => Alert.alert(t('profile.contact'), t('profile.contactEmail'))}>
             <MaterialCommunityIcons name="email" size={24} color="rgba(255,255,255,0.9)" />
-            <Text style={styles.settingText}>Nous contacter</Text>
+            <Text style={styles.settingText}>{t('profile.contact')}</Text>
             <MaterialCommunityIcons name="chevron-right" size={24} color="rgba(255,255,255,0.7)" />
           </TouchableOpacity>
           
           <TouchableOpacity style={styles.settingItem} onPress={() => router.push('../settings/privacy')}>
             <MaterialCommunityIcons name="shield-account" size={24} color="rgba(255,255,255,0.9)" />
-            <Text style={styles.settingText}>Politique de confidentialité</Text>
+            <Text style={styles.settingText}>{t('settings.privacy')}</Text>
             <MaterialCommunityIcons name="chevron-right" size={24} color="rgba(255,255,255,0.7)" />
           </TouchableOpacity>
 
           {/* Carte Passe Premium */}
           <View style={styles.premiumCard}>
-            <Text style={styles.premiumTitle}>PASSE PREMIUM</Text>
+            <Text style={styles.premiumTitle}>{t('profile.premium.title').toUpperCase()}</Text>
             <View style={styles.premiumFeaturesList}>
               <View style={styles.premiumFeatureRow}>
                 <MaterialCommunityIcons name="lock" size={24} color="#7B6EF6" style={styles.premiumIcon} />
-                <Text style={styles.premiumFeatureText}><Text style={{fontWeight: 'bold'}}>Débloque tous </Text>les modes</Text>
+                <Text style={styles.premiumFeatureText}>{t('profile.premium.features.unlock')}</Text>
               </View>
               <View style={styles.premiumFeatureRow}>
                 <MaterialCommunityIcons name="fire" size={24} color="#FFB300" style={styles.premiumIcon} />
-                <Text style={styles.premiumFeatureText}>Un nouveau pack <Text style={{fontWeight: 'bold'}}>chaque semaine</Text></Text>
+                <Text style={styles.premiumFeatureText}>{t('profile.premium.features.weekly')}</Text>
               </View>
               <View style={styles.premiumFeatureRow}>
                 <MaterialCommunityIcons name="help-circle" size={24} color="#FFD600" style={styles.premiumIcon} />
-                <Text style={styles.premiumFeatureText}><Text style={{fontWeight: 'bold'}}>Accès gratuit</Text> pour tes amis</Text>
+                <Text style={styles.premiumFeatureText}>{t('profile.premium.features.friends')}</Text>
               </View>
               <View style={styles.premiumFeatureRow}>
                 <MaterialCommunityIcons name="diamond" size={24} color="#00E0CA" style={styles.premiumIcon} />
-                <Text style={styles.premiumFeatureText}><Text style={{fontWeight: 'bold'}}>Résiliable à</Text> tout moment</Text>
+                <Text style={styles.premiumFeatureText}>{t('profile.premium.features.cancel')}</Text>
               </View>
             </View>
             <View style={styles.premiumBottomRow}>
@@ -117,11 +115,11 @@ export default function ProfileScreen() {
                 style={styles.premiumButton}
                 onPress={() => setShowPaywall(true)}
               >
-                <Text style={styles.premiumButtonText}>Essayer le premium</Text>
+                <Text style={styles.premiumButtonText}>{t('profile.premium.try')}</Text>
               </TouchableOpacity>
               <View style={styles.premiumOfferTextContainer}>
-                <Text style={styles.premiumOfferMain}>Gratuit 3 jours</Text>
-                <Text style={styles.premiumOfferSub}>puis 5,99€ par semaine</Text>
+                <Text style={styles.premiumOfferMain}>{t('profile.premium.free')}</Text>
+                <Text style={styles.premiumOfferSub}>{t('profile.premium.price')}</Text>
               </View>
             </View>
           </View>
@@ -132,7 +130,7 @@ export default function ProfileScreen() {
             onPress={handleSignOut}
           >
             <MaterialCommunityIcons name="logout" size={24} color="#ff6b6b" />
-            <Text style={styles.logoutText}>Déconnexion</Text>
+            <Text style={styles.logoutText}>{t('profile.logout')}</Text>
           </TouchableOpacity>
         </View>
         
@@ -145,6 +143,30 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: 60,
+    paddingBottom: 20,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'white',
+  },
+  headerRight: {
+    width: 40,
   },
   background: {
     position: 'absolute',
@@ -162,12 +184,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 20,
     position: 'relative',
-  },
-  backButton: {
-    position: 'absolute',
-    left: 20,
-    top: 0,
-    zIndex: 1,
   },
   avatarContainer: {
     width: 100,
