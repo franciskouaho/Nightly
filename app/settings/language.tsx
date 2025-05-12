@@ -18,11 +18,6 @@ const languages = [
   { id: 'it', name: 'Italiano', countryCode: 'IT', rtl: false },
   { id: 'pt', name: 'Português', countryCode: 'PT', rtl: false },
   { id: 'ar', name: 'العربية', countryCode: 'SA', rtl: true },
-  { id: 'ja', name: '日本語', countryCode: 'JP', rtl: false },
-  { id: 'zh', name: '中文', countryCode: 'CN', rtl: false },
-  { id: 'ru', name: 'Русский', countryCode: 'RU', rtl: false },
-  { id: 'ko', name: '한국어', countryCode: 'KR', rtl: false },
-  { id: 'nl', name: 'Nederlands', countryCode: 'NL', rtl: false },
 ];
 
 export default function LanguageScreen() {
@@ -62,7 +57,7 @@ export default function LanguageScreen() {
   };
 
   // Rendu d'une langue dans la liste
-  const renderLanguageItem = ({ item }) => (
+  const renderLanguageItem = ({ item }: { item: { id: string, name: string, countryCode: string, rtl: boolean } }) => (
     <TouchableOpacity 
       style={[
         styles.languageItem, 
