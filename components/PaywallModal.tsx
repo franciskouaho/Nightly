@@ -6,6 +6,7 @@ import useRevenueCat from '@/hooks/useRevenueCat';
 import { StatusBar } from 'expo-status-bar';
 import Purchases from 'react-native-purchases';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTranslation } from 'react-i18next';
 
 const { height } = Dimensions.get('window');
 
@@ -23,6 +24,7 @@ export default function PaywallModal({ isVisible, onClose }: PaywallModalProps) 
   const { currentOffering, isProMember } = useRevenueCat();
   const [loading, setLoading] = useState(false);
   const [showCloseButton, setShowCloseButton] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (isVisible) {
@@ -46,8 +48,8 @@ export default function PaywallModal({ isVisible, onClose }: PaywallModalProps) 
   const handleSubscribe = async () => {
     if (!packageToUse) {
       Alert.alert(
-        'Produit non disponible',
-        'L\'abonnement n\'est pas disponible pour le moment. Veuillez réessayer plus tard.'
+        t('paywall.alerts.productUnavailable.title'),
+        t('paywall.alerts.productUnavailable.message')
       );
       return;
     }
@@ -56,20 +58,20 @@ export default function PaywallModal({ isVisible, onClose }: PaywallModalProps) 
       const purchaseInfo = await Purchases.purchasePackage(packageToUse);
       if (purchaseInfo?.customerInfo?.entitlements?.active) {
         Alert.alert(
-          'Succès',
-          'Merci pour votre achat!'
+          t('paywall.alerts.success.title'),
+          t('paywall.alerts.success.message')
         );
         onClose();
       } else {
         Alert.alert(
-          'Information',
-          'Votre abonnement a été traité mais n\'est pas encore actif. Veuillez redémarrer l\'application.'
+          t('paywall.alerts.pending.title'),
+          t('paywall.alerts.pending.message')
         );
       }
     } catch (e: any) {
       Alert.alert(
-        'Erreur',
-        e?.message || 'L\'achat a échoué. Veuillez réessayer ou choisir un autre moyen de paiement.'
+        t('paywall.alerts.error.title'),
+        e?.message || t('paywall.alerts.error.message')
       );
     } finally {
       setLoading(false);
@@ -81,14 +83,14 @@ export default function PaywallModal({ isVisible, onClose }: PaywallModalProps) 
       setLoading(true);
       await Purchases.restorePurchases();
       Alert.alert(
-        'Succès',
-        'Votre achat a été restauré!'
+        t('paywall.alerts.restoreSuccess.title'),
+        t('paywall.alerts.restoreSuccess.message')
       );
       onClose();
     } catch (e) {
       Alert.alert(
-        'Erreur',
-        'La restauration des achats a échoué'
+        t('paywall.alerts.restoreError.title'),
+        t('paywall.alerts.restoreError.message')
       );
     } finally {
       setLoading(false);
@@ -103,14 +105,14 @@ export default function PaywallModal({ isVisible, onClose }: PaywallModalProps) 
         await Linking.openURL(termsUrl);
       } else {
         Alert.alert(
-          'Erreur',
-          'Impossible d\'ouvrir les CGU'
+          t('paywall.alerts.termsError.title'),
+          t('paywall.alerts.termsError.message')
         );
       }
     } catch (error) {
       Alert.alert(
-        'Erreur',
-        'Erreur lors de l\'ouverture des CGU'
+        t('paywall.alerts.termsError.title'),
+        t('paywall.alerts.termsError.message')
       );
     }
   };
@@ -141,9 +143,9 @@ export default function PaywallModal({ isVisible, onClose }: PaywallModalProps) 
 
             <View style={styles.heroSection}>
               <View style={styles.heroContent}>
-                <Text style={styles.heroTitle}>Nightly Premium</Text>
-                <Text style={styles.heroSubtitle}>UNLIMITED ACCESS</Text>
-                <Text style={styles.tagline}>JOUEZ SANS LIMITES</Text>
+                <Text style={styles.heroTitle}>{t('paywall.title')}</Text>
+                <Text style={styles.heroSubtitle}>{t('paywall.subtitle')}</Text>
+                <Text style={styles.tagline}>{t('paywall.tagline')}</Text>
               </View>
             </View>
 
@@ -152,35 +154,35 @@ export default function PaywallModal({ isVisible, onClose }: PaywallModalProps) 
                 <View style={styles.checkContainer}>
                   <Ionicons name="checkmark" size={20} color="#ffffff" />
                 </View>
-                <Text style={styles.featureText}>Accès illimité à tous les modes</Text>
+                <Text style={styles.featureText}>{t('paywall.features.unlimited')}</Text>
                 <Ionicons name="game-controller" size={20} color="#ffffff" style={styles.featureIcon} />
               </View>
               <View style={styles.featureRow}>
                 <View style={styles.checkContainer}>
                   <Ionicons name="checkmark" size={20} color="#ffffff" />
                 </View>
-                <Text style={styles.featureText}>Nouvelles cartes chaque semaine</Text>
+                <Text style={styles.featureText}>{t('paywall.features.weekly')}</Text>
                 <Ionicons name="refresh" size={20} color="#ffffff" style={styles.featureIcon} />
               </View>
               <View style={styles.featureRow}>
                 <View style={styles.checkContainer}>
                   <Ionicons name="checkmark" size={20} color="#ffffff" />
                 </View>
-                <Text style={styles.featureText}>Ambiances visuelles exclusives</Text>
+                <Text style={styles.featureText}>{t('paywall.features.visuals')}</Text>
                 <Ionicons name="color-palette" size={20} color="#ffffff" style={styles.featureIcon} />
               </View>
               <View style={styles.featureRow}>
                 <View style={styles.checkContainer}>
                   <Ionicons name="checkmark" size={20} color="#ffffff" />
                 </View>
-                <Text style={styles.featureText}>Personnalisation des personnages</Text>
+                <Text style={styles.featureText}>{t('paywall.features.characters')}</Text>
                 <Ionicons name="person" size={20} color="#ffffff" style={styles.featureIcon} />
               </View>
               <View style={styles.featureRow}>
                 <View style={styles.checkContainer}>
                   <Ionicons name="checkmark" size={20} color="#ffffff" />
                 </View>
-                <Text style={styles.featureText}>Mises à jour prioritaires</Text>
+                <Text style={styles.featureText}>{t('paywall.features.updates')}</Text>
                 <Ionicons name="star" size={20} color="#ffffff" style={styles.featureIcon} />
               </View>
             </View>
@@ -194,12 +196,12 @@ export default function PaywallModal({ isVisible, onClose }: PaywallModalProps) 
                 onPress={() => setSelectedPlan('weekly')}
               >
                 <View style={[styles.planBadge, styles.weeklyBadge]}>
-                  <Text style={styles.badgeText}>PASS</Text>
+                  <Text style={styles.badgeText}>{t('paywall.plans.weekly.badge')}</Text>
                 </View>
-                <Text style={styles.planTitle}>Nightly Pass</Text>
-                <Text style={styles.planPrice}>{WEEKLY_PRICE} €</Text>
-                <Text style={styles.planPeriod}>par semaine</Text>
-                <Text style={styles.planDescription}>Parfait pour une soirée ou un week-end entre amis</Text>
+                <Text style={styles.planTitle}>{t('paywall.plans.weekly.title')}</Text>
+                <Text style={styles.planPrice}>{t('paywall.prices.weekly')} {t('paywall.prices.currency')}</Text>
+                <Text style={styles.planPeriod}>{t('paywall.plans.weekly.period')}</Text>
+                <Text style={styles.planDescription}>{t('paywall.plans.weekly.description')}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -210,12 +212,12 @@ export default function PaywallModal({ isVisible, onClose }: PaywallModalProps) 
                 onPress={() => setSelectedPlan('monthly')}
               >
                 <View style={[styles.planBadge, styles.monthlyBadge]}>
-                  <Text style={styles.badgeText}>PARTY</Text>
+                  <Text style={styles.badgeText}>{t('paywall.plans.monthly.badge')}</Text>
                 </View>
-                <Text style={styles.planTitle}>Nightly Party</Text>
-                <Text style={styles.planPrice}>{MONTHLY_PRICE} €</Text>
-                <Text style={styles.planPeriod}>par mois</Text>
-                <Text style={styles.planDescription}>Pour ceux qui jouent régulièrement</Text>
+                <Text style={styles.planTitle}>{t('paywall.plans.monthly.title')}</Text>
+                <Text style={styles.planPrice}>{t('paywall.prices.monthly')} {t('paywall.prices.currency')}</Text>
+                <Text style={styles.planPeriod}>{t('paywall.plans.monthly.period')}</Text>
+                <Text style={styles.planDescription}>{t('paywall.plans.monthly.description')}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -226,12 +228,12 @@ export default function PaywallModal({ isVisible, onClose }: PaywallModalProps) 
                 onPress={() => setSelectedPlan('annual')}
               >
                 <View style={[styles.planBadge, styles.annualBadge]}>
-                  <Text style={styles.badgeText}>ALL ACCESS</Text>
+                  <Text style={styles.badgeText}>{t('paywall.plans.annual.badge')}</Text>
                 </View>
-                <Text style={styles.planTitle}>Nightly All Access</Text>
-                <Text style={styles.planPrice}>{ANNUAL_PRICE} €</Text>
-                <Text style={styles.planPeriod}>par an</Text>
-                <Text style={styles.planDescription}>L'offre ultime pour les fans</Text>
+                <Text style={styles.planTitle}>{t('paywall.plans.annual.title')}</Text>
+                <Text style={styles.planPrice}>{t('paywall.prices.annual')} {t('paywall.prices.currency')}</Text>
+                <Text style={styles.planPeriod}>{t('paywall.plans.annual.period')}</Text>
+                <Text style={styles.planDescription}>{t('paywall.plans.annual.description')}</Text>
               </TouchableOpacity>
             </View>
 
@@ -245,7 +247,7 @@ export default function PaywallModal({ isVisible, onClose }: PaywallModalProps) 
                   <ActivityIndicator color="#E66F50" size="small" />
                 ) : (
                   <Text style={styles.ctaButtonText}>
-                    Commencer maintenant
+                    {t('paywall.cta')}
                   </Text>
                 )}
               </View>
@@ -253,10 +255,10 @@ export default function PaywallModal({ isVisible, onClose }: PaywallModalProps) 
 
             <View style={styles.footerLinks}>
               <TouchableOpacity onPress={handleRestore} disabled={loading}>
-                <Text style={styles.footerText}>Restaurer les achats</Text>
+                <Text style={styles.footerText}>{t('paywall.footer.restore')}</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={handleTermsPress}>
-                <Text style={styles.footerText}>CGU</Text>
+                <Text style={styles.footerText}>{t('paywall.footer.terms')}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -406,7 +408,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   planPrice: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#ffffff',
     marginBottom: 4,

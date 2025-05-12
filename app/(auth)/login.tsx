@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthAnalytics } from '@/hooks/useAuthAnalytics';
+import { useTranslation } from 'react-i18next';
 
 const profils = [
   require('@/assets/profils/chat.png'),
@@ -34,35 +35,33 @@ export default function LoginScreen() {
   const { signIn } = useAuth();
   const router = useRouter();
   const authAnalytics = useAuthAnalytics();
+  const { t } = useTranslation();
 
   const handleLogin = async () => {
     if (!username) {
-      Alert.alert('Erreur', 'Veuillez entrer votre pseudo');
+      Alert.alert(t('errors.general'), t('auth.login.usernameRequired'));
       return;
     }
 
     if (username.length < 3) {
-      Alert.alert('Erreur', 'Le pseudo doit contenir au moins 3 caractères');
+      Alert.alert(t('errors.general'), t('auth.login.usernameLength'));
       return;
     }
 
     setIsLoading(true);
     try {
-      // Convertir l'image en URI
       const avatarUri = Image.resolveAssetSource(selectedProfile).uri;
       await signIn(username, avatarUri);
       
-      // Track le succès de la connexion
       await authAnalytics.trackLogin('username', true);
       
       router.replace('/(tabs)');
     } catch (error: any) {
-      // Track l'échec de la connexion
       await authAnalytics.trackLogin('username', false);
       
       Alert.alert(
-        'Erreur',
-        error.message || 'Impossible de se connecter'
+        t('errors.general'),
+        error.message || t('errors.authError')
       );
     } finally {
       setIsLoading(false);
@@ -85,8 +84,8 @@ export default function LoginScreen() {
               source={selectedProfile}
               style={styles.selectedProfileImage}
             />
-            <Text style={styles.title}>Nightly</Text>
-            <Text style={styles.subtitle}>Entrez votre pseudo pour jouer</Text>
+            <Text style={styles.title}>{t('app.name')}</Text>
+            <Text style={styles.subtitle}>{t('auth.login.enterUsername')}</Text>
           </View>
 
           <View style={styles.form}>
@@ -94,7 +93,7 @@ export default function LoginScreen() {
               <Ionicons name="person-outline" size={24} color="#fff" />
               <TextInput
                 style={styles.input}
-                placeholder="Votre pseudo"
+                placeholder={t('auth.login.username')}
                 placeholderTextColor="rgba(255,255,255,0.5)"
                 value={username}
                 onChangeText={setUsername}
@@ -125,7 +124,7 @@ export default function LoginScreen() {
               disabled={isLoading}
             >
               <Text style={styles.buttonText}>
-                {isLoading ? 'Connexion...' : 'Jouer'}
+                {isLoading ? t('auth.login.connecting') : t('auth.login.play')}
               </Text>
             </TouchableOpacity>
           </View>

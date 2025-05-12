@@ -6,6 +6,8 @@ import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CountryFlag from "react-native-country-flag";
+import { useTranslation } from 'react-i18next';
+import { changeLanguage } from '../i18n/i18n';
 
 // Définition des langues disponibles
 const languages = [
@@ -25,7 +27,8 @@ const languages = [
 
 export default function LanguageScreen() {
   const router = useRouter();
-  const [selectedLanguage, setSelectedLanguage] = useState('fr');
+  const { t, i18n } = useTranslation();
+  const [selectedLanguage, setSelectedLanguage] = useState(i18n.language);
 
   // Charger la langue actuelle au démarrage
   useEffect(() => {
@@ -46,22 +49,15 @@ export default function LanguageScreen() {
   const handleLanguageChange = async (langId: string) => {
     try {
       if (langId === selectedLanguage) {
-        return; // Ne rien faire si la langue est déjà sélectionnée
+        return;
       }
       
-      // Sauvegarder la langue sélectionnée
-      await AsyncStorage.setItem('@app_language', langId);
+      await changeLanguage(langId);
       setSelectedLanguage(langId);
-      
-      // Afficher un message de confirmation
-      Alert.alert(
-        'Langue mise à jour',
-        'La langue de l\'application a été modifiée.',
-        [{ text: 'OK', onPress: () => router.back() }]
-      );
+    
     } catch (error) {
       console.error('Erreur lors du changement de langue:', error);
-      Alert.alert('Erreur', 'Impossible de changer la langue.');
+      Alert.alert(t('language.error'), t('language.errorMessage'));
     }
   };
 
@@ -103,7 +99,7 @@ export default function LanguageScreen() {
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="white" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Langue</Text>
+        <Text style={styles.headerTitle}>{t('language.title')}</Text>
         <View style={styles.headerRight} />
       </View>
       
@@ -111,7 +107,7 @@ export default function LanguageScreen() {
         <View style={styles.infoBox}>
           <MaterialCommunityIcons name="information-outline" size={24} color="rgba(255,255,255,0.9)" />
           <Text style={styles.infoText}>
-            Sélectionnez votre langue préférée pour l'application.
+            {t('language.selectLanguage')}
           </Text>
         </View>
         

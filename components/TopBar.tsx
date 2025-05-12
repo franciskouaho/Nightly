@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { useAuth } from '@/contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTranslation } from 'react-i18next';
 
 type TopBarProps = {
   showNotificationButton?: boolean;
@@ -17,35 +18,36 @@ export default function TopBar({
 }: TopBarProps) {
   const router = useRouter();
   const { user } = useAuth();
+  const { t } = useTranslation();
 
   const handleNotificationPress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    Alert.alert('Notifications', 'Cette fonctionnalité sera bientôt disponible !');
+    Alert.alert(t('topBar.notifications.title'), t('topBar.notifications.comingSoon'));
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.leftContainer}>
         <View style={styles.greetingContainer}>
-          <Text style={styles.greeting}>Bonjour </Text>
+          <Text style={styles.greeting}>{t('topBar.greeting')} </Text>
           <Text style={styles.userName}>{user?.pseudo}</Text>
         </View>
       </View>
       
       <View style={styles.rightContainer}>
-      <TouchableOpacity
-            style={styles.iconButton}
-            onPress={() => router.push('/(tabs)/profil')}
+        <TouchableOpacity
+          style={styles.iconButton}
+          onPress={() => router.push('/(tabs)/profil')}
+        >
+          <LinearGradient
+            colors={["#A259FF", "#C471F5"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{ borderRadius: 12, padding: 7 }}
           >
-            <LinearGradient
-              colors={["#A259FF", "#C471F5"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={{ borderRadius: 12, padding: 7 }}
-            >
-              <Feather name="settings" size={22} color="#FFFFFF" />
-            </LinearGradient>
-          </TouchableOpacity>
+            <Feather name="settings" size={22} color="#FFFFFF" />
+          </LinearGradient>
+        </TouchableOpacity>
       </View>
     </View>
   );

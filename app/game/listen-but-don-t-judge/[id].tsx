@@ -7,8 +7,9 @@ import { getFirestore, doc, onSnapshot, updateDoc, getDoc } from '@react-native-
 import { useAuth } from '@/contexts/AuthContext';
 import RoundedButton from '@/components/RoundedButton';
 import ResultsPhase from '@/components/game/ResultsPhase';
-import useInAppReview from '@/hooks/useInAppReview';
+import { useInAppReview } from '@/hooks/useInAppReview';
 import { useListenButDontJudgeAnalytics } from '@/hooks/useListenButDontJudgeAnalytics';
+import { useTranslation } from 'react-i18next';
 
 interface Player {
   id: string;
@@ -42,6 +43,7 @@ export default function ListenButDontJudgeScreen() {
   const router = useRouter();
   const { requestReview } = useInAppReview();
   const gameAnalytics = useListenButDontJudgeAnalytics();
+  const { t } = useTranslation();
   const [game, setGame] = useState<GameState | null>(null);
   const [loading, setLoading] = useState(true);
   const [answer, setAnswer] = useState('');
@@ -108,7 +110,7 @@ export default function ListenButDontJudgeScreen() {
 
       setAnswer('');
     } catch (error) {
-      Alert.alert('Erreur', 'Impossible de soumettre la réponse');
+      Alert.alert(t('game.error'), t('game.listenButDontJudge.errorSubmit'));
     } finally {
       setIsSubmitting(false);
     }
@@ -141,7 +143,7 @@ export default function ListenButDontJudgeScreen() {
         scores
       });
     } catch (error) {
-      Alert.alert('Erreur', 'Impossible de soumettre le vote');
+      Alert.alert(t('game.error'), t('game.listenButDontJudge.errorVote'));
     }
   };
 
@@ -168,14 +170,14 @@ export default function ListenButDontJudgeScreen() {
       const questionsDoc = await getDoc(questionsRef);
       
       if (!questionsDoc.exists()) {
-        Alert.alert('Erreur', 'Impossible de récupérer les questions');
+        Alert.alert(t('game.error'), t('game.listenButDontJudge.noQuestions'));
         return;
       }
 
       const questions = questionsDoc.data()?.questions;
       
       if (!questions || !Array.isArray(questions) || questions.length === 0) {
-        Alert.alert('Erreur', 'Aucune question disponible');
+        Alert.alert(t('game.error'), t('game.listenButDontJudge.noQuestions'));
         return;
       }
 
@@ -183,7 +185,7 @@ export default function ListenButDontJudgeScreen() {
       const nextQuestion = questions[Math.floor(Math.random() * questions.length)];
       
       if (!nextQuestion) {
-        Alert.alert('Erreur', 'Impossible de sélectionner une question');
+        Alert.alert(t('game.error'), t('game.listenButDontJudge.noQuestions'));
         return;
       }
 
@@ -197,7 +199,7 @@ export default function ListenButDontJudgeScreen() {
       });
     } catch (error) {
       console.error('Erreur lors du passage au tour suivant:', error);
-      Alert.alert('Erreur', 'Une erreur est survenue lors du passage au tour suivant');
+      Alert.alert(t('game.error'), t('game.listenButDontJudge.errorNext'));
     }
   };
 
@@ -210,7 +212,7 @@ export default function ListenButDontJudgeScreen() {
           style={styles.background} 
         />
         <ActivityIndicator size="large" color="#fff" />
-        <Text style={styles.loadingText}>Chargement du jeu...</Text>
+        <Text style={styles.loadingText}>{t('game.loading')}</Text>
       </View>
     );
   }
@@ -223,7 +225,7 @@ export default function ListenButDontJudgeScreen() {
           locations={[0, 0.2, 0.5, 0.8, 1]}
           style={styles.background} 
         />
-        <Text style={styles.errorText}>Partie non trouvée</Text>
+        <Text style={styles.errorText}>{t('game.error')}</Text>
       </View>
     );
   }
@@ -252,7 +254,7 @@ export default function ListenButDontJudgeScreen() {
               />
             </View>
             <Text style={styles.progressText}>
-              Tour {game.currentRound}/{game.totalRounds}
+              {t('game.listenButDontJudge.round')} {game.currentRound}/{game.totalRounds}
             </Text>
           </View>
           {game.phase === 'question' && (
@@ -269,7 +271,7 @@ export default function ListenButDontJudgeScreen() {
                 </View>
                 <TextInput
                   style={styles.input}
-                  placeholder="Votre réponse..."
+                  placeholder={t('game.listenButDontJudge.answerPlaceholder')}
                   placeholderTextColor="#666"
                   value={answer}
                   onChangeText={setAnswer}
@@ -277,7 +279,7 @@ export default function ListenButDontJudgeScreen() {
                   maxLength={200}
                 />
                 <RoundedButton
-                  title="Soumettre"
+                  title={t('game.listenButDontJudge.submit')}
                   onPress={handleSubmitAnswer}
                   disabled={isSubmitting || !answer.trim()}
                   style={styles.submitButton}
@@ -287,7 +289,7 @@ export default function ListenButDontJudgeScreen() {
               <View style={styles.questionContainer}>
                 <View style={styles.questionCard}>
                   <Text style={styles.waitingText}>
-                    Les autres joueurs répondent à une question sur toi...
+                    {t('game.listenButDontJudge.waiting')}
                   </Text>
                 </View>
               </View>
@@ -305,7 +307,7 @@ export default function ListenButDontJudgeScreen() {
                           : '')}
                   </Text>
                 </View>
-                <Text style={styles.voteTitle}>Votez pour la meilleure réponse :</Text>
+                <Text style={styles.voteTitle}>{t('game.listenButDontJudge.voteTitle')}</Text>
                 {game.answers.map((answer) => (
                   <RoundedButton
                     key={answer.id}
@@ -319,7 +321,7 @@ export default function ListenButDontJudgeScreen() {
               <View style={styles.voteContainer}>
                 <View style={styles.questionCard}>
                   <Text style={styles.waitingText}>
-                    En attente du vote de la personne cible...
+                    {t('game.listenButDontJudge.waitingVote')}
                   </Text>
                 </View>
               </View>

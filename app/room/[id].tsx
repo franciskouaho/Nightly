@@ -11,6 +11,7 @@ import RulesDrawer from '@/components/room/RulesDrawer';
 import InviteModal from '@/components/room/InviteModal';
 import RoundedButton from '@/components/RoundedButton';
 import Avatar from '@/components/Avatar';
+import { useTranslation } from 'react-i18next';
 
 // Type pour l'utilisateur
 interface User {
@@ -179,6 +180,7 @@ export default function RoomScreen() {
   const [hasReadRules, setHasReadRules] = useState(false);
   const [showRulesOnReady, setShowRulesOnReady] = useState(false);
   const [isReadyClicked, setIsReadyClicked] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!id || !user) return;
@@ -438,7 +440,7 @@ export default function RoomScreen() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Chargement de la salle...</Text>
+        <Text style={styles.loadingText}>{t('room.loading')}</Text>
       </View>
     );
   }
@@ -482,7 +484,7 @@ export default function RoomScreen() {
         </View>
 
         <View style={styles.codeContainer}>
-          <Text style={styles.codeLabel}>Code de la salle</Text>
+          <Text style={styles.codeLabel}>{t('room.codeLabel')}</Text>
           <TouchableOpacity
             style={styles.codeBox}
             onPress={handleCopyCode}
@@ -494,9 +496,9 @@ export default function RoomScreen() {
 
         <View style={styles.playersContainer}>
           <View style={styles.playersHeaderRow}>
-            <Text style={styles.sectionTitle}>Joueurs ({room.players.length}/{room.maxPlayers})</Text>
+            <Text style={styles.sectionTitle}>{t('room.players', {count: room.players.length})} ({room.players.length}/{room.maxPlayers})</Text>
             <TouchableOpacity style={styles.rulesButtonRow} onPress={() => setIsRulesDrawerVisible(true)}>
-              <Text style={styles.rulesText}>règles</Text>
+              <Text style={styles.rulesText}>{t('room.rules')}</Text>
               <View style={styles.rulesCircle}>
                 <Text style={styles.rulesQuestionMark}>?</Text>
               </View>
@@ -519,12 +521,12 @@ export default function RoomScreen() {
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     {item.isHost && (
                       <View style={styles.hostBadge}>
-                        <Text style={styles.hostText}>Hôte</Text>
+                        <Text style={styles.hostText}>{t('room.host')}</Text>
                       </View>
                     )}
                     {item.isReady && (
                       <View style={styles.readyBadge}>
-                        <Text style={styles.readyText}>Prêt !</Text>
+                        <Text style={styles.readyText}>{t('room.ready')}</Text>
                       </View>
                     )}
                   </View>
@@ -536,7 +538,7 @@ export default function RoomScreen() {
 
         {user?.uid !== room.host && room.status === 'waiting' && room.id && !room.players.find(p => String(p.id) === String(user?.uid))?.isReady && (
           <RoundedButton
-            title="Je suis prêt !"
+            title={t('room.iAmReady')}
             onPress={() => {
               setShowRulesOnReady(true);
               setIsReadyClicked(true);
@@ -548,7 +550,7 @@ export default function RoomScreen() {
         {/* Bouton démarrer la partie pour l'hôte */}
         {user?.uid === room.host && room.status === 'waiting' && (
           <RoundedButton
-            title="Démarrer la partie"
+            title={t('room.startGame')}
             onPress={handleStartGame}
             disabled={!room.players.every(p => p.isReady) || room.players.length < 2}
             style={styles.startButton}

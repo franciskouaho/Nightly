@@ -3,34 +3,32 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Alert } from 'react-native';
 import { getFirestore, doc, getDoc } from '@react-native-firebase/firestore';
 import { useGameAnalytics } from '@/hooks/useGameAnalytics';
+import { useTranslation } from 'react-i18next';
 
 export default function GameRouter() {
   const router = useRouter();
   const { id, gameId } = useLocalSearchParams();
   const gameAnalytics = useGameAnalytics();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const redirect = async () => {
       let mode = gameId;
-      console.log('🔄 Mode à chercher (param):', mode);
       if (!mode) {
         const db = getFirestore();
         const gameDoc = await getDoc(doc(db, 'games', String(id)));
         if (gameDoc.exists()) {
-          console.log('gameDoc data:', gameDoc.data());
           mode = gameDoc.data()?.gameId;
-          console.log('Mode extrait du doc games:', mode);
           
           // Track le début du jeu
           await gameAnalytics.trackGameStart(String(id), mode);
         } else {
-          console.log('Pas de doc games trouvé pour id:', id);
-          Alert.alert('Erreur', `Aucun document de jeu trouvé pour l'id: ${id}`);
+          Alert.alert(t('game.error'), t('game.notFound', { id }));
           return;
         }
       }
       if (!mode) {
-        Alert.alert('Erreur', 'Aucun mode de jeu trouvé dans le document games.');
+        Alert.alert(t('game.error'), t('game.noMode'));
         return;
       }
 
@@ -54,10 +52,10 @@ export default function GameRouter() {
         return;
       }
 
-      Alert.alert('Erreur', `Mode de jeu inconnu: ${mode}`);
+      Alert.alert(t('game.error'), t('game.unknownMode', { mode }));
     };
     redirect();
-  }, [id, gameId, router]);
+  }, [id, gameId, router, t]);
 
   return null;
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Alert, TextInput, ImageBackground } from "react-native"
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Alert, TextInput, ImageBackground, Modal } from "react-native"
 import { LinearGradient } from "expo-linear-gradient"
 import { useAuth } from "@/contexts/AuthContext"
 import TopBar from "@/components/TopBar"
@@ -12,6 +12,7 @@ import { useEffect } from 'react'
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React from 'react';
 import { collection, query, where, getDocs, getFirestore, doc, updateDoc } from '@react-native-firebase/firestore';
+import { useTranslation } from 'react-i18next';
 
 interface Room {
   id?: string;
@@ -48,6 +49,8 @@ export default function HomeScreen() {
   const { add: createRoom, loading: isCreatingRoom } = useFirestore<Room>('rooms');
   const [partyCode, setPartyCode] = React.useState('');
   const [loading, setLoading] = React.useState(false);
+  const { t } = useTranslation();
+  const [error, setError] = React.useState('');
 
   useEffect(() => {
     console.log('🔄 État de création de salle:', isCreatingRoom);
@@ -305,11 +308,11 @@ export default function HomeScreen() {
           >
             {game.tag ? (
               <View style={[styles.modeTagContainer, styles.gridModeTagContainer, { backgroundColor: game.tagColor }]}> 
-                <Text style={styles.modeTagText}>{game.tag}</Text>
+                <Text style={styles.modeTagText}>{t(`home.games.${game.id}.tag`)}</Text>
               </View>
             ) : null}
             <View style={styles.overlay}>
-              <Text style={styles.cardTitle}>{game.name}</Text>
+              <Text style={styles.cardTitle}>{t(`home.games.${game.id}.name`)}</Text>
             </View>
           </ImageBackground>
         </TouchableOpacity>
@@ -360,14 +363,14 @@ export default function HomeScreen() {
                   resizeMode="contain"
                 />
               )}
-              <Text style={[styles.modeName, isGridItem && styles.gridModeName]}>{game.name}</Text>
+              <Text style={[styles.modeName, isGridItem && styles.gridModeName]}>{t(`home.games.${game.id}.name`)}</Text>
               {!isGridItem && (
-                <Text style={styles.modeDescription}>{game.description}</Text>
+                <Text style={styles.modeDescription}>{t(`home.games.${game.id}.description`)}</Text>
               )}
             </View>
             {game.tag ? (
-              <View style={[styles.modeTagContainer, isGridItem && styles.gridModeTagContainer, { backgroundColor: game.tagColor }]}>
-                <Text style={styles.modeTagText}>{game.tag}</Text>
+              <View style={[styles.modeTagContainer, isGridItem && styles.gridModeTagContainer, { backgroundColor: game.tagColor }]}> 
+                <Text style={styles.modeTagText}>{t(`home.games.${game.id}.tag`)}</Text>
               </View>
             ) : null}
           </View>
@@ -380,9 +383,9 @@ export default function HomeScreen() {
     <View key={category.id} style={styles.categorySection}>
       <View style={styles.categoryHeader}>
         <View>
-          <Text style={styles.categoryTitle}>{category.title}</Text>
+          <Text style={styles.categoryTitle}>{t(`home.categories.${category.id}`)}</Text>
           {category.subtitle ? (
-            <Text style={styles.categorySubtitle}>{category.subtitle}</Text>
+            <Text style={styles.categorySubtitle}>{t(`home.subtitles.${category.id}`)}</Text>
           ) : null}
         </View>
       </View>
@@ -416,7 +419,7 @@ export default function HomeScreen() {
           <View style={styles.codeInputContainer}>
             <TextInput
               style={styles.codeInputText}
-              placeholder="Entre le code de la partie"
+              placeholder={t('home.codePlaceholder')}
               placeholderTextColor="#C7B8F5"
               value={partyCode}
               onChangeText={setPartyCode}
@@ -461,7 +464,7 @@ export default function HomeScreen() {
           justifyContent: 'center', alignItems: 'center', zIndex: 1000
         }}>
           <View style={{ backgroundColor: 'rgba(0,0,0,0.7)', borderRadius: 16, padding: 24 }}>
-            <Text style={{ color: '#fff', fontSize: 18 }}>Connexion à la partie...</Text>
+            <Text style={{ color: '#fff', fontSize: 18 }}>{t('home.loading')}</Text>
           </View>
         </View>
       )}
