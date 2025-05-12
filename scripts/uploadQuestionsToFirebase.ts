@@ -2109,7 +2109,7 @@ async function uploadQuestions() {
     const db = getFirestore(app);
     
     for (const [category, questionsList] of Object.entries(questions)) {
-      await setDoc(doc(db, 'questions', category), { questions: questionsList });
+      await setDoc(doc(db, 'gameQuestions', category), { questions: questionsList });
       console.log(`✅ Questions uploadées pour la catégorie : ${category}`);
     }
     
