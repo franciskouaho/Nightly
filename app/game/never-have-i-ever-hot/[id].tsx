@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Pressable, ActivityIndicator, Alert } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Player, Question as GameQuestion } from '@/types/gameTypes';
 import RoundedButton from '@/components/RoundedButton';
@@ -8,10 +8,11 @@ import { useGame } from '@/hooks/useGame';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/contexts/AuthContext';
 import { GamePhase } from '@/types/gameTypes';
-import { getFirestore, doc, onSnapshot, updateDoc, getDoc } from '@react-native-firebase/firestore';
+import { getFirestore, doc, onSnapshot, updateDoc, getDoc, collection } from '@react-native-firebase/firestore';
 import { useInAppReview } from '@/hooks/useInAppReview';
 import { useNeverHaveIEverHotAnalytics } from '@/hooks/useNeverHaveIEverHotAnalytics';
 import { useTranslation } from 'react-i18next';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface FirebaseQuestion {
   text: string | { text: string };
@@ -79,7 +80,10 @@ function ModeSelector({ onSelect, isTarget }: { onSelect: (mode: 'never' | 'ever
 
 export default function NeverHaveIEverHotGame() {
   const { id } = useLocalSearchParams();
-  const { gameState, updateGameState } = useGame(id as string);
+  const gameId = typeof id === 'string' ? id : id?.[0] || '';
+  const { t } = useTranslation();
+  const { currentLanguage, getGameContent } = useLanguage();
+  const { gameState, updateGameState } = useGame(gameId);
   const { user } = useAuth();
   const { requestReview } = useInAppReview();
   const gameAnalytics = useNeverHaveIEverHotAnalytics();
@@ -90,7 +94,6 @@ export default function NeverHaveIEverHotGame() {
   const [askedQuestions, setAskedQuestions] = useState<string[]>([]);
   const gameStartTime = useRef(Date.now());
   const TOTAL_ROUNDS = 4;
-  const { t } = useTranslation();
 
   useEffect(() => {
     if (gameState?.currentQuestion) {
@@ -183,20 +186,7 @@ export default function NeverHaveIEverHotGame() {
   };
 
   const handleNextRound = async () => {
-    if (!gameState) return;
-
-    if (gameState.currentRound >= TOTAL_ROUNDS) {
-      const gameDuration = Date.now() - gameStartTime.current;
-      
-      // Track la fin du jeu
-      gameAnalytics.trackGameComplete(String(id), TOTAL_ROUNDS, gameDuration);
-      
-      updateGameState({
-        ...gameState,
-        phase: GamePhase.END,
-        currentRound: 0,
-        targetPlayer: null,
-      });
+    if (!gameState) {
       return;
     }
 
@@ -214,66 +204,69 @@ export default function NeverHaveIEverHotGame() {
       responseCounts
     );
 
-    // Récupérer une nouvelle question aléatoire
-    const db = getFirestore();
-    const questionsRef = doc(db, 'gameQuestions', 'never-have-i-ever-hot');
-    getDoc(questionsRef).then((questionsDoc) => {
-      if (questionsDoc.exists()) {
-        const data = questionsDoc.data();
-        if (data && Array.isArray(data.questions)) {
-          const questionsArr = data.questions.filter(Boolean) as FirebaseQuestion[];
-          // Filtrer les questions déjà posées
-          const availableQuestions = questionsArr.filter(q => {
-            const questionText = typeof q.text === 'string' 
-              ? q.text 
-              : (q.text && typeof q.text === 'object' && 'text' in q.text)
-                ? q.text.text
-                : '';
-            return !askedQuestions.includes(questionText);
-          });
-          
-          if (availableQuestions.length === 0) {
-            // Si toutes les questions ont été posées, réinitialiser la liste
-            setAskedQuestions([]);
-            const randomQuestion = questionsArr[Math.floor(Math.random() * questionsArr.length)];
-            if (!randomQuestion) return;
-            
-            const questionText = typeof randomQuestion.text === 'string' 
-              ? randomQuestion.text 
-              : (randomQuestion.text && typeof randomQuestion.text === 'object' && 'text' in randomQuestion.text)
-                ? randomQuestion.text.text
-                : '';
-            
-            const nextQuestion: GameQuestion = {
-              id: String(Math.random()),
-              text: questionText,
-              theme: 'hot',
-              roundNumber: gameState.currentRound + 1
-            };
-            
-            updateGameStateWithNewQuestion(nextQuestion);
-          } else {
-            const randomQuestion = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
-            if (!randomQuestion) return;
-            
-            const questionText = typeof randomQuestion.text === 'string' 
-              ? randomQuestion.text 
-              : (randomQuestion.text && typeof randomQuestion.text === 'object' && 'text' in randomQuestion.text)
-                ? randomQuestion.text.text
-                : '';
-            
-            const nextQuestion: GameQuestion = {
-              id: String(Math.random()),
-              text: questionText,
-              theme: 'hot',
-              roundNumber: gameState.currentRound + 1
-            };
-            
-            updateGameStateWithNewQuestion(nextQuestion);
-          }
-        }
+    // Récupérer une nouvelle question aléatoire dans la langue actuelle
+    try {
+      const gameContent = await getGameContent('never-have-i-ever-hot');
+      const questionsArr = gameContent.questions;
+      
+      if (!questionsArr || !Array.isArray(questionsArr) || questionsArr.length === 0) {
+        Alert.alert(t('game.error'), t('game.neverHaveIEver.noQuestions'));
+        return;
       }
-    });
+      
+      // Filtrer les questions déjà posées
+      const availableQuestions = questionsArr.filter(q => {
+        const questionText = typeof q.text === 'string' 
+          ? q.text 
+          : (q.text && typeof q.text === 'object' && 'text' in q.text)
+            ? q.text.text
+            : '';
+        return !askedQuestions.includes(questionText);
+      });
+      
+      if (availableQuestions.length === 0) {
+        // Si toutes les questions ont été posées, réinitialiser la liste
+        setAskedQuestions([]);
+        const randomQuestion = questionsArr[Math.floor(Math.random() * questionsArr.length)];
+        if (!randomQuestion) return;
+        
+        const questionText = typeof randomQuestion.text === 'string' 
+          ? randomQuestion.text 
+          : (randomQuestion.text && typeof randomQuestion.text === 'object' && 'text' in randomQuestion.text)
+            ? randomQuestion.text.text
+            : '';
+        
+        const nextQuestion: GameQuestion = {
+          id: String(Math.random()),
+          text: questionText,
+          theme: 'hot',
+          roundNumber: gameState.currentRound + 1
+        };
+        
+        updateGameStateWithNewQuestion(nextQuestion);
+      } else {
+        const randomQuestion = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
+        if (!randomQuestion) return;
+        
+        const questionText = typeof randomQuestion.text === 'string' 
+          ? randomQuestion.text 
+          : (randomQuestion.text && typeof randomQuestion.text === 'object' && 'text' in randomQuestion.text)
+            ? randomQuestion.text.text
+            : '';
+        
+        const nextQuestion: GameQuestion = {
+          id: String(Math.random()),
+          text: questionText,
+          theme: 'hot',
+          roundNumber: gameState.currentRound + 1
+        };
+        
+        updateGameStateWithNewQuestion(nextQuestion);
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération des questions:', error);
+      Alert.alert(t('game.error'), t('game.neverHaveIEver.errorNext'));
+    }
   };
 
   const updateGameStateWithNewQuestion = (nextQuestion: GameQuestion) => {

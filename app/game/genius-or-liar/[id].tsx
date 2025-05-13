@@ -8,6 +8,7 @@ import { GamePhase, Player } from '@/types/gameTypes';
 import { useInAppReview } from '@/hooks/useInAppReview';
 import { useGeniusOrLiarAnalytics } from '@/hooks/useGeniusOrLiarAnalytics';
 import { useTranslation } from 'react-i18next';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface FirebaseQuestion {
   type: string;
@@ -63,6 +64,7 @@ interface KnowOrDrinkGameState {
 
 export default function KnowOrDrinkGame() {
   const { id } = useLocalSearchParams();
+  const gameId = typeof id === 'string' ? id : id?.[0] || '';
   const router = useRouter();
   const { user } = useAuth();
   const { requestReview } = useInAppReview();
@@ -74,6 +76,7 @@ export default function KnowOrDrinkGame() {
   const [isEnd, setIsEnd] = useState(false);
   const gameStartTime = useRef(Date.now());
   const { t } = useTranslation();
+  const { getGameContent, isRTL } = useLanguage();
 
   useEffect(() => {
     if (!id || !user) return;
@@ -458,44 +461,58 @@ export default function KnowOrDrinkGame() {
         gameState.totalRounds,
         gameState.playerAnswers[gameState.currentPlayerId]?.knows || false
       );
-      // Récupère les questions depuis gameQuestions/genius-or-liar
-      const questionsRef = doc(db, 'gameQuestions', 'genius-or-liar');
-      const questionsDoc = await getDoc(questionsRef);
-      let questionsArr = [];
-      if (questionsDoc.exists()) {
-        const data = questionsDoc.data();
-        console.log('🔥 Firestore data:', data);
-        console.log('📚 Questions disponibles:', data.questions?.length);
-        if (Array.isArray(data.questions)) {
-          questionsArr = data.questions.filter(Boolean);
-          console.log('✅ Questions filtrées:', questionsArr.length);
+
+      // Récupérer les questions du jeu dans la langue actuelle
+      try {
+        const gameContent = await getGameContent('genius-or-liar');
+        const questions = gameContent.questions;
+        
+        if (!questions || !Array.isArray(questions) || questions.length === 0) {
+          Alert.alert(t('game.error'), t('game.geniusOrLiar.noQuestions'));
+          return;
         }
-      } else {
-        console.log('❌ Document questions non trouvé');
+        
+        // Liste des questions déjà posées
+        const askedIndexes = gameState.askedQuestions || [];
+        
+        // Filtrer les questions déjà posées
+        const availableQuestions = questions
+          .map((q, idx) => ({ ...q, _idx: idx }))
+          .filter(q => !askedIndexes.includes(String(q._idx)));
+          
+        if (availableQuestions.length === 0) {
+          Alert.alert(t('game.error'), t('game.geniusOrLiar.allQuestionsUsed'));
+          // Réinitialiser si toutes les questions ont été posées
+          const randomIndex = Math.floor(Math.random() * questions.length);
+          const nextQuestion = questions[randomIndex];
+          
+          await updateDoc(gameRef, {
+            currentRound: gameState.currentRound + 1,
+            phase: 'question',
+            currentUserState: {},
+            playerAnswers: {},
+            currentQuestion: nextQuestion,
+            askedQuestions: [String(randomIndex)],
+          });
+          return;
+        }
+        
+        // Tirer une nouvelle question au hasard
+        const randomIndex = Math.floor(Math.random() * availableQuestions.length);
+        const nextQuestion = availableQuestions[randomIndex];
+        
+        await updateDoc(gameRef, {
+          currentRound: gameState.currentRound + 1,
+          phase: 'question',
+          currentUserState: {},
+          playerAnswers: {},
+          currentQuestion: nextQuestion,
+          askedQuestions: [...askedIndexes, String(nextQuestion._idx)],
+        });
+      } catch (error) {
+        console.error('Erreur lors de la récupération des questions:', error);
+        Alert.alert(t('game.error'), t('game.geniusOrLiar.errorNext'));
       }
-      // Liste des index déjà posés
-      const askedIndexes = gameState.askedQuestions || [];
-      console.log('📝 Index déjà posés:', askedIndexes);
-      // On filtre les questions déjà posées
-      const availableQuestions = questionsArr
-        .map((q, idx) => ({ ...q, _idx: idx }))
-        .filter(q => !askedIndexes.includes(q._idx));
-      console.log('🎲 Questions disponibles:', availableQuestions.length);
-      if (availableQuestions.length === 0) {
-        Alert.alert('Erreur', 'Plus de questions disponibles.');
-        return;
-      }
-      // Tire une nouvelle question au hasard
-      const nextQuestion = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
-      console.log('🎯 Question sélectionnée:', nextQuestion);
-      await updateDoc(gameRef, {
-        currentRound: gameState.currentRound + 1,
-        phase: 'question',
-        currentUserState: {},
-        playerAnswers: {},
-        currentQuestion: nextQuestion,
-        askedQuestions: [...askedIndexes, nextQuestion._idx],
-      });
     } catch (error) {
       console.error('❌ Erreur lors du passage au tour suivant:', error);
       Alert.alert('Erreur', 'Impossible de passer au tour suivant');

@@ -10,6 +10,7 @@ import ResultsPhase from '@/components/game/ResultsPhase';
 import { useInAppReview } from '@/hooks/useInAppReview';
 import { useListenButDontJudgeAnalytics } from '@/hooks/useListenButDontJudgeAnalytics';
 import { useTranslation } from 'react-i18next';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Player {
   id: string;
@@ -44,6 +45,7 @@ export default function ListenButDontJudgeScreen() {
   const { requestReview } = useInAppReview();
   const gameAnalytics = useListenButDontJudgeAnalytics();
   const { t } = useTranslation();
+  const { getGameContent } = useLanguage();
   const [game, setGame] = useState<GameState | null>(null);
   const [loading, setLoading] = useState(true);
   const [answer, setAnswer] = useState('');
@@ -165,16 +167,9 @@ export default function ListenButDontJudgeScreen() {
         nextTarget = game.players[0];
       }
 
-      // Récupère les questions
-      const questionsRef = doc(db, 'gameQuestions', 'listen-but-don-t-judge');
-      const questionsDoc = await getDoc(questionsRef);
-      
-      if (!questionsDoc.exists()) {
-        Alert.alert(t('game.error'), t('game.listenButDontJudge.noQuestions'));
-        return;
-      }
-
-      const questions = questionsDoc.data()?.questions;
+      // Récupère les questions dans la langue actuelle
+      const gameContent = await getGameContent('listen-but-don-t-judge');
+      const questions = gameContent.questions;
       
       if (!questions || !Array.isArray(questions) || questions.length === 0) {
         Alert.alert(t('game.error'), t('game.listenButDontJudge.noQuestions'));

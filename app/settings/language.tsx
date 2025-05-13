@@ -4,41 +4,14 @@ import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import CountryFlag from "react-native-country-flag";
 import { useTranslation } from 'react-i18next';
-import { changeLanguage } from '../i18n/i18n';
-
-// Définition des langues disponibles
-const languages = [
-  { id: 'fr', name: 'Français', countryCode: 'FR', rtl: false },
-  { id: 'en', name: 'English', countryCode: 'US', rtl: false },
-  { id: 'es', name: 'Español', countryCode: 'ES', rtl: false },
-  { id: 'de', name: 'Deutsch', countryCode: 'DE', rtl: false },
-  { id: 'it', name: 'Italiano', countryCode: 'IT', rtl: false },
-  { id: 'pt', name: 'Português', countryCode: 'PT', rtl: false },
-  { id: 'ar', name: 'العربية', countryCode: 'SA', rtl: true },
-];
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function LanguageScreen() {
   const router = useRouter();
-  const { t, i18n } = useTranslation();
-  const [selectedLanguage, setSelectedLanguage] = useState(i18n.language);
-
-  // Charger la langue actuelle au démarrage
-  useEffect(() => {
-    const loadLanguage = async () => {
-      try {
-        const storedLanguage = await AsyncStorage.getItem('@app_language');
-        if (storedLanguage) {
-          setSelectedLanguage(storedLanguage);
-        }
-      } catch (error) {
-        console.error('Erreur lors du chargement de la langue:', error);
-      }
-    };
-    loadLanguage();
-  }, []);
+  const { t } = useTranslation();
+  const { language: selectedLanguage, setLanguage, languages } = useLanguage();
 
   // Changer de langue
   const handleLanguageChange = async (langId: string) => {
@@ -47,8 +20,7 @@ export default function LanguageScreen() {
         return;
       }
       
-      await changeLanguage(langId);
-      setSelectedLanguage(langId);
+      await setLanguage(langId);
     
     } catch (error) {
       console.error('Erreur lors du changement de langue:', error);

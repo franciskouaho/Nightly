@@ -11,6 +11,7 @@ import { Animated } from 'react-native';
 import { useInAppReview } from '@/hooks/useInAppReview';
 import { useTruthOrDareAnalytics } from '@/hooks/useTruthOrDareAnalytics';
 import { useTranslation } from 'react-i18next';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface TruthOrDareQuestion { text: string; type: string; }
 
@@ -150,6 +151,7 @@ export default function TruthOrDareGameScreen() {
   const [voteHandled, setVoteHandled] = useState(false);
   const gameStartTime = useRef(Date.now());
   const { t } = useTranslation();
+  const { getGameContent } = useLanguage();
 
   useEffect(() => {
     if (!id) return;
@@ -165,24 +167,21 @@ export default function TruthOrDareGameScreen() {
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const db = getFirestore();
-        const docRef = doc(db, 'gameQuestions', 'truth-or-dare');
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          if (data && data.questions) {
-            // S'assurer que chaque question a la bonne structure
-            const formattedQuestions = data.questions.map((q: any) => ({
-              text: typeof q === 'string' ? q : (q.text || ''),
-              type: typeof q === 'string' ? 'verite' : (q.type || 'verite')
-            }));
-            setQuestions(formattedQuestions);
-          }
+        const gameContent = await getGameContent('truth-or-dare');
+        if (gameContent.questions && gameContent.questions.length > 0) {
+          // S'assurer que chaque question a la bonne structure
+          const formattedQuestions = gameContent.questions.map((q: any) => ({
+            text: typeof q === 'string' ? q : (q.text || ''),
+            type: typeof q === 'string' ? 'verite' : (q.type || 'verite')
+          }));
+          setQuestions(formattedQuestions);
         }
-      } catch (e) {}
+      } catch (e) {
+        console.error('Erreur lors du chargement des questions:', e);
+      }
     };
     fetchQuestions();
-  }, []);
+  }, [getGameContent]);
 
   useEffect(() => {
     if (game && game.currentRound > game.totalRounds) {

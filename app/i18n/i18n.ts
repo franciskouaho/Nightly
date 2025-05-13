@@ -1,7 +1,6 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import * as Localization from 'expo-localization';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
 
 // Import des traductions
 import fr from './locales/fr';
@@ -36,35 +35,19 @@ const resources = {
   },
 };
 
-// Fonction pour initialiser i18n
-const initI18n = async () => {
-  try {
-    const savedLanguage = await AsyncStorage.getItem('@app_language');
-    const deviceLanguage = Localization.locale.split('-')[0];
-    const initialLanguage = savedLanguage || deviceLanguage;
-
-    await i18n
-      .use(initReactI18next)
-      .init({
-        resources,
-        lng: initialLanguage,
-        fallbackLng: 'fr',
-        interpolation: {
-          escapeValue: false,
-        },
-      });
-  } catch (error) {
-    console.error('Erreur lors de l\'initialisation de i18n:', error);
-  }
-};
-
 // Initialiser i18n
-initI18n();
+i18n.use(initReactI18next).init({
+  resources,
+  lng: 'fr', // La langue par défaut sera remplacée par LanguageContext
+  fallbackLng: 'fr',
+  interpolation: {
+    escapeValue: false,
+  },
+});
 
-// Fonction pour changer la langue
+// Fonction pour changer la langue (utilisée par LanguageContext)
 export const changeLanguage = async (language: string) => {
   try {
-    await AsyncStorage.setItem('@app_language', language);
     await i18n.changeLanguage(language);
   } catch (error) {
     console.error('Erreur lors du changement de langue:', error);
@@ -72,15 +55,38 @@ export const changeLanguage = async (language: string) => {
   }
 };
 
-// Fonction pour récupérer la langue sauvegardée
-export const getSavedLanguage = async () => {
+// Fonction pour récupérer le contenu d'un jeu dans la langue actuelle
+export const getGameContent = async (gameId: string, db: any) => {
   try {
-    const savedLanguage = await AsyncStorage.getItem('@app_language');
-    if (savedLanguage) {
-      await i18n.changeLanguage(savedLanguage);
+    const currentLanguage = i18n.language || 'fr';
+    
+    // Récupération des règles du jeu
+    const rulesDoc = await getDoc(doc(db, 'rules', gameId));
+    let rules = [];
+    
+    if (rulesDoc.exists()) {
+      const rulesData = rulesDoc.data();
+      // Essayer d'obtenir les règles dans la langue actuelle, sinon utiliser le français
+      rules = rulesData.translations[currentLanguage]?.rules || rulesData.translations['fr']?.rules || [];
     }
+    
+    // Récupération des questions du jeu
+    const questionsDoc = await getDoc(doc(db, 'gameQuestions', gameId));
+    let questions = [];
+    
+    if (questionsDoc.exists()) {
+      const questionsData = questionsDoc.data();
+      // Essayer d'obtenir les questions dans la langue actuelle, sinon utiliser le français
+      questions = questionsData.translations[currentLanguage] || questionsData.translations['fr'] || [];
+    }
+    
+    return {
+      rules,
+      questions
+    };
   } catch (error) {
-    console.error('Erreur lors du chargement de la langue:', error);
+    console.error(`Erreur lors de la récupération du contenu pour ${gameId}:`, error);
+    return { rules: [], questions: [] };
   }
 };
 
