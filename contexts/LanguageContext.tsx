@@ -3,7 +3,8 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Localization from 'expo-localization';
-import { changeLanguage as i18nChangeLanguage } from '@/app/i18n/i18n';
+import { changeLanguage as i18nChangeLanguage, getGameContent as getGameContentFromI18n } from '@/app/i18n/i18n';
+import { getFirestore } from '@react-native-firebase/firestore';
 
 // Types pour les langues disponibles
 export type Language = {
@@ -31,6 +32,7 @@ interface LanguageContextType {
   isRTL: boolean;
   getLanguageByCode: (code: string) => Language | undefined;
   languages: Language[];
+  getGameContent: (gameId: string) => Promise<{ rules: any[]; questions: any[] }>;
 }
 
 // Création du contexte
@@ -85,6 +87,12 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     return LANGUAGES.find(lang => lang.id === code);
   };
   
+  // Fonction pour récupérer le contenu du jeu dans la langue actuelle
+  const getGameContent = async (gameId: string) => {
+    const db = getFirestore();
+    return getGameContentFromI18n(gameId, db);
+  };
+  
   return (
     <LanguageContext.Provider 
       value={{ 
@@ -92,7 +100,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         setLanguage, 
         isRTL, 
         getLanguageByCode,
-        languages: LANGUAGES
+        languages: LANGUAGES,
+        getGameContent
       }}
     >
       {children}
