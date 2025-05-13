@@ -4,7 +4,8 @@ import React, { createContext, useState, useContext, useEffect, ReactNode } from
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Localization from 'expo-localization';
 import { changeLanguage as i18nChangeLanguage, getGameContent as getGameContentFromI18n } from '@/app/i18n/i18n';
-import { getFirestore } from '@react-native-firebase/firestore';
+import i18n from '@/app/i18n/i18n';
+import { getFirestore, doc, getDoc } from '@react-native-firebase/firestore';
 
 // Types pour les langues disponibles
 export type Language = {
@@ -90,7 +91,27 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   // Fonction pour récupérer le contenu du jeu dans la langue actuelle
   const getGameContent = async (gameId: string) => {
     const db = getFirestore();
-    return getGameContentFromI18n(gameId, db);
+    try {
+      const currentLanguage = i18n.language || 'fr';
+      
+      // Récupération des questions du jeu
+      const questionsDoc = await getDoc(doc(db, 'gameQuestions', gameId));
+      let questions = [];
+      
+      if (questionsDoc.exists()) {
+        const questionsData = questionsDoc.data() || { translations: {} };
+        // Essayer d'obtenir les questions dans la langue actuelle, sinon utiliser le français
+        questions = questionsData.translations[currentLanguage] || questionsData.translations['fr'] || [];
+      }
+      
+      return {
+        rules: [],
+        questions
+      };
+    } catch (error) {
+      console.error(`Erreur lors de la récupération du contenu pour ${gameId}:`, error);
+      return { rules: [], questions: [] };
+    }
   };
   
   return (
