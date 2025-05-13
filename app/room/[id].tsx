@@ -5,7 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons, FontAwesome5, Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
-import { collection, doc, onSnapshot, updateDoc, getFirestore, getDoc, setDoc } from '@react-native-firebase/firestore';
+import { collection, doc, onSnapshot, updateDoc, getFirestore, getDoc, setDoc, addDoc } from '@react-native-firebase/firestore';
 import { GameState, GamePhase, Player, Question } from '@/types/gameTypes';
 import RulesDrawer from '@/components/room/RulesDrawer';
 import InviteModal from '@/components/room/InviteModal';
@@ -24,7 +24,7 @@ interface User {
 }
 
 // Type local pour Player qui correspond à ce que nous utilisons dans ce composant
-interface Player {
+interface LocalPlayer {
   id: string;
   username: string;
   displayName?: string;
@@ -41,7 +41,7 @@ interface Room {
   gameId: string;
   gameMode?: string;
   name: string;
-  players: Player[];
+  players: LocalPlayer[];
   createdAt: string;
   status: string;
   host: string;
@@ -56,7 +56,7 @@ interface RoomCreationData {
   gameId: string;
   maxPlayers: number;
   host: string;
-  players: Player[];
+  players: LocalPlayer[];
   [key: string]: any; // Pour les propriétés additionnelles
 }
 
@@ -155,7 +155,7 @@ export const createFirebaseRoom = async (roomData: RoomCreationData, timeoutMs =
       throw new Error(`Problème réseau: vérifiez votre connexion internet`);
     }
     
-    // Ajouter le délai au message pour clarité
+    // Ajouter le délai au message pour clarté
     if (error.message.includes('Délai d\'attente dépassé')) {
       console.error(`⏱️ Délai de ${timeoutMs}ms dépassé - causes possibles:`);
       console.error('- Connexion internet instable ou lente');
@@ -269,7 +269,7 @@ export default function RoomScreen() {
     try {
       const db = getFirestore();
       
-      // 1. Get questions for the game mode
+      // 1. Récupérer les questions pour le mode de jeu
       const questionsRef = doc(
         db,
         'gameQuestions',
@@ -278,16 +278,16 @@ export default function RoomScreen() {
       const questionsDoc = await getDoc(questionsRef);
       
       if (!questionsDoc.exists()) {
-        throw new Error('Questions not found for this game mode');
+        throw new Error('Questions non trouvées pour ce mode de jeu');
       }
       
       const data = questionsDoc.data();
       const questions = data?.questions;
       if (!questions || questions.length === 0) {
-        throw new Error('No questions available for this game mode');
+        throw new Error('Aucune question disponible pour ce mode de jeu');
       }
 
-      // 2. Create game document
+      // 2. Créer le document de jeu
       const gameRef = doc(collection(db, 'games'));
       const randomPlayer = room.players[Math.floor(Math.random() * room.players.length)] || null;
       
@@ -330,10 +330,10 @@ export default function RoomScreen() {
         gameId: room.gameId
       };
 
-      // 3. Create the game document
+      // 3. Créer le document de jeu
       await setDoc(gameRef, gameData);
 
-      // 4. Update room status
+      // 4. Mettre à jour le statut de la salle
       await updateDoc(doc(db, 'rooms', room.id), {
         status: 'playing',
         startedAt: new Date().toISOString(),
@@ -341,7 +341,7 @@ export default function RoomScreen() {
         gameMode: room.gameMode || room.gameId
       });
 
-      // 5. Navigate to the game
+      // 5. Naviguer vers le jeu
       if (room.gameId === 'truth-or-dare') {
         router.push(`/game/truth-or-dare/${gameRef.id}`);
       } else {

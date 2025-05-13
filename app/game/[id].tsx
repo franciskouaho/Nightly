@@ -22,7 +22,7 @@ export default function GameRouter() {
         if (gameDoc.exists()) {
           mode = gameDoc.data()?.gameId;
           
-          // Track le début du jeu
+          // Suivre le début du jeu
           await gameAnalytics.trackGameStart(String(id || ''), mode);
         } else {
           Alert.alert(t('game.error'), t('game.notFound', { id }));

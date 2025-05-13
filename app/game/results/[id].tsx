@@ -11,7 +11,6 @@ import RoundedButton from '@/components/RoundedButton';
 import { useTranslation } from 'react-i18next';
 import { useInAppReview } from '@/hooks/useInAppReview';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { View as AnimatedView } from 'react-native-animatable';
 
 type PlayerScore = Player & { score: number };
 
