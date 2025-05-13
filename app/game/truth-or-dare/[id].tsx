@@ -169,12 +169,7 @@ export default function TruthOrDareGameScreen() {
       try {
         const gameContent = await getGameContent('truth-or-dare');
         if (gameContent.questions && gameContent.questions.length > 0) {
-          // S'assurer que chaque question a la bonne structure
-          const formattedQuestions = gameContent.questions.map((q: any) => ({
-            text: typeof q === 'string' ? q : (q.text || ''),
-            type: typeof q === 'string' ? 'verite' : (q.type || 'verite')
-          }));
-          setQuestions(formattedQuestions);
+          setQuestions(gameContent.questions);
         }
       } catch (e) {
         console.error('Erreur lors du chargement des questions:', e);
