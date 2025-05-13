@@ -4,24 +4,26 @@ import { Alert } from 'react-native';
 import { getFirestore, doc, getDoc } from '@react-native-firebase/firestore';
 import { useGameAnalytics } from '@/hooks/useGameAnalytics';
 import { useTranslation } from 'react-i18next';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function GameRouter() {
   const router = useRouter();
   const { id, gameId } = useLocalSearchParams();
   const gameAnalytics = useGameAnalytics();
   const { t } = useTranslation();
+  const { language } = useLanguage();
 
   useEffect(() => {
     const redirect = async () => {
       let mode = gameId;
       if (!mode) {
         const db = getFirestore();
-        const gameDoc = await getDoc(doc(db, 'games', String(id)));
+        const gameDoc = await getDoc(doc(db, 'games', String(id || '')));
         if (gameDoc.exists()) {
           mode = gameDoc.data()?.gameId;
           
           // Track le début du jeu
-          await gameAnalytics.trackGameStart(String(id), mode);
+          await gameAnalytics.trackGameStart(String(id || ''), mode);
         } else {
           Alert.alert(t('game.error'), t('game.notFound', { id }));
           return;
@@ -55,7 +57,7 @@ export default function GameRouter() {
       Alert.alert(t('game.error'), t('game.unknownMode', { mode }));
     };
     redirect();
-  }, [id, gameId, router, t]);
+  }, [id, gameId, router, t, language]);
 
   return null;
 }
