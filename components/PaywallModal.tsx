@@ -8,12 +8,6 @@ import Purchases from 'react-native-purchases';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 
-const { height } = Dimensions.get('window');
-
-const WEEKLY_PRICE = '3,99';
-const MONTHLY_PRICE = '7,99';
-const ANNUAL_PRICE = '29,99';
-
 interface PaywallModalProps {
   isVisible: boolean;
   onClose: () => void;
@@ -34,6 +28,7 @@ export default function PaywallModal({ isVisible, onClose }: PaywallModalProps) 
       return () => clearTimeout(timer);
     } else {
       setShowCloseButton(false);
+      return undefined;
     }
   }, [isVisible]);
 
