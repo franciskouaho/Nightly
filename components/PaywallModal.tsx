@@ -137,7 +137,7 @@ export default function PaywallModal({ isVisible, onClose }: PaywallModalProps) 
           locations={[0, 0.2, 0.5, 0.8, 1]}
           style={styles.background}
         />
-        <ScrollView style={styles.scrollView}>
+        <View style={styles.scrollView}>
           <View style={styles.contentContainer}>
             <View style={styles.header}>
               {showCloseButton && (
@@ -158,38 +158,38 @@ export default function PaywallModal({ isVisible, onClose }: PaywallModalProps) 
             <View style={styles.featuresContainer}>
               <View style={styles.featureRow}>
                 <View style={styles.checkContainer}>
-                  <Ionicons name="checkmark" size={20} color="#ffffff" />
+                  <Ionicons name="checkmark" size={16} color="#ffffff" />
                 </View>
                 <Text style={styles.featureText}>{t('paywall.features.unlimited')}</Text>
-                <Ionicons name="game-controller" size={20} color="#ffffff" style={styles.featureIcon} />
+                <Ionicons name="game-controller" size={16} color="#ffffff" style={styles.featureIcon} />
               </View>
               <View style={styles.featureRow}>
                 <View style={styles.checkContainer}>
-                  <Ionicons name="checkmark" size={20} color="#ffffff" />
+                  <Ionicons name="checkmark" size={16} color="#ffffff" />
                 </View>
                 <Text style={styles.featureText}>{t('paywall.features.weekly')}</Text>
-                <Ionicons name="refresh" size={20} color="#ffffff" style={styles.featureIcon} />
+                <Ionicons name="refresh" size={16} color="#ffffff" style={styles.featureIcon} />
               </View>
               <View style={styles.featureRow}>
                 <View style={styles.checkContainer}>
-                  <Ionicons name="checkmark" size={20} color="#ffffff" />
+                  <Ionicons name="checkmark" size={16} color="#ffffff" />
                 </View>
                 <Text style={styles.featureText}>{t('paywall.features.visuals')}</Text>
-                <Ionicons name="color-palette" size={20} color="#ffffff" style={styles.featureIcon} />
+                <Ionicons name="color-palette" size={16} color="#ffffff" style={styles.featureIcon} />
               </View>
               <View style={styles.featureRow}>
                 <View style={styles.checkContainer}>
-                  <Ionicons name="checkmark" size={20} color="#ffffff" />
+                  <Ionicons name="checkmark" size={16} color="#ffffff" />
                 </View>
                 <Text style={styles.featureText}>{t('paywall.features.characters')}</Text>
-                <Ionicons name="person" size={20} color="#ffffff" style={styles.featureIcon} />
+                <Ionicons name="person" size={16} color="#ffffff" style={styles.featureIcon} />
               </View>
               <View style={styles.featureRow}>
                 <View style={styles.checkContainer}>
-                  <Ionicons name="checkmark" size={20} color="#ffffff" />
+                  <Ionicons name="checkmark" size={16} color="#ffffff" />
                 </View>
                 <Text style={styles.featureText}>{t('paywall.features.updates')}</Text>
-                <Ionicons name="star" size={20} color="#ffffff" style={styles.featureIcon} />
+                <Ionicons name="star" size={16} color="#ffffff" style={styles.featureIcon} />
               </View>
             </View>
 
@@ -269,7 +269,7 @@ export default function PaywallModal({ isVisible, onClose }: PaywallModalProps) 
               </TouchableOpacity>
             </View>
           </View>
-        </ScrollView>
+        </View>
       </SafeAreaView>
     </Modal>
   );
@@ -290,8 +290,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentContainer: {
-    paddingHorizontal: 20,
-    paddingTop: 50,
+    flex: 1,
+    justifyContent: 'space-between',
+    paddingHorizontal: 10,
+    paddingTop: 20,
+    paddingBottom: 10,
   },
   header: {
     flexDirection: 'row',
@@ -303,82 +306,83 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderColor: '#000',
     shadowColor: '#000',
+    marginTop: 16,
   },
   heroSection: {
     alignItems: 'center',
-    marginBottom: 18,
+    marginBottom: 8,
   },
   heroContent: {
     width: '100%',
     alignItems: 'center',
   },
   heroTitle: {
-    fontSize: 32,
+    fontSize: 26,
     fontWeight: 'bold',
     color: '#ffffff',
     textAlign: 'center',
   },
   heroSubtitle: {
-    fontSize: 24,
+    fontSize: 20,
     color: '#ffffff',
     fontWeight: 'bold',
     textAlign: 'center',
-    marginTop: 5,
+    marginTop: 4,
   },
   tagline: {
-    fontSize: 18,
+    fontSize: 15,
     color: '#ffffff',
     textAlign: 'center',
-    marginTop: 15,
+    marginTop: 8,
   },
   featuresContainer: {
     width: '100%',
-    marginBottom: 18,
+    marginBottom: 8,
   },
   featureRow: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 15,
-    padding: 15,
-    marginBottom: 10,
+    borderRadius: 12,
+    padding: 10,
+    marginBottom: 6,
     width: '100%',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   checkContainer: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
     backgroundColor: '#694ED6',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 10,
+    marginRight: 6,
   },
   featureText: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#ffffff',
     fontWeight: '600',
     flex: 1,
   },
   featureIcon: {
-    marginLeft: 8,
+    marginLeft: 4,
   },
   subscriptionOptions: {
     width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 10,
+    gap: 6,
   },
   planOption: {
     flex: 1,
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: 20,
-    padding: 15,
+    padding: 8,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
     position: 'relative',
-    minWidth: 100,
+    minWidth: 80,
   },
   selectedPlan: {
     borderColor: '#694ED6',
@@ -408,11 +412,11 @@ const styles = StyleSheet.create({
     fontSize: 10,
   },
   planTitle: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '700',
     color: '#ffffff',
-    marginBottom: 5,
-    marginTop: 10,
+    marginBottom: 4,
+    marginTop: 12,
   },
   planPrice: {
     fontSize: 20,
@@ -421,31 +425,31 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   planPeriod: {
-    fontSize: 12,
+    fontSize: 13,
     color: '#ffffff',
     opacity: 0.9,
-    marginBottom: 8,
+    marginBottom: 6,
   },
   planDescription: {
-    fontSize: 10,
+    fontSize: 11,
     color: '#ffffff',
     opacity: 0.8,
-    marginTop: 8,
+    marginTop: 6,
   },
   ctaButton: {
     width: '100%',
-    borderRadius: 20,
-    marginVertical: 20,
+    borderRadius: 12,
+    marginVertical: 10,
     overflow: 'hidden',
     backgroundColor: '#694ED6',
   },
   gradientButton: {
-    paddingVertical: 16,
-    paddingHorizontal: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
     alignItems: 'center',
   },
   ctaButtonText: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: '800',
     color: '#ffffff',
   },
@@ -458,7 +462,7 @@ const styles = StyleSheet.create({
   },
   footerText: {
     color: 'rgba(255, 255, 255, 0.9)',
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '600',
     textDecorationLine: 'underline',
   },
