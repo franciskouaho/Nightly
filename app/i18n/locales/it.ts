@@ -79,7 +79,7 @@ export default {
       title: 'Pass Premium',
       try: 'Prova premium',
       free: 'Gratis 3 giorni',
-      price: 'poi 5,99€ a settimana',
+      price: 'poi 3,99€ a settimana',
       features: {
         unlock: 'Sblocca tutte le modalità',
         weekly: 'Nuovo pacchetto ogni settimana',
@@ -357,6 +357,7 @@ export default {
       monthly: '7,99',
       annual: '29,99',
       currency: '€'
-    }
+    },
+    freeTrial: 'Gratis 3 giorni',
   },
 }; 

@@ -79,7 +79,7 @@ export default {
       title: 'الاشتراك المميز',
       try: 'جرب المميز',
       free: 'مجاني لمدة 3 أيام',
-      price: 'ثم 5,99€ أسبوعيًا',
+      price: 'ثم 3,99€ أسبوعيًا',
       features: {
         unlock: 'افتح جميع الأوضاع',
         weekly: 'حزمة جديدة كل أسبوع',
@@ -357,6 +357,7 @@ export default {
       monthly: '7,99',
       annual: '29,99',
       currency: '€'
-    }
+    },
+    freeTrial: 'مجاني لمدة 3 أيام',
   },
 }; 

@@ -203,8 +203,9 @@ export default function PaywallModal({ isVisible, onClose }: PaywallModalProps) 
               >
                 <View style={[styles.planBadge, styles.weeklyBadge]}>
                   <Text style={styles.badgeText}>{t('paywall.plans.weekly.badge')}</Text>
+                  <Text style={{color: '#111', fontWeight: 'bold', fontSize: 9, marginTop: 1, textAlign: 'center'}}>{t('paywall.freeTrial')}</Text>
                 </View>
-                <Text style={styles.planTitle}>{t('paywall.plans.weekly.title')}</Text>
+                <Text style={[styles.planTitle, {marginTop: 18}]}>{t('paywall.plans.weekly.title')}</Text>
                 <Text style={styles.planPrice}>{t('paywall.prices.weekly')} {t('paywall.prices.currency')}</Text>
                 <Text style={styles.planPeriod}>{t('paywall.plans.weekly.period')}</Text>
                 <Text style={styles.planDescription}>{t('paywall.plans.weekly.description')}</Text>
