@@ -7,6 +7,8 @@ import { StatusBar } from 'expo-status-bar';
 import Purchases from 'react-native-purchases';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
+import { getFirestore, doc, updateDoc } from '@react-native-firebase/firestore';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface PaywallModalProps {
   isVisible: boolean;
@@ -19,6 +21,7 @@ export default function PaywallModal({ isVisible, onClose }: PaywallModalProps) 
   const [loading, setLoading] = useState(false);
   const [showCloseButton, setShowCloseButton] = useState(false);
   const { t } = useTranslation();
+  const { user } = useAuth();
 
   useEffect(() => {
     if (isVisible) {
@@ -52,6 +55,14 @@ export default function PaywallModal({ isVisible, onClose }: PaywallModalProps) 
       setLoading(true);
       const purchaseInfo = await Purchases.purchasePackage(packageToUse);
       if (purchaseInfo?.customerInfo?.entitlements?.active) {
+        if (user?.uid) {
+          const db = getFirestore();
+          await updateDoc(doc(db, 'users', user.uid), {
+            hasActiveSubscription: true,
+            subscriptionType: selectedPlan,
+            subscriptionUpdatedAt: new Date().toISOString(),
+          });
+        }
         Alert.alert(
           t('paywall.alerts.success.title'),
           t('paywall.alerts.success.message')
