@@ -79,7 +79,7 @@ export default {
       title: 'Premium Pass',
       try: 'Premium testen',
       free: 'Kostenlos 3 Tage',
-      price: 'dann 5,99€ pro Woche',
+      price: 'dann 3,99€ pro Woche',
       features: {
         unlock: 'Schalte alle Modi frei',
         weekly: 'Neues Paket jede Woche',
@@ -357,6 +357,7 @@ export default {
       monthly: '7,99',
       annual: '29,99',
       currency: '€'
-    }
+    },
+    freeTrial: 'Kostenlos 3 Tage',
   },
 }; 

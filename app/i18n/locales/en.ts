@@ -79,7 +79,7 @@ export default {
       title: 'Premium Pass',
       try: 'Try premium',
       free: 'Free 3 days',
-      price: 'then $6.99 per week',
+      price: 'then $3.99 per week',
       features: {
         unlock: 'Unlock all modes',
         weekly: 'New pack every week',
@@ -366,5 +366,6 @@ export default {
       annual: '29.99',
       currency: '$'
     },
+    freeTrial: 'Free 3 days',
   },
 }; 
