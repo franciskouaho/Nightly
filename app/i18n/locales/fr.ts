@@ -359,6 +359,12 @@ export default {
         title: 'Erreur',
         message: 'Impossible d\'ouvrir les CGU'
       }
+    },
+    prices: {
+      weekly: '3,99',
+      monthly: '7,99',
+      annual: '29,99',
+      currency: '€'
     }
   },
 }; 
