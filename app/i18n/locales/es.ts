@@ -79,7 +79,7 @@ export default {
       title: 'Pase Premium',
       try: 'Probar premium',
       free: 'Gratis 3 días',
-      price: 'luego 5,99€ por semana',
+      price: 'luego 3,99€ por semana',
       features: {
         unlock: 'Desbloquea todos los modos',
         weekly: 'Nuevo paquete cada semana',
@@ -229,14 +229,39 @@ export default {
       know: "¡Lo sé!",
       dontKnow: "No lo sé",
       accuse: "Acusar",
-      skip: "Pasar",
+      skip: "Saltar",
       submit: "Enviar",
       next: "Siguiente ronda",
+      validate: "Validar",
+      answerPlaceholder: "Escribe tu respuesta aquí...",
       errorSubmit: "No se pudo enviar la respuesta",
       errorVote: "No se pudo enviar la acusación",
       errorNext: "Ocurrió un error al pasar a la siguiente ronda",
-      endTitle: "¡Fin de la partida!",
-      endSubtitle: "¡Gracias por jugar a Genio o Mentirosos!"
+      endTitle: "¡Fin del juego!",
+      endSubtitle: "¡Gracias por jugar a Genio o Mentiroso!",
+      noQuestions: "No hay preguntas disponibles",
+      allQuestionsUsed: "Todas las preguntas han sido utilizadas",
+      waitingForPlayers: "Esperando a otros jugadores...",
+      chooseGameMode: "Elige tu modo de juego",
+      pointsMode: "MODO PUNTOS",
+      gagesMode: "MODO PRENDAS",
+      accuseTitle: "¡Acusa a alguien de mentir!",
+      accuseNoOne: "No quiero acusar a nadie",
+      pretendKnows: "Afirma saber",
+      accusedBy: "Acusado por {{count}} jugador(es)",
+      correctAnswer: "Respuesta correcta: {{answer}}",
+      playerStatus: {
+        dontKnow: "No sabía",
+        correctAnswer: "Respuesta correcta",
+        correctButAccused: "Respuesta correcta pero acusado",
+        liarNotAccused: "Mintió sin ser acusado",
+        liarAccused: "Mintió y fue acusado"
+      },
+      accuserStatus: {
+        correctAccusation: "Acusación correcta",
+        wrongAccusation: "Acusación errónea",
+        against: "contra {{name}}"
+      }
     },
     neverHaveIEverHot: {
       never: "Nunca he",
@@ -245,10 +270,15 @@ export default {
       prepare: "¡Prepárate para responder!",
       submit: "Enviar",
       next: "Siguiente ronda",
+      endGame: "Terminar juego",
       errorSubmit: "No se pudo enviar la respuesta",
       endTitle: "¡Felicitaciones a todos!",
-      endSubtitle: "¡Han terminado la partida de Nunca Nunca 🔥!",
-      home: "Volver al inicio"
+      endSubtitle: "¡Han terminado la partida de Nunca Nunca 🔞!",
+      home: "Volver al inicio",
+      readAloud: "Lee la pregunta en voz alta",
+      targetReads: "{{name}} lee la pregunta",
+      noQuestions: "No hay preguntas disponibles",
+      errorNext: "Ocurrió un error al pasar a la siguiente ronda"
     }
   },
 
@@ -257,6 +287,26 @@ export default {
     title: 'Nightly',
     subtitle: 'Prepárate para jugar',
     loading: 'Cargando...',
+  },
+
+  // Reglas
+  rules: {
+    title: 'REGLAS DEL JUEGO',
+    loading: 'Cargando reglas...',
+    confirm: 'He leído las reglas',
+    confirmStart: 'He leído las reglas, iniciar el juego',
+    general: {
+      title: 'REGLAS GENERALES',
+      description: 'Un jugador es designado aleatoriamente en cada turno.'
+    },
+    participation: {
+      title: 'PARTICIPACIÓN',
+      description: 'Todos los jugadores deben participar activamente.'
+    },
+    scoring: {
+      title: 'PUNTUACIÓN',
+      description: 'Los puntos se otorgan según las reglas específicas del juego.'
+    }
   },
 
   room: {
@@ -283,7 +333,8 @@ export default {
     successCopy: "Código copiado al portapapeles",
     minPlayers: "Se necesitan al menos 2 jugadores para comenzar la partida.",
     allReady: "¡Todos los jugadores están listos!",
-    waiting: "Esperando a otros jugadores..."
+    waiting: "Esperando a otros jugadores...",
+    title: "SALA DE JUEGO"
   },
 
   paywall: {
@@ -357,6 +408,7 @@ export default {
       monthly: '7,99',
       annual: '29,99',
       currency: '€'
-    }
+    },
+    freeTrial: 'Gratis 3 días',
   },
 }; 

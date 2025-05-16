@@ -8,6 +8,7 @@ import { GamePhase, Player } from '@/types/gameTypes';
 import { useInAppReview } from '@/hooks/useInAppReview';
 import { useGeniusOrLiarAnalytics } from '@/hooks/useGeniusOrLiarAnalytics';
 import { useTranslation } from 'react-i18next';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface FirebaseQuestion {
   type: string;
@@ -63,6 +64,7 @@ interface KnowOrDrinkGameState {
 
 export default function KnowOrDrinkGame() {
   const { id } = useLocalSearchParams();
+  const gameId = typeof id === 'string' ? id : id?.[0] || '';
   const router = useRouter();
   const { user } = useAuth();
   const { requestReview } = useInAppReview();
@@ -73,7 +75,8 @@ export default function KnowOrDrinkGame() {
   const [showAnswerInput, setShowAnswerInput] = useState(false);
   const [isEnd, setIsEnd] = useState(false);
   const gameStartTime = useRef(Date.now());
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const { getGameContent, isRTL } = useLanguage();
 
   useEffect(() => {
     if (!id || !user) return;
@@ -296,12 +299,20 @@ export default function KnowOrDrinkGame() {
                 } else if (typeof gameState?.currentQuestion === 'string') {
                   return gameState.currentQuestion;
                 }
+
+                // Message plus explicite pour aider au débogage
+                if (gameState?.currentQuestion && Object.keys(gameState.currentQuestion).length > 0) {
+                  return `Erreur: Format de question incorrect. Veuillez récupérer des questions depuis Firebase (id: ${gameState.currentQuestion.id || 'inconnu'})`;
+                }
+                
                 return 'Aucune question disponible';
               })()}
             </Text>
           </View>
           {gameState?.currentUserState?.[user?.uid]?.hasAnswered && gameState.phase === 'question' ? (
-            <Text style={styles.waitingText}>En attente des autres joueurs...</Text>
+            <Text style={styles.waitingText}>
+              {t('game.geniusOrLiar.waitingForPlayers')}
+            </Text>
           ) : showAnswerInput ? (
             <View style={styles.answerContainer}>
               <TextInput
@@ -342,7 +353,6 @@ export default function KnowOrDrinkGame() {
                   style={styles.buttonGradient}
                 >
                   <Text style={styles.buttonText}>{t('game.geniusOrLiar.dontKnow')}</Text>
-                  <Text style={styles.buttonText}>JE NE SAIS PAS</Text>
                 </LinearGradient>
               </TouchableOpacity>
             </View>
@@ -355,7 +365,7 @@ export default function KnowOrDrinkGame() {
   const renderAccusationPhase = () => (
     <View style={styles.container}>
       <View style={styles.contentContainer}>
-        <Text style={styles.phaseTitle}>Accuse quelqu'un de mentir !</Text>
+        <Text style={styles.phaseTitle}>{t('game.geniusOrLiar.accuseTitle')}</Text>
         <View style={styles.playersList}>
           {gameState?.players.map((player) => (
             <TouchableOpacity
@@ -370,11 +380,11 @@ export default function KnowOrDrinkGame() {
             >
               <Text style={styles.playerName}>{player.name}</Text>
               {gameState.playerAnswers[player.id]?.knows && (
-                <Text style={styles.playerStatus}>Prétend savoir</Text>
+                <Text style={styles.playerStatus}>{t('game.geniusOrLiar.pretendKnows')}</Text>
               )}
               {gameState.playerAnswers[player.id]?.isAccused && gameState.playerAnswers[player.id]?.accusedBy && (
                 <Text style={styles.accusationCount}>
-                  Accusé par {gameState.playerAnswers[player.id]?.accusedBy?.length ?? 0} joueur(s)
+                  {t('game.geniusOrLiar.accusedBy', { count: gameState.playerAnswers[player.id]?.accusedBy?.length ?? 0 })}
                 </Text>
               )}
             </TouchableOpacity>
@@ -383,7 +393,7 @@ export default function KnowOrDrinkGame() {
         {!gameState.currentUserState?.[user?.uid]?.hasVoted && (
           <TouchableOpacity style={styles.skipButton} onPress={handleSkipAccuse}>
             <LinearGradient colors={["#3D2956", "#A259FF"]} style={styles.buttonGradient}>
-              <Text style={styles.buttonText}>Je ne veux accuser personne</Text>
+              <Text style={styles.buttonText}>{t('game.geniusOrLiar.accuseNoOne')}</Text>
             </LinearGradient>
           </TouchableOpacity>
         )}
@@ -403,19 +413,19 @@ export default function KnowOrDrinkGame() {
     const wasAccusedBy = playerAnswer.accusedBy || [];
     // Cas pour le joueur
     if (!playerAnswer.knows) {
-      return { label: 'Ne savait pas', icon: '❌', color: '#FF5252' };
+      return { label: t('game.geniusOrLiar.playerStatus.dontKnow'), icon: '❌', color: '#FF5252' };
     }
     if (isCorrect) {
       if (!wasAccused) {
-        return { label: 'Bonne réponse', icon: '✅', color: '#4CAF50' };
+        return { label: t('game.geniusOrLiar.playerStatus.correctAnswer'), icon: '✅', color: '#4CAF50' };
       } else {
-        return { label: 'Bonne réponse mais accusé', icon: '⚠️', color: '#FF9800' };
+        return { label: t('game.geniusOrLiar.playerStatus.correctButAccused'), icon: '⚠️', color: '#FF9800' };
       }
     } else {
       if (!wasAccused) {
-        return { label: 'A menti sans être accusé', icon: '😏', color: '#A259FF' };
+        return { label: t('game.geniusOrLiar.playerStatus.liarNotAccused'), icon: '😏', color: '#A259FF' };
       } else {
-        return { label: 'A menti et accusé', icon: '🚨', color: '#FF5252' };
+        return { label: t('game.geniusOrLiar.playerStatus.liarAccused'), icon: '🚨', color: '#FF5252' };
       }
     }
   };
@@ -434,10 +444,20 @@ export default function KnowOrDrinkGame() {
     const isTargetCorrect = targetAnswer.knows && targetResponse === correctAnswer;
     if (!targetAnswer.knows || !isTargetCorrect) {
       // L'accusation était juste
-      return { label: 'Bonne accusation', icon: '⚡️', color: '#4CAF50', target: targetId };
+      return { 
+        label: t('game.geniusOrLiar.accuserStatus.correctAccusation'), 
+        icon: '⚡️', 
+        color: '#4CAF50', 
+        target: targetId 
+      };
     } else {
       // L'accusation était fausse
-      return { label: 'Accusation à tort', icon: '❌', color: '#FF5252', target: targetId };
+      return { 
+        label: t('game.geniusOrLiar.accuserStatus.wrongAccusation'), 
+        icon: '❌', 
+        color: '#FF5252', 
+        target: targetId 
+      };
     }
   };
 
@@ -458,44 +478,72 @@ export default function KnowOrDrinkGame() {
         gameState.totalRounds,
         gameState.playerAnswers[gameState.currentPlayerId]?.knows || false
       );
-      // Récupère les questions depuis gameQuestions/genius-or-liar
-      const questionsRef = doc(db, 'gameQuestions', 'genius-or-liar');
-      const questionsDoc = await getDoc(questionsRef);
-      let questionsArr = [];
-      if (questionsDoc.exists()) {
-        const data = questionsDoc.data();
-        console.log('🔥 Firestore data:', data);
-        console.log('📚 Questions disponibles:', data.questions?.length);
-        if (Array.isArray(data.questions)) {
-          questionsArr = data.questions.filter(Boolean);
-          console.log('✅ Questions filtrées:', questionsArr.length);
+
+      try {
+        // Récupérer les questions du jeu dans la bonne structure
+        const questionsRef = doc(db, 'gameQuestions', 'genius-or-liar');
+        const questionsDoc = await getDoc(questionsRef);
+        
+        if (!questionsDoc.exists()) {
+          console.error('Document de questions non trouvé');
+          Alert.alert(t('game.error'), t('game.geniusOrLiar.noQuestions'));
+          return;
         }
-      } else {
-        console.log('❌ Document questions non trouvé');
+        
+        // Récupérer les questions selon la langue actuelle
+        const questionsData = questionsDoc.data();
+        const currentLanguage = isRTL ? 'ar' : (i18n.language || 'fr');
+        
+        // On s'attend à une structure { translations: { fr: [...], en: [...], etc. } }
+        const questions = questionsData?.translations?.[currentLanguage] || [];
+        
+        if (!questions || !Array.isArray(questions) || questions.length === 0) {
+          console.error('Aucune question trouvée pour la langue:', currentLanguage);
+          Alert.alert(t('game.error'), t('game.geniusOrLiar.noQuestions'));
+          return;
+        }
+        
+        // Liste des questions déjà posées
+        const askedIndexes = gameState.askedQuestions || [];
+        
+        // Filtrer les questions déjà posées
+        const availableQuestions = questions
+          .map((q, idx) => ({ ...q, _idx: idx }))
+          .filter(q => !askedIndexes.includes(String(q._idx)));
+          
+        if (availableQuestions.length === 0) {
+          Alert.alert(t('game.error'), t('game.geniusOrLiar.allQuestionsUsed'));
+          // Réinitialiser si toutes les questions ont été posées
+          const randomIndex = Math.floor(Math.random() * questions.length);
+          const nextQuestion = questions[randomIndex];
+          
+          await updateDoc(gameRef, {
+            currentRound: gameState.currentRound + 1,
+            phase: 'question',
+            currentUserState: {},
+            playerAnswers: {},
+            currentQuestion: nextQuestion,
+            askedQuestions: [String(randomIndex)],
+          });
+          return;
+        }
+        
+        // Tirer une nouvelle question au hasard
+        const randomIndex = Math.floor(Math.random() * availableQuestions.length);
+        const nextQuestion = availableQuestions[randomIndex];
+        
+        await updateDoc(gameRef, {
+          currentRound: gameState.currentRound + 1,
+          phase: 'question',
+          currentUserState: {},
+          playerAnswers: {},
+          currentQuestion: nextQuestion,
+          askedQuestions: [...askedIndexes, String(nextQuestion._idx)],
+        });
+      } catch (error) {
+        console.error('Erreur lors de la récupération des questions:', error);
+        Alert.alert(t('game.error'), t('game.geniusOrLiar.errorNext'));
       }
-      // Liste des index déjà posés
-      const askedIndexes = gameState.askedQuestions || [];
-      console.log('📝 Index déjà posés:', askedIndexes);
-      // On filtre les questions déjà posées
-      const availableQuestions = questionsArr
-        .map((q, idx) => ({ ...q, _idx: idx }))
-        .filter(q => !askedIndexes.includes(q._idx));
-      console.log('🎲 Questions disponibles:', availableQuestions.length);
-      if (availableQuestions.length === 0) {
-        Alert.alert('Erreur', 'Plus de questions disponibles.');
-        return;
-      }
-      // Tire une nouvelle question au hasard
-      const nextQuestion = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
-      console.log('🎯 Question sélectionnée:', nextQuestion);
-      await updateDoc(gameRef, {
-        currentRound: gameState.currentRound + 1,
-        phase: 'question',
-        currentUserState: {},
-        playerAnswers: {},
-        currentQuestion: nextQuestion,
-        askedQuestions: [...askedIndexes, nextQuestion._idx],
-      });
     } catch (error) {
       console.error('❌ Erreur lors du passage au tour suivant:', error);
       Alert.alert('Erreur', 'Impossible de passer au tour suivant');
@@ -521,9 +569,9 @@ export default function KnowOrDrinkGame() {
   const renderResultsPhase = () => (
     <View style={styles.container}>
       <View style={styles.contentContainer}>
-        <Text style={styles.phaseTitle}>Résultats</Text>
+        <Text style={styles.phaseTitle}>{t('game.results.title')}</Text>
         <Text style={styles.correctAnswer}>
-          Réponse correcte : {gameState?.currentQuestion?.answer}
+          {t('game.geniusOrLiar.correctAnswer', { answer: gameState?.currentQuestion?.answer })}
         </Text>
         {gameState?.players.map((player) => {
           const playerAnswer = gameState?.playerAnswers?.[player.id];
@@ -537,12 +585,12 @@ export default function KnowOrDrinkGame() {
                 <Text style={styles.playerName}>{player.name}</Text>
               </View>
               <Text style={styles.resultText}>
-                {playerAnswer?.knows ? `A répondu : ${playerAnswer.answer}` : 'Ne savait pas'}
+                {playerAnswer?.knows ? `A répondu : ${playerAnswer.answer}` : t('game.geniusOrLiar.playerStatus.dontKnow')}
               </Text>
               <Text style={[styles.statusText, { color: status.color }]}>{status.label}</Text>
               {accuser && (
                 <Text style={[styles.accuserText, { color: accuser.color }]}> 
-                  {accuser.icon} {accuser.label} {accuser.target && `(contre ${gameState.players.find(p => p.id === accuser.target)?.name})`}
+                  {accuser.icon} {accuser.label} {accuser.target && t('game.geniusOrLiar.accuserStatus.against', { name: gameState.players.find(p => p.id === accuser.target)?.name })}
                 </Text>
               )}
               {gameState?.gameMode === 'points' ? (
@@ -562,7 +610,7 @@ export default function KnowOrDrinkGame() {
         <TouchableOpacity style={styles.nextButton} onPress={handleNextRound}>
           <LinearGradient colors={["#A259FF", "#C471F5"]} style={styles.buttonGradient}>
             <Text style={styles.buttonText}>
-              {(gameState?.currentRound ?? 0) >= (gameState?.totalRounds ?? 0) ? 'Voir le classement final' : 'Tour suivant'}
+              {(gameState?.currentRound ?? 0) >= (gameState?.totalRounds ?? 0) ? t('game.results.home') : t('game.geniusOrLiar.next')}
             </Text>
           </LinearGradient>
         </TouchableOpacity>
@@ -717,14 +765,14 @@ export default function KnowOrDrinkGame() {
   const renderChoicePhase = () => (
     <View style={styles.container}>
       <View style={styles.contentContainer}>
-        <Text style={styles.phaseTitle}>Choisissez votre mode de jeu</Text>
+        <Text style={styles.phaseTitle}>{t('game.geniusOrLiar.chooseGameMode')}</Text>
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={() => handleGameModeSelect('points')}>
             <LinearGradient
               colors={['#A259FF', '#C471F5']}
               style={styles.buttonGradient}
             >
-              <Text style={styles.buttonText}>MODE POINTS</Text>
+              <Text style={styles.buttonText}>{t('game.geniusOrLiar.pointsMode')}</Text>
             </LinearGradient>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={() => handleGameModeSelect('gages')}>
@@ -732,7 +780,7 @@ export default function KnowOrDrinkGame() {
               colors={['#FF5252', '#FF7676']}
               style={styles.buttonGradient}
             >
-              <Text style={styles.buttonText}>MODE GAGES</Text>
+              <Text style={styles.buttonText}>{t('game.geniusOrLiar.gagesMode')}</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>
@@ -774,6 +822,50 @@ export default function KnowOrDrinkGame() {
       return () => clearTimeout(timeout);
     }
   }, [gameState, id, router, requestReview, gameAnalytics, user]);
+
+  // Dans useEffect, ajoutons une vérification pour charger les questions depuis Firebase si nécessaire
+  useEffect(() => {
+    if (gameState && gameState.phase === 'question' && 
+        (!gameState.currentQuestion?.question && !gameState.currentQuestion?.text?.question) && 
+        gameState.currentQuestion) {
+      
+      // Tentons de charger la question depuis Firebase
+      const fetchQuestion = async () => {
+        try {
+          const db = getFirestore();
+          const questionsRef = doc(db, 'gameQuestions', 'genius-or-liar');
+          const questionsDoc = await getDoc(questionsRef);
+          
+          if (questionsDoc.exists()) {
+            // Récupérer les questions selon la langue actuelle
+            const questionsData = questionsDoc.data();
+            const currentLanguage = isRTL ? 'ar' : (i18n.language || 'fr');
+            
+            // On s'attend à une structure { translations: { fr: [...], en: [...], etc. } }
+            const questions = questionsData?.translations?.[currentLanguage] || [];
+            
+            if (questions.length > 0) {
+              // Prenons une question aléatoire
+              const randomIndex = Math.floor(Math.random() * questions.length);
+              const selectedQuestion = questions[randomIndex];
+              
+              console.log('Question chargée depuis Firebase:', selectedQuestion);
+              
+              // Mettons à jour la question actuelle
+              const gameRef = doc(db, 'games', String(id));
+              await updateDoc(gameRef, {
+                currentQuestion: selectedQuestion
+              });
+            }
+          }
+        } catch (error) {
+          console.error('Erreur lors du chargement des questions:', error);
+        }
+      };
+      
+      fetchQuestion();
+    }
+  }, [gameState, id, isRTL, i18n.language]);
 
   if (loading) {
     return (

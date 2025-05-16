@@ -5,13 +5,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons, FontAwesome5, Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
-import { collection, doc, onSnapshot, updateDoc, getFirestore, getDoc, setDoc } from '@react-native-firebase/firestore';
+import { collection, doc, onSnapshot, updateDoc, getFirestore, getDoc, setDoc, addDoc } from '@react-native-firebase/firestore';
 import { GameState, GamePhase, Player, Question } from '@/types/gameTypes';
 import RulesDrawer from '@/components/room/RulesDrawer';
 import InviteModal from '@/components/room/InviteModal';
 import RoundedButton from '@/components/RoundedButton';
 import Avatar from '@/components/Avatar';
 import { useTranslation } from 'react-i18next';
+import i18n from '@/app/i18n/i18n';
 
 // Type pour l'utilisateur
 interface User {
@@ -24,7 +25,7 @@ interface User {
 }
 
 // Type local pour Player qui correspond à ce que nous utilisons dans ce composant
-interface Player {
+interface LocalPlayer {
   id: string;
   username: string;
   displayName?: string;
@@ -41,7 +42,7 @@ interface Room {
   gameId: string;
   gameMode?: string;
   name: string;
-  players: Player[];
+  players: LocalPlayer[];
   createdAt: string;
   status: string;
   host: string;
@@ -56,7 +57,7 @@ interface RoomCreationData {
   gameId: string;
   maxPlayers: number;
   host: string;
-  players: Player[];
+  players: LocalPlayer[];
   [key: string]: any; // Pour les propriétés additionnelles
 }
 
@@ -155,7 +156,7 @@ export const createFirebaseRoom = async (roomData: RoomCreationData, timeoutMs =
       throw new Error(`Problème réseau: vérifiez votre connexion internet`);
     }
     
-    // Ajouter le délai au message pour clarité
+    // Ajouter le délai au message pour clarté
     if (error.message.includes('Délai d\'attente dépassé')) {
       console.error(`⏱️ Délai de ${timeoutMs}ms dépassé - causes possibles:`);
       console.error('- Connexion internet instable ou lente');
@@ -180,6 +181,8 @@ export default function RoomScreen() {
   const [hasReadRules, setHasReadRules] = useState(false);
   const [showRulesOnReady, setShowRulesOnReady] = useState(false);
   const [isReadyClicked, setIsReadyClicked] = useState(false);
+  const [selectedRounds, setSelectedRounds] = useState(5);
+  const [showRoundSelector, setShowRoundSelector] = useState(false);
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -269,7 +272,7 @@ export default function RoomScreen() {
     try {
       const db = getFirestore();
       
-      // 1. Get questions for the game mode
+      // 1. Récupérer les questions pour le mode de jeu
       const questionsRef = doc(
         db,
         'gameQuestions',
@@ -278,22 +281,30 @@ export default function RoomScreen() {
       const questionsDoc = await getDoc(questionsRef);
       
       if (!questionsDoc.exists()) {
-        throw new Error('Questions not found for this game mode');
+        throw new Error('Questions non trouvées pour ce mode de jeu');
       }
       
       const data = questionsDoc.data();
-      const questions = data?.questions;
+      // Récupération des questions dans la langue actuelle
+      const translations = data?.translations || {};
+      const currentLanguage = i18n.language || 'fr';
+      const questions = translations[currentLanguage] || translations.fr || [];
+      
       if (!questions || questions.length === 0) {
-        throw new Error('No questions available for this game mode');
+        console.error('Structure de données:', data);
+        throw new Error('Aucune question disponible pour ce mode de jeu');
       }
 
-      // 2. Create game document
+      console.log(`Questions trouvées pour ${room.gameId} (${currentLanguage}):`, questions.length);
+
+      // 2. Créer le document de jeu
       const gameRef = doc(collection(db, 'games'));
       const randomPlayer = room.players[Math.floor(Math.random() * room.players.length)] || null;
       
       const firstQuestion: Question = {
         id: '1',
-        text: questions[0],
+        // Adapter selon la structure - certains jeux ont des objets, d'autres des strings
+        text: typeof questions[0] === 'string' ? questions[0] : questions[0].text || '',
         theme: room.gameId,
         roundNumber: 1
       };
@@ -301,7 +312,7 @@ export default function RoomScreen() {
       const gameData: GameState & { gameId: string } = {
         phase: GamePhase.CHOIX,
         currentRound: 1,
-        totalRounds: 4,
+        totalRounds: selectedRounds,
         targetPlayer: randomPlayer,
         currentQuestion: firstQuestion,
         answers: [],
@@ -321,7 +332,7 @@ export default function RoomScreen() {
         game: {
           currentPhase: GamePhase.CHOIX,
           currentRound: 1,
-          totalRounds: 4,
+          totalRounds: selectedRounds,
           scores: {},
           gameMode: room.gameMode || room.gameId,
           hostId: room.host
@@ -330,10 +341,10 @@ export default function RoomScreen() {
         gameId: room.gameId
       };
 
-      // 3. Create the game document
+      // 3. Créer le document de jeu
       await setDoc(gameRef, gameData);
 
-      // 4. Update room status
+      // 4. Mettre à jour le statut de la salle
       await updateDoc(doc(db, 'rooms', room.id), {
         status: 'playing',
         startedAt: new Date().toISOString(),
@@ -341,7 +352,7 @@ export default function RoomScreen() {
         gameMode: room.gameMode || room.gameId
       });
 
-      // 5. Navigate to the game
+      // 5. Naviguer vers le jeu
       if (room.gameId === 'truth-or-dare') {
         router.push(`/game/truth-or-dare/${gameRef.id}`);
       } else {
@@ -408,6 +419,11 @@ export default function RoomScreen() {
     }
   };
 
+  const handleRoundSelection = (rounds: number) => {
+    setSelectedRounds(rounds);
+    setShowRoundSelector(false);
+  };
+
   const handleConfirmRulesOnReady = async () => {
     setShowRulesOnReady(false);
     if (isReadyClicked && room && user) {
@@ -458,28 +474,32 @@ export default function RoomScreen() {
         style={styles.background}
       >
         <View style={styles.topBar}>      
-          <TouchableOpacity onPress={handleLeaveRoom} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="white" />
-          </TouchableOpacity>
-
-          <View style={styles.topBarTitleContainer}>
-            <Text style={styles.topBarTitle}>{room.name?.toUpperCase()}</Text>
-          </View>
-
-          <View style={styles.rightContainer}>
-            <TouchableOpacity
-                  style={styles.iconButton}
-                  onPress={handleInviteFriend}
-                >
-              <LinearGradient
-                colors={["#A259FF", "#C471F5"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={{ borderRadius: 12, padding: 7 }}
-              >
-                <Ionicons name="qr-code" size={22} color="white" />
-              </LinearGradient>
+          <View style={styles.topBarRow}>
+            <TouchableOpacity onPress={handleLeaveRoom} style={styles.backButton}>
+              <Ionicons name="arrow-back" size={24} color="white" />
             </TouchableOpacity>
+
+            <View style={styles.rightContainer}>
+              <TouchableOpacity
+                    style={styles.iconButton}
+                    onPress={handleInviteFriend}
+                  >
+                <LinearGradient
+                  colors={["#A259FF", "#C471F5"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={{ borderRadius: 12, padding: 7 }}
+                >
+                  <Ionicons name="qr-code" size={22} color="white" />
+                </LinearGradient>
+              </TouchableOpacity>
+            </View>
+          </View>
+          
+          <View style={styles.topBarTitleContainer}>
+            <Text style={styles.topBarTitle}>
+              {t('room.title')} - {t(`home.games.${room.gameId}.name`, { defaultValue: room.name?.toUpperCase() })}
+            </Text>
           </View>
         </View>
 
@@ -536,26 +556,157 @@ export default function RoomScreen() {
           />
         </View>
 
+        <RulesDrawer
+          visible={isRulesDrawerVisible || showRulesOnReady}
+          onClose={handleRulesClose}
+          onConfirm={handleRulesConfirm}
+          gameId={room?.gameId}
+          isStartingGame={showRulesOnReady}
+        />
+        
+        {user?.uid === room.host && room.status === 'waiting' && (
+          <>
+            <View style={styles.gameControlsContainer}>
+              <View style={styles.roundSelectorContainer}>
+                {user?.uid === room.host && (
+                  <TouchableOpacity 
+                    style={styles.roundSelectorButton}
+                    onPress={() => setShowRoundSelector(!showRoundSelector)}
+                  >
+                    <LinearGradient
+                      colors={["#7B3FE4", "#8345E6"]}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 0 }}
+                      style={styles.roundSelectorGradient}
+                    >
+                      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                        <Text style={styles.roundSelectorText}>{selectedRounds} {t('room.rounds')}</Text>
+                        <View style={styles.roundSelectorIconContainer}>
+                          <MaterialCommunityIcons name="star-four-points" size={18} color="white" style={styles.starIcon} />
+                          <MaterialCommunityIcons name="star-four-points" size={12} color="white" style={styles.smallStarIcon} />
+                        </View>
+                      </View>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                )}
+                
+                {showRoundSelector && (
+                  <View style={styles.roundOptionsContainer}>
+                    <View style={styles.roundOptionsRow}>
+                      <TouchableOpacity
+                        key={5}
+                        style={[
+                          styles.roundOption,
+                          selectedRounds === 5 && styles.selectedRoundOption
+                        ]}
+                        onPress={() => handleRoundSelection(5)}
+                      >
+                        <Text style={[
+                          styles.roundOptionText,
+                          selectedRounds === 5 && styles.selectedRoundOptionText
+                        ]}>
+                          5
+                        </Text>
+                      </TouchableOpacity>
+                      
+                      <TouchableOpacity
+                        key={10}
+                        style={[
+                          styles.roundOption,
+                          selectedRounds === 10 && styles.selectedRoundOption
+                        ]}
+                        onPress={() => handleRoundSelection(10)}
+                      >
+                        <Text style={[
+                          styles.roundOptionText,
+                          selectedRounds === 10 && styles.selectedRoundOptionText
+                        ]}>
+                          10
+                        </Text>
+                      </TouchableOpacity>
+                      
+                      <TouchableOpacity
+                        key={15}
+                        style={[
+                          styles.roundOption,
+                          selectedRounds === 15 && styles.selectedRoundOption
+                        ]}
+                        onPress={() => handleRoundSelection(15)}
+                      >
+                        <Text style={[
+                          styles.roundOptionText,
+                          selectedRounds === 15 && styles.selectedRoundOptionText
+                        ]}>
+                          15
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                    
+                    <View style={styles.roundOptionsRow}>
+                      <TouchableOpacity
+                        key={20}
+                        style={[
+                          styles.roundOption,
+                          selectedRounds === 20 && styles.selectedRoundOption
+                        ]}
+                        onPress={() => handleRoundSelection(20)}
+                      >
+                        <Text style={[
+                          styles.roundOptionText,
+                          selectedRounds === 20 && styles.selectedRoundOptionText
+                        ]}>
+                          20
+                        </Text>
+                      </TouchableOpacity>
+                      
+                      <TouchableOpacity
+                        key={25}
+                        style={[
+                          styles.roundOption,
+                          selectedRounds === 25 && styles.selectedRoundOption
+                        ]}
+                        onPress={() => handleRoundSelection(25)}
+                      >
+                        <Text style={[
+                          styles.roundOptionText,
+                          selectedRounds === 25 && styles.selectedRoundOptionText
+                        ]}>
+                          25
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                )}
+              </View>
+              
+              <RoundedButton
+                title={t('room.startGame')}
+                onPress={handleStartGame}
+                disabled={!room.players.every(p => p.isReady) || room.players.length < 2}
+                style={styles.startButton}
+                textStyle={styles.startButtonText}
+              />
+            </View>
+          </>
+        )}
+        
         {user?.uid !== room.host && room.status === 'waiting' && room.id && !room.players.find(p => String(p.id) === String(user?.uid))?.isReady && (
-          <RoundedButton
-            title={t('room.iAmReady')}
+          <TouchableOpacity
+            style={styles.readyButton}
             onPress={() => {
               setShowRulesOnReady(true);
               setIsReadyClicked(true);
             }}
-            style={styles.readyButton}
-          />
-        )}
-
-        {/* Bouton démarrer la partie pour l'hôte */}
-        {user?.uid === room.host && room.status === 'waiting' && (
-          <RoundedButton
-            title={t('room.startGame')}
-            onPress={handleStartGame}
-            disabled={!room.players.every(p => p.isReady) || room.players.length < 2}
-            style={styles.startButton}
-            textStyle={styles.startButtonText}
-          />
+          >
+            <LinearGradient
+              colors={["#A259FF", "#C471F5"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.readyButtonGradient}
+            >
+              <Text style={styles.readyButtonText}>{t('room.iAmReady')}</Text>
+            </LinearGradient>
+          </TouchableOpacity>
         )}
 
         <InviteModal 
@@ -564,14 +715,6 @@ export default function RoomScreen() {
           onClose={() => setInviteModalVisible(false)}
           onCopyCode={handleCopyCode}
           onShareCode={handleShareRoom}
-        />
-
-        <RulesDrawer
-          visible={isRulesDrawerVisible || showRulesOnReady}
-          onClose={handleRulesClose}
-          onConfirm={handleRulesConfirm}
-          gameId={room?.gameId}
-          isStartingGame={showRulesOnReady}
         />
       </LinearGradient>
     </View>
@@ -596,12 +739,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   topBar: {
+    paddingHorizontal: 20,
+    paddingTop: 50,
+    paddingBottom: 10,
+  },
+  topBarRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 50,
-    paddingBottom: 20,
+    width: '100%',
+    marginBottom: 8,
   },
   backButton: {
     width: 40,
@@ -610,9 +757,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   topBarTitleContainer: {
-    flex: 1,
+    width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 5,
   },
   topBarTitle: {
     color: '#fff',
@@ -620,6 +768,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textTransform: 'uppercase',
     letterSpacing: 1,
+    textAlign: 'center',
   },
   shareButton: {
     padding: 8,
@@ -736,16 +885,23 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   readyButton: {
-    marginHorizontal: 20,
-    marginBottom: 15,
-    paddingVertical: 15,
+    width: '90%',
+    alignSelf: 'center',
     borderRadius: 12,
+    overflow: 'hidden',
+    marginBottom: 15,
+  },
+  readyButtonGradient: {
+    paddingVertical: 15,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   readyButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
    rightContainer: {
     flexDirection: 'row',
@@ -762,6 +918,88 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(93, 109, 255, 0.3)',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  gameControlsContainer: {
+    width: '100%',
+    marginBottom: 15,
+    position: 'relative',
+    zIndex: 100,
+  },
+  roundSelectorContainer: {
+    width: '100%',
+    alignItems: 'flex-start',
+    marginHorizontal: 20,
+    marginBottom: 15,
+    position: 'relative',
+    zIndex: 100,
+  },
+  roundSelectorButton: {
+    width: 'auto',
+    borderRadius: 12,
+    overflow: 'hidden',
+    marginTop: 10,
+  },
+  roundSelectorGradient: {
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  roundSelectorText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  roundSelectorIconContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 5,
+  },
+  starIcon: {
+    marginLeft: 2,
+  },
+  smallStarIcon: {
+    marginLeft: -4,
+    marginTop: -8,
+  },
+  roundOptionsContainer: {
+    position: 'absolute',
+    bottom: '120%',
+    left: 0,
+    backgroundColor: 'rgba(20, 20, 30, 0.8)',
+    borderRadius: 12,
+    padding: 10,
+    flexDirection: 'column',
+    justifyContent: 'space-around',
+    zIndex: 1000,
+    width: 220,
+  },
+  roundOptionsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 10,
+  },
+  roundOption: {
+    padding: 16,
+    margin: 5,
+    borderRadius: 12,
+    backgroundColor: 'rgba(80, 80, 100, 0.3)',
+    width: 60,
+    height: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  roundOptionText: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  selectedRoundOption: {
+    backgroundColor: '#A259FF',
+  },
+  selectedRoundOptionText: {
+    color: '#fff',
   },
   startButton: {
     marginHorizontal: 20,
@@ -794,5 +1032,5 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginLeft: 10,
-  }
+  },
 });

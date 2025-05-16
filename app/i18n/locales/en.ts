@@ -79,7 +79,7 @@ export default {
       title: 'Premium Pass',
       try: 'Try premium',
       free: 'Free 3 days',
-      price: 'then $6.99 per week',
+      price: 'then $3.99 per week',
       features: {
         unlock: 'Unlock all modes',
         weekly: 'New pack every week',
@@ -202,23 +202,47 @@ export default {
       home: "Home",
       calculating: "Calculating results..."
     },
+    player: 'the player',
     listenButDontJudge: {
       waiting: "Waiting for other players...",
+      waitingVote: "Waiting for the target player's vote...",
       submit: "Submit",
       vote: "Vote",
       next: "Next round",
+      voteTitle: "Choose the best answer",
+      answerPlaceholder: "Write your answer here...",
+      round: "Round",
       errorSubmit: "Unable to submit answer",
       errorVote: "Unable to submit vote",
-      errorNext: "An error occurred while moving to the next round",
+      errorNext: "An error occurred when moving to the next round",
       noQuestions: "No questions available",
-      endTitle: "Game over!",
+      endTitle: "End of the game!",
       endSubtitle: "Thanks for playing!"
     },
     truthOrDare: {
       truth: "Truth!",
       dare: "Dare!",
-      submit: "Submit",
+      chooseTask: "Choose your challenge",
+      isThinking: "is thinking...",
+      willChoose: "Will they choose",
+      or: "or",
+      action: "Dare",
+      iAnswered: "I answered",
+      iRefuse: "I refuse",
+      voteInProgress: "Vote in progress",
+      otherPlayersDecide: "Other players decide if",
+      playedGame: "completed the challenge",
+      vote: "Vote",
+      did: "Did",
+      yes: "Yes",
+      no: "No",
+      thanksVote: "Thanks for your vote!",
+      votes: "votes",
+      round: "Round",
+      roundEnd: "End of round for",
+      scores: "Scores",
       next: "Next round",
+      submit: "Submit",
       errorSubmit: "Unable to submit answer",
       errorVote: "Unable to submit vote",
       errorNext: "An error occurred while moving to the next round",
@@ -232,11 +256,36 @@ export default {
       skip: "Skip",
       submit: "Submit",
       next: "Next round",
-      errorSubmit: "Unable to submit answer",
-      errorVote: "Unable to submit accusation",
-      errorNext: "An error occurred while moving to the next round",
+      validate: "Validate",
+      answerPlaceholder: "Write your answer here...",
+      errorSubmit: "Failed to submit answer",
+      errorVote: "Failed to submit accusation",
+      errorNext: "An error occurred when moving to the next round",
       endTitle: "Game over!",
-      endSubtitle: "Thanks for playing Genius or Liar!"
+      endSubtitle: "Thanks for playing Genius or Liar!",
+      noQuestions: "No questions available",
+      allQuestionsUsed: "All questions have been used",
+      waitingForPlayers: "Waiting for other players...",
+      chooseGameMode: "Choose your game mode",
+      pointsMode: "POINTS MODE",
+      gagesMode: "PENALTY MODE",
+      accuseTitle: "Accuse someone of lying!",
+      accuseNoOne: "I don't want to accuse anyone",
+      pretendKnows: "Claims to know",
+      accusedBy: "Accused by {{count}} player(s)",
+      correctAnswer: "Correct answer: {{answer}}",
+      playerStatus: {
+        dontKnow: "Didn't know",
+        correctAnswer: "Correct answer",
+        correctButAccused: "Correct answer but accused",
+        liarNotAccused: "Lied without being accused",
+        liarAccused: "Lied and accused"
+      },
+      accuserStatus: {
+        correctAccusation: "Correct accusation",
+        wrongAccusation: "Wrong accusation",
+        against: "against {{name}}"
+      }
     },
     neverHaveIEverHot: {
       never: "Never have I ever",
@@ -245,10 +294,15 @@ export default {
       prepare: "Get ready to answer!",
       submit: "Submit",
       next: "Next round",
+      endGame: "End game",
       errorSubmit: "Unable to submit answer",
       endTitle: "Congratulations everyone!",
-      endSubtitle: "You finished the Never Have I Ever 🔥 game",
-      home: "Back to home"
+      endSubtitle: "You finished the Never Have I Ever 🔞 game",
+      home: "Back to home",
+      readAloud: "Read the question aloud",
+      targetReads: "{{name}} reads the question",
+      noQuestions: "No questions available",
+      errorNext: "An error occurred when moving to the next round"
     }
   },
 
@@ -257,6 +311,26 @@ export default {
     title: 'Nightly',
     subtitle: 'Get ready to play',
     loading: 'Loading...',
+  },
+
+  // Rules translations
+  rules: {
+    title: 'GAME RULES',
+    loading: 'Loading rules...',
+    confirm: 'I have read the rules',
+    confirmStart: 'I have read the rules, start the game',
+    general: {
+      title: 'GENERAL RULES',
+      description: 'A player is randomly designated each turn.'
+    },
+    participation: {
+      title: 'PARTICIPATION',
+      description: 'All players must actively participate.'
+    },
+    scoring: {
+      title: 'SCORING',
+      description: 'Points are awarded according to the specific rules of the game.'
+    }
   },
 
   room: {
@@ -283,7 +357,9 @@ export default {
     successCopy: "Code copied to clipboard",
     minPlayers: "At least 2 players are required to start the game.",
     allReady: "All players are ready!",
-    waiting: "Waiting for other players..."
+    waiting: "Waiting for other players...",
+    title: "GAME ROOM",
+    rounds: "rounds"
   },
 
   topBar: {
@@ -366,5 +442,6 @@ export default {
       annual: '29.99',
       currency: '$'
     },
+    freeTrial: 'Free 3 days',
   },
 }; 

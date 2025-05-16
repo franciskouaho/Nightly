@@ -7,9 +7,11 @@ export function useGame(gameId: string) {
   const db = getFirestore();
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(doc(db, 'games', gameId), (doc) => {
-      if (doc.exists()) {
-        setGameState(doc.data() as GameState);
+    if (!gameId) return;
+    
+    const unsubscribe = onSnapshot(doc(db, 'games', gameId), (docSnap) => {
+      if (docSnap.exists()) {
+        setGameState(docSnap.data() as GameState);
       }
     });
 
@@ -17,6 +19,8 @@ export function useGame(gameId: string) {
   }, [gameId]);
 
   const updateGameState = async (newState: Partial<GameState>) => {
+    if (!gameId) return;
+    
     try {
       const gameRef = doc(db, 'games', gameId);
       await updateDoc(gameRef, newState as { [key: string]: any });

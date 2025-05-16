@@ -45,4 +45,3 @@ yarn-error.*
 app-example
 /.idea/
 /.idea/*
-/cloud-functions/serviceAccountKey.json

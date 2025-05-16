@@ -79,7 +79,7 @@ export default {
       title: 'Pass Premium',
       try: 'Prova premium',
       free: 'Gratis 3 giorni',
-      price: 'poi 5,99€ a settimana',
+      price: 'poi 3,99€ a settimana',
       features: {
         unlock: 'Sblocca tutte le modalità',
         weekly: 'Nuovo pacchetto ogni settimana',
@@ -228,27 +228,57 @@ export default {
     geniusOrLiar: {
       know: "Lo so!",
       dontKnow: "Non lo so",
-      accuse: "Accusa",
-      skip: "Passa",
+      accuse: "Accusare",
+      skip: "Salta",
       submit: "Invia",
-      next: "Prossimo round",
+      next: "Prossimo turno",
+      validate: "Conferma",
+      answerPlaceholder: "Scrivi la tua risposta qui...",
       errorSubmit: "Impossibile inviare la risposta",
       errorVote: "Impossibile inviare l'accusa",
-      errorNext: "Errore nel passare al round successivo",
-      endTitle: "Fine della partita!",
-      endSubtitle: "Grazie per aver giocato a Genio o Bugiardo!"
+      errorNext: "Si è verificato un errore durante il passaggio al turno successivo",
+      endTitle: "Fine del gioco!",
+      endSubtitle: "Grazie per aver giocato a Genio o Bugiardo!",
+      noQuestions: "Nessuna domanda disponibile",
+      allQuestionsUsed: "Tutte le domande sono state utilizzate",
+      waitingForPlayers: "In attesa degli altri giocatori...",
+      chooseGameMode: "Scegli la modalità di gioco",
+      pointsMode: "MODALITÀ PUNTI",
+      gagesMode: "MODALITÀ PENITENZE",
+      accuseTitle: "Accusa qualcuno di mentire!",
+      accuseNoOne: "Non voglio accusare nessuno",
+      pretendKnows: "Afferma di sapere",
+      accusedBy: "Accusato da {{count}} giocatore/i",
+      correctAnswer: "Risposta corretta: {{answer}}",
+      playerStatus: {
+        dontKnow: "Non lo sapeva",
+        correctAnswer: "Risposta corretta",
+        correctButAccused: "Risposta corretta ma accusato",
+        liarNotAccused: "Ha mentito senza essere accusato",
+        liarAccused: "Ha mentito ed è stato accusato"
+      },
+      accuserStatus: {
+        correctAccusation: "Accusa corretta",
+        wrongAccusation: "Accusa sbagliata",
+        against: "contro {{name}}"
+      }
     },
     neverHaveIEverHot: {
-      never: "Mai",
-      ever: "Sì",
-      waiting: "In attesa della scelta del giocatore obiettivo...",
+      never: "Non ho mai",
+      ever: "Ho già",
+      waiting: "In attesa della scelta del giocatore bersaglio...",
       prepare: "Preparati a rispondere!",
       submit: "Invia",
-      next: "Prossimo round",
+      next: "Prossimo turno",
+      endGame: "Termina il gioco",
       errorSubmit: "Impossibile inviare la risposta",
       endTitle: "Congratulazioni a tutti!",
-      endSubtitle: "Hai completato la partita di Mai Mai 🔥!",
-      home: "Torna alla home"
+      endSubtitle: "Avete terminato la partita di 'Non ho mai 🔞'",
+      home: "Torna alla home",
+      readAloud: "Leggi la domanda ad alta voce",
+      targetReads: "{{name}} legge la domanda",
+      noQuestions: "Nessuna domanda disponibile",
+      errorNext: "Si è verificato un errore durante il passaggio al turno successivo"
     }
   },
 
@@ -257,6 +287,26 @@ export default {
     title: 'Nightly',
     subtitle: 'Preparati a giocare',
     loading: 'Caricamento...',
+  },
+
+  // Regole
+  rules: {
+    title: 'REGOLE DEL GIOCO',
+    loading: 'Caricamento delle regole...',
+    confirm: 'Ho letto le regole',
+    confirmStart: 'Ho letto le regole, inizia il gioco',
+    general: {
+      title: 'REGOLE GENERALI',
+      description: 'Un giocatore viene designato casualmente ad ogni turno.'
+    },
+    participation: {
+      title: 'PARTECIPAZIONE',
+      description: 'Tutti i giocatori devono partecipare attivamente.'
+    },
+    scoring: {
+      title: 'PUNTEGGIO',
+      description: 'I punti vengono assegnati secondo le regole specifiche del gioco.'
+    }
   },
 
   room: {
@@ -283,7 +333,8 @@ export default {
     successCopy: "Codice copiato negli appunti",
     minPlayers: "Sono necessari almeno 2 giocatori per iniziare la partita.",
     allReady: "Tutti i giocatori sono pronti!",
-    waiting: "In attesa di altri giocatori..."
+    waiting: "In attesa di altri giocatori...",
+    title: "STANZA DI GIOCO"
   },
 
   paywall: {
@@ -357,6 +408,7 @@ export default {
       monthly: '7,99',
       annual: '29,99',
       currency: '€'
-    }
+    },
+    freeTrial: 'Gratis 3 giorni',
   },
 }; 
