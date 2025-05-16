@@ -333,7 +333,8 @@ export default {
     successCopy: "Codice copiato negli appunti",
     minPlayers: "Sono necessari almeno 2 giocatori per iniziare la partita.",
     allReady: "Tutti i giocatori sono pronti!",
-    waiting: "In attesa di altri giocatori..."
+    waiting: "In attesa di altri giocatori...",
+    title: "STANZA DI GIOCO"
   },
 
   paywall: {

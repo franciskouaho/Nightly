@@ -313,7 +313,8 @@ export default {
     successCopy: "Code in Zwischenablage kopiert",
     minPlayers: "Mindestens 2 Spieler benötigt, um das Spiel zu starten.",
     allReady: "Alle Spieler sind bereit!",
-    waiting: "Warte auf andere Spieler..."
+    waiting: "Warte auf andere Spieler...",
+    title: "SPIELRAUM"
   },
 
   paywall: {

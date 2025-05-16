@@ -357,7 +357,8 @@ export default {
     successCopy: "Code copied to clipboard",
     minPlayers: "At least 2 players are required to start the game.",
     allReady: "All players are ready!",
-    waiting: "Waiting for other players..."
+    waiting: "Waiting for other players...",
+    title: "GAME ROOM"
   },
 
   topBar: {

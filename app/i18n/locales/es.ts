@@ -333,7 +333,8 @@ export default {
     successCopy: "Código copiado al portapapeles",
     minPlayers: "Se necesitan al menos 2 jugadores para comenzar la partida.",
     allReady: "¡Todos los jugadores están listos!",
-    waiting: "Esperando a otros jugadores..."
+    waiting: "Esperando a otros jugadores...",
+    title: "SALA DE JUEGO"
   },
 
   paywall: {
