@@ -358,7 +358,8 @@ export default {
     minPlayers: "Il faut au moins 2 joueurs pour démarrer la partie.",
     allReady: "Tous les joueurs sont prêts !",
     waiting: "En attente des autres joueurs...",
-    title: "SALLE DE JEU"
+    title: "SALLE DE JEU",
+    rounds: "tours"
   },
 
   topBar: {
