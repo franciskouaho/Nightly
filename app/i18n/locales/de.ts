@@ -232,23 +232,53 @@ export default {
       skip: "Überspringen",
       submit: "Absenden",
       next: "Nächste Runde",
+      validate: "Bestätigen",
+      answerPlaceholder: "Schreibe deine Antwort hier...",
       errorSubmit: "Antwort konnte nicht gesendet werden",
-      errorVote: "Anschuldigung konnte nicht gesendet werden",
-      errorNext: "Fehler beim Wechsel zur nächsten Runde",
+      errorVote: "Anklage konnte nicht gesendet werden",
+      errorNext: "Beim Wechsel zur nächsten Runde ist ein Fehler aufgetreten",
       endTitle: "Spiel beendet!",
-      endSubtitle: "Danke fürs Spielen von Genie oder Lügner!"
+      endSubtitle: "Danke fürs Spielen von Genie oder Lügner!",
+      noQuestions: "Keine Fragen verfügbar",
+      allQuestionsUsed: "Alle Fragen wurden bereits verwendet",
+      waitingForPlayers: "Warten auf andere Spieler...",
+      chooseGameMode: "Wähle deinen Spielmodus",
+      pointsMode: "PUNKTE-MODUS",
+      gagesMode: "PFAND-MODUS",
+      accuseTitle: "Beschuldige jemanden zu lügen!",
+      accuseNoOne: "Ich will niemanden beschuldigen",
+      pretendKnows: "Behauptet es zu wissen",
+      accusedBy: "Beschuldigt von {{count}} Spieler(n)",
+      correctAnswer: "Richtige Antwort: {{answer}}",
+      playerStatus: {
+        dontKnow: "Wusste es nicht",
+        correctAnswer: "Richtige Antwort",
+        correctButAccused: "Richtige Antwort aber beschuldigt",
+        liarNotAccused: "Hat gelogen ohne beschuldigt zu werden",
+        liarAccused: "Hat gelogen und wurde beschuldigt"
+      },
+      accuserStatus: {
+        correctAccusation: "Richtige Anklage",
+        wrongAccusation: "Falsche Anklage",
+        against: "gegen {{name}}"
+      }
     },
     neverHaveIEverHot: {
-      never: "Noch nie",
-      ever: "Schon mal",
-      waiting: "Warte auf die Wahl des Zielspielers...",
+      never: "Ich habe noch nie",
+      ever: "Ich habe schon",
+      waiting: "Warten auf die Wahl des Zielspielers...",
       prepare: "Mach dich bereit zu antworten!",
       submit: "Absenden",
       next: "Nächste Runde",
-      errorSubmit: "Antwort konnte nicht gesendet werden",
+      endGame: "Spiel beenden",
+      errorSubmit: "Antwort konnte nicht übermittelt werden",
       endTitle: "Glückwunsch an alle!",
-      endSubtitle: "Ihr habt das Noch Nie 🔥 Spiel beendet",
-      home: "Zurück zum Start"
+      endSubtitle: "Ihr habt das 'Ich habe noch nie 🔞' Spiel beendet",
+      home: "Zurück zum Hauptmenü",
+      readAloud: "Lies die Frage laut vor",
+      targetReads: "{{name}} liest die Frage",
+      noQuestions: "Keine Fragen verfügbar",
+      errorNext: "Beim Übergang zur nächsten Runde ist ein Fehler aufgetreten"
     }
   },
 

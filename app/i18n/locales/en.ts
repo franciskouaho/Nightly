@@ -256,11 +256,36 @@ export default {
       skip: "Skip",
       submit: "Submit",
       next: "Next round",
-      errorSubmit: "Unable to submit answer",
-      errorVote: "Unable to submit accusation",
-      errorNext: "An error occurred while moving to the next round",
+      validate: "Validate",
+      answerPlaceholder: "Write your answer here...",
+      errorSubmit: "Failed to submit answer",
+      errorVote: "Failed to submit accusation",
+      errorNext: "An error occurred when moving to the next round",
       endTitle: "Game over!",
-      endSubtitle: "Thanks for playing Genius or Liar!"
+      endSubtitle: "Thanks for playing Genius or Liar!",
+      noQuestions: "No questions available",
+      allQuestionsUsed: "All questions have been used",
+      waitingForPlayers: "Waiting for other players...",
+      chooseGameMode: "Choose your game mode",
+      pointsMode: "POINTS MODE",
+      gagesMode: "PENALTY MODE",
+      accuseTitle: "Accuse someone of lying!",
+      accuseNoOne: "I don't want to accuse anyone",
+      pretendKnows: "Claims to know",
+      accusedBy: "Accused by {{count}} player(s)",
+      correctAnswer: "Correct answer: {{answer}}",
+      playerStatus: {
+        dontKnow: "Didn't know",
+        correctAnswer: "Correct answer",
+        correctButAccused: "Correct answer but accused",
+        liarNotAccused: "Lied without being accused",
+        liarAccused: "Lied and accused"
+      },
+      accuserStatus: {
+        correctAccusation: "Correct accusation",
+        wrongAccusation: "Wrong accusation",
+        against: "against {{name}}"
+      }
     },
     neverHaveIEverHot: {
       never: "Never have I ever",
@@ -269,10 +294,15 @@ export default {
       prepare: "Get ready to answer!",
       submit: "Submit",
       next: "Next round",
+      endGame: "End game",
       errorSubmit: "Unable to submit answer",
       endTitle: "Congratulations everyone!",
-      endSubtitle: "You finished the Never Have I Ever 🔥 game",
-      home: "Back to home"
+      endSubtitle: "You finished the Never Have I Ever 🔞 game",
+      home: "Back to home",
+      readAloud: "Read the question aloud",
+      targetReads: "{{name}} reads the question",
+      noQuestions: "No questions available",
+      errorNext: "An error occurred when moving to the next round"
     }
   },
 

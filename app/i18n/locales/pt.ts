@@ -232,23 +232,53 @@ export default {
       skip: "Pular",
       submit: "Enviar",
       next: "Próxima rodada",
-      errorSubmit: "Não foi possível enviar a resposta",
-      errorVote: "Não foi possível enviar a acusação",
-      errorNext: "Erro ao passar para a próxima rodada",
-      endTitle: "Fim da partida!",
-      endSubtitle: "Obrigado por jogar Gênio ou Mentirosos!"
+      validate: "Validar",
+      answerPlaceholder: "Escreva sua resposta aqui...",
+      errorSubmit: "Falha ao enviar resposta",
+      errorVote: "Falha ao enviar acusação",
+      errorNext: "Ocorreu um erro ao passar para a próxima rodada",
+      endTitle: "Fim de jogo!",
+      endSubtitle: "Obrigado por jogar Gênio ou Mentiroso!",
+      noQuestions: "Nenhuma pergunta disponível",
+      allQuestionsUsed: "Todas as perguntas foram usadas",
+      waitingForPlayers: "Aguardando outros jogadores...",
+      chooseGameMode: "Escolha seu modo de jogo",
+      pointsMode: "MODO PONTOS",
+      gagesMode: "MODO PENALIDADES",
+      accuseTitle: "Acuse alguém de mentir!",
+      accuseNoOne: "Não quero acusar ninguém",
+      pretendKnows: "Afirma saber",
+      accusedBy: "Acusado por {{count}} jogador(es)",
+      correctAnswer: "Resposta correta: {{answer}}",
+      playerStatus: {
+        dontKnow: "Não sabia",
+        correctAnswer: "Resposta correta",
+        correctButAccused: "Resposta correta mas acusado",
+        liarNotAccused: "Mentiu sem ser acusado",
+        liarAccused: "Mentiu e foi acusado"
+      },
+      accuserStatus: {
+        correctAccusation: "Acusação correta",
+        wrongAccusation: "Acusação errada",
+        against: "contra {{name}}"
+      }
     },
     neverHaveIEverHot: {
-      never: "Nunca",
-      ever: "Já",
+      never: "Eu nunca",
+      ever: "Eu já",
       waiting: "Aguardando a escolha do jogador alvo...",
       prepare: "Prepare-se para responder!",
       submit: "Enviar",
       next: "Próxima rodada",
+      endGame: "Terminar jogo",
       errorSubmit: "Não foi possível enviar a resposta",
       endTitle: "Parabéns a todos!",
-      endSubtitle: "Vocês completaram a partida de Nunca Nunca 🔥!",
-      home: "Voltar ao início"
+      endSubtitle: "Vocês terminaram o jogo Eu Nunca 🔞",
+      home: "Voltar para o início",
+      readAloud: "Leia a pergunta em voz alta",
+      targetReads: "{{name}} lê a pergunta",
+      noQuestions: "Nenhuma pergunta disponível",
+      errorNext: "Ocorreu um erro ao passar para a próxima rodada"
     }
   },
 
