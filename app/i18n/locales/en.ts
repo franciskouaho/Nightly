@@ -202,16 +202,21 @@ export default {
       home: "Home",
       calculating: "Calculating results..."
     },
+    player: 'the player',
     listenButDontJudge: {
       waiting: "Waiting for other players...",
+      waitingVote: "Waiting for the target player's vote...",
       submit: "Submit",
       vote: "Vote",
       next: "Next round",
+      voteTitle: "Choose the best answer",
+      answerPlaceholder: "Write your answer here...",
+      round: "Round",
       errorSubmit: "Unable to submit answer",
       errorVote: "Unable to submit vote",
-      errorNext: "An error occurred while moving to the next round",
+      errorNext: "An error occurred when moving to the next round",
       noQuestions: "No questions available",
-      endTitle: "Game over!",
+      endTitle: "End of the game!",
       endSubtitle: "Thanks for playing!"
     },
     truthOrDare: {
