@@ -283,6 +283,26 @@ export default {
     loading: 'Chargement...',
   },
 
+  // Règles
+  rules: {
+    title: 'RÈGLES DU JEU',
+    loading: 'Chargement des règles...',
+    confirm: 'J\'ai lu les règles',
+    confirmStart: 'J\'ai lu les règles, démarrer la partie',
+    general: {
+      title: 'RÈGLES GÉNÉRALES',
+      description: 'Un joueur est désigné aléatoirement à chaque tour.'
+    },
+    participation: {
+      title: 'PARTICIPATION',
+      description: 'Tous les joueurs doivent participer activement.'
+    },
+    scoring: {
+      title: 'SCORING',
+      description: 'Les points sont attribués selon les règles spécifiques du jeu.'
+    }
+  },
+
   room: {
     loading: "Chargement de la salle...",
     notFound: "Salle introuvable",

@@ -283,6 +283,26 @@ export default {
     loading: 'Loading...',
   },
 
+  // Rules translations
+  rules: {
+    title: 'GAME RULES',
+    loading: 'Loading rules...',
+    confirm: 'I have read the rules',
+    confirmStart: 'I have read the rules, start the game',
+    general: {
+      title: 'GENERAL RULES',
+      description: 'A player is randomly designated each turn.'
+    },
+    participation: {
+      title: 'PARTICIPATION',
+      description: 'All players must actively participate.'
+    },
+    scoring: {
+      title: 'SCORING',
+      description: 'Points are awarded according to the specific rules of the game.'
+    }
+  },
+
   room: {
     loading: "Loading room...",
     notFound: "Room not found",

@@ -126,7 +126,7 @@ const RulesDrawer = ({ visible, onClose, onConfirm, gameId, isStartingGame }: Ru
         >
           <View style={styles.inner}>
             <View style={styles.header}>
-              <Text style={styles.title}>{t('rules.title', 'RÈGLES DU JEU')}</Text>
+              <Text style={styles.title}>{t('rules.title')}</Text>
               <TouchableOpacity onPress={onClose}>
                 <Ionicons name="close" size={24} color="#fff" />
               </TouchableOpacity>
@@ -134,7 +134,7 @@ const RulesDrawer = ({ visible, onClose, onConfirm, gameId, isStartingGame }: Ru
 
             <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
               {loading ? (
-                <Text style={styles.loadingText}>{t('rules.loading', 'Chargement des règles...')}</Text>
+                <Text style={styles.loadingText}>{t('rules.loading')}</Text>
               ) : (
                 rules.map((rule, index) => (
                   <View key={index} style={styles.ruleCard}>
@@ -155,8 +155,8 @@ const RulesDrawer = ({ visible, onClose, onConfirm, gameId, isStartingGame }: Ru
               >
                 <Text style={styles.confirmButtonText}>
                   {isStartingGame 
-                    ? t('rules.confirmStart', "J'ai lu les règles, démarrer la partie") 
-                    : t('rules.confirm', "J'ai lu les règles")}
+                    ? t('rules.confirmStart') 
+                    : t('rules.confirm')}
                 </Text>
               </TouchableOpacity>
             )}

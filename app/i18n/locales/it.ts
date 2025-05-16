@@ -259,6 +259,26 @@ export default {
     loading: 'Caricamento...',
   },
 
+  // Regole
+  rules: {
+    title: 'REGOLE DEL GIOCO',
+    loading: 'Caricamento delle regole...',
+    confirm: 'Ho letto le regole',
+    confirmStart: 'Ho letto le regole, inizia il gioco',
+    general: {
+      title: 'REGOLE GENERALI',
+      description: 'Un giocatore viene designato casualmente ad ogni turno.'
+    },
+    participation: {
+      title: 'PARTECIPAZIONE',
+      description: 'Tutti i giocatori devono partecipare attivamente.'
+    },
+    scoring: {
+      title: 'PUNTEGGIO',
+      description: 'I punti vengono assegnati secondo le regole specifiche del gioco.'
+    }
+  },
+
   room: {
     loading: "Caricamento stanza...",
     notFound: "Stanza non trovata",

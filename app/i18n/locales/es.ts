@@ -259,6 +259,26 @@ export default {
     loading: 'Cargando...',
   },
 
+  // Reglas
+  rules: {
+    title: 'REGLAS DEL JUEGO',
+    loading: 'Cargando reglas...',
+    confirm: 'He leído las reglas',
+    confirmStart: 'He leído las reglas, iniciar el juego',
+    general: {
+      title: 'REGLAS GENERALES',
+      description: 'Un jugador es designado aleatoriamente en cada turno.'
+    },
+    participation: {
+      title: 'PARTICIPACIÓN',
+      description: 'Todos los jugadores deben participar activamente.'
+    },
+    scoring: {
+      title: 'PUNTUACIÓN',
+      description: 'Los puntos se otorgan según las reglas específicas del juego.'
+    }
+  },
+
   room: {
     loading: "Cargando sala...",
     notFound: "Sala no encontrada",
