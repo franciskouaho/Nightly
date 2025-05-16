@@ -13,6 +13,7 @@ interface RoundedButtonProps {
   style?: any;
   textStyle?: any;
   icon?: React.ReactNode;
+  gradientColors?: string[];
 }
 
 const RoundedButton: React.FC<RoundedButtonProps> = ({
@@ -24,7 +25,8 @@ const RoundedButton: React.FC<RoundedButtonProps> = ({
   disabled = false,
   style,
   textStyle,
-  icon
+  icon,
+  gradientColors = ['#D80B96', '#B707A7', '#A90BB2', '#8E08C1']
 }) => {
   return (
     <TouchableOpacity
@@ -34,7 +36,7 @@ const RoundedButton: React.FC<RoundedButtonProps> = ({
       activeOpacity={0.8}
     >
       <LinearGradient
-        colors={['#D80B96', '#B707A7', '#A90BB2', '#8E08C1']}
+        colors={gradientColors}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
         style={styles.button}

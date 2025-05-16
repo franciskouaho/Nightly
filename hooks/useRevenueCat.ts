@@ -3,22 +3,24 @@ import { Platform } from 'react-native';
 import Purchases, { CustomerInfo, PurchasesOffering } from 'react-native-purchases';
 
 const APIKeys = {
-    apple: 'appl_BUWsmlSbbbxzCqsmloqsfKcvUVa',
-    google: 'goog_xyOWWvvgJbmzWHJLVGdlXdYavbQ',
+    apple: 'appl_lWSGnBCBjhRvOLwThHnorabYvWj',
+    google: 'goog_fmXTvmeWmNHvZXpxTiSMMWzhJze',
 };
 
 const typesOfMembership = {
-    weekly: 'ngt_weekly',
-    monthly: 'ngt_monthly',
-    yearly: 'ngt_yearly',
+    weekly: 'ngtly_pass',
+    monthly: 'ngtly_party',
+    yearly: 'ngtly_all_acces',
 };
 
 function useRevenueCat() {
     const [currentOffering, setCurrentOffering] = useState<PurchasesOffering | null>(null);
     const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
 
-    const isProMember = customerInfo?.activeSubscriptions?.includes(typesOfMembership.monthly) ||
-        customerInfo?.activeSubscriptions?.includes(typesOfMembership.yearly);
+    const isProMember =
+        customerInfo?.activeSubscriptions?.includes(typesOfMembership.monthly) ||
+        customerInfo?.activeSubscriptions?.includes(typesOfMembership.yearly) ||
+        customerInfo?.activeSubscriptions?.includes(typesOfMembership.weekly);
 
 
     useEffect(() => {

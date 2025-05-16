@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, SafeAreaView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -9,13 +9,18 @@ import { Player } from '@/types/gameTypes';
 import { getFirestore, doc, getDoc } from '@react-native-firebase/firestore';
 import RoundedButton from '@/components/RoundedButton';
 import { useTranslation } from 'react-i18next';
+import { useInAppReview } from '@/hooks/useInAppReview';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type PlayerScore = Player & { score: number };
 
 export default function GameResultsScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
+  const gameId = typeof id === 'string' ? id : id?.[0] || '';
+  const { requestReview } = useInAppReview();
   const { t } = useTranslation();
+  const { isRTL } = useLanguage();
   
   const [players, setPlayers] = useState<PlayerScore[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,6 +35,8 @@ export default function GameResultsScreen() {
         const gameSnap = await getDoc(gameRef);
         if (!gameSnap.exists()) return;
         const data = gameSnap.data();
+        if (!data) return;
+        
         const scores: Record<string, number> = data.scores || {};
         const playersRaw = data.players || [];
         const players: PlayerScore[] = playersRaw.map((p: any) => ({
@@ -110,7 +117,7 @@ export default function GameResultsScreen() {
         <StatusBar style="light" />
         <LinearGradient
           colors={['#1a0933', '#321a5e']}
-          style={styles.background}
+          style={StyleSheet.absoluteFillObject}
         />
         <View style={styles.loadingContainer}>
           <Text style={styles.loadingText}>{t('game.results.calculating')}</Text>
@@ -122,40 +129,42 @@ export default function GameResultsScreen() {
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
-      
-      <LinearGradient
-        colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
-        locations={[0, 0.2, 0.5, 0.8, 1]}
-        style={styles.background}
+      <LinearGradient 
+        colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]} 
+        style={StyleSheet.absoluteFillObject}
       />
-      
-      <Confetti ref={ref => setConfettiRef(ref)} />
-      
-      <View style={styles.header}>
-        <Text style={styles.title}>{t('game.results.title')}</Text>
-        <Text style={styles.subtitle}>
-          {players.length > 0 ? t('game.results.bravo', { name: players[0].name }) : t('game.results.subtitle')}
-        </Text>
-      </View>
-      
-      <View style={styles.resultsContainer}>
-        <FlatList
-          data={players}
-          renderItem={renderPlayerItem}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContent}
-        />
-      </View>
-      
-      <View style={styles.buttonsContainer}>
-        <RoundedButton
-          title={t('game.results.home')}
-          onPress={handleReturnHome}
-          style={[styles.button]}
-          textStyle={styles.buttonText}
-          icon={<Ionicons name="home" size={18} color="#fff" style={styles.buttonIcon} />}
-        />
-      </View>
+      <SafeAreaView style={styles.safeArea}>
+        {/* @ts-ignore - Le type de Confetti a des problèmes de compatibilité avec React */}
+        <Confetti ref={ref => setConfettiRef(ref)} />
+        
+        <View style={styles.header}>
+          <Text style={styles.title}>{t('game.results.title')}</Text>
+          <Text style={styles.subtitle}>
+            {players.length > 0 && players[0]?.name ? 
+              t('game.results.bravo', { name: players[0].name }) 
+              : t('game.results.subtitle')}
+          </Text>
+        </View>
+        
+        <View style={styles.resultsContainer}>
+          <FlatList
+            data={players}
+            renderItem={renderPlayerItem}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.listContent}
+          />
+        </View>
+        
+        <View style={styles.buttonsContainer}>
+          <RoundedButton
+            title={t('game.results.home')}
+            onPress={handleReturnHome}
+            style={[styles.button]}
+            textStyle={styles.buttonText}
+            icon={<Ionicons name="home" size={18} color="#fff" style={styles.buttonIcon} />}
+          />
+        </View>
+      </SafeAreaView>
     </View>
   );
 }
@@ -293,5 +302,8 @@ const styles = StyleSheet.create({
   },
   buttonIcon: {
     marginRight: 8,
+  },
+  safeArea: {
+    flex: 1,
   },
 });

@@ -10,11 +10,14 @@ import ResultsPhase from '@/components/game/ResultsPhase';
 import { useInAppReview } from '@/hooks/useInAppReview';
 import { useListenButDontJudgeAnalytics } from '@/hooks/useListenButDontJudgeAnalytics';
 import { useTranslation } from 'react-i18next';
+import { useLanguage } from '@/contexts/LanguageContext';
+import i18n from '@/app/i18n/i18n';
 
 interface Player {
   id: string;
   name: string;
   avatar: string;
+  username?: string;
 }
 
 interface GameState {
@@ -44,6 +47,7 @@ export default function ListenButDontJudgeScreen() {
   const { requestReview } = useInAppReview();
   const gameAnalytics = useListenButDontJudgeAnalytics();
   const { t } = useTranslation();
+  const { getGameContent } = useLanguage();
   const [game, setGame] = useState<GameState | null>(null);
   const [loading, setLoading] = useState(true);
   const [answer, setAnswer] = useState('');
@@ -164,17 +168,21 @@ export default function ListenButDontJudgeScreen() {
       } else {
         nextTarget = game.players[0];
       }
-
-      // Récupère les questions
-      const questionsRef = doc(db, 'gameQuestions', 'listen-but-don-t-judge');
-      const questionsDoc = await getDoc(questionsRef);
       
-      if (!questionsDoc.exists()) {
-        Alert.alert(t('game.error'), t('game.listenButDontJudge.noQuestions'));
-        return;
+      // Vérifier que le nom du joueur cible est bien défini
+      if (nextTarget && !nextTarget.name) {
+        console.error('Erreur: Joueur cible sans nom défini', nextTarget);
+        // Utiliser le nom du profil ou une valeur par défaut
+        nextTarget.name = nextTarget.username || t('game.player', 'the player');
       }
 
-      const questions = questionsDoc.data()?.questions;
+      // Récupère les questions dans la langue actuelle
+      const gameContent = await getGameContent('listen-but-don-t-judge');
+      const questions = gameContent.questions;
+      
+      console.log('Questions disponibles:', questions);
+      console.log('Langue actuelle:', i18n.language);
+      console.log('Joueur cible sélectionné:', nextTarget);
       
       if (!questions || !Array.isArray(questions) || questions.length === 0) {
         Alert.alert(t('game.error'), t('game.listenButDontJudge.noQuestions'));
@@ -183,16 +191,20 @@ export default function ListenButDontJudgeScreen() {
 
       // Prend une question aléatoire
       const nextQuestion = questions[Math.floor(Math.random() * questions.length)];
+      console.log('Question sélectionnée:', nextQuestion);
       
       if (!nextQuestion) {
         Alert.alert(t('game.error'), t('game.listenButDontJudge.noQuestions'));
         return;
       }
 
+      // Normaliser la question
+      const normalizedQuestion = normalizeQuestion(nextQuestion);
+
       await updateDoc(gameRef, {
         currentRound: (game.currentRound || 1) + 1,
         targetPlayer: nextTarget,
-        currentQuestion: typeof nextQuestion === 'string' ? { text: nextQuestion } : nextQuestion,
+        currentQuestion: normalizedQuestion,
         answers: [],
         votes: {},
         phase: 'question'
@@ -203,15 +215,61 @@ export default function ListenButDontJudgeScreen() {
     }
   };
 
+  // Fonction utilitaire pour formater le texte de la question et remplacer le joueur
+  const formatQuestionText = (question: string | { text: string }, playerName: string) => {
+    const questionText = typeof question === 'string' ? question : question.text || '';
+    
+    // Debug des valeurs
+    console.log('Question originale:', questionText);
+    console.log('Nom du joueur à insérer:', playerName);
+    
+    // Faire le remplacement avec une expression régulière pour tous les formats possibles
+    // Cela capturera {playerName}, {player_name}, {player}, etc.
+    const formattedText = questionText.replace(/\{player(?:Name|_name|name|)\}/gi, playerName);
+    
+    console.log('Question formatée:', formattedText);
+    
+    return formattedText;
+  };
+
+  // Fonction pour normaliser la structure d'une question et s'assurer qu'elle est utilisable
+  const normalizeQuestion = (question: any) => {
+    console.log('Normalisation de la question:', question);
+    
+    // Si c'est une chaîne directe
+    if (typeof question === 'string') {
+      return { text: question };
+    }
+    
+    // Si c'est un objet avec une propriété text
+    if (question && typeof question === 'object' && typeof question.text === 'string') {
+      return question;
+    }
+    
+    // Si c'est un objet sans propriété text
+    if (question && typeof question === 'object') {
+      // Tentons de trouver une propriété qui pourrait contenir le texte
+      for (const key of Object.keys(question)) {
+        if (typeof question[key] === 'string') {
+          return { text: question[key] };
+        }
+      }
+    }
+    
+    // Si on ne peut pas normaliser, utiliser un texte par défaut
+    console.error('Question non normalisable:', question);
+    return { text: t('game.listenButDontJudge.noQuestions', 'Aucune question disponible') };
+  };
+
   if (loading) {
     return (
       <View style={styles.container}>
-        <LinearGradient 
+        <StatusBar style="light" />
+        <LinearGradient
           colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
           locations={[0, 0.2, 0.5, 0.8, 1]}
-          style={styles.background} 
+          style={StyleSheet.absoluteFillObject}
         />
-        <ActivityIndicator size="large" color="#fff" />
         <Text style={styles.loadingText}>{t('game.loading')}</Text>
       </View>
     );
@@ -237,10 +295,10 @@ export default function ListenButDontJudgeScreen() {
       keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
     >
       <StatusBar style="light" />
-      <LinearGradient 
+      <LinearGradient
         colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
         locations={[0, 0.2, 0.5, 0.8, 1]}
-        style={styles.background} 
+        style={StyleSheet.absoluteFillObject}
       />
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
         <View style={[styles.content, { flex: 1 }]}>
@@ -254,7 +312,7 @@ export default function ListenButDontJudgeScreen() {
               />
             </View>
             <Text style={styles.progressText}>
-              {t('game.listenButDontJudge.round')} {game.currentRound}/{game.totalRounds}
+              {game.currentRound}/{game.totalRounds}
             </Text>
           </View>
           {game.phase === 'question' && (
@@ -262,16 +320,15 @@ export default function ListenButDontJudgeScreen() {
               <View style={styles.questionContainer}>
                 <View style={styles.questionCard}>
                   <Text style={styles.questionText}>
-                    {typeof game.currentQuestion === 'string'
-                      ? game.currentQuestion.replace('{playerName}', game.targetPlayer?.name || 'le joueur')
-                      : (game.currentQuestion?.text
-                          ? game.currentQuestion.text.replace('{playerName}', game.targetPlayer?.name || 'le joueur')
-                          : '')}
+                    {formatQuestionText(
+                      normalizeQuestion(game.currentQuestion), 
+                      game.targetPlayer?.name || game.targetPlayer?.username || t('game.player', 'the player')
+                    )}
                   </Text>
                 </View>
                 <TextInput
                   style={styles.input}
-                  placeholder={t('game.listenButDontJudge.answerPlaceholder')}
+                  placeholder={t('game.listenButDontJudge.answerPlaceholder', "Écrivez votre réponse ici...")}
                   placeholderTextColor="#666"
                   value={answer}
                   onChangeText={setAnswer}
@@ -279,7 +336,7 @@ export default function ListenButDontJudgeScreen() {
                   maxLength={200}
                 />
                 <RoundedButton
-                  title={t('game.listenButDontJudge.submit')}
+                  title={t('game.listenButDontJudge.submit', "Soumettre")}
                   onPress={handleSubmitAnswer}
                   disabled={isSubmitting || !answer.trim()}
                   style={styles.submitButton}
@@ -289,7 +346,7 @@ export default function ListenButDontJudgeScreen() {
               <View style={styles.questionContainer}>
                 <View style={styles.questionCard}>
                   <Text style={styles.waitingText}>
-                    {t('game.listenButDontJudge.waiting')}
+                    {t('game.listenButDontJudge.waiting', "En attente des autres joueurs...")}
                   </Text>
                 </View>
               </View>
@@ -300,14 +357,13 @@ export default function ListenButDontJudgeScreen() {
               <View style={styles.voteContainer}>
                 <View style={styles.questionCard}>
                   <Text style={styles.questionText}>
-                    {typeof game.currentQuestion === 'string'
-                      ? game.currentQuestion.replace('{playerName}', game.targetPlayer?.name || 'le joueur')
-                      : (game.currentQuestion?.text
-                          ? game.currentQuestion.text.replace('{playerName}', game.targetPlayer?.name || 'le joueur')
-                          : '')}
+                    {formatQuestionText(
+                      normalizeQuestion(game.currentQuestion), 
+                      game.targetPlayer?.name || game.targetPlayer?.username || t('game.player', 'the player')
+                    )}
                   </Text>
                 </View>
-                <Text style={styles.voteTitle}>{t('game.listenButDontJudge.voteTitle')}</Text>
+                <Text style={styles.voteTitle}>{t('game.listenButDontJudge.voteTitle', "Choisissez la meilleure réponse")}</Text>
                 {game.answers.map((answer) => (
                   <RoundedButton
                     key={answer.id}
@@ -321,7 +377,7 @@ export default function ListenButDontJudgeScreen() {
               <View style={styles.voteContainer}>
                 <View style={styles.questionCard}>
                   <Text style={styles.waitingText}>
-                    {t('game.listenButDontJudge.waitingVote')}
+                    {t('game.listenButDontJudge.waitingVote', "En attente du vote du joueur cible...")}
                   </Text>
                 </View>
               </View>
@@ -333,14 +389,16 @@ export default function ListenButDontJudgeScreen() {
               scores={game.scores}
               players={game.players}
               question={(() => {
-                const q = typeof game.currentQuestion === 'string'
-                  ? { text: game.currentQuestion }
-                  : (game.currentQuestion && typeof game.currentQuestion === 'object')
-                    ? game.currentQuestion
-                    : { text: '' };
+                // Normaliser et formatter la question
+                const normalizedQuestion = normalizeQuestion(game.currentQuestion);
+                const formattedText = formatQuestionText(
+                  normalizedQuestion,
+                  game.targetPlayer?.name || game.targetPlayer?.username || t('game.player', 'the player')
+                );
+                
                 return {
                   id: '1',
-                  text: typeof q.text === 'string' ? q.text : '',
+                  text: formattedText,
                   theme: typeof game.theme === 'string' ? game.theme : '',
                   roundNumber: game.currentRound || 1
                 };

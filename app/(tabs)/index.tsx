@@ -13,6 +13,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React from 'react';
 import { collection, query, where, getDocs, getFirestore, doc, updateDoc } from '@react-native-firebase/firestore';
 import { useTranslation } from 'react-i18next';
+import useRevenueCat from '@/hooks/useRevenueCat';
+import PaywallModal from '@/components/PaywallModal';
 
 interface Room {
   id?: string;
@@ -51,10 +53,20 @@ export default function HomeScreen() {
   const [loading, setLoading] = React.useState(false);
   const { t } = useTranslation();
   const [error, setError] = React.useState('');
+  const { isProMember } = useRevenueCat();
+  const [paywallVisible, setPaywallVisible] = React.useState(false);
 
   useEffect(() => {
     console.log('🔄 État de création de salle:', isCreatingRoom);
   }, [isCreatingRoom]);
+
+  useEffect(() => {
+    if (!isProMember) {
+      setPaywallVisible(true);
+    } else {
+      setPaywallVisible(false);
+    }
+  }, [isProMember]);
 
   const getUserDisplayName = (user: any) => {
     if (!user) return "Joueur";
@@ -269,6 +281,10 @@ export default function HomeScreen() {
   
   const renderGameModeCard = (game: GameMode, isGridItem = false) => {
     const handlePress = async () => {
+      if (game.premium && !isProMember) {
+        setPaywallVisible(true);
+        return;
+      }
       console.log('🖱️ Clic sur le mode de jeu:', game.name);
       console.log('📊 État de création:', isCreatingRoom);
       
@@ -456,6 +472,7 @@ export default function HomeScreen() {
           </View>
         </ScrollView>
       </LinearGradient>
+      <PaywallModal isVisible={paywallVisible} onClose={() => setPaywallVisible(false)} />
       {loading && (
         <View style={{
           position: 'absolute',

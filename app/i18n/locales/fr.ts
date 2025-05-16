@@ -79,7 +79,7 @@ export default {
       title: 'Passe Premium',
       try: 'Essayer le premium',
       free: 'Gratuit 3 jours',
-      price: 'puis 5,99€ par semaine',
+      price: 'puis 3,99€ par semaine',
       features: {
         unlock: 'Débloque tous les modes',
         weekly: 'Un nouveau pack chaque semaine',
@@ -202,11 +202,16 @@ export default {
       home: "Accueil",
       calculating: "Calcul des résultats..."
     },
+    player: 'le joueur',
     listenButDontJudge: {
       waiting: "En attente des autres joueurs...",
+      waitingVote: "En attente du vote du joueur cible...",
       submit: "Soumettre",
       vote: "Voter",
       next: "Tour suivant",
+      voteTitle: "Choisissez la meilleure réponse",
+      answerPlaceholder: "Écrivez votre réponse ici...",
+      round: "Tour",
       errorSubmit: "Impossible de soumettre la réponse",
       errorVote: "Impossible de soumettre le vote",
       errorNext: "Une erreur est survenue lors du passage au tour suivant",
@@ -217,8 +222,27 @@ export default {
     truthOrDare: {
       truth: "Vérité !",
       dare: "Action !",
-      submit: "Soumettre",
+      chooseTask: "Choisis ton défi",
+      isThinking: "réfléchit...",
+      willChoose: "Va-t-il choisir",
+      or: "ou",
+      action: "Action",
+      iAnswered: "J'ai répondu",
+      iRefuse: "Je refuse",
+      voteInProgress: "Vote en cours",
+      otherPlayersDecide: "Les autres joueurs décident si",
+      playedGame: "a relevé le défi",
+      vote: "Votez",
+      did: "Est-ce que",
+      yes: "Oui",
+      no: "Non",
+      thanksVote: "Merci pour votre vote !",
+      votes: "votes",
+      round: "Tour",
+      roundEnd: "Fin du tour pour",
+      scores: "Scores",
       next: "Tour suivant",
+      submit: "Soumettre",
       errorSubmit: "Impossible de soumettre la réponse",
       errorVote: "Impossible de soumettre le vote",
       errorNext: "Une erreur est survenue lors du passage au tour suivant",
@@ -232,11 +256,36 @@ export default {
       skip: "Passer",
       submit: "Soumettre",
       next: "Tour suivant",
+      validate: "Valider",
+      answerPlaceholder: "Écrivez votre réponse ici...",
       errorSubmit: "Impossible de soumettre la réponse",
       errorVote: "Impossible de soumettre l'accusation",
       errorNext: "Une erreur est survenue lors du passage au tour suivant",
       endTitle: "Fin de la partie !",
-      endSubtitle: "Merci d'avoir joué à Génie ou Menteur !"
+      endSubtitle: "Merci d'avoir joué à Génie ou Menteur !",
+      noQuestions: "Aucune question disponible",
+      allQuestionsUsed: "Toutes les questions ont été utilisées",
+      waitingForPlayers: "En attente des autres joueurs...",
+      chooseGameMode: "Choisissez votre mode de jeu",
+      pointsMode: "MODE POINTS",
+      gagesMode: "MODE GAGES",
+      accuseTitle: "Accuse quelqu'un de mentir !",
+      accuseNoOne: "Je ne veux accuser personne",
+      pretendKnows: "Prétend savoir",
+      accusedBy: "Accusé par {{count}} joueur(s)",
+      correctAnswer: "Réponse correcte : {{answer}}",
+      playerStatus: {
+        dontKnow: "Ne savait pas",
+        correctAnswer: "Bonne réponse",
+        correctButAccused: "Bonne réponse mais accusé",
+        liarNotAccused: "A menti sans être accusé",
+        liarAccused: "A menti et accusé"
+      },
+      accuserStatus: {
+        correctAccusation: "Bonne accusation",
+        wrongAccusation: "Accusation à tort",
+        against: "contre {{name}}"
+      }
     },
     neverHaveIEverHot: {
       never: "Je n'ai jamais",
@@ -245,10 +294,15 @@ export default {
       prepare: "Préparez-vous à répondre !",
       submit: "Soumettre",
       next: "Tour suivant",
+      endGame: "Terminer le jeu",
       errorSubmit: "Impossible de soumettre la réponse",
       endTitle: "Félicitations à tous !",
-      endSubtitle: "Vous avez terminé la partie Je n'ai jamais 🔥",
-      home: "Retour à l'accueil"
+      endSubtitle: "Vous avez terminé la partie Je n'ai jamais 🔞",
+      home: "Retour à l'accueil",
+      readAloud: "Lis la question à haute voix",
+      targetReads: "{{name}} lit la question",
+      noQuestions: "Aucune question disponible",
+      errorNext: "Une erreur est survenue lors du passage au tour suivant"
     }
   },
 
@@ -257,6 +311,26 @@ export default {
     title: 'Nightly',
     subtitle: 'Préparez-vous à jouer',
     loading: 'Chargement...',
+  },
+
+  // Règles
+  rules: {
+    title: 'RÈGLES DU JEU',
+    loading: 'Chargement des règles...',
+    confirm: 'J\'ai lu les règles',
+    confirmStart: 'J\'ai lu les règles, démarrer la partie',
+    general: {
+      title: 'RÈGLES GÉNÉRALES',
+      description: 'Un joueur est désigné aléatoirement à chaque tour.'
+    },
+    participation: {
+      title: 'PARTICIPATION',
+      description: 'Tous les joueurs doivent participer activement.'
+    },
+    scoring: {
+      title: 'SCORING',
+      description: 'Les points sont attribués selon les règles spécifiques du jeu.'
+    }
   },
 
   room: {
@@ -283,7 +357,9 @@ export default {
     successCopy: "Code copié dans le presse-papiers",
     minPlayers: "Il faut au moins 2 joueurs pour démarrer la partie.",
     allReady: "Tous les joueurs sont prêts !",
-    waiting: "En attente des autres joueurs..."
+    waiting: "En attente des autres joueurs...",
+    title: "SALLE DE JEU",
+    rounds: "tours"
   },
 
   topBar: {
@@ -359,6 +435,13 @@ export default {
         title: 'Erreur',
         message: 'Impossible d\'ouvrir les CGU'
       }
-    }
+    },
+    prices: {
+      weekly: '3,99',
+      monthly: '7,99',
+      annual: '29,99',
+      currency: '€'
+    },
+    freeTrial: 'Gratuit 3 jours',
   },
 }; 
