@@ -255,8 +255,8 @@ export default {
   // Splash Screen
   splash: {
     title: 'Nightly',
-    subtitle: 'Bereit zum Spielen',
-    loading: 'Laden...',
+    subtitle: 'Mach dich bereit zum Spielen',
+    loading: 'Wird geladen...',
   },
 
   room: {
@@ -359,5 +359,25 @@ export default {
       currency: '€'
     },
     freeTrial: 'Kostenlos 3 Tage',
+  },
+
+  // Regeln
+  rules: {
+    title: 'SPIELREGELN',
+    loading: 'Lade Regeln...',
+    confirm: 'Ich habe die Regeln gelesen',
+    confirmStart: 'Ich habe die Regeln gelesen, Spiel starten',
+    general: {
+      title: 'ALLGEMEINE REGELN',
+      description: 'Ein Spieler wird in jeder Runde zufällig bestimmt.'
+    },
+    participation: {
+      title: 'TEILNAHME',
+      description: 'Alle Spieler müssen aktiv teilnehmen.'
+    },
+    scoring: {
+      title: 'PUNKTEWERTUNG',
+      description: 'Punkte werden nach den spezifischen Regeln des Spiels vergeben.'
+    }
   },
 }; 
