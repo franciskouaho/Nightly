@@ -358,7 +358,8 @@ export default {
     minPlayers: "At least 2 players are required to start the game.",
     allReady: "All players are ready!",
     waiting: "Waiting for other players...",
-    title: "GAME ROOM"
+    title: "GAME ROOM",
+    rounds: "rounds"
   },
 
   topBar: {
