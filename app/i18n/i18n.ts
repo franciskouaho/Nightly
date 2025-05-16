@@ -1,6 +1,6 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import { getFirestore, doc, getDoc } from '@react-native-firebase/firestore';
 
 // Import des traductions
 import fr from './locales/fr';
@@ -56,16 +56,17 @@ export const changeLanguage = async (language: string) => {
 };
 
 // Fonction pour récupérer le contenu d'un jeu dans la langue actuelle
-export const getGameContent = async (gameId: string, db: any) => {
+export const getGameContent = async (gameId: string) => {
   try {
     const currentLanguage = i18n.language || 'fr';
+    const db = getFirestore();
     
     // Récupération des règles du jeu
     const rulesDoc = await getDoc(doc(db, 'rules', gameId));
     let rules = [];
     
     if (rulesDoc.exists()) {
-      const rulesData = rulesDoc.data();
+      const rulesData = rulesDoc.data() || { translations: {} };
       // Essayer d'obtenir les règles dans la langue actuelle, sinon utiliser le français
       rules = rulesData.translations[currentLanguage]?.rules || rulesData.translations['fr']?.rules || [];
     }
@@ -75,7 +76,7 @@ export const getGameContent = async (gameId: string, db: any) => {
     let questions = [];
     
     if (questionsDoc.exists()) {
-      const questionsData = questionsDoc.data();
+      const questionsData = questionsDoc.data() || { translations: {} };
       // Essayer d'obtenir les questions dans la langue actuelle, sinon utiliser le français
       questions = questionsData.translations[currentLanguage] || questionsData.translations['fr'] || [];
     }

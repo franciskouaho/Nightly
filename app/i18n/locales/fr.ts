@@ -256,11 +256,36 @@ export default {
       skip: "Passer",
       submit: "Soumettre",
       next: "Tour suivant",
+      validate: "Valider",
+      answerPlaceholder: "Écrivez votre réponse ici...",
       errorSubmit: "Impossible de soumettre la réponse",
       errorVote: "Impossible de soumettre l'accusation",
       errorNext: "Une erreur est survenue lors du passage au tour suivant",
       endTitle: "Fin de la partie !",
-      endSubtitle: "Merci d'avoir joué à Génie ou Menteur !"
+      endSubtitle: "Merci d'avoir joué à Génie ou Menteur !",
+      noQuestions: "Aucune question disponible",
+      allQuestionsUsed: "Toutes les questions ont été utilisées",
+      waitingForPlayers: "En attente des autres joueurs...",
+      chooseGameMode: "Choisissez votre mode de jeu",
+      pointsMode: "MODE POINTS",
+      gagesMode: "MODE GAGES",
+      accuseTitle: "Accuse quelqu'un de mentir !",
+      accuseNoOne: "Je ne veux accuser personne",
+      pretendKnows: "Prétend savoir",
+      accusedBy: "Accusé par {{count}} joueur(s)",
+      correctAnswer: "Réponse correcte : {{answer}}",
+      playerStatus: {
+        dontKnow: "Ne savait pas",
+        correctAnswer: "Bonne réponse",
+        correctButAccused: "Bonne réponse mais accusé",
+        liarNotAccused: "A menti sans être accusé",
+        liarAccused: "A menti et accusé"
+      },
+      accuserStatus: {
+        correctAccusation: "Bonne accusation",
+        wrongAccusation: "Accusation à tort",
+        against: "contre {{name}}"
+      }
     },
     neverHaveIEverHot: {
       never: "Je n'ai jamais",
@@ -269,10 +294,15 @@ export default {
       prepare: "Préparez-vous à répondre !",
       submit: "Soumettre",
       next: "Tour suivant",
+      endGame: "Terminer le jeu",
       errorSubmit: "Impossible de soumettre la réponse",
       endTitle: "Félicitations à tous !",
-      endSubtitle: "Vous avez terminé la partie Je n'ai jamais 🔥",
-      home: "Retour à l'accueil"
+      endSubtitle: "Vous avez terminé la partie Je n'ai jamais 🔞",
+      home: "Retour à l'accueil",
+      readAloud: "Lis la question à haute voix",
+      targetReads: "{{name}} lit la question",
+      noQuestions: "Aucune question disponible",
+      errorNext: "Une erreur est survenue lors du passage au tour suivant"
     }
   },
 
