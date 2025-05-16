@@ -1,10 +1,9 @@
 "use client"
 
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Animated } from 'react-native';
+import { View, Text, StyleSheet, Animated, Image, ImageBackground } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
 
@@ -44,25 +43,36 @@ export default function SplashScreen() {
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
-        locations={[0, 0.2, 0.5, 0.8, 1]}
+      <ImageBackground 
+        source={require('@/assets/splash/splash.png')}
         style={styles.background}
       >
-        <Animated.View 
-          style={[
-            styles.contentContainer,
-            { 
-              opacity: fadeAnim,
-              transform: [{ scale: scaleAnim }]
-            }
-          ]}
+        <LinearGradient
+          colors={["rgba(14, 17, 23, 0.7)", "rgba(14, 17, 23, 0.5)", "rgba(102, 26, 89, 0.5)", "rgba(14, 17, 23, 0.5)", "rgba(33, 16, 28, 0.7)"]}
+          locations={[0, 0.2, 0.5, 0.8, 1]}
+          style={styles.gradient}
         >
-          <Ionicons name="game-controller" size={80} color="#fff" />
-          <Text style={styles.title}>{t('splash.title')}</Text>
-          <Text style={styles.subtitle}>{t('splash.subtitle')}</Text>
-        </Animated.View>
-      </LinearGradient>
+          <Animated.View 
+            style={[
+              styles.contentContainer,
+              { 
+                opacity: fadeAnim,
+                transform: [{ scale: scaleAnim }]
+              }
+            ]}
+          >
+            <View style={styles.topContent}>
+              <View style={styles.mascoContainer}>
+                <Image source={require('@/assets/splash/mascotte.png')} style={styles.mascotte} />
+              </View>
+              <View style={styles.textContainer}>
+                <Text style={styles.title}>{t('splash.title')}</Text>
+                <Text style={styles.subtitle}>{t('splash.subtitle')}</Text>
+              </View>
+            </View>
+          </Animated.View>
+        </LinearGradient>
+      </ImageBackground>
     </View>
   );
 }
@@ -70,30 +80,61 @@ export default function SplashScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   background: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
+  gradient: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
   },
   contentContainer: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
+    paddingTop: 120,
+  },
+  topContent: {
+    alignItems: 'center',
+  },
+  mascoContainer: {
+    shadowColor: "#fff",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 15,
+    elevation: 10,
+  },
+  textContainer: {
+    shadowColor: "#fff",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+    elevation: 8,
+    alignItems: 'center',
+  },
+  mascotte: {
+    width: 120,
+    height: 120,
+    resizeMode: 'contain',
   },
   title: {
     fontSize: 40,
     fontWeight: 'bold',
     color: '#fff',
     marginTop: 20,
+    textShadowColor: 'rgba(255, 255, 255, 0.8)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 5,
   },
   subtitle: {
     fontSize: 18,
     color: 'rgba(255, 255, 255, 0.7)',
     marginTop: 10,
+    textShadowColor: 'rgba(255, 255, 255, 0.5)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 3,
   },
 });
