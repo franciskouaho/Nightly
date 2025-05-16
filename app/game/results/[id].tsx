@@ -117,7 +117,7 @@ export default function GameResultsScreen() {
         <StatusBar style="light" />
         <LinearGradient
           colors={['#1a0933', '#321a5e']}
-          style={styles.background}
+          style={StyleSheet.absoluteFillObject}
         />
         <View style={styles.loadingContainer}>
           <Text style={styles.loadingText}>{t('game.results.calculating')}</Text>

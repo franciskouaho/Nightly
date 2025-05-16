@@ -184,7 +184,9 @@ export default function TruthOrDareGameScreen() {
       const gameDuration = Date.now() - gameStartTime.current;
       
       // Track la fin du jeu
-      gameAnalytics.trackGameComplete(id, game.totalRounds, gameDuration);
+      if (id) {
+        gameAnalytics.trackGameComplete(String(id), game.totalRounds, gameDuration);
+      }
       
       const timeout = setTimeout(async () => {
         await requestReview();
@@ -210,7 +212,7 @@ export default function TruthOrDareGameScreen() {
       <LinearGradient
         colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
         locations={[0, 0.2, 0.5, 0.8, 1]}
-        style={styles.gradientBg}
+        style={StyleSheet.absoluteFillObject}
       >
         <StatusBar style="light" />
         <Text style={[styles.questionText, { fontSize: 30, marginBottom: 16 }]}>{t('game.truthOrDare.endTitle')}</Text>
@@ -234,7 +236,7 @@ export default function TruthOrDareGameScreen() {
             locations={[0, 0.2, 0.5, 0.8, 1]}
             style={StyleSheet.absoluteFillObject}
           />
-          <Text style={styles.playerText}>{player?.name || 'Joueur'}</Text>
+          <Text style={styles.playerText}>{player?.name || t('game.player', 'Joueur')}</Text>
           <Text style={styles.chooseTaskText}>{t('game.truthOrDare.chooseTask')}</Text>
           <View style={styles.choiceButtonsRow}>
             <TouchableOpacity style={[styles.truthButton, styles.skewLeft]} onPress={() => handleChoice('verite')}>
@@ -261,7 +263,7 @@ export default function TruthOrDareGameScreen() {
             <View style={styles.avatarCircle}>
               <Text style={styles.avatarText}>{(player?.name || 'Joueur').charAt(0).toUpperCase()}</Text>
             </View>
-            <Text style={styles.spectatorTitle}>{player?.name || 'Le joueur'} {t('game.truthOrDare.isThinking')}</Text>
+            <Text style={styles.spectatorTitle}>{player?.name || t('game.player', 'Le joueur')} {t('game.truthOrDare.isThinking')}</Text>
             <AnimatedEllipsis style={styles.ellipsis} />
             <Text style={styles.spectatorSubtitle}>{t('game.truthOrDare.willChoose')} <Text style={{color:'#7c3aed', fontWeight:'bold'}}>{t('game.truthOrDare.action')}</Text> {t('game.truthOrDare.or')} <Text style={{color:'#f59e42', fontWeight:'bold'}}>{t('game.truthOrDare.truth')}</Text>?</Text>
           </View>
@@ -322,7 +324,7 @@ export default function TruthOrDareGameScreen() {
   // PHASE 2.5 : Vote des autres joueurs
   if (game.phase === 'vote') {
     const player = game.players?.find((p: any) => String(p.id) === String(game.currentPlayerId));
-    const playerName = player?.name || 'Le joueur';
+    const playerName = player?.name || t('game.player', 'Le joueur');
     const totalVoters = game.players.length - 1;
     const votes = game.votes || {};
     const votesCount = Object.keys(votes).length;
@@ -354,6 +356,66 @@ export default function TruthOrDareGameScreen() {
         </View>
       );
     }
+    if (game.phase === 'vote' && !isCurrentPlayer) {
+      const player = game.players?.find((p: any) => String(p.id) === String(game.currentPlayerId));
+      const playerName = player?.name || t('game.player', 'Le joueur');
+      const totalVoters = game.players.length - 1;
+      const votes = game.votes || {};
+      const votesCount = Object.keys(votes).length;
+      const hasVoted = !!votes[user.uid];
+      
+      console.log('[DEBUG] État des votes pour le joueur actuel:', {
+        userUid: user.uid,
+        votes,
+        hasVoted,
+        votesCount,
+        totalVoters
+      });
+      
+      return (
+        <View style={styles.container}>
+          <StatusBar style="light" />
+          <LinearGradient
+            colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
+            locations={[0, 0.2, 0.5, 0.8, 1]}
+            style={StyleSheet.absoluteFillObject}
+          />
+          <View style={styles.voteCardShadow}>
+            <View style={[styles.voteCard, { backgroundColor: cardBgColor }]}>
+              <VoteProgressBar current={game.currentRound} total={game.totalRounds} />
+              <Text style={styles.voteTitle}>{t('game.truthOrDare.vote')}</Text>
+              <Text style={styles.voteSubtitle}>
+                {t('game.truthOrDare.did')} <Text style={{color: highlightColor, fontWeight: 'bold'}}>{playerName}</Text> {t('game.truthOrDare.playedGame')}?
+              </Text>
+              <View style={styles.voteButtons}>
+                <RoundedButton
+                  title={t('game.truthOrDare.yes')}
+                  onPress={() => handleVote('yes')}
+                  disabled={hasVoted}
+                  style={styles.voteButton}
+                  textStyle={styles.voteButtonText}
+                />
+                <RoundedButton
+                  title={t('game.truthOrDare.no')}
+                  onPress={() => handleVote('no')}
+                  disabled={hasVoted}
+                  style={styles.voteButton}
+                  textStyle={styles.voteButtonText}
+                />
+              </View>
+              {hasVoted && <Text style={styles.voteThanks}>{t('game.truthOrDare.thanksVote')}</Text>}
+              <Text style={styles.voteCount}>{votesCount} / {totalVoters} {t('game.truthOrDare.votes')}</Text>
+            </View>
+          </View>
+        </View>
+      );
+    }
+  }
+
+  // PHASE 3 : Résultat
+  if (game.phase === 'resultat') {
+    const player = game.players?.find((p: any) => String(p.id) === String(game.currentPlayerId));
+    const playerName = player?.name || t('game.player', 'Le joueur');
     return (
       <View style={styles.container}>
         <StatusBar style="light" />
@@ -362,44 +424,6 @@ export default function TruthOrDareGameScreen() {
           locations={[0, 0.2, 0.5, 0.8, 1]}
           style={StyleSheet.absoluteFillObject}
         />
-        <View style={styles.voteCardShadow}>
-          <View style={[styles.voteCard, { backgroundColor: cardBgColor }]}>
-            <VoteProgressBar current={game.currentRound} total={game.totalRounds} />
-            <Text style={styles.voteTitle}>{t('game.truthOrDare.vote')}</Text>
-            <Text style={styles.voteSubtitle}>
-              {t('game.truthOrDare.did')} <Text style={{color: highlightColor, fontWeight: 'bold'}}>{playerName}</Text> {t('game.truthOrDare.playedGame')}?
-            </Text>
-            <View style={styles.voteButtons}>
-              <RoundedButton
-                title={t('game.truthOrDare.yes')}
-                onPress={() => handleVote('yes')}
-                disabled={hasVoted}
-                style={styles.voteButton}
-                textStyle={styles.voteButtonText}
-              />
-              <RoundedButton
-                title={t('game.truthOrDare.no')}
-                onPress={() => handleVote('no')}
-                disabled={hasVoted}
-                style={styles.voteButton}
-                textStyle={styles.voteButtonText}
-              />
-            </View>
-            {hasVoted && <Text style={styles.voteThanks}>{t('game.truthOrDare.thanksVote')}</Text>}
-            <Text style={styles.voteCount}>{votesCount} / {totalVoters} {t('game.truthOrDare.votes')}</Text>
-          </View>
-        </View>
-      </View>
-    );
-  }
-
-  // PHASE 3 : Résultat
-  if (game.phase === 'resultat') {
-    const player = game.players?.find((p: any) => String(p.id) === String(game.currentPlayerId));
-    const playerName = player?.name || 'Le joueur';
-    return (
-      <View style={styles.container}>
-        <StatusBar style="light" />
         <Text style={styles.questionText}>{t('game.truthOrDare.round')} {game.currentRound} / {game.totalRounds}</Text>
         <Text style={styles.questionText}>{t('game.truthOrDare.roundEnd')} {playerName}</Text>
         {/* Affichage des scores */}
@@ -434,13 +458,28 @@ export default function TruthOrDareGameScreen() {
 
   // Fonction pour valider le vote
   const handleValidateVote = async () => {
-    if (!game || !user) return;
+    console.log('[DEBUG] handleValidateVote appelé');
+    if (!game || !user || !id) {
+      console.log('[DEBUG] handleValidateVote: conditions non remplies', {
+        gameExists: !!game,
+        userExists: !!user,
+        idExists: !!id
+      });
+      return;
+    }
     
     const db = getFirestore();
     const totalVoters = game.players.length - 1;
     const votes = game.votes || {};
     const yes = Object.values(votes).filter(v => v === 'yes').length;
     const no = Object.values(votes).filter(v => v === 'no').length;
+    
+    console.log('[DEBUG] Comptage des votes:', {
+      totalVoters,
+      votes,
+      yes,
+      no
+    });
     
     let points = 0;
     if (yes > no) points = 1;
@@ -464,20 +503,25 @@ export default function TruthOrDareGameScreen() {
     });
 
     if (!nextPlayer) {
-      console.error('Erreur: Impossible de trouver le prochain joueur');
+      console.error('[DEBUG] Erreur: Impossible de trouver le prochain joueur');
       return;
     }
 
-    // Met à jour le jeu avec les nouveaux scores et passe au tour suivant
-    await updateDoc(doc(db, 'games', String(id)), {
-      scores,
-      currentPlayerId: nextPlayer.id,
-      phase: 'choix',
-      currentChoice: null,
-      currentQuestion: null,
-      currentRound: game.currentRound + 1,
-      votes: {}
-    });
+    try {
+      // Met à jour le jeu avec les nouveaux scores et passe au tour suivant
+      await updateDoc(doc(db, 'games', String(id)), {
+        scores,
+        currentPlayerId: nextPlayer.id,
+        phase: 'choix',
+        currentChoice: null,
+        currentQuestion: null,
+        currentRound: game.currentRound + 1,
+        votes: {}
+      });
+      console.log('[DEBUG] Jeu mis à jour avec succès, passage au joueur suivant');
+    } catch (error) {
+      console.error('[DEBUG] Erreur lors de la mise à jour du jeu:', error);
+    }
   };
 
   // Timer pour le vote
@@ -509,12 +553,16 @@ export default function TruthOrDareGameScreen() {
     ) {
       const totalVoters = game.players.length - 1;
       const votes = game.votes || {};
-      console.log('[DEBUG] PHASE VOTE', {
+      const votesCount = Object.keys(votes).length;
+      
+      console.log('[DEBUG] Vérification des votes dans useEffect:', {
+        phase: game.phase,
+        voteHandled,
         totalVoters,
         votes,
-        votesCount: Object.keys(votes).length,
-        voteHandled
+        votesCount: Object.keys(votes).length
       });
+      
       if (Object.keys(votes).length === totalVoters && totalVoters > 0) {
         console.log('[DEBUG] Tous les votes sont là, on passe au tour suivant');
         setVoteHandled(true);
@@ -551,23 +599,24 @@ export default function TruthOrDareGameScreen() {
 
   // --- Handlers synchronisés ---
   async function handleChoice(choice: 'verite' | 'action') {
-    if (!game || !user) return;
+    if (!game || !user || !id) return;
     
     try {
       const db = getFirestore();
-      await updateDoc(doc(db, 'games', id), {
+      await updateDoc(doc(db, 'games', String(id)), {
         currentChoice: choice,
         phase: 'question'
       });
       
       // Track le choix
-      await gameAnalytics.trackChoice(id, choice);
+      await gameAnalytics.trackChoice(String(id), choice);
     } catch (error) {
       console.error('Erreur lors du choix:', error);
     }
   }
 
   async function handleValidate() {
+    if (!id) return;
     const db = getFirestore();
     await updateDoc(doc(db, 'games', String(id)), {
       phase: 'vote',
@@ -576,6 +625,7 @@ export default function TruthOrDareGameScreen() {
   }
 
   async function handleRefuse() {
+    if (!id) return;
     const db = getFirestore();
     await updateDoc(doc(db, 'games', String(id)), {
       phase: 'vote',
@@ -584,31 +634,53 @@ export default function TruthOrDareGameScreen() {
   }
 
   async function handleVote(vote: 'yes' | 'no') {
-    if (!game || !user) return;
+    console.log('[DEBUG] handleVote appelé avec vote:', vote, 'id:', id, 'user:', user?.uid);
+    if (!game || !user || !id) {
+      console.log('[DEBUG] Conditions non remplies:', {
+        gameExists: !!game,
+        userExists: !!user,
+        idExists: !!id
+      });
+      return;
+    }
     
     try {
       const db = getFirestore();
-      const voteField = game.spectators?.includes(user.uid) ? 'spectatorVotes' : 'votes';
-      await updateDoc(doc(db, 'games', id), {
+      // On vérifie si l'utilisateur est un spectateur
+      // Comme la propriété 'spectators' n'existe pas dans TruthOrDareGameState, 
+      // on utilise une vérification du joueur dans la liste des joueurs
+      const isSpectator = !game.players.some((p: any) => String(p.id) === String(user.uid));
+      const voteField = isSpectator ? 'spectatorVotes' : 'votes';
+      
+      console.log('[DEBUG] Vote en cours:', {
+        isSpectator,
+        voteField,
+        currentVotes: game[voteField] || {},
+        userVote: vote
+      });
+      
+      await updateDoc(doc(db, 'games', String(id)), {
         [voteField]: {
-          ...game[voteField],
+          ...(game[voteField] || {}),
           [user.uid]: vote
         }
       });
       
+      console.log('[DEBUG] Vote enregistré avec succès');
+      
       // Track le vote
-      await gameAnalytics.trackVote(id, vote, user.uid);
+      await gameAnalytics.trackVote(String(id), vote, user.uid);
     } catch (error) {
-      console.error('Erreur lors du vote:', error);
+      console.error('[DEBUG] Erreur lors du vote:', error);
     }
   }
 
   async function handleNextRound() {
-    if (!game) return;
+    if (!game || !id) return;
     
     try {
       const db = getFirestore();
-      await updateDoc(doc(db, 'games', id), {
+      await updateDoc(doc(db, 'games', String(id)), {
         currentRound: game.currentRound + 1,
         phase: 'choice',
         currentChoice: null,
@@ -617,7 +689,7 @@ export default function TruthOrDareGameScreen() {
       });
       
       // Track la fin du round
-      await gameAnalytics.trackRoundComplete(id, game.currentRound, game.totalRounds);
+      await gameAnalytics.trackRoundComplete(String(id), game.currentRound, game.totalRounds);
     } catch (error) {
       console.error('Erreur lors du passage au round suivant:', error);
     }
@@ -798,6 +870,20 @@ const styles = StyleSheet.create({
   skewTextRight: {
     transform: [{ skewX: '-2deg' }],
   },
+  gradientButton: {
+    width: '100%',
+    borderRadius: 18,
+    paddingVertical: 18,
+    marginBottom: 0,
+    backgroundColor: 'transparent',
+    overflow: 'hidden',
+  },
+  gradientButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
   gradientBg: {
     flex: 1,
     justifyContent: 'center',
@@ -881,26 +967,6 @@ const styles = StyleSheet.create({
     height: 270,
     width: '100%',
     zIndex: 0,
-  },
-  gradientButton: {
-    width: '100%',
-    borderRadius: 18,
-    paddingVertical: 18,
-    marginBottom: 0,
-    backgroundColor: 'transparent',
-    overflow: 'hidden',
-  },
-  gradientButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  background: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
   },
   spectatorChoiceContainer: {
     alignItems: 'center',
