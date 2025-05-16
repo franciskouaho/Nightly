@@ -467,28 +467,32 @@ export default function RoomScreen() {
         style={styles.background}
       >
         <View style={styles.topBar}>      
-          <TouchableOpacity onPress={handleLeaveRoom} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="white" />
-          </TouchableOpacity>
-
-          <View style={styles.topBarTitleContainer}>
-            <Text style={styles.topBarTitle}>{room.name?.toUpperCase()}</Text>
-          </View>
-
-          <View style={styles.rightContainer}>
-            <TouchableOpacity
-                  style={styles.iconButton}
-                  onPress={handleInviteFriend}
-                >
-              <LinearGradient
-                colors={["#A259FF", "#C471F5"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={{ borderRadius: 12, padding: 7 }}
-              >
-                <Ionicons name="qr-code" size={22} color="white" />
-              </LinearGradient>
+          <View style={styles.topBarRow}>
+            <TouchableOpacity onPress={handleLeaveRoom} style={styles.backButton}>
+              <Ionicons name="arrow-back" size={24} color="white" />
             </TouchableOpacity>
+
+            <View style={styles.rightContainer}>
+              <TouchableOpacity
+                    style={styles.iconButton}
+                    onPress={handleInviteFriend}
+                  >
+                <LinearGradient
+                  colors={["#A259FF", "#C471F5"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={{ borderRadius: 12, padding: 7 }}
+                >
+                  <Ionicons name="qr-code" size={22} color="white" />
+                </LinearGradient>
+              </TouchableOpacity>
+            </View>
+          </View>
+          
+          <View style={styles.topBarTitleContainer}>
+            <Text style={styles.topBarTitle}>
+              {t('room.title')} - {t(`home.games.${room.gameId}.name`, { defaultValue: room.name?.toUpperCase() })}
+            </Text>
           </View>
         </View>
 
@@ -605,12 +609,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   topBar: {
+    paddingHorizontal: 20,
+    paddingTop: 50,
+    paddingBottom: 10,
+  },
+  topBarRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 50,
-    paddingBottom: 20,
+    width: '100%',
+    marginBottom: 8,
   },
   backButton: {
     width: 40,
@@ -619,9 +627,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   topBarTitleContainer: {
-    flex: 1,
+    width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 5,
   },
   topBarTitle: {
     color: '#fff',
@@ -629,6 +638,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textTransform: 'uppercase',
     letterSpacing: 1,
+    textAlign: 'center',
   },
   shareButton: {
     padding: 8,

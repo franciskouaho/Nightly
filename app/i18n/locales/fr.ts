@@ -357,7 +357,8 @@ export default {
     successCopy: "Code copié dans le presse-papiers",
     minPlayers: "Il faut au moins 2 joueurs pour démarrer la partie.",
     allReady: "Tous les joueurs sont prêts !",
-    waiting: "En attente des autres joueurs..."
+    waiting: "En attente des autres joueurs...",
+    title: "SALLE DE JEU"
   },
 
   topBar: {
