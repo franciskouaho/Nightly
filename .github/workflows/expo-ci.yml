@@ -20,9 +20,10 @@ jobs:
           node-version: '20'
           cache: 'yarn'
 
-      - name: Setup Yarn
+      - name: Setup Yarn avec Corepack
         run: |
           corepack enable
+          corepack prepare yarn@4.8.1 --activate
           yarn --version
 
       - name: Install dependencies
