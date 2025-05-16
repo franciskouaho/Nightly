@@ -264,12 +264,12 @@ export default function ListenButDontJudgeScreen() {
   if (loading) {
     return (
       <View style={styles.container}>
-        <LinearGradient 
+        <StatusBar style="light" />
+        <LinearGradient
           colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
           locations={[0, 0.2, 0.5, 0.8, 1]}
-          style={styles.background} 
+          style={StyleSheet.absoluteFillObject}
         />
-        <ActivityIndicator size="large" color="#fff" />
         <Text style={styles.loadingText}>{t('game.loading')}</Text>
       </View>
     );
@@ -295,10 +295,10 @@ export default function ListenButDontJudgeScreen() {
       keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
     >
       <StatusBar style="light" />
-      <LinearGradient 
+      <LinearGradient
         colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
         locations={[0, 0.2, 0.5, 0.8, 1]}
-        style={StyleSheet.absoluteFillObject} 
+        style={StyleSheet.absoluteFillObject}
       />
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
         <View style={[styles.content, { flex: 1 }]}>
