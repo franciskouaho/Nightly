@@ -202,11 +202,16 @@ export default {
       home: "Accueil",
       calculating: "Calcul des résultats..."
     },
+    player: 'le joueur',
     listenButDontJudge: {
       waiting: "En attente des autres joueurs...",
+      waitingVote: "En attente du vote du joueur cible...",
       submit: "Soumettre",
       vote: "Voter",
       next: "Tour suivant",
+      voteTitle: "Choisissez la meilleure réponse",
+      answerPlaceholder: "Écrivez votre réponse ici...",
+      round: "Tour",
       errorSubmit: "Impossible de soumettre la réponse",
       errorVote: "Impossible de soumettre le vote",
       errorNext: "Une erreur est survenue lors du passage au tour suivant",

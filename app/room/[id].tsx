@@ -12,6 +12,7 @@ import InviteModal from '@/components/room/InviteModal';
 import RoundedButton from '@/components/RoundedButton';
 import Avatar from '@/components/Avatar';
 import { useTranslation } from 'react-i18next';
+import i18n from '@/app/i18n/i18n';
 
 // Type pour l'utilisateur
 interface User {
@@ -282,10 +283,17 @@ export default function RoomScreen() {
       }
       
       const data = questionsDoc.data();
-      const questions = data?.questions;
+      // Récupération des questions dans la langue actuelle
+      const translations = data?.translations || {};
+      const currentLanguage = i18n.language || 'fr';
+      const questions = translations[currentLanguage] || translations.fr || [];
+      
       if (!questions || questions.length === 0) {
+        console.error('Structure de données:', data);
         throw new Error('Aucune question disponible pour ce mode de jeu');
       }
+
+      console.log(`Questions trouvées pour ${room.gameId} (${currentLanguage}):`, questions.length);
 
       // 2. Créer le document de jeu
       const gameRef = doc(collection(db, 'games'));
@@ -293,7 +301,8 @@ export default function RoomScreen() {
       
       const firstQuestion: Question = {
         id: '1',
-        text: questions[0],
+        // Adapter selon la structure - certains jeux ont des objets, d'autres des strings
+        text: typeof questions[0] === 'string' ? questions[0] : questions[0].text || '',
         theme: room.gameId,
         roundNumber: 1
       };

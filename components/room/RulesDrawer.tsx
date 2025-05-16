@@ -3,6 +3,8 @@ import { View, Text, Modal, TouchableOpacity, ScrollView, StyleSheet, Animated, 
 import { Ionicons } from '@expo/vector-icons';
 import { doc, getDoc, getFirestore } from '@react-native-firebase/firestore';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTranslation } from 'react-i18next';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type RulesDrawerProps = {
   visible: boolean;
@@ -24,12 +26,14 @@ const RulesDrawer = ({ visible, onClose, onConfirm, gameId, isStartingGame }: Ru
   const slideAnimation = useRef(new Animated.Value(0)).current;
   const [rules, setRules] = useState<GameRule[]>([]);
   const [loading, setLoading] = useState(true);
+  const { t } = useTranslation();
+  const { language } = useLanguage();
 
   useEffect(() => {
     if (visible && gameId) {
       fetchRules();
     }
-  }, [visible, gameId]);
+  }, [visible, gameId, language]);
 
   const fetchRules = async () => {
     try {
@@ -39,23 +43,28 @@ const RulesDrawer = ({ visible, onClose, onConfirm, gameId, isStartingGame }: Ru
       
       if (rulesDoc.exists()) {
         const data = rulesDoc.data();
-        setRules(data?.rules ?? []);
+        // Récupérer les règles dans la langue actuelle, avec fallback sur le français
+        const currentLangRules = data?.translations?.[language]?.rules || data?.translations?.fr?.rules || [];
+        setRules(currentLangRules);
+        
+        console.log(`Règles trouvées (${language}):`, currentLangRules.length);
       } else {
+        console.error('Aucune règle trouvée pour ce mode de jeu dans Firestore');
         // Règles par défaut si aucune règle n'est trouvée
         setRules([
           {
-            title: "RÈGLES GÉNÉRALES",
-            description: "Un joueur est désigné aléatoirement à chaque tour.",
+            title: t('rules.general.title', "RÈGLES GÉNÉRALES"),
+            description: t('rules.general.description', "Un joueur est désigné aléatoirement à chaque tour."),
             emoji: "🎲"
           },
           {
-            title: "PARTICIPATION",
-            description: "Tous les joueurs doivent participer activement.",
+            title: t('rules.participation.title', "PARTICIPATION"),
+            description: t('rules.participation.description', "Tous les joueurs doivent participer activement."),
             emoji: "👥"
           },
           {
-            title: "SCORING",
-            description: "Les points sont attribués selon les règles spécifiques du jeu.",
+            title: t('rules.scoring.title', "SCORING"),
+            description: t('rules.scoring.description', "Les points sont attribués selon les règles spécifiques du jeu."),
             emoji: "🏆"
           }
         ]);
@@ -117,7 +126,7 @@ const RulesDrawer = ({ visible, onClose, onConfirm, gameId, isStartingGame }: Ru
         >
           <View style={styles.inner}>
             <View style={styles.header}>
-              <Text style={styles.title}>RÈGLES DU JEU</Text>
+              <Text style={styles.title}>{t('rules.title', 'RÈGLES DU JEU')}</Text>
               <TouchableOpacity onPress={onClose}>
                 <Ionicons name="close" size={24} color="#fff" />
               </TouchableOpacity>
@@ -125,7 +134,7 @@ const RulesDrawer = ({ visible, onClose, onConfirm, gameId, isStartingGame }: Ru
 
             <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
               {loading ? (
-                <Text style={styles.loadingText}>Chargement des règles...</Text>
+                <Text style={styles.loadingText}>{t('rules.loading', 'Chargement des règles...')}</Text>
               ) : (
                 rules.map((rule, index) => (
                   <View key={index} style={styles.ruleCard}>
@@ -145,7 +154,9 @@ const RulesDrawer = ({ visible, onClose, onConfirm, gameId, isStartingGame }: Ru
                 onPress={onConfirm}
               >
                 <Text style={styles.confirmButtonText}>
-                  {isStartingGame ? "J'ai lu les règles, démarrer la partie" : "J'ai lu les règles"}
+                  {isStartingGame 
+                    ? t('rules.confirmStart', "J'ai lu les règles, démarrer la partie") 
+                    : t('rules.confirm', "J'ai lu les règles")}
                 </Text>
               </TouchableOpacity>
             )}

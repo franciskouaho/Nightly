@@ -227,12 +227,13 @@ export default function TruthOrDareGameScreen() {
     if (isCurrentPlayer) {
       const player = game.players?.find((p: any) => String(p.id) === String(game.currentPlayerId));
       return (
-        <LinearGradient
-          colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
-          locations={[0, 0.2, 0.5, 0.8, 1]}
-          style={styles.background}
-        >
+        <View style={styles.container}>
           <StatusBar style="light" />
+          <LinearGradient
+            colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
+            locations={[0, 0.2, 0.5, 0.8, 1]}
+            style={StyleSheet.absoluteFillObject}
+          />
           <Text style={styles.playerText}>{player?.name || 'Joueur'}</Text>
           <Text style={styles.chooseTaskText}>{t('game.truthOrDare.chooseTask')}</Text>
           <View style={styles.choiceButtonsRow}>
@@ -243,17 +244,18 @@ export default function TruthOrDareGameScreen() {
               <Text style={[styles.choiceButtonText, styles.skewTextRight]}>{t('game.truthOrDare.dare')}</Text>
             </TouchableOpacity>
           </View>
-        </LinearGradient>
+        </View>
       );
     } else {
       const player = game.players?.find((p: any) => String(p.id) === String(game.currentPlayerId));
       return (
-        <LinearGradient
-          colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
-          locations={[0, 0.2, 0.5, 0.8, 1]}
-          style={styles.background}
-        >
+        <View style={styles.container}>
           <StatusBar style="light" />
+          <LinearGradient
+            colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
+            locations={[0, 0.2, 0.5, 0.8, 1]}
+            style={StyleSheet.absoluteFillObject}
+          />
           <View style={styles.spectatorChoiceContainer}>
             {/* Avatar cercle avec initiale du joueur */}
             <View style={styles.avatarCircle}>
@@ -263,7 +265,7 @@ export default function TruthOrDareGameScreen() {
             <AnimatedEllipsis style={styles.ellipsis} />
             <Text style={styles.spectatorSubtitle}>{t('game.truthOrDare.willChoose')} <Text style={{color:'#7c3aed', fontWeight:'bold'}}>{t('game.truthOrDare.action')}</Text> {t('game.truthOrDare.or')} <Text style={{color:'#f59e42', fontWeight:'bold'}}>{t('game.truthOrDare.truth')}</Text>?</Text>
           </View>
-        </LinearGradient>
+        </View>
       );
     }
   }
@@ -281,12 +283,13 @@ export default function TruthOrDareGameScreen() {
       questionText = "Aucune question disponible pour ce choix.";
     }
     return (
-      <LinearGradient
-        colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
-        locations={[0, 0.2, 0.5, 0.8, 1]}
-        style={styles.background}
-      >
+      <View style={styles.container}>
         <StatusBar style="light" />
+        <LinearGradient
+          colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
+          locations={[0, 0.2, 0.5, 0.8, 1]}
+          style={StyleSheet.absoluteFillObject}
+        />
         <CardStack>
           <QuestionCard
             playerName={playerName}
@@ -312,7 +315,7 @@ export default function TruthOrDareGameScreen() {
             />
           </View>
         )}
-      </LinearGradient>
+      </View>
     );
   }
 
@@ -330,11 +333,13 @@ export default function TruthOrDareGameScreen() {
     const cardBgColor = 'rgba(75,39,125,0.60)';
     if (isCurrentPlayer) {
       return (
-        <LinearGradient
-          colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
-          locations={[0, 0.2, 0.5, 0.8, 1]}
-          style={styles.background}
-        >
+        <View style={styles.container}>
+          <StatusBar style="light" />
+          <LinearGradient
+            colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
+            locations={[0, 0.2, 0.5, 0.8, 1]}
+            style={StyleSheet.absoluteFillObject}
+          />
           <View style={styles.voteCardShadow}>
             <View style={[styles.voteCard, { backgroundColor: cardBgColor }]}>
               <VoteProgressBar current={game.currentRound} total={game.totalRounds} />
@@ -346,15 +351,17 @@ export default function TruthOrDareGameScreen() {
               <Text style={styles.voteCount}>{votesCount} / {totalVoters} {t('game.truthOrDare.votes')}</Text>
             </View>
           </View>
-        </LinearGradient>
+        </View>
       );
     }
     return (
-      <LinearGradient
-        colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
-        locations={[0, 0.2, 0.5, 0.8, 1]}
-        style={styles.background}
-      >
+      <View style={styles.container}>
+        <StatusBar style="light" />
+        <LinearGradient
+          colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
+          locations={[0, 0.2, 0.5, 0.8, 1]}
+          style={StyleSheet.absoluteFillObject}
+        />
         <View style={styles.voteCardShadow}>
           <View style={[styles.voteCard, { backgroundColor: cardBgColor }]}>
             <VoteProgressBar current={game.currentRound} total={game.totalRounds} />
@@ -382,7 +389,7 @@ export default function TruthOrDareGameScreen() {
             <Text style={styles.voteCount}>{votesCount} / {totalVoters} {t('game.truthOrDare.votes')}</Text>
           </View>
         </View>
-      </LinearGradient>
+      </View>
     );
   }
 

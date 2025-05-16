@@ -35,6 +35,8 @@ export default function GameResultsScreen() {
         const gameSnap = await getDoc(gameRef);
         if (!gameSnap.exists()) return;
         const data = gameSnap.data();
+        if (!data) return;
+        
         const scores: Record<string, number> = data.scores || {};
         const playersRaw = data.players || [];
         const players: PlayerScore[] = playersRaw.map((p: any) => ({
@@ -125,18 +127,22 @@ export default function GameResultsScreen() {
   }
   
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.container}>
       <StatusBar style="light" />
       <LinearGradient 
         colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]} 
-        style={[styles.container, isRTL && { direction: 'rtl' }]}
-      >
+        style={StyleSheet.absoluteFillObject}
+      />
+      <SafeAreaView style={styles.safeArea}>
+        {/* @ts-ignore - Le type de Confetti a des problèmes de compatibilité avec React */}
         <Confetti ref={ref => setConfettiRef(ref)} />
         
         <View style={styles.header}>
           <Text style={styles.title}>{t('game.results.title')}</Text>
           <Text style={styles.subtitle}>
-            {players.length > 0 ? t('game.results.bravo', { name: players[0].name }) : t('game.results.subtitle')}
+            {players.length > 0 && players[0]?.name ? 
+              t('game.results.bravo', { name: players[0].name }) 
+              : t('game.results.subtitle')}
           </Text>
         </View>
         
@@ -158,8 +164,8 @@ export default function GameResultsScreen() {
             icon={<Ionicons name="home" size={18} color="#fff" style={styles.buttonIcon} />}
           />
         </View>
-      </LinearGradient>
-    </SafeAreaView>
+      </SafeAreaView>
+    </View>
   );
 }
 
