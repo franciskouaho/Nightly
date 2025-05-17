@@ -64,7 +64,7 @@ export const useFirebaseAnalytics = () => {
       await analytics().logShare({
         content_type: contentType,
         item_id: itemId,
-        method,
+        method: method || 'unknown',
       });
     } catch (error) {
       console.error('Erreur lors de la journalisation du partage Firebase:', error);
@@ -110,19 +110,19 @@ export const useFirebaseAnalytics = () => {
   }, []);
 
   // Événements de progression
-  const logLevelStart = useCallback(async (levelName: string) => {
+  const logLevelStart = useCallback(async (levelName: number) => {
     try {
-      await analytics().logLevelStart({ level_name: levelName });
+      await analytics().logLevelStart({ level: levelName });
     } catch (error) {
       console.error('Erreur lors de la journalisation du début de niveau Firebase:', error);
     }
   }, []);
 
-  const logLevelEnd = useCallback(async (levelName: string, success: boolean) => {
+  const logLevelEnd = useCallback(async (levelName: number, success: boolean) => {
     try {
       await analytics().logLevelEnd({
-        level_name: levelName,
-        success,
+        level: levelName,
+        success: success ? 'success' : 'failure',
       });
     } catch (error) {
       console.error('Erreur lors de la journalisation de la fin de niveau Firebase:', error);
@@ -160,7 +160,7 @@ export const useFirebaseAnalytics = () => {
   // Événements de notification
   const logNotificationOpen = useCallback(async (messageId: string, action?: string) => {
     try {
-      await analytics().logNotificationOpen({
+      await analytics().logEvent('notification_open', {
         message_id: messageId,
         action,
       });
@@ -171,7 +171,7 @@ export const useFirebaseAnalytics = () => {
 
   const logNotificationReceive = useCallback(async (messageId: string) => {
     try {
-      await analytics().logNotificationReceive({
+      await analytics().logEvent('notification_receive', {
         message_id: messageId,
       });
     } catch (error) {
