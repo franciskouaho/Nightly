@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Alert, ActivityIndicator, TextInput, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Alert, TextInput, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { getFirestore, doc, onSnapshot, updateDoc, getDoc } from '@react-native-firebase/firestore';
+import { getFirestore, doc, onSnapshot, updateDoc } from '@react-native-firebase/firestore';
 import { useAuth } from '@/contexts/AuthContext';
 import RoundedButton from '@/components/RoundedButton';
 import ResultsPhase from '@/components/game/ResultsPhase';
@@ -87,6 +87,8 @@ export default function ListenButDontJudgeScreen() {
       }, 2000);
       return () => clearTimeout(timeout);
     }
+
+    return () => {};
   }, [game, id, router, requestReview, gameAnalytics]);
 
   const handleSubmitAnswer = async () => {
