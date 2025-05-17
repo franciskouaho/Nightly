@@ -1,5 +1,3 @@
-import { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
-
 export interface NotificationMessage {
   title: string;
   body: string;
@@ -19,7 +17,7 @@ export class NotificationScheduler {
         body: "Pense à chauffer l'ambiance avec Nightly !",
       },
     ];
-    return messages[Math.floor(Math.random() * messages.length)];
+    return messages[Math.floor(Math.random() * messages.length)] as NotificationMessage;
   }
 
   // Messages pour les nouveaux contenus
@@ -48,7 +46,7 @@ export class NotificationScheduler {
         body: "Tu relances Nightly ?",
       },
     ];
-    return messages[Math.floor(Math.random() * messages.length)];
+    return messages[Math.floor(Math.random() * messages.length)] as NotificationMessage;
   }
 
   // Messages pour les événements spéciaux
