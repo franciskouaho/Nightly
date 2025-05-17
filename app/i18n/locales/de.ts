@@ -160,6 +160,11 @@ export default {
         name: "GENIE ODER LÜGNER",
         description: "Ein unterhaltsamer Modus, in dem du dein Wissen beweisen oder Herausforderungen meistern musst.",
         tag: "PREMIUM"
+      },
+      "the-hidden-village": {
+        name: "DAS VERSTECKTE DORF",
+        description: "Ein Bluff-, Strategie- und Diskussionsspiel... für alle, die es lieben, ihre Freunde zu beschuldigen 😈",
+        tag: "PREMIUM"
       }
     }
   },

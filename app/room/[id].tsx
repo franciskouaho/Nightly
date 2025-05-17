@@ -311,8 +311,8 @@ export default function RoomScreen() {
       
       const gameData: GameState & { gameId: string } = {
         phase: GamePhase.CHOIX,
-        currentRound: 1,
-        totalRounds: selectedRounds,
+        currentRound: room.gameId === 'the-hidden-village' ? 0 : 1,
+        totalRounds: room.gameId === 'the-hidden-village' ? 0 : selectedRounds,
         targetPlayer: randomPlayer,
         currentQuestion: firstQuestion,
         answers: [],
@@ -331,8 +331,8 @@ export default function RoomScreen() {
         },
         game: {
           currentPhase: GamePhase.CHOIX,
-          currentRound: 1,
-          totalRounds: selectedRounds,
+          currentRound: room.gameId === 'the-hidden-village' ? 0 : 1,
+          totalRounds: room.gameId === 'the-hidden-village' ? 0 : selectedRounds,
           scores: {},
           gameMode: room.gameMode || room.gameId,
           hostId: room.host
@@ -568,7 +568,7 @@ export default function RoomScreen() {
           <>
             <View style={styles.gameControlsContainer}>
               <View style={styles.roundSelectorContainer}>
-                {user?.uid === room.host && (
+                {user?.uid === room.host && room.gameId !== 'the-hidden-village' && (
                   <TouchableOpacity 
                     style={styles.roundSelectorButton}
                     onPress={() => setShowRoundSelector(!showRoundSelector)}
