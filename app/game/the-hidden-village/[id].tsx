@@ -1,0 +1,260 @@
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useTranslation } from 'react-i18next';
+import { useLocalSearchParams } from 'expo-router';
+import { FontAwesome5 } from '@expo/vector-icons';
+
+interface Role {
+  id: string;
+  name: string;
+  emoji: string;
+  description: string;
+  color: string;
+  image: any;
+}
+
+const ROLE_CARDS: Role[] = [
+  {
+    id: 'traitor',
+    name: 'Le Traître',
+    emoji: '🐺',
+    description: 'Élimine chaque nuit. Doit survivre.',
+    color: '#EF4444',
+    image: require('@/assets/thehiddenvillage/letraitre.png')
+  },
+  {
+    id: 'medium',
+    name: 'Le Médium',
+    emoji: '🔮',
+    description: 'Devine si un joueur est villageois ou traître.',
+    color: '#8B5CF6',
+    image: require('@/assets/thehiddenvillage/lemedium.png')
+  },
+  {
+    id: 'protector',
+    name: 'Le Protecteur',
+    emoji: '🛡️',
+    description: 'Protège un joueur chaque nuit.',
+    color: '#3B82F6',
+    image: require('@/assets/thehiddenvillage/leprotecteur.png')
+  },
+  {
+    id: 'villager',
+    name: 'Le Villageois',
+    emoji: '👨‍🌾',
+    description: 'Pas de pouvoir. Vote intelligemment.',
+    color: '#10B981',
+    image: require('@/assets/thehiddenvillage/levillageois.png')
+  },
+  {
+    id: 'liar',
+    name: 'Le Menteur',
+    emoji: '🤥',
+    description: 'Rôle fun. Sème le doute.',
+    color: '#F59E0B',
+    image: require('@/assets/thehiddenvillage/lementeur.png')
+  }
+];
+
+export default function TheHiddenVillageGame() {
+  const { t } = useTranslation();
+  const { id } = useLocalSearchParams();
+  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+
+  const renderRoleCard = (role: Role) => (
+    <TouchableOpacity
+      key={role.id}
+      style={[styles.roleCard, { borderColor: role.color }]}
+      onPress={() => setSelectedRole(role)}
+    >
+      <LinearGradient
+        colors={[`${role.color}20`, `${role.color}40`]}
+        style={styles.roleCardGradient}
+      >
+        <Image
+          source={role.image}
+          style={styles.roleMascotte}
+          resizeMode="contain"
+        />
+        <Text style={styles.roleEmoji}>{role.emoji}</Text>
+        <Text style={[styles.roleName, { color: role.color }]}>{t(`game.theHiddenVillage.roles.${role.id}.name`)}</Text>
+        <Text style={styles.roleDescription}>{t(`game.theHiddenVillage.roles.${role.id}.description`)}</Text>
+      </LinearGradient>
+    </TouchableOpacity>
+  );
+
+  return (
+    <LinearGradient
+      colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
+      style={styles.container}
+    >
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+        <View style={styles.header}>
+          <Text style={styles.title}>{t('game.theHiddenVillage.title')}</Text>
+          <Text style={styles.subtitle}>{t('game.theHiddenVillage.subtitle')}</Text>
+        </View>
+
+        <View style={styles.descriptionContainer}>
+          <Text style={styles.description}>
+            {t('game.theHiddenVillage.description')}
+          </Text>
+        </View>
+
+        <View style={styles.principlesContainer}>
+          <Text style={styles.sectionTitle}>{t('game.theHiddenVillage.principles.title')}</Text>
+          <View style={styles.principlesList}>
+            {(t('game.theHiddenVillage.principles.list', { returnObjects: true }) as string[]).map((principle: string, index: number) => (
+              <Text key={index} style={styles.principleText}>• {principle}</Text>
+            ))}
+          </View>
+        </View>
+
+        <View style={styles.rolesContainer}>
+          <Text style={styles.sectionTitle}>{t('game.theHiddenVillage.roles.title')}</Text>
+          <View style={styles.rolesGrid}>
+            {ROLE_CARDS.map(renderRoleCard)}
+          </View>
+        </View>
+
+        <View style={styles.objectivesContainer}>
+          <Text style={styles.sectionTitle}>{t('game.theHiddenVillage.objectives.title')}</Text>
+          <View style={styles.objectivesList}>
+            <View style={styles.objectiveItem}>
+              <Text style={styles.objectiveEmoji}>🐺</Text>
+              <Text style={styles.objectiveText}>{t('game.theHiddenVillage.objectives.traitor')}</Text>
+            </View>
+            <View style={styles.objectiveItem}>
+              <Text style={styles.objectiveEmoji}>👥</Text>
+              <Text style={styles.objectiveText}>{t('game.theHiddenVillage.objectives.village')}</Text>
+            </View>
+          </View>
+        </View>
+      </ScrollView>
+    </LinearGradient>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    padding: 24,
+    paddingTop: 60,
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 32,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 18,
+    color: '#A855F7',
+    textAlign: 'center',
+  },
+  descriptionContainer: {
+    backgroundColor: 'rgba(168, 85, 247, 0.1)',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 32,
+  },
+  description: {
+    fontSize: 16,
+    color: '#FFFFFF',
+    lineHeight: 24,
+    textAlign: 'center',
+  },
+  principlesContainer: {
+    marginBottom: 32,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginBottom: 16,
+  },
+  principlesList: {
+    backgroundColor: 'rgba(168, 85, 247, 0.1)',
+    borderRadius: 16,
+    padding: 20,
+  },
+  principleText: {
+    fontSize: 16,
+    color: '#FFFFFF',
+    marginBottom: 12,
+    lineHeight: 22,
+  },
+  rolesContainer: {
+    marginBottom: 32,
+  },
+  rolesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  roleCard: {
+    width: '48%',
+    marginBottom: 16,
+    borderRadius: 16,
+    overflow: 'hidden',
+    borderWidth: 2,
+  },
+  roleCardGradient: {
+    padding: 16,
+    alignItems: 'center',
+  },
+  roleEmoji: {
+    fontSize: 32,
+    marginBottom: 8,
+  },
+  roleName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  roleDescription: {
+    fontSize: 14,
+    color: '#FFFFFF',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  objectivesContainer: {
+    marginBottom: 32,
+  },
+  objectivesList: {
+    backgroundColor: 'rgba(168, 85, 247, 0.1)',
+    borderRadius: 16,
+    padding: 20,
+  },
+  objectiveItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  objectiveEmoji: {
+    fontSize: 24,
+    marginRight: 12,
+  },
+  objectiveText: {
+    flex: 1,
+    fontSize: 16,
+    color: '#FFFFFF',
+    lineHeight: 22,
+  },
+  roleMascotte: {
+    width: 64,
+    height: 64,
+    marginBottom: 8,
+  },
+}); 
