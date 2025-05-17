@@ -160,6 +160,11 @@ export default {
         name: "GENIO O BUGIARDO",
         description: "Una modalità divertente in cui devi dimostrare le tue conoscenze o affrontare sfide.",
         tag: "PREMIUM"
+      },
+      "the-hidden-village": {
+        name: "IL VILLAGGIO NASCOSTO",
+        description: "Un gioco di bluff, strategia e discussioni... per chi ama accusare gli amici 😈",
+        tag: "PREMIUM"
       }
     }
   },

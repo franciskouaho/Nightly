@@ -160,6 +160,11 @@ export default {
         name: "GÊNIO OU MENTIROSO",
         description: "Um modo divertido onde você deve provar seus conhecimentos ou enfrentar desafios.",
         tag: "PREMIUM"
+      },
+      "the-hidden-village": {
+        name: "A VILA OCULTA",
+        description: "Um jogo de blefe, estratégia e discussões... para quem gosta de acusar os amigos 😈",
+        tag: "PREMIUM"
       }
     }
   },

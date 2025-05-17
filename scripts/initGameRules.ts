@@ -566,6 +566,178 @@ const gameRules = {
         ]
       }
     }
+  },
+  "the-hidden-village": {
+    translations: {
+      fr: {
+        rules: [
+          {
+            title: "But du jeu",
+            description: "Démasquez le traître caché parmi les villageois avant qu'il ne vous élimine tous.",
+            emoji: "🕵️"
+          },
+          {
+            title: "Nuit",
+            description: "Chaque nuit, le traître élimine un joueur. Le protecteur peut sauver quelqu'un. Le médium peut sonder un joueur.",
+            emoji: "🌙"
+          },
+          {
+            title: "Jour",
+            description: "Les survivants débattent et votent pour éliminer un suspect. Attention au menteur qui sème le doute !",
+            emoji: "☀️"
+          },
+          {
+            title: "Fin de partie",
+            description: "Le traître gagne s'il reste seul. Le village gagne s'il découvre le traître.",
+            emoji: "🏆"
+          }
+        ]
+      },
+      en: {
+        rules: [
+          {
+            title: "Goal",
+            description: "Unmask the hidden traitor among the villagers before they eliminate everyone.",
+            emoji: "🕵️"
+          },
+          {
+            title: "Night",
+            description: "Each night, the traitor eliminates a player. The protector can save someone. The medium can investigate a player.",
+            emoji: "🌙"
+          },
+          {
+            title: "Day",
+            description: "Survivors debate and vote to eliminate a suspect. Beware of the liar who sows doubt!",
+            emoji: "☀️"
+          },
+          {
+            title: "End of game",
+            description: "The traitor wins if they are the last one standing. The village wins if they find the traitor.",
+            emoji: "🏆"
+          }
+        ]
+      },
+      es: {
+        rules: [
+          {
+            title: "Objetivo",
+            description: "Descubre al traidor oculto entre los aldeanos antes de que los elimine a todos.",
+            emoji: "🕵️"
+          },
+          {
+            title: "Noche",
+            description: "Cada noche, el traidor elimina a un jugador. El protector puede salvar a alguien. El médium puede investigar a un jugador.",
+            emoji: "🌙"
+          },
+          {
+            title: "Día",
+            description: "Los supervivientes debaten y votan para eliminar a un sospechoso. ¡Cuidado con el mentiroso que siembra dudas!",
+            emoji: "☀️"
+          },
+          {
+            title: "Fin del juego",
+            description: "El traidor gana si queda solo. El pueblo gana si descubre al traidor.",
+            emoji: "🏆"
+          }
+        ]
+      },
+      de: {
+        rules: [
+          {
+            title: "Ziel",
+            description: "Enttarne den versteckten Verräter unter den Dorfbewohnern, bevor er alle eliminiert.",
+            emoji: "🕵️"
+          },
+          {
+            title: "Nacht",
+            description: "Jede Nacht eliminiert der Verräter einen Spieler. Der Beschützer kann jemanden retten. Das Medium kann einen Spieler untersuchen.",
+            emoji: "🌙"
+          },
+          {
+            title: "Tag",
+            description: "Die Überlebenden diskutieren und stimmen ab, um einen Verdächtigen zu eliminieren. Vorsicht vor dem Lügner, der Zweifel sät!",
+            emoji: "☀️"
+          },
+          {
+            title: "Spielende",
+            description: "Der Verräter gewinnt, wenn er allein übrig bleibt. Das Dorf gewinnt, wenn es den Verräter enttarnt.",
+            emoji: "🏆"
+          }
+        ]
+      },
+      it: {
+        rules: [
+          {
+            title: "Obiettivo",
+            description: "Smaschera il traditore nascosto tra i paesani prima che elimini tutti.",
+            emoji: "🕵️"
+          },
+          {
+            title: "Notte",
+            description: "Ogni notte il traditore elimina un giocatore. Il protettore può salvare qualcuno. Il medium può indagare su un giocatore.",
+            emoji: "🌙"
+          },
+          {
+            title: "Giorno",
+            description: "I sopravvissuti discutono e votano per eliminare un sospetto. Attenzione al bugiardo che semina dubbi!",
+            emoji: "☀️"
+          },
+          {
+            title: "Fine partita",
+            description: "Il traditore vince se resta solo. Il villaggio vince se scopre il traditore.",
+            emoji: "🏆"
+          }
+        ]
+      },
+      pt: {
+        rules: [
+          {
+            title: "Objetivo",
+            description: "Desmascare o traidor escondido entre os aldeões antes que ele elimine todos.",
+            emoji: "🕵️"
+          },
+          {
+            title: "Noite",
+            description: "A cada noite, o traidor elimina um jogador. O protetor pode salvar alguém. O médium pode investigar um jogador.",
+            emoji: "🌙"
+          },
+          {
+            title: "Dia",
+            description: "Os sobreviventes debatem e votam para eliminar um suspeito. Cuidado com o mentiroso que espalha dúvidas!",
+            emoji: "☀️"
+          },
+          {
+            title: "Fim de jogo",
+            description: "O traidor vence se restar sozinho. A vila vence se descobrir o traidor.",
+            emoji: "🏆"
+          }
+        ]
+      },
+      ar: {
+        rules: [
+          {
+            title: "الهدف",
+            description: "اكشف الخائن المخفي بين القرويين قبل أن يقضي على الجميع.",
+            emoji: "🕵️"
+          },
+          {
+            title: "الليل",
+            description: "كل ليلة، يقضي الخائن على لاعب. يمكن للحامي إنقاذ شخص ما. يمكن للوسيط التحقيق مع لاعب.",
+            emoji: "🌙"
+          },
+          {
+            title: "النهار",
+            description: "يناقش الناجون ويصوتون لإقصاء مشتبه به. احذر من الكاذب الذي يزرع الشك!",
+            emoji: "☀️"
+          },
+          {
+            title: "نهاية اللعبة",
+            description: "يفوز الخائن إذا بقي وحده. يفوز القرويون إذا اكتشفوا الخائن.",
+            emoji: "🏆"
+          }
+        ]
+      }
+    }
   }
 };
 

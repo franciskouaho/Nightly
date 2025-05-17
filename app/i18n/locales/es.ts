@@ -160,6 +160,11 @@ export default {
         name: "GENIO O MENTIROSO",
         description: "Un modo divertido donde debes demostrar tus conocimientos o enfrentar retos.",
         tag: "PREMIUM"
+      },
+      "the-hidden-village": {
+        name: "EL PUEBLO ESCONDIDO",
+        description: "Un juego de farol, estrategia y discusiones... para los que disfrutan acusando a sus amigos 😈",
+        tag: "PREMIUM"
       }
     }
   },

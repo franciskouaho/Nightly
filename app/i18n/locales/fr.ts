@@ -160,6 +160,11 @@ export default {
         name: "GENIE OU MENTEUR",
         description: "Un mode ludique où vous devez prouver vos connaissances ou assumer vos gages.",
         tag: "PREMIUM"
+      },
+      "the-hidden-village": {
+        name: "LE VILLAGE CACHÉ",
+        description: "Un jeu de bluff, de stratégie et de discussions... pour ceux qui aiment accuser leurs potes 😈",
+        tag: "PREMIUM"
       }
     }
   },
@@ -303,6 +308,47 @@ export default {
       targetReads: "{{name}} lit la question",
       noQuestions: "Aucune question disponible",
       errorNext: "Une erreur est survenue lors du passage au tour suivant"
+    },
+    theHiddenVillage: {
+      title: 'LE VILLAGE CACHÉ',
+      subtitle: 'Un jeu de bluff et de stratégie',
+      description: 'Un jeu de bluff, de stratégie et de discussions... pour ceux qui aiment accuser leurs potes 😈',
+      principles: {
+        title: '🌓 PRINCIPE DU JEU',
+        list: [
+          'Chaque nuit, un joueur "traître" élimine un autre joueur.',
+          'Chaque jour, les survivants discutent et votent pour éliminer celui qu\'ils soupçonnent.',
+          'Objectif : démasquer le coupable avant qu\'il ne vous élimine tous.'
+        ]
+      },
+      roles: {
+        title: '🎭 RÔLES',
+        traitor: {
+          name: 'Le Traître',
+          description: 'Élimine chaque nuit. Doit survivre.'
+        },
+        medium: {
+          name: 'Le Médium',
+          description: 'Devine si un joueur est villageois ou traître.'
+        },
+        protector: {
+          name: 'Le Protecteur',
+          description: 'Protège un joueur chaque nuit.'
+        },
+        villager: {
+          name: 'Le Villageois',
+          description: 'Pas de pouvoir. Vote intelligemment.'
+        },
+        liar: {
+          name: 'Le Menteur',
+          description: 'Rôle fun. Sème le doute.'
+        }
+      },
+      objectives: {
+        title: '🎯 OBJECTIFS',
+        traitor: 'Traître : éliminer tous les autres sans se faire démasquer.',
+        village: 'Village : découvrir le traître avant qu\'il ne gagne.'
+      }
     }
   },
 

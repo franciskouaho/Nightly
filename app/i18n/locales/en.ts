@@ -160,6 +160,11 @@ export default {
         name: "GENIUS OR LIAR",
         description: "A fun mode where you must prove your knowledge or face dares.",
         tag: "PREMIUM"
+      },
+      "the-hidden-village": {
+        name: "THE HIDDEN VILLAGE",
+        description: "A game of bluff, strategy and discussions... for those who love accusing their friends 😈",
+        tag: "PREMIUM"
       }
     }
   },
@@ -303,6 +308,47 @@ export default {
       targetReads: "{{name}} reads the question",
       noQuestions: "No questions available",
       errorNext: "An error occurred when moving to the next round"
+    },
+    theHiddenVillage: {
+      title: 'THE HIDDEN VILLAGE',
+      subtitle: 'A game of bluff and strategy',
+      description: 'A game of bluff, strategy and discussions... for those who love accusing their friends 😈',
+      principles: {
+        title: '🌓 GAME PRINCIPLE',
+        list: [
+          'Each night, a "traitor" player eliminates another player.',
+          'Each day, survivors discuss and vote to eliminate the one they suspect.',
+          'Goal: unmask the culprit before they eliminate everyone.'
+        ]
+      },
+      roles: {
+        title: '🎭 ROLES',
+        traitor: {
+          name: 'The Traitor',
+          description: 'Eliminates each night. Must survive.'
+        },
+        medium: {
+          name: 'The Medium',
+          description: 'Guesses if a player is a villager or traitor.'
+        },
+        protector: {
+          name: 'The Protector',
+          description: 'Protects a player each night.'
+        },
+        villager: {
+          name: 'The Villager',
+          description: 'No power. Votes wisely.'
+        },
+        liar: {
+          name: 'The Liar',
+          description: 'Fun role. Sows doubt.'
+        }
+      },
+      objectives: {
+        title: '🎯 OBJECTIVES',
+        traitor: 'Traitor: eliminate everyone else without being caught.',
+        village: 'Village: discover the traitor before they win.'
+      }
     }
   },
 
