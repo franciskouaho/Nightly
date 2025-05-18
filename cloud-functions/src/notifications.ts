@@ -33,102 +33,110 @@ async function sendNotification(
 }
 
 // Fonction programmée pour les notifications du week-end (vendredi et samedi à 20h)
-export const sendWeekendNotifications = functions.scheduler.onSchedule({
-  schedule: '0 20 * * 5,6', // Tous les vendredis et samedis à 20h
-  timeZone: 'Europe/Paris',
-  region: 'europe-west1'
-}, async (event) => {
-  const db = admin.firestore();
-  const usersRef = db.collection('users');
-  const now = admin.firestore.Timestamp.now();
+export const sendWeekendNotifications = functions.scheduler.onSchedule(
+  {
+    schedule: '0 20 * * 5,6', // Tous les vendredis et samedis à 20h
+    timeZone: 'Europe/Paris',
+    region: 'europe-west1'
+  },
+  async (event) => {
+    console.log('sendWeekendNotifications triggered');
+    const db = admin.firestore();
+    const usersRef = db.collection('users');
+    const now = admin.firestore.Timestamp.now();
 
-  const messages = [
-    {
-      title: "C'est l'heure de l'apéro…",
-      body: "Tu lances la partie ?",
-    },
-    {
-      title: "Soirée en vue ?",
-      body: "Pense à chauffer l'ambiance avec Nightly !",
-    },
-  ];
+    const messages = [
+      {
+        title: "C'est l'heure de l'apéro…",
+        body: "Tu lances la partie ?",
+      },
+      {
+        title: "Soirée en vue ?",
+        body: "Pense à chauffer l'ambiance avec Nightly !",
+      },
+    ];
 
-  const snapshot = await usersRef
-    .where('isActive', '==', true)
-    .where('lastNotificationDate', '<', admin.firestore.Timestamp.fromDate(new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)))
-    .get();
+    const snapshot = await usersRef
+      .where('isActive', '==', true)
+      .where('lastNotificationDate', '<', admin.firestore.Timestamp.fromDate(new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)))
+      .get();
 
-  const batch = db.batch();
-  const promises: Promise<boolean>[] = [];
+    const batch = db.batch();
+    const promises: Promise<boolean>[] = [];
 
-  snapshot.forEach((doc) => {
-    const userData = doc.data() as UserNotificationPreferences;
-    const message = messages[Math.floor(Math.random() * messages.length)];
-    
-    promises.push(
-      sendNotification(
-        userData.notificationToken,
-        message.title,
-        message.body,
-        { type: 'weekend_reminder' }
-      )
-    );
+    snapshot.forEach((doc) => {
+      const userData = doc.data() as UserNotificationPreferences;
+      const message = messages[Math.floor(Math.random() * messages.length)];
+      
+      promises.push(
+        sendNotification(
+          userData.notificationToken,
+          message.title,
+          message.body,
+          { type: 'weekend_reminder' }
+        )
+      );
 
-    batch.update(doc.ref, { lastNotificationDate: now });
-  });
+      batch.update(doc.ref, { lastNotificationDate: now });
+    });
 
-  await Promise.all(promises);
-  await batch.commit();
-});
+    await Promise.all(promises);
+    await batch.commit();
+  }
+);
 
 // Fonction programmée pour la notification du dimanche à 20h30
-export const sendSundayNotification = functions.scheduler.onSchedule({
-  schedule: '30 20 * * 0', // Tous les dimanches à 20h30
-  timeZone: 'Europe/Paris',
-  region: 'europe-west1'
-}, async (event) => {
-  const db = admin.firestore();
-  const usersRef = db.collection('users');
-  const now = admin.firestore.Timestamp.now();
+export const sendSundayNotification = functions.scheduler.onSchedule(
+  {
+    schedule: '00 17 * * 0', // Tous les dimanches à 20h30
+    timeZone: 'Europe/Paris',
+    region: 'europe-west1'
+  },
+  async (event) => {
+    console.log('sendSundayNotification triggered');
+    const db = admin.firestore();
+    const usersRef = db.collection('users');
+    const now = admin.firestore.Timestamp.now();
 
-  const messages = [
-    {
-      title: "C'est l'heure de l'apéro…",
-      body: "Tu lances la partie ?",
-    },
-    {
-      title: "Soirée en vue ?",
-      body: "Pense à chauffer l'ambiance avec Nightly !",
-    },
-  ];
+    const messages = [
+      {
+        title: "C'est l'heure de l'apéro…",
+        body: "Tu lances la partie ?",
+      },
+      {
+        title: "Soirée en vue ?",
+        body: "Pense à chauffer l'ambiance avec Nightly !",
+      },
+    ];
 
-  const snapshot = await usersRef
-    .where('isActive', '==', true)
-    .where('lastNotificationDate', '<', admin.firestore.Timestamp.fromDate(new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)))
-    .get();
+    const snapshot = await usersRef
+      .where('isActive', '==', true)
+      .where('lastNotificationDate', '<', admin.firestore.Timestamp.fromDate(new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)))
+      .get();
 
-  const batch = db.batch();
-  const promises: Promise<boolean>[] = [];
+    const batch = db.batch();
+    const promises: Promise<boolean>[] = [];
 
-  snapshot.forEach((doc) => {
-    const userData = doc.data() as UserNotificationPreferences;
-    const message = messages[Math.floor(Math.random() * messages.length)];
-    
-    promises.push(
-      sendNotification(
-        userData.notificationToken,
-        message.title,
-        message.body,
-        { type: 'weekend_reminder' }
-      )
-    );
+    snapshot.forEach((doc) => {
+      const userData = doc.data() as UserNotificationPreferences;
+      const message = messages[Math.floor(Math.random() * messages.length)];
+      
+      promises.push(
+        sendNotification(
+          userData.notificationToken,
+          message.title,
+          message.body,
+          { type: 'weekend_reminder' }
+        )
+      );
 
-    batch.update(doc.ref, { lastNotificationDate: now });
-  });
+      batch.update(doc.ref, { lastNotificationDate: now });
+    });
 
-  await Promise.all(promises);
-  await batch.commit();
-});
+    await Promise.all(promises);
+    await batch.commit();
+  }
+);
 
 // Fonction pour envoyer une notification de nouveau contenu
 export const sendNewContentNotification = functions.https.onCall(

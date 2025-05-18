@@ -1,6 +1,8 @@
 {
   "functions": {
     "source": "cloud-functions",
+    "region": "europe-west1",
+    "runtime": "nodejs20",
     "predeploy": [
       "yarn --cwd \"$RESOURCE_DIR\" build"
     ]
