@@ -147,8 +147,44 @@ export default function GameResultsScreen() {
         </View>
         
         <View style={styles.resultsContainer}>
+          {/* Podium pour les 3 premiers */}
+          <View style={styles.podiumContainer}>
+            <View style={styles.podium}>
+              {/* 2ème place */}
+              {players[1] && (
+                <View style={styles.podiumStep}>
+                  <Text style={styles.podiumName}>{players[1].name}</Text>
+                  <Text style={styles.podiumScore}>{players[1].score} pts</Text>
+                  <View style={[styles.podiumBlock, styles.secondPlace]}>
+                    <Text style={styles.podiumRank}>2</Text>
+                  </View>
+                </View>
+              )}
+              {/* 1ère place */}
+              {players[0] && (
+                <View style={styles.podiumStep}>
+                  <Text style={styles.podiumName}>{players[0].name}</Text>
+                  <Text style={styles.podiumScore}>{players[0].score} pts</Text>
+                  <View style={[styles.podiumBlock, styles.firstPlace]}>
+                    <FontAwesome5 name="crown" size={24} color="#FFD700" />
+                  </View>
+                </View>
+              )}
+              {/* 3ème place */}
+              {players[2] && (
+                <View style={styles.podiumStep}>
+                  <Text style={styles.podiumName}>{players[2].name}</Text>
+                  <Text style={styles.podiumScore}>{players[2].score} pts</Text>
+                  <View style={[styles.podiumBlock, styles.thirdPlace]}>
+                    <Text style={styles.podiumRank}>3</Text>
+                  </View>
+                </View>
+              )}
+            </View>
+          </View>
+          {/* Liste des autres joueurs */}
           <FlatList
-            data={players}
+            data={players.slice(3)}
             renderItem={renderPlayerItem}
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.listContent}
@@ -305,5 +341,40 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
+  },
+  podiumContainer: {
+    alignItems: 'center',
+    marginTop: 10,
+    marginBottom: 30,
+  },
+  podium: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+  },
+  podiumStep: {
+    alignItems: 'center',
+    marginHorizontal: 10,
+  },
+  podiumBlock: {
+    width: 50,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  podiumName: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  podiumScore: {
+    color: '#fff',
+    fontSize: 14,
+  },
+  podiumRank: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 20,
   },
 });

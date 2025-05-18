@@ -379,7 +379,9 @@ export default function ListenButDontJudgeScreen() {
               <View style={styles.voteContainer}>
                 <View style={styles.questionCard}>
                   <Text style={styles.waitingText}>
-                    {t('game.listenButDontJudge.waitingVote', "En attente du vote du joueur cible...")}
+                    {game.votes && user?.uid && game.votes[user.uid] ? 
+                      t('game.listenButDontJudge.waitingForOthers', "En attente des autres votes...") :
+                      t('game.listenButDontJudge.waitingVote', "En attente du vote du joueur cible...")}
                   </Text>
                 </View>
               </View>
