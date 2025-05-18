@@ -24,7 +24,7 @@ function useRevenueCat() {
 
 
     useEffect(() => {
-        Purchases.setLogLevel(Purchases.LOG_LEVEL.DEBUG);
+        /*Purchases.setLogLevel(Purchases.LOG_LEVEL.DEBUG);*/
 
         const fetchData = async () => {
             if (Platform.OS === 'android') {

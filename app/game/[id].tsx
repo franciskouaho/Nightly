@@ -54,6 +54,11 @@ export default function GameRouter() {
         return;
       }
 
+      if (mode === 'the-hidden-village') {
+        router.replace(`/game/the-hidden-village/${id}`);
+        return;
+      }
+
       Alert.alert(t('game.error'), t('game.unknownMode', { mode }));
     };
     redirect();

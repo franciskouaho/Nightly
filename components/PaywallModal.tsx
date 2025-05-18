@@ -19,21 +19,9 @@ export default function PaywallModal({ isVisible, onClose }: PaywallModalProps) 
   const [selectedPlan, setSelectedPlan] = useState('monthly');
   const { currentOffering, isProMember } = useRevenueCat();
   const [loading, setLoading] = useState(false);
-  const [showCloseButton, setShowCloseButton] = useState(false);
+  const [showCloseButton, setShowCloseButton] = useState(true);
   const { t } = useTranslation();
   const { user } = useAuth();
-
-  useEffect(() => {
-    if (isVisible) {
-      const timer = setTimeout(() => {
-        setShowCloseButton(true);
-      }, 3000);
-      return () => clearTimeout(timer);
-    } else {
-      setShowCloseButton(false);
-      return undefined;
-    }
-  }, [isVisible]);
 
   const packageToUse = currentOffering?.availablePackages?.find((pkg: any) =>
     selectedPlan === 'weekly'
@@ -293,20 +281,24 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
     paddingHorizontal: 10,
-    paddingTop: 20,
+    paddingTop: 0,
     paddingBottom: 10,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingBottom: 5,
+    justifyContent: 'flex-end',
   },
   backButton: {
     justifyContent: 'center',
     alignItems: 'center',
     borderColor: '#000',
     shadowColor: '#000',
-    marginTop: 16,
+    marginTop: 30,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 20,
+    padding: 8,
   },
   heroSection: {
     alignItems: 'center',
