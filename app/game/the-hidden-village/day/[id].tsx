@@ -120,6 +120,14 @@ export default function DayScreen() {
       }
       // --- Fin résumé ---
       
+      // Synchronisation de l'état hasVoted avec la base de données (individuelle)
+      const playerVotes = data.playerVotes || {};
+      if (user && playerVotes[user.uid]) {
+        setHasVoted(true);
+      } else {
+        setHasVoted(false);
+      }
+      
       setLoading(false);
     });
 
@@ -148,6 +156,7 @@ export default function DayScreen() {
       });
 
       setHasVoted(true);
+      setSelectedPlayer(null); // Réinitialiser la sélection après le vote
     } catch (error) {
       console.error('Erreur lors du vote:', error);
     }
@@ -212,7 +221,7 @@ export default function DayScreen() {
           onContinue={handleContinueAfterSummary}
           isHost={user && game && String(user.uid) === String(game.host)}
         />
-        {!hasVoted && (
+        {!hasVoted ? (
           <VillageTable
             players={game?.players?.filter((p: Player) => p.id !== user?.uid && p.isAlive !== false) || []}
             selectedId={selectedPlayer?.id}
@@ -220,11 +229,12 @@ export default function DayScreen() {
             disabledIds={[]}
             mode="day"
           />
-        )}
-        {hasVoted && (
-          <Text style={styles.waitingText}>
-            {t('En attente des autres votes...')}
-          </Text>
+        ) : (
+          <View style={styles.waitingContainer}>
+            <Text style={styles.waitingText}>
+              {t('En attente des autres votes...')}
+            </Text>
+          </View>
         )}
       </View>
     </ImageBackground>
@@ -354,5 +364,10 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.32)',
     zIndex: 1,
+  },
+  waitingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 }); 

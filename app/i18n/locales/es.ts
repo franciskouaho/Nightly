@@ -205,10 +205,21 @@ export default {
       bravo: "¡Felicidades {{name}}!",
       points: "puntos",
       home: "Inicio",
-      calculating: "Calculando resultados..."
+      calculating: "Calculando resultados...",
+      podium: {
+        first: "1ª posición",
+        second: "2ª posición",
+        third: "3ª posición",
+        others: "Otros jugadores",
+      },
+      rank: "Puesto",
+      score: "Puntuación",
+      player: "Jugador",
     },
     listenButDontJudge: {
       waiting: "Esperando a otros jugadores...",
+      waitingVote: "Esperando el voto del jugador objetivo...",
+      waitingForOthers: "Esperando los otros votos...",
       submit: "Enviar",
       vote: "Votar",
       next: "Siguiente ronda",
