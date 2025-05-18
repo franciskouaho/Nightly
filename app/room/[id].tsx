@@ -309,7 +309,7 @@ export default function RoomScreen() {
         roundNumber: 1
       };
       
-      const gameData: GameState & { gameId: string } = {
+      const gameData: GameState & { gameId: string, host: string, hostId: string } = {
         phase: GamePhase.CHOIX,
         currentRound: room.gameId === 'the-hidden-village' ? 0 : 1,
         totalRounds: room.gameId === 'the-hidden-village' ? 0 : selectedRounds,
@@ -338,7 +338,9 @@ export default function RoomScreen() {
           hostId: room.host
         },
         currentPlayerId: randomPlayer ? String(randomPlayer.id) : '',
-        gameId: room.gameId
+        gameId: room.gameId,
+        host: room.host,
+        hostId: room.host
       };
 
       // 3. Créer le document de jeu

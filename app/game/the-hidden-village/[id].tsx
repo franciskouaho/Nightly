@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import { useLocalSearchParams } from 'expo-router';
-import { FontAwesome5 } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import RoundedButton from '@/components/RoundedButton';
+import { useAuth } from '@/contexts/AuthContext';
+import firestore from '@react-native-firebase/firestore';
 
 interface Role {
   id: string;
@@ -60,7 +63,32 @@ const ROLE_CARDS: Role[] = [
 export default function TheHiddenVillageGame() {
   const { t } = useTranslation();
   const { id } = useLocalSearchParams();
+  const router = useRouter();
+  const { user } = useAuth();
+  const [game, setGame] = useState<any>(null);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+
+  useEffect(() => {
+    if (!id) return;
+    const gameRef = firestore().collection('games').doc(String(id));
+    const unsubscribe = gameRef.onSnapshot((doc) => {
+      const data = doc.data();
+      if (data) {
+        setGame({ ...data, id: doc.id });
+        if (data.status === 'roles') {
+          router.replace(`/game/the-hidden-village/roles?id=${id}`);
+        }
+      }
+    });
+    return () => unsubscribe();
+  }, [id, router]);
+
+  useEffect(() => {
+    if (!game) return;
+    if (game.phase && game.phase !== 'choix' && game.phase !== 'roles') {
+      router.replace(`/game/the-hidden-village/night/${game.id}`);
+    }
+  }, [game]);
 
   const renderRoleCard = (role: Role) => (
     <TouchableOpacity
@@ -83,6 +111,23 @@ export default function TheHiddenVillageGame() {
       </LinearGradient>
     </TouchableOpacity>
   );
+
+  console.log('[DEBUG BUTTON]', { user: user?.uid, host: game?.host, game });
+
+  if (!game) {
+    return (
+      <LinearGradient
+        colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
+        style={styles.container}
+      >
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text style={{ color: '#fff', fontSize: 18, marginBottom: 16 }}>
+            Chargement de la partie...
+          </Text>
+        </View>
+      </LinearGradient>
+    );
+  }
 
   return (
     <LinearGradient
@@ -131,6 +176,23 @@ export default function TheHiddenVillageGame() {
           </View>
         </View>
       </ScrollView>
+      {user && String(user.uid) === String(game.host) && (
+        <RoundedButton
+          title="Continuer"
+          onPress={async () => {
+            if (id) {
+              await firestore().collection('games').doc(String(id)).update({ status: 'roles' });
+            }
+          }}
+          style={{
+            paddingVertical: 18,
+            borderRadius: 32,
+            margin: 24,
+            alignItems: 'center',
+          }}
+          textStyle={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}
+        />
+      )}
     </LinearGradient>
   );
 }
@@ -258,3 +320,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
 }); 
+
+function setSelectedRole(role: Role): void {
+  throw new Error('Function not implemented.');
+}
