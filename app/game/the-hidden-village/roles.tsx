@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import firestore from '@react-native-firebase/firestore';
+import { getFirestore, doc, onSnapshot, updateDoc, getDoc, collection, runTransaction } from '@react-native-firebase/firestore';
 import { useTranslation } from 'react-i18next';
 
 const ROLE_CARDS = [
@@ -95,10 +95,20 @@ export default function RolesAttributionScreen() {
 
   useEffect(() => {
     if (!gameId || !user) return;
-    const gameRef = firestore().collection('games').doc(String(gameId));
-    gameRef.get().then(async (snap) => {
+    const db = getFirestore();
+    const gameRef = doc(db, 'games', String(gameId));
+    onSnapshot(gameRef, async (snap) => {
       if (!snap.exists) return;
-      const data = snap.data() as { players: Player[], hostId: string };
+      const data = snap.data() as { players: Player[], hostId: string, phase?: string };
+      // Redirection automatique selon la phase
+      if (data && data.phase === 'night') {
+        router.replace(`/game/the-hidden-village/night/${gameId}`);
+        return;
+      }
+      if (data && data.phase === 'day') {
+        router.replace(`/game/the-hidden-village/day/${gameId}`);
+        return;
+      }
       let playersList: Player[] = data.players || [];
       setHostId(data.hostId || null);
       // Si tous les joueurs n'ont pas encore de rôle
@@ -120,7 +130,7 @@ export default function RolesAttributionScreen() {
             return { ...p, role: assignedRole };
           });
           try {
-            await gameRef.update({ players: playersList });
+            await updateDoc(gameRef, { players: playersList });
             console.log('[DEBUG] Rôles attribués et envoyés à Firestore', playersList);
           } catch (e) {
             console.error('[DEBUG] Erreur Firestore lors de l\'attribution des rôles', e);
@@ -140,30 +150,6 @@ export default function RolesAttributionScreen() {
       setLoading(false);
     });
   }, [gameId, user]);
-
-  const handleReady = async () => {
-    setReady(true);
-    // Met à jour le joueur dans Firestore
-    const gameRef = firestore().collection('games').doc(String(gameId));
-    const snap = await gameRef.get();
-    const data = snap.exists() ? snap.data() : undefined;
-    if (data) {
-      const playersList = (data.players || []).map((p: Player) =>
-        String(p.id) === String(user.uid) ? { ...p, ready: true } : p
-      );
-      await gameRef.update({ players: playersList });
-      // Si l'hôte, vérifier si tout le monde est prêt et passer à la phase suivante
-      if (data.hostId && String(data.hostId) === String(user.uid)) {
-        const allReady = playersList.every((p: Player) => p.ready);
-        if (allReady) {
-          await gameRef.update({ phase: 'night' }); // phase suivante
-        }
-      }
-    }
-    setTimeout(() => {
-      router.replace(`/game/the-hidden-village/${gameId}`);
-    }, 1200);
-  };
 
   if (loading || !role) {
     let waitingMessage = t('Chargement de ton rôle...');
@@ -188,9 +174,20 @@ export default function RolesAttributionScreen() {
       <Image source={role.image} style={styles.roleMascotte} resizeMode="contain" />
       <Text style={[styles.roleName, { color: role.color }]}>{role.emoji} {role.name}</Text>
       <Text style={styles.roleDesc}>{role.description}</Text>
-      <TouchableOpacity style={styles.readyButton} onPress={handleReady} disabled={ready}>
-        <Text style={styles.readyButtonText}>{ready ? t('En attente des autres...') : t("J'ai vu mon rôle")}</Text>
-      </TouchableOpacity>
+      {String(user.uid) === String(hostId) ? (
+        <TouchableOpacity style={styles.readyButton} onPress={async () => {
+          const db = getFirestore();
+          const gameRef = doc(db, 'games', String(gameId));
+          await updateDoc(gameRef, { phase: 'night' });
+          setTimeout(() => {
+            router.replace(`/game/the-hidden-village/night/${gameId}`);
+          }, 1200);
+        }}>
+          <Text style={styles.readyButtonText}>Continuer</Text>
+        </TouchableOpacity>
+      ) : (
+        <Text style={styles.waitingText}>En attente que l'hôte lance la nuit...</Text>
+      )}
     </View>
   );
 }

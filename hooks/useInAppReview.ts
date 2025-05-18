@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { Platform } from 'react-native';
 import * as InAppReview from 'react-native-in-app-review';
 

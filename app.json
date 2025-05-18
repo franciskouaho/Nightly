@@ -17,7 +17,8 @@
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true
         }
-      }
+      },
+      "requireFullScreen": true
     },
     "android": {
       "adaptiveIcon": {
@@ -44,6 +45,12 @@
           "ios": {
             "useFrameworks": "static"
           }
+        }
+      ],
+      [
+        "expo-screen-orientation",
+        {
+          "initialOrientation": "DEFAULT"
         }
       ],
       "expo-localization"
