@@ -205,9 +205,10 @@ export default function RoomScreen() {
             router.replace(`/game/truth-or-dare/${roomData.gameDocId}`);
           } else if (roomData.gameMode === 'on-ecoute-mais-on-ne-juge-pas') {
             router.replace(`/game/listen-but-don-t-judge/${roomData.gameDocId}`);
-          } else {
-            router.replace(`/game/${roomData.gameDocId}`);
+          } else if (roomData.gameMode === 'the-hidden-village') {
+            router.replace(`/game/the-hidden-village/${roomData.gameDocId}`);
           }
+          return;
         }
       } else {
         Alert.alert('Erreur', 'Salle introuvable');
@@ -303,7 +304,6 @@ export default function RoomScreen() {
       
       const firstQuestion: Question = {
         id: '1',
-        // Adapter selon la structure - certains jeux ont des objets, d'autres des strings
         text: typeof questions[0] === 'string' ? questions[0] : questions[0].text || '',
         theme: room.gameId,
         roundNumber: 1
@@ -357,9 +357,8 @@ export default function RoomScreen() {
       // 5. Naviguer vers le jeu
       if (room.gameId === 'truth-or-dare') {
         router.push(`/game/truth-or-dare/${gameRef.id}`);
-      } else {
-        router.push(`/game/${gameRef.id}`);
       }
+      
     } catch (error: unknown) {
       console.error('Erreur lors du démarrage de la partie:', error);
       Alert.alert('Erreur', 'Impossible de démarrer la partie');

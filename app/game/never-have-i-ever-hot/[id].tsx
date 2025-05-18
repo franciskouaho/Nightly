@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Pressable, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, Pressable, ActivityIndicator, Alert } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
-import { Player, Question as GameQuestion, GamePhase } from '@/types/gameTypes';
+import {  Question as GameQuestion, GamePhase } from '@/types/gameTypes';
 import RoundedButton from '@/components/RoundedButton';
 import { router } from 'expo-router';
 import { useGame } from '@/hooks/useGame';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/contexts/AuthContext';
-import { getFirestore, doc, onSnapshot, updateDoc, getDoc, collection } from '@react-native-firebase/firestore';
 import { useInAppReview } from '@/hooks/useInAppReview';
 import { useNeverHaveIEverHotAnalytics } from '@/hooks/useNeverHaveIEverHotAnalytics';
 import { useTranslation } from 'react-i18next';

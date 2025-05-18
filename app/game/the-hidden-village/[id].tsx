@@ -2,11 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
-import { useLocalSearchParams } from 'expo-router';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter, usePathname } from 'expo-router';
 import RoundedButton from '@/components/RoundedButton';
 import { useAuth } from '@/contexts/AuthContext';
-import firestore from '@react-native-firebase/firestore';
+import { getFirestore, doc, onSnapshot, updateDoc } from '@react-native-firebase/firestore';
 
 interface Role {
   id: string;
@@ -64,14 +63,16 @@ export default function TheHiddenVillageGame() {
   const { t } = useTranslation();
   const { id } = useLocalSearchParams();
   const router = useRouter();
+  const pathname = usePathname();
   const { user } = useAuth();
   const [game, setGame] = useState<any>(null);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
 
   useEffect(() => {
     if (!id) return;
-    const gameRef = firestore().collection('games').doc(String(id));
-    const unsubscribe = gameRef.onSnapshot((doc) => {
+    const db = getFirestore();
+    const gameRef = doc(db, 'games', String(id));
+    const unsubscribe = onSnapshot(gameRef, (doc) => {
       const data = doc.data();
       if (data) {
         setGame({ ...data, id: doc.id });
@@ -85,10 +86,12 @@ export default function TheHiddenVillageGame() {
 
   useEffect(() => {
     if (!game) return;
-    if (game.phase && game.phase !== 'choix' && game.phase !== 'roles') {
+    if (game.phase === 'night' && !pathname.includes('/night/')) {
       router.replace(`/game/the-hidden-village/night/${game.id}`);
+    } else if (game.phase === 'day' && !pathname.includes('/day/')) {
+      router.replace(`/game/the-hidden-village/day/${game.id}`);
     }
-  }, [game]);
+  }, [game, pathname]);
 
   const renderRoleCard = (role: Role) => (
     <TouchableOpacity
@@ -113,6 +116,13 @@ export default function TheHiddenVillageGame() {
   );
 
   console.log('[DEBUG BUTTON]', { user: user?.uid, host: game?.host, game });
+
+  // Récupère la liste des joueurs depuis game
+  const players = game?.players || [];
+  // Définis le nombre minimum de joueurs attendus (modifiable si besoin)
+  const MIN_PLAYERS = 5;
+  // Vérifie si tous les joueurs sont là
+  const canContinue = players.length >= MIN_PLAYERS;
 
   if (!game) {
     return (
@@ -176,12 +186,13 @@ export default function TheHiddenVillageGame() {
           </View>
         </View>
       </ScrollView>
-      {user && String(user.uid) === String(game.host) && (
+      {user && String(user.uid) === String(game.host) && canContinue && (
         <RoundedButton
           title="Continuer"
           onPress={async () => {
             if (id) {
-              await firestore().collection('games').doc(String(id)).update({ status: 'roles' });
+              const db = getFirestore();
+              await updateDoc(doc(db, 'games', String(id)), { status: 'roles' });
             }
           }}
           style={{
@@ -192,6 +203,11 @@ export default function TheHiddenVillageGame() {
           }}
           textStyle={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}
         />
+      )}
+      {user && String(user.uid) === String(game.host) && !canContinue && (
+        <Text style={{ color: '#fff', textAlign: 'center', margin: 16 }}>
+          En attente que tous les joueurs rejoignent la partie...
+        </Text>
       )}
     </LinearGradient>
   );
