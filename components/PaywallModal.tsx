@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Alert, ActivityIndicator, Linking, Modal } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Alert, ActivityIndicator, Linking, Modal, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import useRevenueCat from '@/hooks/useRevenueCat';
@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderColor: '#000',
     shadowColor: '#000',
-    marginTop: 30,
+    marginTop: Platform.OS === 'ios' ? 50 : 30,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     borderRadius: 20,
     padding: 8,
