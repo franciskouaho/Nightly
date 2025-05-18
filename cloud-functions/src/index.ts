@@ -2,7 +2,8 @@
 export {
   sendWeekendNotifications,
   sendNewContentNotification,
-  sendEventNotification
+  sendEventNotification,
+  sendSundayNotification
 } from './notifications';
 
 export { scheduledDeleteCollections } from './scheduled-cleanup';
