@@ -3,6 +3,8 @@ export {
   sendWeekendNotifications,
   sendNewContentNotification,
   sendEventNotification
-} from './notifications'; 
+} from './notifications';
+
+export { scheduledDeleteCollections } from './scheduled-cleanup';
 
 // firebase deploy --only functions

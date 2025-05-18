@@ -1,7 +1,7 @@
 "use client"
 
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Image, Linking, Platform, Switch } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -9,12 +9,29 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import PaywallModal from '@/components/PaywallModal';
 import { useTranslation } from 'react-i18next';
+import NotificationService from '@/services/notifications';
 
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
   const router = useRouter();
   const [showPaywall, setShowPaywall] = useState(false);
   const { t } = useTranslation();
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+
+  useEffect(() => {
+    NotificationService.getToken().then(token => {
+      setNotificationsEnabled(!!token);
+    });
+  }, []);
+
+  const handleToggleNotifications = async (value: boolean) => {
+    setNotificationsEnabled(value);
+    if (value) {
+      await NotificationService.initialize();
+    } else {
+      // Optionnel : supprimer le token FCM de Firestore si tu veux désactiver côté serveur
+    }
+  };
 
   const handleSignOut = async () => {
     try {
@@ -89,6 +106,18 @@ export default function ProfileScreen() {
             <MaterialCommunityIcons name="chevron-right" size={24} color="rgba(255,255,255,0.7)" />
           </TouchableOpacity>
 
+          {/* Switch pour activer/désactiver les notifications */}
+          <View style={styles.settingItem}>
+            <MaterialCommunityIcons name="bell-ring" size={24} color="#FFD600" />
+            <Text style={styles.settingText}>Notifications</Text>
+            <Switch
+              value={notificationsEnabled}
+              onValueChange={handleToggleNotifications}
+              thumbColor={notificationsEnabled ? "#FFD600" : "#ccc"}
+              trackColor={{ false: "#888", true: "#FFD600" }}
+            />
+          </View>
+
           {/* Carte Passe Premium */}
           <View style={styles.premiumCard}>
             <Text style={styles.premiumTitle}>{t('profile.premium.title').toUpperCase()}</Text>
@@ -133,7 +162,6 @@ export default function ProfileScreen() {
             <Text style={styles.logoutText}>{t('profile.logout')}</Text>
           </TouchableOpacity>
         </View>
-        
         <View style={styles.bottomSpace} />
       </ScrollView>
     </View>
