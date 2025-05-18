@@ -205,10 +205,21 @@ export default {
       bravo: "تهانينا {{name}}!",
       points: "نقاط",
       home: "الرئيسية",
-      calculating: "جاري حساب النتائج..."
+      calculating: "جاري حساب النتائج...",
+      podium: {
+        first: "المركز الأول",
+        second: "المركز الثاني",
+        third: "المركز الثالث",
+        others: "لاعبون آخرون",
+      },
+      rank: "الترتيب",
+      score: "النقاط",
+      player: "اللاعب",
     },
     listenButDontJudge: {
       waiting: "في انتظار اللاعبين الآخرين...",
+      waitingVote: "في انتظار تصويت اللاعب المستهدف...",
+      waitingForOthers: "في انتظار التصويتات الأخرى...",
       submit: "إرسال",
       vote: "تصويت",
       next: "الجولة التالية",

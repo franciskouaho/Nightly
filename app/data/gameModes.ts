@@ -72,20 +72,7 @@ export const gameCategories: GameCategory[] = [
         tagColor: "#D81B60",
         premium: false,
         interactive: 'write'
-      },
-      {
-        id: 'the-hidden-village',
-        name: "LE VILLAGE CACHÉ",
-        description: 'Un jeu de bluff, de stratégie et de discussions... pour ceux qui aiment accuser leurs potes 😈',
-        image: require('@/assets/jeux/levillagecache.png'),
-        colors: ["rgba(147, 51, 234, 0.8)", "rgba(192, 38, 211, 0.9)"],
-        borderColor: "#A855F7",
-        shadowColor: "#A855F7",
-        tag: 'PREMIUM',
-        tagColor: "#D81B60",
-        premium: false,
-        interactive: 'choice'
-      },
+      }
     ]
   },
   {
@@ -105,6 +92,19 @@ export const gameCategories: GameCategory[] = [
         tagColor: "#D81B60",
         premium: false,
         interactive: 'write'
+      },
+      {
+        id: 'the-hidden-village',
+        name: "LE VILLAGE CACHÉ",
+        description: 'Un jeu de bluff, de stratégie et de discussions... pour ceux qui aiment accuser leurs potes 😈',
+        image: require('@/assets/jeux/levillagecache.png'),
+        colors: ["rgba(147, 51, 234, 0.8)", "rgba(192, 38, 211, 0.9)"],
+        borderColor: "#A855F7",
+        shadowColor: "#A855F7",
+        tag: 'PREMIUM',
+        tagColor: "#D81B60",
+        premium: false,
+        interactive: 'choice'
       },
     ]
   }

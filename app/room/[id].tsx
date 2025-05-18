@@ -414,7 +414,6 @@ export default function RoomScreen() {
 
     try {
       await Clipboard.setString(room.code);
-      Alert.alert('Succès', 'Code copié dans le presse-papiers');
     } catch (error) {
       console.error('Erreur lors de la copie du code:', error);
     }

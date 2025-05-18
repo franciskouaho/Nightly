@@ -72,10 +72,9 @@ export default function VillageTable({ players, selectedId, onSelect, centerCont
           y: Platform.OS === 'android' ? hauteurEcran * 0.06 : hauteurEcran * 0.07,
         };
       }
-      const verticalOffset = 150;
       return {
         x: pos.x * largeurEcran - AVATAR_SIZE / 2,
-        y: pos.y * hauteurEcran - AVATAR_SIZE / 2 - verticalOffset,
+        y: Platform.OS === 'android' ? hauteurEcran * 0.06 : hauteurEcran * 0.07,
       };
     });
   } else {
@@ -95,10 +94,9 @@ export default function VillageTable({ players, selectedId, onSelect, centerCont
           y: Platform.OS === 'android' ? hauteurEcran * 0.06 : hauteurEcran * 0.07,
         };
       }
-      const verticalOffset = 150;
       return {
         x: centerX + Math.cos(angle) * radius - AVATAR_SIZE / 2,
-        y: centerY + Math.sin(angle) * radius - AVATAR_SIZE / 2 - verticalOffset,
+        y: Platform.OS === 'android' ? hauteurEcran * 0.06 : hauteurEcran * 0.07,
       };
     });
   }
