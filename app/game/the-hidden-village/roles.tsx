@@ -54,6 +54,7 @@ interface Player {
   name: string;
   avatar?: string;
   role?: string;
+  ready?: boolean;
 }
 
 function getRolesForPlayers(playerCount: number): string[] {
@@ -89,6 +90,7 @@ export default function RolesAttributionScreen() {
   const [loading, setLoading] = useState(true);
   const [role, setRole] = useState<typeof ROLE_CARDS[0] | null>(null);
   const [players, setPlayers] = useState<Player[]>([]);
+  const [hostId, setHostId] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -98,15 +100,33 @@ export default function RolesAttributionScreen() {
       if (!snap.exists) return;
       const data = snap.data() as { players: Player[], hostId: string };
       let playersList: Player[] = data.players || [];
-      // Si les rôles ne sont pas encore attribués (aucun joueur n'a de champ 'role')
-      if (!playersList.some((p: Player) => p.role)) {
+      setHostId(data.hostId || null);
+      // Si tous les joueurs n'ont pas encore de rôle
+      if (!playersList.every((p: Player) => p.role)) {
         // Attribution par l'hôte uniquement
         if (data.hostId && String(data.hostId) === String(user.uid)) {
+          console.log('[DEBUG] Attribution des rôles manquants par l\'hôte');
           const roles = shuffle(getRolesForPlayers(playersList.length));
-          playersList = playersList.map((p: Player, idx: number) => ({ ...p, role: roles[idx] }));
-          await gameRef.update({ players: playersList });
+          // On garde les rôles déjà attribués
+          let roleIdx = 0;
+          playersList = playersList.map((p: Player) => {
+            if (p.role) return p;
+            // On attribue un rôle non utilisé
+            let assignedRole = roles[roleIdx++];
+            // S'assurer qu'on n'attribue pas un rôle déjà pris
+            while (playersList.some(pl => pl.role === assignedRole)) {
+              assignedRole = roles[roleIdx++];
+            }
+            return { ...p, role: assignedRole };
+          });
+          try {
+            await gameRef.update({ players: playersList });
+            console.log('[DEBUG] Rôles attribués et envoyés à Firestore', playersList);
+          } catch (e) {
+            console.error('[DEBUG] Erreur Firestore lors de l\'attribution des rôles', e);
+          }
         } else {
-          setTimeout(() => window.location.reload(), 1500);
+          setLoading(true);
           return;
         }
       }
@@ -123,18 +143,41 @@ export default function RolesAttributionScreen() {
 
   const handleReady = async () => {
     setReady(true);
-    // Ici tu peux mettre à jour Firestore pour signaler que ce joueur est prêt
-    // et router vers la suite du jeu si tout le monde est prêt
+    // Met à jour le joueur dans Firestore
+    const gameRef = firestore().collection('games').doc(String(gameId));
+    const snap = await gameRef.get();
+    const data = snap.exists() ? snap.data() : undefined;
+    if (data) {
+      const playersList = (data.players || []).map((p: Player) =>
+        String(p.id) === String(user.uid) ? { ...p, ready: true } : p
+      );
+      await gameRef.update({ players: playersList });
+      // Si l'hôte, vérifier si tout le monde est prêt et passer à la phase suivante
+      if (data.hostId && String(data.hostId) === String(user.uid)) {
+        const allReady = playersList.every((p: Player) => p.ready);
+        if (allReady) {
+          await gameRef.update({ phase: 'night' }); // phase suivante
+        }
+      }
+    }
     setTimeout(() => {
       router.replace(`/game/the-hidden-village/${gameId}`);
     }, 1200);
   };
 
   if (loading || !role) {
+    let waitingMessage = t('Chargement de ton rôle...');
+    if (players.length > 0 && !players.every((p: Player) => p.role)) {
+      if (players.length > 0 && user && hostId && players.find((p: Player) => String(p.id) === String(user.uid))?.id === hostId) {
+        waitingMessage = t('Attribution des rôles en cours...');
+      } else {
+        waitingMessage = t("En attente de l'attribution des rôles par l'hôte...");
+      }
+    }
     return (
       <View style={styles.container}>
         <ActivityIndicator size="large" color="#A259FF" />
-        <Text style={styles.waitingText}>{t('Chargement de ton rôle...')}</Text>
+        <Text style={styles.waitingText}>{waitingMessage}</Text>
       </View>
     );
   }
