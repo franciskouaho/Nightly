@@ -1,71 +1,73 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
-import { useRouter } from 'expo-router';
+import React, { useEffect, useState, useRef } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { GamePhase, GameState, Player } from '@/types/gameTypes';
+import { GamePhase } from '@/types/gameTypes';
 import { useGame } from '@/hooks/useGame';
 import { useAuth } from '@/contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
-import { TrapAnswer, TrapQuestion, TrapGameState, TrapPlayerAnswer } from './types';
-import { questions as initialQuestions } from './questions';
+import { getQuestions } from './questions';
+import { TrapAnswer, TrapGameState, TrapPlayerAnswer, TrapQuestion } from "@/types/types";
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import RoundedButton from '@/components/RoundedButton';
 
 export default function TrapAnswerGame() {
   const { t } = useTranslation();
   const router = useRouter();
+  const { id } = useLocalSearchParams();
+  const gameId = typeof id === 'string' ? id : id?.[0] || '';
   const { user } = useAuth();
-  const { gameState: genericGameState, updateGameState } = useGame('trap-answer');
+  const { gameState, updateGameState } = useGame<TrapGameState>(gameId);
 
-  const [localState, setLocalState] = useState<TrapGameState>({
-    phase: genericGameState?.phase || GamePhase.LOADING,
-    currentRound: genericGameState?.currentRound || 0,
-    totalRounds: genericGameState?.totalRounds || 0,
-    targetPlayer: genericGameState?.targetPlayer || null,
-    currentQuestion: null,
-    answers: genericGameState?.answers || [],
-    players: genericGameState?.players || [],
-    scores: genericGameState?.scores || {},
-    theme: genericGameState?.theme || '',
-    timer: genericGameState?.timer || null,
-    questions: initialQuestions,
-    playerAnswers: {},
-    askedQuestionIds: [],
-  });
+  // Timer pour la barre de temps (UI only)
+  const TIMER_DURATION = 25; // secondes
+  const [timeLeft, setTimeLeft] = useState(TIMER_DURATION);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    if (genericGameState) {
-      setLocalState(prev => ({
-          ...prev,
-          phase: genericGameState.phase as GamePhase || prev.phase,
-          currentRound: genericGameState.currentRound || prev.currentRound,
-          totalRounds: genericGameState.totalRounds || prev.totalRounds,
-          targetPlayer: genericGameState.targetPlayer || prev.targetPlayer,
-          answers: genericGameState.answers || prev.answers,
-          players: genericGameState.players || prev.players,
-          scores: genericGameState.scores || prev.scores,
-          theme: genericGameState.theme || prev.theme,
-          timer: genericGameState.timer || prev.timer,
-          playerAnswers: prev.playerAnswers || {},
-          askedQuestionIds: prev.askedQuestionIds || [],
-          currentQuestion: prev.currentQuestion || null,
-      }));
-
-      if (initialQuestions.length > 0 && !localState.currentQuestion && localState.askedQuestionIds.length === 0) {
-          const firstQuestion = getRandomQuestion(initialQuestions, []);
-          if (firstQuestion) {
-              setLocalState(prev => ({
-                  ...prev,
-                  currentQuestion: firstQuestion,
-                  askedQuestionIds: [firstQuestion.id],
-              }));
-          } else {
-              updateGameState({
-                  phase: GamePhase.END
-              });
-          }
+    const fetchQuestions = async () => {
+      if (!gameState || gameState.questions?.length > 0) return;
+      
+      const fetchedQuestions = await getQuestions();
+      if (fetchedQuestions.length > 0) {
+        const firstQuestion = getRandomQuestion(fetchedQuestions, []);
+        if (firstQuestion) {
+          updateGameState({
+            questions: fetchedQuestions,
+            currentQuestion: firstQuestion,
+            askedQuestionIds: [firstQuestion.id],
+            phase: GamePhase.QUESTION,
+            currentRound: 0,
+          });
+        } else {
+          updateGameState({ phase: GamePhase.END });
+        }
+      } else {
+        updateGameState({ phase: GamePhase.END });
       }
-    }
+    };
 
-  }, [genericGameState, initialQuestions]);
+    fetchQuestions();
+  }, [gameState?.questions?.length]);
+
+  useEffect(() => {
+    if (gameState?.phase === GamePhase.QUESTION) {
+      setTimeLeft(TIMER_DURATION);
+      if (timerRef.current) clearInterval(timerRef.current);
+      timerRef.current = setInterval(() => {
+        setTimeLeft(prev => {
+          if (prev <= 1) {
+            clearInterval(timerRef.current!);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } else {
+      if (timerRef.current) clearInterval(timerRef.current);
+    }
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [gameState?.phase, gameState?.currentQuestion]);
 
   const calculateScore = (answer: TrapAnswer): number => {
     if (answer.isCorrect) return 1;
@@ -74,231 +76,643 @@ export default function TrapAnswerGame() {
   };
 
   const getRandomQuestion = (allQuestions: TrapQuestion[], askedIds: string[]): TrapQuestion | null => {
-    const availableQuestions = allQuestions.filter(q => !askedIds.includes(q.id));
-    if (availableQuestions.length === 0) return null;
-    const randomIndex = Math.floor(Math.random() * availableQuestions.length);
-    return availableQuestions[randomIndex] || null;
+    const available = allQuestions.filter(q => !askedIds.includes(q.id));
+    if (available.length === 0) return null;
+    return available[Math.floor(Math.random() * available.length)] || null;
   };
 
   const nextQuestion = () => {
-    const nextQ = getRandomQuestion(localState.questions, localState.askedQuestionIds);
-    if (nextQ) {
-      const updatedAskedQuestionIds = [...localState.askedQuestionIds, nextQ.id];
-      setLocalState(prev => ({
-        ...prev,
-        currentQuestion: nextQ,
-        askedQuestionIds: updatedAskedQuestionIds,
-        playerAnswers: {}
-      }));
-      updateGameState({
-        currentQuestion: nextQ as any,
-      });
+    if (!gameState?.questions?.length) return;
+    
+    const nextQ = getRandomQuestion(
+      gameState.questions,
+      [...(gameState.askedQuestionIds || []), gameState.currentQuestion?.id].filter((id): id is string => !!id)
+    );
 
-    } else {
+    if (nextQ) {
       updateGameState({
-        phase: GamePhase.END
+        currentQuestion: nextQ,
+        askedQuestionIds: [...(gameState.askedQuestionIds || []), nextQ.id],
+        playerAnswers: {},
+        phase: GamePhase.QUESTION,
+        currentRound: (gameState.currentRound ?? 0) + 1,
       });
+    } else {
+      updateGameState({ phase: GamePhase.END });
     }
   };
 
   const handleAnswer = (answer: TrapAnswer) => {
-    if (!user || !localState.currentQuestion) return;
-
-    if (localState.playerAnswers[user.uid]) {
-        return;
-    }
+    if (!user || !gameState?.currentQuestion || gameState.phase !== GamePhase.QUESTION) return;
+    if (gameState.playerAnswers?.[user.uid]) return;
 
     const newPlayerAnswer: TrapPlayerAnswer = {
-        answer: answer.text,
-        isCorrect: answer.isCorrect,
-        isTrap: answer.isTrap
+      answer: answer.text,
+      isCorrect: answer.isCorrect,
+      isTrap: answer.isTrap
     };
 
-    const newPlayerAnswers: { [playerId: string]: TrapPlayerAnswer } = {
-      ...localState.playerAnswers,
+    const newAnswers = {
+      ...(gameState.playerAnswers || {}),
       [user.uid]: newPlayerAnswer,
     };
 
     const score = calculateScore(answer);
     const newScores = {
-      ...localState.scores,
-      [user.uid]: (localState.scores[user.uid] || 0) + score
+      ...(gameState.scores || {}),
+      [user.uid]: (gameState.scores?.[user.uid] || 0) + score,
     };
 
-    setLocalState(prev => ({
-      ...prev,
-      playerAnswers: newPlayerAnswers,
-      scores: newScores
-    }));
+    // Historique robuste : toujours un array de la bonne taille
+    const totalRounds = gameState.totalRounds || 5;
+    const baseHistory = (gameState as any)?.history || {};
+    const newHistory = { ...baseHistory };
+    if (!newHistory[user.uid]) newHistory[user.uid] = [];
+    // Remplir l'array jusqu'à totalRounds
+    while (newHistory[user.uid].length < totalRounds) {
+      newHistory[user.uid].push(0);
+    }
+    newHistory[user.uid][gameState.currentRound] = answer.isCorrect ? 1 : answer.isTrap ? -1 : 0;
 
-    updateGameState({
+    const updateData: Partial<TrapGameState> = {
       scores: newScores,
+      playerAnswers: newAnswers,
+      history: newHistory,
+    };
+
+    Object.keys(updateData).forEach(key => {
+      const typedKey = key as keyof typeof updateData;
+      if (updateData[typedKey] === undefined) {
+        delete updateData[typedKey];
+      }
     });
 
-    // setTimeout(nextQuestion, 2000);
+    updateGameState(updateData);
   };
 
-  const renderQuestion = () => {
-    if (!localState.currentQuestion) return null;
+  const isContinueButtonEnabled =
+    gameState?.phase === GamePhase.QUESTION &&
+    gameState?.players?.length > 0 &&
+    Object.keys(gameState?.playerAnswers || {}).length === gameState?.players?.length;
 
+  // Pour la démo, on prend les deux premiers joueurs
+  const leftPlayer = (gameState?.players || [])[0];
+  const rightPlayer = (gameState?.players || [])[1];
+
+  if (!gameState) return null;
+
+  if (gameState.phase === GamePhase.END) {
     return (
-      <View style={styles.questionContainer}>
-        <View style={styles.themeContainer}>
-          <Text style={styles.themeText}>{localState.currentQuestion.theme}</Text>
+      <GameResults
+        players={gameState.players || []}
+        scores={gameState.scores || {}}
+        userId={user?.uid || ''}
+      />
+    );
+  }
+
+  return (
+    <LinearGradient colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]} style={styles.bgGradient}>
+      {/* DUEL HEADER */}
+      <View style={styles.duelHeader}>
+        {/* Avatar gauche */}
+        <View style={styles.duelPlayerCol}>
+          <View style={styles.duelAvatar}>
+            {leftPlayer?.avatar ? (
+              <Image
+                source={{ uri: leftPlayer.avatar }}
+                style={styles.duelAvatarImage}
+              />
+            ) : (
+              <MaterialCommunityIcons name="account" size={32} color="#661A59" />
+            )}
+          </View>
+          <Text style={styles.duelPlayerName}>{leftPlayer?.name || 'En attente...'}</Text>
+          <View style={styles.duelWinsRow}>
+            {[...Array(gameState.totalRounds)].map((_, i) => {
+              const roundArr = leftPlayer?.id && (gameState as any)?.history ? (gameState as any).history[leftPlayer.id] || [] : [];
+              const round = typeof roundArr[i] === 'number' ? roundArr[i] : 0;
+              let dotStyle = styles.duelLoseDot;
+              if (round === 1) dotStyle = styles.duelWinDot;
+              if (round === -1) dotStyle = styles.duelTrapDot;
+              return <View key={i} style={dotStyle} />;
+            })}
+          </View>
         </View>
-        <Text style={styles.questionText}>{localState.currentQuestion.question}</Text>
-        <View style={styles.answersContainer}>
-          {localState.currentQuestion.answers.map((answer, index) => {
-            const hasAnswered = !!localState.playerAnswers[user?.uid || ''];
-            const isAnswered = localState.playerAnswers[user?.uid || '']?.answer === answer.text;
+        {/* Icône duel au centre */}
+        <View style={styles.duelCenter}>
+          <MaterialCommunityIcons name="sword-cross" size={38} color="#661A59" />
+          <Text style={styles.duelLabel}>DUEL</Text>
+        </View>
+        {/* Avatar droite */}
+        <View style={styles.duelPlayerCol}>
+          <View style={styles.duelAvatar}>
+            {rightPlayer?.avatar ? (
+              <Image
+                source={{ uri: rightPlayer.avatar }}
+                style={styles.duelAvatarImage}
+              />
+            ) : (
+              <MaterialCommunityIcons name="account" size={32} color="#661A59" />
+            )}
+          </View>
+          <Text style={styles.duelPlayerName}>{rightPlayer?.name || 'En attente...'}</Text>
+          <View style={styles.duelWinsRow}>
+            {[...Array(gameState.totalRounds)].map((_, i) => {
+              const roundArr = rightPlayer?.id && (gameState as any)?.history ? (gameState as any).history[rightPlayer.id] || [] : [];
+              const round = typeof roundArr[i] === 'number' ? roundArr[i] : 0;
+              let dotStyle = styles.duelLoseDot;
+              if (round === 1) dotStyle = styles.duelWinDot;
+              if (round === -1) dotStyle = styles.duelTrapDot;
+              return <View key={i} style={dotStyle} />;
+            })}
+          </View>
+        </View>
+      </View>
+
+      {/* Carte question */}
+      <View style={styles.questionCard}>
+        {gameState.currentQuestion && (
+          <View style={styles.categoryBadge}>
+            <Text style={styles.categoryBadgeText}>{gameState.currentQuestion.theme}</Text>
+          </View>
+        )}
+        <Text style={styles.questionText}>{gameState.currentQuestion?.question}</Text>
+      </View>
+
+      <View style={styles.timerBarContainer}>
+        <View style={styles.timerBarBg}>
+          <View style={[styles.timerBarFg, { width: `${(timeLeft / TIMER_DURATION) * 100}%` }]} />
+        </View>
+        <Text style={styles.timerText}>{timeLeft}s</Text>
+      </View>
+
+      <View style={styles.answersGridWrapper}>
+        <View style={styles.answersGrid}>
+          {(gameState.currentQuestion?.answers || []).map((answer, index) => {
+            const hasAnswered = !!gameState.playerAnswers?.[user?.uid || ''];
+            const isAnswered = gameState.playerAnswers?.[user?.uid || '']?.answer === answer.text;
+
+            let buttonStyle = styles.answerButton;
+            let textStyle = styles.answerText;
+
+            if (hasAnswered) {
+              if (isAnswered) {
+                if (answer.isCorrect) {
+                  buttonStyle = styles.answerButtonCorrect;
+                } else if (answer.isTrap) {
+                  buttonStyle = styles.answerButtonTrap;
+                } else {
+                  buttonStyle = styles.answerButtonSelected;
+                }
+              } else {
+                buttonStyle = styles.answerButton;
+              }
+            } else if (isAnswered) {
+              buttonStyle = styles.answerButtonSelected;
+              textStyle = styles.answerTextSelected;
+            }
 
             return (
               <TouchableOpacity
                 key={index}
-                style={[styles.answerButton, hasAnswered && isAnswered && styles.answeredButton]}
+                style={buttonStyle}
                 onPress={() => handleAnswer(answer)}
-                disabled={hasAnswered}
+                disabled={hasAnswered || gameState.phase !== GamePhase.QUESTION}
               >
-                <Text style={[styles.answerText, hasAnswered && isAnswered && styles.answeredText]}>{answer.text}</Text>
+                <Text style={textStyle}>
+                  {answer.text}
+                </Text>
               </TouchableOpacity>
             );
           })}
         </View>
       </View>
-    );
-  };
 
-  const renderPlayers = () => {
-    const players = localState.players || [];
-    return (
-      <View style={styles.playersContainer}>
-        {players.map(player => (
-          <View key={player.id} style={styles.playerInfo}>
-            <View style={styles.playerAvatarPlaceholder} />
-            <Text style={styles.playerName}>{player.name}</Text>
-            <Text style={styles.playerScore}>{localState.scores[player.id] || 0}</Text>
-          </View>
-        ))}
-      </View>
-    );
-  };
+      {gameState.phase === GamePhase.QUESTION &&
+        Object.keys(gameState.playerAnswers || {}).length === gameState.players?.length && (
+        <View style={styles.continueButtonWrapper}>
+          <RoundedButton
+            title={t('game.continue')}
+            onPress={nextQuestion}
+            icon={<Ionicons name="arrow-forward" size={22} color="#fff" />}
+            gradientColors={isContinueButtonEnabled ? ["#00C853", "#00E676"] : ["#BDBDBD", "#BDBDBD"]}
+            disabled={!isContinueButtonEnabled}
+            style={{ width: '100%' }}
+          />
+        </View>
+      )}
+    </LinearGradient>
+  );
+}
 
-  const isContinueButtonEnabled = localState.players.length > 0 && Object.keys(localState.playerAnswers).length === localState.players.length;
+function GameResults({ players, scores, userId }: { players: any[], scores: Record<string, number>, userId: string }) {
+  const router = useRouter();
+  // Trie les joueurs par score décroissant
+  const sortedPlayers = [...players].sort((a, b) => (scores[b.id] || 0) - (scores[a.id] || 0));
+  const winner = sortedPlayers[0];
+  const userRank = sortedPlayers.findIndex(p => p.id === userId) + 1;
+  const userScore = scores[userId] || 0;
+
+  let message = '';
+  if (userRank === 1) message = "Bien joué, tu es en tête !";
+  else message = `Tu es ${userRank}ème !`;
+
+  // Pour la hauteur des barres
+  const maxScore = Math.max(...sortedPlayers.map(p => scores[p.id] || 0), 1);
 
   return (
-    <LinearGradient
-      colors={["rgba(40, 40, 40, 0.8)", "rgba(60, 60, 60, 0.9)"]}
-      style={styles.container}
-    >
-      {renderPlayers()}
-      <ScrollView style={styles.scrollView}>
-        {renderQuestion()}
-      </ScrollView>
-       <TouchableOpacity
-         style={[styles.continueButton, !isContinueButtonEnabled && styles.continueButtonDisabled]}
-         onPress={nextQuestion}
-         disabled={!isContinueButtonEnabled}
-       >
-        <Text style={styles.continueButtonText}>{t('game.continue')}</Text>
-      </TouchableOpacity>
+    <LinearGradient colors={["#0E1117", "#661A59", "#21101C"]} style={styles.bg}>
+      <Text style={styles.roundNumber}>🏆</Text>
+      <Text style={styles.message}>{message}</Text>
+      <View style={styles.barsRow}>
+        {sortedPlayers.map((player, idx) => {
+          const score = scores[player.id] || 0;
+          const isUser = player.id === userId;
+          const isWinner = idx === 0;
+          // Hauteur proportionnelle
+          const barHeight = 120 + 80 * (score / maxScore);
+          let barStyle = styles.bar;
+          if (isWinner) barStyle = styles.barWinner;
+          else if (isUser) barStyle = styles.barUser;
+          else barStyle = styles.barOther;
+          return (
+            <View key={player.id} style={styles.barCol}>
+              <View style={styles.barBg}>
+                <View style={[barStyle, { height: barHeight }]} />
+              </View>
+              <View style={styles.avatarWrapper}>
+                <Image source={{ uri: player.avatar }} style={styles.avatarImg} />
+                {isWinner && <View style={styles.crown}><Text style={styles.crownText}>1</Text></View>}
+              </View>
+              <Text style={[styles.score, isWinner && styles.scoreWinner, isUser && styles.scoreUser]}>{score}</Text>
+              <Text style={[styles.pseudo, isUser && styles.pseudoUser]} numberOfLines={1}>{player.name}</Text>
+            </View>
+          );
+        })}
+      </View>
+      <View style={styles.homeBtnAbsolute}>
+        <RoundedButton
+          title="Accueil"
+          onPress={() => router.replace("/")}
+          icon={<Ionicons name="home" size={22} color="#fff" />}
+          gradientColors={["#7B2CBF", "#661A59"]}
+          style={{ width: '90%' }}
+        />
+      </View>
     </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  bgGradient: {
     flex: 1,
-    padding: 20,
-    justifyContent: 'space-between',
-  },
-  scrollView: {
-    flex: 1,
-    marginVertical: 20,
-  },
-  playersContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 20,
-  },
-  playerInfo: {
+    justifyContent: 'flex-start',
     alignItems: 'center',
+    paddingTop: 40,
   },
-  playerAvatarPlaceholder: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#ccc',
-    marginBottom: 5,
+  playersRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+    marginBottom: 18,
+  },
+  playerAvatarScore: {
+    alignItems: 'center',
+    marginHorizontal: 18,
+  },
+  avatarImg: {
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    borderWidth: 2,
+    borderColor: '#fff',
+    marginBottom: 4,
+    backgroundColor: '#eee',
   },
   playerName: {
-    color: 'white',
-    fontSize: 14,
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: '600',
+    marginBottom: 2,
   },
-  playerScore: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  questionContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 20,
-  },
-  themeContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 15,
-    paddingVertical: 5,
-    paddingHorizontal: 15,
+  scoreBadge: {
+    backgroundColor: '#FFD600',
+    borderRadius: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    marginTop: 2,
     alignSelf: 'center',
-    marginBottom: 15,
+    minWidth: 28,
   },
-  themeText: {
-    color: 'white',
-    fontSize: 14,
+  scoreBadgeText: {
+    color: '#232323',
     fontWeight: 'bold',
+    fontSize: 15,
+    textAlign: 'center',
+  },
+  questionCard: {
+    backgroundColor: 'rgba(43, 45, 66, 0.95)',
+    borderRadius: 32,
+    paddingVertical: 32,
+    paddingHorizontal: 18,
+    width: '90%',
+    alignItems: 'center',
+    marginBottom: 18,
+    borderWidth: 1,
+    borderColor: 'rgba(123, 44, 191, 0.3)',
+    shadowColor: '#7B2CBF',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  categoryBadge: {
+    backgroundColor: '#7B2CBF',
+    borderRadius: 12,
+    paddingHorizontal: 18,
+    paddingVertical: 6,
+    marginBottom: 18,
+    shadowColor: '#7B2CBF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  categoryBadgeText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 15,
+    textTransform: 'capitalize',
   },
   questionText: {
-    fontSize: 20,
-    color: 'white',
+    color: '#fff',
+    fontSize: 22,
+    fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 24,
   },
-  answersContainer: {
-    gap: 10,
+  timerBarContainer: {
+    width: '90%',
+    alignSelf: 'center',
+    marginTop: 8,
+    marginBottom: 18,
+    alignItems: 'center',
+  },
+  timerBarBg: {
+    width: '100%',
+    height: 8,
+    backgroundColor: 'rgba(43, 45, 66, 0.95)',
+    borderRadius: 6,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(123, 44, 191, 0.3)',
+  },
+  timerBarFg: {
+    height: 8,
+    backgroundColor: '#7B2CBF',
+    borderRadius: 6,
+  },
+  timerText: {
+    color: '#7B2CBF',
+    fontWeight: 'bold',
+    fontSize: 14,
+    marginTop: 2,
+  },
+  answersGridWrapper: {
+    width: '90%',
+    alignSelf: 'center',
+    marginTop: 18,
+    marginBottom: 8,
+  },
+  answersGrid: {
+    width: '100%',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
   },
   answerButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    padding: 15,
-    borderRadius: 10,
+    backgroundColor: 'rgba(43, 45, 66, 0.95)',
+    borderRadius: 22,
+    width: '48%',
+    marginBottom: 18,
+    paddingVertical: 22,
+    alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: 'rgba(123, 44, 191, 0.3)',
+    shadowColor: '#7B2CBF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  answeredButton: {
-    backgroundColor: 'rgba(76, 175, 80, 0.3)',
-    borderColor: '#4CAF50',
+  answerButtonCorrect: {
+    backgroundColor: '#00C853',
+    borderRadius: 22,
+    width: '48%',
+    marginBottom: 18,
+    paddingVertical: 22,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#00C853',
+    shadowColor: '#7B2CBF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  answerButtonTrap: {
+    backgroundColor: '#D32F2F',
+    borderRadius: 22,
+    width: '48%',
+    marginBottom: 18,
+    paddingVertical: 22,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#D32F2F',
+    shadowColor: '#7B2CBF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  answerButtonSelected: {
+    backgroundColor: '#7B2CBF',
+    borderRadius: 22,
+    width: '48%',
+    marginBottom: 18,
+    paddingVertical: 22,
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: '#fff',
+    shadowColor: '#7B2CBF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
   },
   answerText: {
-    color: 'white',
-    fontSize: 16,
-    textAlign: 'center',
-  },
-  answeredText: {
-    fontWeight: 'bold',
-  },
-  continueButton: {
-    backgroundColor: '#4CAF50',
-    padding: 15,
-    borderRadius: 30,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  continueButtonDisabled: {
-    backgroundColor: '#A5D6A7',
-  },
-  continueButtonText: {
-    color: 'white',
+    color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
   },
-}); 
+  answerTextSelected: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  continueButtonWrapper: {
+    width: '90%',
+    marginTop: 24,
+    marginBottom: 32,
+  },
+  continueButton: {
+    borderRadius: 18,
+    paddingVertical: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    shadowColor: '#7B2CBF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  continueButtonDisabled: {
+    backgroundColor: 'rgba(43, 45, 66, 0.95)',
+    borderWidth: 1,
+    borderColor: 'rgba(123, 44, 191, 0.3)',
+  },
+  continueButtonText: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  duelHeader: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+    marginTop: 80,
+  },
+  duelPlayerCol: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  duelAvatar: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    borderWidth: 3,
+    borderColor: '#661A59',
+    marginBottom: 4,
+    backgroundColor: '#21101C',
+    shadowColor: '#661A59',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  duelAvatarImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 29,
+  },
+  duelPlayerName: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 15,
+    marginBottom: 2,
+    textShadowColor: 'rgba(0,0,0,0.25)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  duelWinsRow: {
+    flexDirection: 'row',
+    marginTop: 2,
+    marginBottom: 2,
+  },
+  duelWinDot: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: '#00C853',
+    marginHorizontal: 2,
+    borderWidth: 1,
+    borderColor: '#fff',
+    shadowColor: '#00C853',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  duelTrapDot: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: '#D32F2F',
+    marginHorizontal: 2,
+    borderWidth: 1,
+    borderColor: '#fff',
+    shadowColor: '#D32F2F',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  duelLoseDot: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: 'rgba(43, 45, 66, 0.95)',
+    marginHorizontal: 2,
+    borderWidth: 1,
+    borderColor: 'rgba(123, 44, 191, 0.3)',
+  },
+  duelCenter: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 10,
+  },
+  duelLabel: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 13,
+    marginTop: 2,
+    letterSpacing: 1,
+    textShadowColor: 'rgba(0,0,0,0.25)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  bg: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: 40 },
+  roundNumber: { fontSize: 28, color: '#fff', marginTop: 10, marginBottom: 10, fontWeight: 'bold' },
+  message: { fontSize: 22, color: '#fff', fontWeight: 'bold', marginBottom: 30, textAlign: 'center', textShadowColor: '#21101C', textShadowOffset: { width: 0, height: 2 }, textShadowRadius: 6 },
+  barsRow: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'center', width: '100%', marginBottom: 30 },
+  barCol: { alignItems: 'center', marginHorizontal: 8 },
+  barBg: { width: 48, height: 200, justifyContent: 'flex-end', alignItems: 'center', backgroundColor: 'rgba(123,44,191,0.10)', borderRadius: 24, marginBottom: 8 },
+  bar: { width: 40, borderRadius: 20, backgroundColor: '#23233b', marginBottom: -4 },
+  barWinner: { width: 40, borderRadius: 20, marginBottom: -4, backgroundColor: '#00C853', shadowColor: '#00C853', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4 },
+  barUser: { width: 40, borderRadius: 20, marginBottom: -4, backgroundColor: '#7B2CBF', borderWidth: 2, borderColor: '#fff' },
+  barOther: { width: 40, borderRadius: 20, marginBottom: -4, backgroundColor: '#34314c' },
+  avatarWrapper: { position: 'relative', marginBottom: 4 },
+  crown: { position: 'absolute', top: -10, right: -10, backgroundColor: '#FFD600', borderRadius: 12, width: 24, height: 24, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: '#fff' },
+  crownText: { color: '#232323', fontWeight: 'bold', fontSize: 15 },
+  score: { color: '#fff', fontWeight: 'bold', fontSize: 18, marginTop: 2 },
+  scoreWinner: { color: '#00C853', fontSize: 22 },
+  scoreUser: { color: '#7B2CBF', fontWeight: 'bold', fontSize: 20 },
+  pseudo: { color: '#fff', fontSize: 13, marginTop: 2, maxWidth: 60, textAlign: 'center' },
+  pseudoUser: { color: '#FFD600', fontWeight: 'bold' },
+  homeBtnAbsolute: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 40,
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  homeBtn: { borderRadius: 18, paddingVertical: 16, alignItems: 'center', justifyContent: 'center', width: '100%', shadowColor: '#7B2CBF', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 },
+  homeBtnText: { color: '#fff', fontSize: 20, fontWeight: 'bold', letterSpacing: 1 },
+});

@@ -165,6 +165,11 @@ export default {
         name: "LE VILLAGE CACHÉ",
         description: "Un jeu de bluff, de stratégie et de discussions... pour ceux qui aiment accuser leurs potes 😈",
         tag: "PREMIUM"
+      },
+      "trap-answer": {
+        name: "Question Piège",
+        tag: "GRATUIT",
+        description: "Un quiz où une mauvaise réponse te fait perdre des points... Pourras-tu éviter les pièges ?"
       }
     }
   },

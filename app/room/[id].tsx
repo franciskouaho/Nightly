@@ -13,6 +13,8 @@ import RoundedButton from '@/components/RoundedButton';
 import Avatar from '@/components/Avatar';
 import { useTranslation } from 'react-i18next';
 import i18n from '@/app/i18n/i18n';
+import { getQuestions } from '../game/trap-answer/questions';
+import { TrapGameState } from '@/types/types';
 
 // Type pour l'utilisateur
 interface User {
@@ -192,21 +194,25 @@ export default function RoomScreen() {
     const roomRef = doc(db, 'rooms', id as string);
     
     const unsubscribe = onSnapshot(roomRef, async (doc) => {
+      console.log('[DEBUG] onSnapshot déclenché');
       if (doc.exists()) {
         const roomData = { ...(doc.data() as Room), id: doc.id };
         setRoom(roomData);
 
         // Ajout du log debug
         console.log('[DEBUG ROOM] roomData:', roomData);
+        console.log('[DEBUG ROOM] Statut:', roomData.status, 'gameDocId:', roomData.gameDocId, 'gameMode:', roomData.gameMode);
 
         // Redirection automatique pour tous les joueurs quand la partie commence
         if (roomData.status === 'playing' && roomData.gameDocId) {
-          if (roomData.gameMode === 'action-verite') {
+          if (roomData.gameMode === 'truth-or-dare') {
             router.replace(`/game/truth-or-dare/${roomData.gameDocId}`);
-          } else if (roomData.gameMode === 'on-ecoute-mais-on-ne-juge-pas') {
+          } else if (roomData.gameMode === 'listen-but-don-t-judge') {
             router.replace(`/game/listen-but-don-t-judge/${roomData.gameDocId}`);
           } else if (roomData.gameMode === 'the-hidden-village') {
             router.replace(`/game/the-hidden-village/${roomData.gameDocId}`);
+          } else if (roomData.gameMode === 'trap-answer') {
+            router.replace(`/game/trap-answer/${roomData.gameDocId}`);
           }
           return;
         }
@@ -271,50 +277,83 @@ export default function RoomScreen() {
     if (!room || !user) return;
 
     try {
+      console.log('[DEBUG] Début startGame');
       const db = getFirestore();
+      let questions = [];
+      let data;
       
-      // 1. Récupérer les questions pour le mode de jeu
-      const questionsRef = doc(
-        db,
-        'gameQuestions',
-        room.gameId === 'action-verite' ? 'truth-or-dare' : room.gameId
-      );
-      const questionsDoc = await getDoc(questionsRef);
-      
-      if (!questionsDoc.exists()) {
-        throw new Error('Questions non trouvées pour ce mode de jeu');
+      if (room.gameId === 'trap-answer') {
+        questions = await getQuestions();
+      } else {
+        // 1. Récupérer les questions pour le mode de jeu
+        const questionsRef = doc(
+          db,
+          'gameQuestions',
+          room.gameId === 'action-verite' ? 'truth-or-dare' : room.gameId
+        );
+        console.log('[DEBUG] Avant getDoc questionsRef:', questionsRef.path);
+        const questionsDoc = await getDoc(questionsRef);
+        console.log('[DEBUG] Après getDoc, existe:', questionsDoc.exists());
+        if (!questionsDoc.exists()) {
+          throw new Error('Questions non trouvées pour ce mode de jeu');
+        }
+        data = questionsDoc.data();
+        // Récupération des questions dans la langue actuelle
+        const translations = data?.translations || {};
+        const currentLanguage = i18n.language || 'fr';
+        questions = translations[currentLanguage] || translations.fr || [];
       }
       
-      const data = questionsDoc.data();
-      // Récupération des questions dans la langue actuelle
-      const translations = data?.translations || {};
-      const currentLanguage = i18n.language || 'fr';
-      const questions = translations[currentLanguage] || translations.fr || [];
-      
+      console.log('[DEBUG] Nombre de questions:', questions.length);
       if (!questions || questions.length === 0) {
         console.error('Structure de données:', data);
         throw new Error('Aucune question disponible pour ce mode de jeu');
       }
-
-      console.log(`Questions trouvées pour ${room.gameId} (${currentLanguage}):`, questions.length);
-
+      
       // 2. Créer le document de jeu
       const gameRef = doc(collection(db, 'games'));
       const randomPlayer = room.players[Math.floor(Math.random() * room.players.length)] || null;
-      
-      const firstQuestion: Question = {
-        id: '1',
-        text: typeof questions[0] === 'string' ? questions[0] : questions[0].text || '',
+      const gameData: (GameState & { gameId: string, host: string, hostId: string }) | TrapGameState = room.gameId === 'trap-answer' ? {
+        phase: GamePhase.QUESTION,
+        currentRound: 1,
+        totalRounds: selectedRounds,
+        targetPlayer: randomPlayer,
+        currentQuestion: questions[0],
+        questions: questions,
+        answers: [],
+        players: room.players.map(p => ({
+          id: String(p.id),
+          name: p.displayName || p.username,
+          avatar: p.avatar
+        })),
+        scores: {},
         theme: room.gameId,
-        roundNumber: 1
-      };
-      
-      const gameData: GameState & { gameId: string, host: string, hostId: string } = {
+        timer: 60,
+        currentUserState: {
+          isTargetPlayer: false,
+          hasAnswered: false,
+          hasVoted: false
+        },
+        game: {
+          currentPhase: GamePhase.QUESTION,
+          currentRound: 1,
+          totalRounds: selectedRounds,
+          scores: {},
+          gameMode: room.gameMode || room.gameId,
+          hostId: room.host
+        },
+        currentPlayerId: randomPlayer ? String(randomPlayer.id) : '',
+        gameId: room.gameId,
+        host: room.host,
+        hostId: room.host,
+        playerAnswers: {},
+        askedQuestionIds: []
+      } : {
         phase: GamePhase.CHOIX,
         currentRound: room.gameId === 'the-hidden-village' ? 0 : 1,
         totalRounds: room.gameId === 'the-hidden-village' ? 0 : selectedRounds,
         targetPlayer: randomPlayer,
-        currentQuestion: firstQuestion,
+        currentQuestion: questions[0],
         answers: [],
         players: room.players.map(p => ({
           id: String(p.id),
@@ -342,25 +381,21 @@ export default function RoomScreen() {
         host: room.host,
         hostId: room.host
       };
-
-      // 3. Créer le document de jeu
+      console.log('[DEBUG] Avant setDoc gameRef:', gameRef.path);
       await setDoc(gameRef, gameData);
-
-      // 4. Mettre à jour le statut de la salle
+      console.log('[DEBUG] Après setDoc');
       await updateDoc(doc(db, 'rooms', room.id), {
         status: 'playing',
         startedAt: new Date().toISOString(),
         gameDocId: gameRef.id,
         gameMode: room.gameMode || room.gameId
       });
-
-      // 5. Naviguer vers le jeu
+      console.log('[DEBUG] Après updateDoc room');
       if (room.gameId === 'truth-or-dare') {
         router.push(`/game/truth-or-dare/${gameRef.id}`);
       }
-      
     } catch (error: unknown) {
-      console.error('Erreur lors du démarrage de la partie:', error);
+      console.error('[DEBUG] Erreur lors du démarrage de la partie:', error);
       Alert.alert('Erreur', 'Impossible de démarrer la partie');
     }
   };

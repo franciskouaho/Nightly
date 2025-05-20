@@ -165,7 +165,12 @@ export default {
         name: "IL VILLAGGIO NASCOSTO",
         description: "Un gioco di bluff, strategia e discussioni... per chi ama accusare gli amici 😈",
         tag: "PREMIUM"
-      }
+      },
+      "trap-answer": {
+        name: "Risposta Trappola",
+        tag: "GRATIS",
+        description: "Un quiz in cui una risposta sbagliata ti fa perdere punti... Riuscirai a evitare le trappole?"
+      },
     }
   },
 

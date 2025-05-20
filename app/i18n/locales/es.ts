@@ -165,7 +165,12 @@ export default {
         name: "EL PUEBLO ESCONDIDO",
         description: "Un juego de farol, estrategia y discusiones... para los que disfrutan acusando a sus amigos 😈",
         tag: "PREMIUM"
-      }
+      },
+      "trap-answer": {
+        name: "Respuesta Trampa",
+        tag: "GRATIS",
+        description: "Un quiz donde una respuesta incorrecta te hace perder puntos... ¿Podrás evitar las trampas?"
+      },
     }
   },
 

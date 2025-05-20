@@ -167,10 +167,10 @@ export default {
         tag: "PREMIUM"
       },
       "trap-answer": {
-        name: "TRAP ANSWER",
-        description: "A quiz where one wrong answer makes you lose points... Can you avoid it?",
-        tag: "FREE"
-      }
+        name: "Trap Answer",
+        tag: "FREE",
+        description: "A quiz where one wrong answer makes you lose points... Can you avoid the traps?"
+      },
     }
   },
 

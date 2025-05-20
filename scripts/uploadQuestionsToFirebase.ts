@@ -379,6 +379,234 @@ const questions = {
         "إذا كان بإمكانك اختراع دور خاص، ما هو؟"
       ]
     }
+  },
+  'trap-answer': {
+    translations: {
+      fr: [
+        {
+          type: "culture",
+          question: "Où a été inventé le croissant ?",
+          answer: "Autriche",
+          traps: ["France", "Italie", "Belgique"]
+        },
+        {
+          type: "nature",
+          question: "Quel est l'animal le plus rapide sur terre ?",
+          answer: "Guepard",
+          traps: ["Aigle royal", "Lièvre", "Zèbre"]
+        },
+        {
+          type: "art",
+          question: "Qui a peint la Joconde ?",
+          answer: "Léonard de Vinci",
+          traps: ["Michel-Ange", "Raphaël", "Botticelli"]
+        },
+        {
+          type: "geographie",
+          question: "Quelle est la capitale de l'Australie ?",
+          answer: "Canberra",
+          traps: ["Sydney", "Melbourne", "Brisbane"]
+        },
+        {
+          type: "geographie",
+          question: "Quel est le plus grand océan du monde ?",
+          answer: "Océan Pacifique",
+          traps: ["Océan Atlantique", "Océan Indien", "Océan Arctique"]
+        }
+      ],
+      en: [
+        {
+          type: "culture",
+          question: "Where was the croissant invented?",
+          answer: "Austria",
+          traps: ["France", "Italy", "Belgium"]
+        },
+        {
+          type: "nature",
+          question: "What is the fastest animal on land?",
+          answer: "Cheetah",
+          traps: ["Golden Eagle", "Hare", "Zebra"]
+        },
+        {
+          type: "art",
+          question: "Who painted the Mona Lisa?",
+          answer: "Leonardo da Vinci",
+          traps: ["Michelangelo", "Raphael", "Botticelli"]
+        },
+        {
+          type: "geography",
+          question: "What is the capital of Australia?",
+          answer: "Canberra",
+          traps: ["Sydney", "Melbourne", "Brisbane"]
+        },
+        {
+          type: "geography",
+          question: "What is the largest ocean in the world?",
+          answer: "Pacific Ocean",
+          traps: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean"]
+        }
+      ],
+      es: [
+        {
+          type: "cultura",
+          question: "¿Dónde se inventó el croissant?",
+          answer: "Austria",
+          traps: ["Francia", "Italia", "Bélgica"]
+        },
+        {
+          type: "naturaleza",
+          question: "¿Cuál es el animal más rápido en tierra?",
+          answer: "Guepardo",
+          traps: ["Águila Real", "Liebre", "Cebra"]
+        },
+        {
+          type: "arte",
+          question: "¿Quién pintó la Mona Lisa?",
+          answer: "Leonardo da Vinci",
+          traps: ["Miguel Ángel", "Rafael", "Botticelli"]
+        },
+        {
+          type: "geografía",
+          question: "¿Cuál es la capital de Australia?",
+          answer: "Canberra",
+          traps: ["Sídney", "Melbourne", "Brisbane"]
+        },
+        {
+          type: "geografía",
+          question: "¿Cuál es el océano más grande del mundo?",
+          answer: "Océano Pacífico",
+          traps: ["Océano Atlántico", "Océano Índico", "Océano Ártico"]
+        }
+      ],
+      de: [
+        {
+          type: "kultur",
+          question: "Wo wurde das Croissant erfunden?",
+          answer: "Österreich",
+          traps: ["Frankreich", "Italien", "Belgien"]
+        },
+        {
+          type: "natur",
+          question: "Welches ist das schnellste Tier an Land?",
+          answer: "Gepard",
+          traps: ["Steinadler", "Hase", "Zebra"]
+        },
+        {
+          type: "kunst",
+          question: "Wer hat die Mona Lisa gemalt?",
+          answer: "Leonardo da Vinci",
+          traps: ["Michelangelo", "Raffael", "Botticelli"]
+        },
+        {
+          type: "geographie",
+          question: "Was ist die Hauptstadt von Australien?",
+          answer: "Canberra",
+          traps: ["Sydney", "Melbourne", "Brisbane"]
+        },
+        {
+          type: "geographie",
+          question: "Welcher ist der größte Ozean der Welt?",
+          answer: "Pazifischer Ozean",
+          traps: ["Atlantischer Ozean", "Indischer Ozean", "Arktischer Ozean"]
+        }
+      ],
+      it: [
+        {
+          type: "cultura",
+          question: "Dove è stato inventato il croissant?",
+          answer: "Austria",
+          traps: ["Francia", "Italia", "Belgio"]
+        },
+        {
+          type: "natura",
+          question: "Qual è l'animale più veloce sulla terra?",
+          answer: "Ghepardo",
+          traps: ["Aquila reale", "Lepre", "Zebra"]
+        },
+        {
+          type: "arte",
+          question: "Chi ha dipinto la Gioconda?",
+          answer: "Leonardo da Vinci",
+          traps: ["Michelangelo", "Raffaello", "Botticelli"]
+        },
+        {
+          type: "geografia",
+          question: "Qual è la capitale dell'Australia?",
+          answer: "Canberra",
+          traps: ["Sydney", "Melbourne", "Brisbane"]
+        },
+        {
+          type: "geografia",
+          question: "Qual è l'oceano più grande del mondo?",
+          answer: "Oceano Pacifico",
+          traps: ["Oceano Atlantico", "Oceano Indiano", "Oceano Artico"]
+        }
+      ],
+      pt: [
+        {
+          type: "cultura",
+          question: "Onde foi inventado o croissant?",
+          answer: "Áustria",
+          traps: ["França", "Itália", "Bélgica"]
+        },
+        {
+          type: "natureza",
+          question: "Qual é o animal mais rápido em terra?",
+          answer: "Guepardo",
+          traps: ["Águia-real", "Lebre", "Zebra"]
+        },
+        {
+          type: "arte",
+          question: "Quem pintou a Mona Lisa?",
+          answer: "Leonardo da Vinci",
+          traps: ["Michelangelo", "Rafael", "Botticelli"]
+        },
+        {
+          type: "geografia",
+          question: "Qual é a capital da Austrália?",
+          answer: "Canberra",
+          traps: ["Sydney", "Melbourne", "Brisbane"]
+        },
+        {
+          type: "geografia",
+          question: "Qual é o maior oceano do mundo?",
+          answer: "Oceano Pacífico",
+          traps: ["Oceano Atlântico", "Oceano Índico", "Oceano Ártico"]
+        }
+      ],
+      ar: [
+        {
+          type: "ثقافة",
+          question: "أين تم اختراع الكرواسون؟",
+          answer: "النمسا",
+          traps: ["فرنسا", "إيطاليا", "بلجيكا"]
+        },
+        {
+          type: "طبيعة",
+          question: "ما هو أسرع حيوان على الأرض؟",
+          answer: "الفهد",
+          traps: ["النسر الذهبي", "الأرنب", "الحمار الوحشي"]
+        },
+        {
+          type: "فن",
+          question: "من رسم الموناليزا؟",
+          answer: "ليوناردو دافنشي",
+          traps: ["مايكل أنجلو", "رافائيل", "بوتيتشيلي"]
+        },
+        {
+          type: "جغرافيا",
+          question: "ما هي عاصمة أستراليا؟",
+          answer: "كانبرا",
+          traps: ["سيدني", "ملبورن", "بريزبن"]
+        },
+        {
+          type: "جغرافيا",
+          question: "ما هو أكبر محيط في العالم؟",
+          answer: "المحيط الهادئ",
+          traps: ["المحيط الأطلسي", "المحيط الهندي", "المحيط المتجمد الشمالي"]
+        }
+      ]
+    }
   }
 };
 
