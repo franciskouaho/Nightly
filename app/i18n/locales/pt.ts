@@ -295,6 +295,12 @@ export default {
       targetReads: "{{name}} lê a pergunta",
       noQuestions: "Nenhuma pergunta disponível",
       errorNext: "Ocorreu um erro ao passar para a próxima rodada"
+    },
+    continue: 'Continuar',
+    theHiddenVillage: {
+      name: "A VILA OCULTA",
+      description: "Um jogo de blefe, estratégia e discussões... para quem gosta de acusar os amigos 😈",
+      tag: "PREMIUM"
     }
   },
 

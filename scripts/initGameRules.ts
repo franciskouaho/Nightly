@@ -567,6 +567,48 @@ const gameRules = {
       }
     }
   },
+  "trap-answer": {
+    translations: {
+      fr: {
+        rules: [
+          {
+            title: "Réponse Piégée",
+            description: "Chaque question a une seule bonne réponse et une réponse piégée qui fait perdre des points.",
+            emoji: "🎯"
+          },
+          {
+            title: "Système de points",
+            description: "Bonne réponse : +1 point, Mauvaise réponse normale : 0 point, Réponse piégée : -1 point",
+            emoji: "📊"
+          },
+          {
+            title: "Attention aux pièges",
+            description: "Les réponses piégées sont conçues pour être crédibles et attrayantes... Méfiez-vous !",
+            emoji: "⚠️"
+          }
+        ]
+      },
+      en: {
+        rules: [
+          {
+            title: "TRAP ANSWER",
+            description: "Each question has one correct answer and one trap answer that makes you lose points.",
+            emoji: "🎯"
+          },
+          {
+            title: "Scoring system",
+            description: "Correct answer: +1 point, Normal wrong answer: 0 points, Trap answer: -1 point",
+            emoji: "📊"
+          },
+          {
+            title: "Watch out for traps",
+            description: "Trap answers are designed to be credible and tempting... Be careful!",
+            emoji: "⚠️"
+          }
+        ]
+      }
+    }
+  },
   "the-hidden-village": {
     translations: {
       fr: {

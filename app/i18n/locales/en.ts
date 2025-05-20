@@ -165,6 +165,11 @@ export default {
         name: "THE HIDDEN VILLAGE",
         description: "A game of bluff, strategy and discussions... for those who love accusing their friends 😈",
         tag: "PREMIUM"
+      },
+      "trap-answer": {
+        name: "TRAP ANSWER",
+        description: "A quiz where one wrong answer makes you lose points... Can you avoid it?",
+        tag: "FREE"
       }
     }
   },
@@ -300,7 +305,8 @@ export default {
         correctAccusation: "Correct accusation",
         wrongAccusation: "Wrong accusation",
         against: "against {{name}}"
-      }
+      },
+      continue: 'Continue',
     },
     neverHaveIEverHot: {
       never: "Never have I ever",

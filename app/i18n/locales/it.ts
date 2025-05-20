@@ -277,7 +277,8 @@ export default {
         correctAccusation: "Accusa corretta",
         wrongAccusation: "Accusa sbagliata",
         against: "contro {{name}}"
-      }
+      },
+      continue: 'Continua',
     },
     neverHaveIEverHot: {
       never: "Non ho mai",
@@ -294,7 +295,8 @@ export default {
       readAloud: "Leggi la domanda ad alta voce",
       targetReads: "{{name}} legge la domanda",
       noQuestions: "Nessuna domanda disponibile",
-      errorNext: "Si è verificato un errore durante il passaggio al turno successivo"
+      errorNext: "Si è verificato un errore durante il passaggio al turno successivo",
+      continue: 'Continua',
     }
   },
 

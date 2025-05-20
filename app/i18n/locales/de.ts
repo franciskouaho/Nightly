@@ -255,6 +255,7 @@ export default {
       errorNext: "Beim Wechsel zur nächsten Runde ist ein Fehler aufgetreten",
       endTitle: "Spiel beendet!",
       endSubtitle: "Danke fürs Spielen von Genie oder Lügner!",
+      continue: 'Weiter',
       noQuestions: "Keine Fragen verfügbar",
       allQuestionsUsed: "Alle Fragen wurden bereits verwendet",
       waitingForPlayers: "Warten auf andere Spieler...",
