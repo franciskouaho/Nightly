@@ -262,8 +262,10 @@ export default {
       errorVote: "Impossible de soumettre le vote",
       errorNext: "Une erreur est survenue lors du passage au tour suivant",
       endTitle: "Fin de la partie !",
-      endSubtitle: "Merci d'avoir joué à Action ou Vérité !"
+      endSubtitle: "Merci d'avoir joué à Action ou Vérité !",
+      continue: 'Continuer',
     },
+    continue: 'Continuer',
     geniusOrLiar: {
       know: "Je sais !",
       dontKnow: "Je ne sais pas",

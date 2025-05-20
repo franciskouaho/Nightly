@@ -255,6 +255,7 @@ export default {
       errorNext: "Ocurrió un error al pasar a la siguiente ronda",
       endTitle: "¡Fin del juego!",
       endSubtitle: "¡Gracias por jugar a Genio o Mentiroso!",
+      continue: 'Continuar',
       noQuestions: "No hay preguntas disponibles",
       allQuestionsUsed: "Todas las preguntas han sido utilizadas",
       waitingForPlayers: "Esperando a otros jugadores...",
@@ -294,7 +295,8 @@ export default {
       readAloud: "Lee la pregunta en voz alta",
       targetReads: "{{name}} lee la pregunta",
       noQuestions: "No hay preguntas disponibles",
-      errorNext: "Ocurrió un error al pasar a la siguiente ronda"
+      errorNext: "Ocurrió un error al pasar a la siguiente ronda",
+      continue: 'Continuar'
     }
   },
 
