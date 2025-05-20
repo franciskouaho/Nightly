@@ -28,4 +28,7 @@ export interface TrapGameState extends Omit<GameState, 'currentQuestion'> {
     [playerId: string]: TrapPlayerAnswer;
   };
   askedQuestionIds: string[];
+  history?: {
+    [playerId: string]: number[];
+  };
 } 

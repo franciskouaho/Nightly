@@ -59,6 +59,11 @@ export default function GameRouter() {
         return;
       }
 
+       if (mode === 'trap-answer') {
+        router.replace(`/game/trap-answer/${id}`);
+        return;
+      }
+
       Alert.alert(t('game.error'), t('game.unknownMode', { mode }));
     };
     redirect();

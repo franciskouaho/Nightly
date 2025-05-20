@@ -165,7 +165,12 @@ export default {
         name: "A VILA OCULTA",
         description: "Um jogo de blefe, estratégia e discussões... para quem gosta de acusar os amigos 😈",
         tag: "PREMIUM"
-      }
+      },
+      "trap-answer": {
+        name: "Resposta Armadilha",
+        tag: "GRÁTIS",
+        description: "Um quiz onde uma resposta errada te faz perder pontos... Consegues evitar as armadilhas?"
+      },
     }
   },
 

@@ -165,7 +165,12 @@ export default {
         name: "DAS VERSTECKTE DORF",
         description: "Ein Bluff-, Strategie- und Diskussionsspiel... für alle, die es lieben, ihre Freunde zu beschuldigen 😈",
         tag: "PREMIUM"
-      }
+      },
+      "trap-answer": {
+        name: "Fallen-Antwort",
+        tag: "KOSTENLOS",
+        description: "Ein Quiz, bei dem du bei jeder falschen Antwort Punkte verlierst... Kannst du die Fallen vermeiden?"
+      },
     }
   },
 

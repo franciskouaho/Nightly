@@ -36,7 +36,7 @@ const RoundedButton: React.FC<RoundedButtonProps> = ({
       activeOpacity={0.8}
     >
       <LinearGradient
-        colors={gradientColors}
+        colors={gradientColors} 
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
         style={styles.button}

@@ -27,6 +27,19 @@ export const gameCategories: GameCategory[] = [
     title: 'SUGGESTION DE LA SEMAINE',
     subtitle: '',
     games: [
+    {
+        id: 'trap-answer',
+        name: "TRAP ANSWER",
+        description: "Un quiz où une mauvaise réponse vous fait perdre des points... Saurez-vous l'éviter ?",
+        image: require('@/assets/jeux/trap-answer.png'),
+        colors: ["#1A2A5B", "#7B24B1"],
+        borderColor: "#2C2C2C",
+        shadowColor: "#2C2C2C",
+        tag: 'GRATUIT',
+        tagColor: "#8E24AA",
+        premium: false,
+        interactive: 'choice'
+      },
       {
         id: 'listen-but-don-t-judge',
         name: 'ON ÉCOUTE MAIS ON NE JUGE PAS',
@@ -39,7 +52,7 @@ export const gameCategories: GameCategory[] = [
         tagColor: "#8E24AA",
         premium: false,
         interactive: 'write'
-      },
+      }
     ]
   },
   {
@@ -72,19 +85,6 @@ export const gameCategories: GameCategory[] = [
         tagColor: "#D81B60",
         premium: false,
         interactive: 'write'
-      },
-      {
-        id: 'trap-answer',
-        name: "TRAP ANSWER",
-        description: "Un quiz où une mauvaise réponse vous fait perdre des points... Saurez-vous l'éviter ?",
-        image: require('@/assets/jeux/trap-answer.png'),
-        colors: ["rgba(40, 40, 40, 0.8)", "rgba(60, 60, 60, 0.9)"],
-        borderColor: "#2C2C2C",
-        shadowColor: "#2C2C2C",
-        tag: 'GRATUIT',
-        tagColor: "#8E24AA",
-        premium: false,
-        interactive: 'choice'
       }
     ]
   },
