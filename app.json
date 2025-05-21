@@ -16,7 +16,8 @@
       "infoPlist": {
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true
-        }
+        },
+        "UIBackgroundModes": ["remote-notification"]
       },
       "requireFullScreen": true
     },
@@ -28,7 +29,7 @@
       "versionCode": 7,
       "package": "com.emplica.nightly",
       "googleServicesFile": "./google-services.json",
-      "permissions": ["INTERNET"]
+      "permissions": ["INTERNET", "NOTIFICATIONS"]
     },
     "web": {
       "bundler": "metro",
@@ -53,7 +54,15 @@
           "initialOrientation": "DEFAULT"
         }
       ],
-      "expo-localization"
+      "expo-localization",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/logo.png",
+          "color": "#4b277d",
+          "sounds": ["./assets/sounds/notification.wav"]
+        }
+      ]
     ],
     "assetBundlePatterns": [
       "**/*"
