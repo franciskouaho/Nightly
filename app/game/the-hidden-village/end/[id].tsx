@@ -5,7 +5,7 @@ import { getFirestore, doc, onSnapshot } from '@react-native-firebase/firestore'
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import Confetti from 'react-native-confetti';
-import { useInAppReview } from '../../../../hooks/useInAppReview';
+import { useInAppReview } from '@/hooks/useInAppReview';
 
 // Définition du type PlayerScore
 interface PlayerScore {
