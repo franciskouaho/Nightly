@@ -778,45 +778,23 @@ export default function KnowOrDrinkGame() {
 
   // Dans useEffect, ajoutons une vérification pour charger les questions depuis Firebase si nécessaire
   useEffect(() => {
-    if (gameState && gameState.phase === 'question' && 
-        (!gameState.currentQuestion?.question && !gameState.currentQuestion?.text?.question) && 
+    if (gameState && gameState.phase === 'question' &&
+        (!gameState.currentQuestion?.question && !gameState.currentQuestion?.text?.question) &&
         gameState.currentQuestion) {
-      
-      // Tentons de charger la question depuis Firebase
-      const fetchQuestion = async () => {
-        try {
-          const db = getFirestore();
-          const questionsRef = doc(db, 'gameQuestions', 'genius-or-liar');
-          const questionsDoc = await getDoc(questionsRef);
-          
-          if (questionsDoc.exists()) {
-            // Récupérer les questions selon la langue actuelle
-            const questionsData = questionsDoc.data();
-            const currentLanguage = isRTL ? 'ar' : (i18n.language || 'fr');
-            
-            // On s'attend à une structure { translations: { fr: [...], en: [...], etc. } }
-            const questions = questionsData?.translations?.[currentLanguage] || [];
-            
-            if (questions.length > 0) {
-              // Prenons une question aléatoire
-              const randomIndex = Math.floor(Math.random() * questions.length);
-              const selectedQuestion = questions[randomIndex];
-              
-              console.log('Question chargée depuis Firebase:', selectedQuestion);
-              
-              // Mettons à jour la question actuelle
-              const gameRef = doc(db, 'games', String(id));
-              await updateDoc(gameRef, {
-                currentQuestion: selectedQuestion
-              });
-            }
-          }
-        } catch (error) {
-          console.error('Erreur lors du chargement des questions:', error);
-        }
-      };
-      
-      fetchQuestion();
+
+      console.log('[DEBUG GeniusOrLiarGame] Attempting to load initial random question.');
+      const firstQuestion = getRandomQuestion();
+      if (firstQuestion) {
+        console.log('[DEBUG GeniusOrLiarGame] Initial random question selected:', firstQuestion.id);
+        const db = getFirestore();
+        const gameRef = doc(db, 'games', String(id));
+        updateDoc(gameRef, { 
+          currentQuestion: firstQuestion,
+          askedQuestions: [firstQuestion.id] // Marquer la première question comme posée
+        });
+      } else {
+        console.warn('[DEBUG GeniusOrLiarGame] No initial random question available.');
+      }
     }
   }, [gameState, id, isRTL, i18n.language]);
 

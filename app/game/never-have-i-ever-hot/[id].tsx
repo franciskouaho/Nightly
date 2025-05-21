@@ -88,6 +88,10 @@ export default function NeverHaveIEverHotGame() {
   const userId = user?.uid;
   const isTarget = userId === gameState?.targetPlayer?.id;
 
+  console.log("[DEBUG NeverHaveIEverHotGame] Component rendered. Game State:", gameState);
+  console.log("[DEBUG NeverHaveIEverHotGame] User ID:", userId);
+  console.log("[DEBUG NeverHaveIEverHotGame] Is Target Player:", isTarget);
+
   // Mémoriser les joueurs qui ne sont pas la cible
   const nonTargetPlayers = useMemo(() => {
     if (!gameState?.players || !gameState?.targetPlayer) return [];
@@ -250,9 +254,9 @@ export default function NeverHaveIEverHotGame() {
       let gameContent;
       try {
         gameContent = await getGameContent('never-have-i-ever-hot');
-        console.log('[DEBUG] Contenu du jeu récupéré');
-      } catch (contentError) {
-        console.error('[DEBUG] Erreur lors de la récupération du contenu:', contentError);
+        console.log("[DEBUG NeverHaveIEverHotGame] getGameContent result:", gameContent);
+      } catch (error) {
+        console.error('[DEBUG] Erreur lors de la récupération du contenu du jeu:', error);
         Alert.alert(t('game.error'), t('game.neverHaveIEver.errorNext'));
         questionUpdateInProgress.current = false;
         return;

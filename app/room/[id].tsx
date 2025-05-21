@@ -213,6 +213,10 @@ export default function RoomScreen() {
             router.replace(`/game/the-hidden-village/${roomData.gameDocId}`);
           } else if (roomData.gameMode === 'trap-answer') {
             router.replace(`/game/trap-answer/${roomData.gameDocId}`);
+          } else if (roomData.gameMode === 'never-have-i-ever-hot') {
+            router.replace(`/game/never-have-i-ever-hot/${roomData.gameDocId}`);
+          }else if (roomData.gameMode === 'genius-or-liar') {
+            router.replace(`/game/genius-or-liar/${roomData.gameDocId}`);
           }
           return;
         }

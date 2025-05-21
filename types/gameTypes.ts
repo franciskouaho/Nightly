@@ -2,6 +2,8 @@ export interface Player {
   id: string;
   name: string;
   avatar?: string;
+  displayName?: string;
+  username?: string;
 }
 
 export interface Question {

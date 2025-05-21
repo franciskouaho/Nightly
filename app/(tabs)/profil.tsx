@@ -108,13 +108,13 @@ export default function ProfileScreen() {
 
           {/* Switch pour activer/désactiver les notifications */}
           <View style={styles.settingItem}>
-            <MaterialCommunityIcons name="bell-ring" size={24} color="#FFD600" />
+            <MaterialCommunityIcons name="bell-ring" size={24} color="rgba(255,255,255,0.9)" />
             <Text style={styles.settingText}>Notifications</Text>
             <Switch
               value={notificationsEnabled}
               onValueChange={handleToggleNotifications}
-              thumbColor={notificationsEnabled ? "#FFD600" : "#ccc"}
-              trackColor={{ false: "#888", true: "#FFD600" }}
+              thumbColor={notificationsEnabled ? "#694ED6" : "#ccc"}
+              trackColor={{ false: "#888", true: "#694ED6" }}
             />
           </View>
 

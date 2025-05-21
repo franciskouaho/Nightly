@@ -93,6 +93,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     const db = getFirestore();
     try {
       const currentLanguage = i18n.language || 'fr';
+      console.log(`[DEBUG LanguageContext] Fetching game content for ${gameId} in ${currentLanguage}`);
       
       // Récupération des questions du jeu
       const questionsDoc = await getDoc(doc(db, 'gameQuestions', gameId));
@@ -100,8 +101,24 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       
       if (questionsDoc.exists()) {
         const questionsData = questionsDoc.data() || { translations: {} };
+        console.log(`[DEBUG LanguageContext] Found questions data for ${gameId}`);
+        
         // Essayer d'obtenir les questions dans la langue actuelle, sinon utiliser le français
         questions = questionsData.translations[currentLanguage] || questionsData.translations['fr'] || [];
+        
+        // Valider et normaliser les questions
+        questions = questions.map((q: any, index: number) => {
+          if (!q.id) {
+            console.warn(`[DEBUG LanguageContext] Question at index ${index} has no ID, generating one`);
+            return { ...q, id: `q_${Date.now()}_${index}` };
+          }
+          return q;
+        });
+        
+        console.log(`[DEBUG LanguageContext] Loaded ${questions.length} questions for ${gameId}`);
+        console.log(`[DEBUG LanguageContext] Question IDs:`, questions.map((q: any) => q.id));
+      } else {
+        console.warn(`[DEBUG LanguageContext] No questions found for game ${gameId}`);
       }
       
       return {
@@ -109,7 +126,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         questions
       };
     } catch (error) {
-      console.error(`Erreur lors de la récupération du contenu pour ${gameId}:`, error);
+      console.error(`[DEBUG LanguageContext] Error fetching content for ${gameId}:`, error);
       return { rules: [], questions: [] };
     }
   };
