@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, SafeAreaView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -6,7 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome5, Ionicons } from '@expo/vector-icons';
 import Confetti from 'react-native-confetti';
 import { Player } from '@/types/gameTypes';
-import { getFirestore, doc, getDoc } from '@react-native-firebase/firestore';
+import { getFirestore, doc, getDoc, onSnapshot } from '@react-native-firebase/firestore';
 import RoundedButton from '@/components/RoundedButton';
 import { useTranslation } from 'react-i18next';
 import { useInAppReview } from '@/hooks/useInAppReview';
@@ -25,6 +25,7 @@ export default function GameResultsScreen() {
   const [players, setPlayers] = useState<PlayerScore[]>([]);
   const [loading, setLoading] = useState(true);
   const [confettiRef, setConfettiRef] = useState<any>(null);
+  const confettiRefRef = useRef<any>(null);
   
   useEffect(() => {
     const fetchResults = async () => {
@@ -46,16 +47,29 @@ export default function GameResultsScreen() {
         players.sort((a, b) => b.score - a.score);
         setPlayers(players);
         setLoading(false);
-        if (confettiRef) confettiRef.startConfetti();
+        if (confettiRefRef.current) confettiRefRef.current.startConfetti();
       } catch (e) {
         setLoading(false);
       }
     };
     fetchResults();
     return () => {
-      if (confettiRef) confettiRef.stopConfetti();
+      if (confettiRefRef.current) confettiRefRef.current.stopConfetti();
     };
-  }, [confettiRef, id]);
+  }, [confettiRefRef, id]);
+  
+  useEffect(() => {
+    if (confettiRef) {
+      (confettiRef as any).startConfetti();
+    }
+  }, [confettiRef]);
+  
+  useEffect(() => {
+    const timeout = setTimeout(async () => {
+      await requestReview();
+    }, 2000);
+    return () => clearTimeout(timeout);
+  }, [requestReview]);
   
   const handleReturnHome = () => {
     router.push('/');
