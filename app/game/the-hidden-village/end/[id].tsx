@@ -5,6 +5,7 @@ import { getFirestore, doc, onSnapshot } from '@react-native-firebase/firestore'
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import Confetti from 'react-native-confetti';
+import { useInAppReview } from '../../../../hooks/useInAppReview';
 
 // Définition du type PlayerScore
 interface PlayerScore {
@@ -18,6 +19,7 @@ export default function EndScreen() {
   const { t } = useTranslation();
   const { id: gameId } = useLocalSearchParams();
   const router = useRouter();
+  const { requestReview } = useInAppReview();
   const [winner, setWinner] = React.useState<string | null>(null);
   const [reason, setReason] = React.useState<string | null>(null);
   const [players, setPlayers] = React.useState<PlayerScore[]>([]);
@@ -57,6 +59,13 @@ export default function EndScreen() {
       (confettiRef.current as any).startConfetti();
     }
   }, [fadeAnim]);
+
+  useEffect(() => {
+    const timeout = setTimeout(async () => {
+      await requestReview();
+    }, 2000);
+    return () => clearTimeout(timeout);
+  }, [requestReview]);
 
   let winnerText = '';
   if (winner === 'traitors') winnerText = t('Les traîtres ont gagné !');
