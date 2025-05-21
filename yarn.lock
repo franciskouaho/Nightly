@@ -7943,6 +7943,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"expo-store-review@npm:~8.0.1":
+  version: 8.0.1
+  resolution: "expo-store-review@npm:8.0.1"
+  peerDependencies:
+    expo: "*"
+    react-native: "*"
+  checksum: 10c0/3c24f76999c21c36878e12dbd2cb0541153392d0ce2fb2e66b5384108bdcc289fa4f5a7cb254859202b19c1aa4f2d22468be93bb6c1ea28fdb6b2fbcde4ad067
+  languageName: node
+  linkType: hard
+
 "expo-system-ui@npm:~4.0.9":
   version: 4.0.9
   resolution: "expo-system-ui@npm:4.0.9"
@@ -11809,6 +11819,7 @@ __metadata:
     expo-screen-orientation: "npm:~8.0.4"
     expo-splash-screen: "npm:~0.29.22"
     expo-status-bar: "npm:~2.0.1"
+    expo-store-review: "npm:~8.0.1"
     expo-system-ui: "npm:~4.0.9"
     firebase: "npm:^10.8.0"
     firebase-admin: "npm:^13.3.0"
