@@ -342,7 +342,7 @@ export default function RoomScreen() {
       const randomPlayer = room.players[Math.floor(Math.random() * room.players.length)] || null;
       const gameData: (GameState & { gameId: string, host: string, hostId: string }) | TrapGameState = room.gameId === 'trap-answer' ? {
         phase: GamePhase.QUESTION,
-        currentRound: 1,
+        currentRound: 0,
         totalRounds: selectedRounds,
         targetPlayer: randomPlayer,
         currentQuestion: questions[0],
@@ -363,7 +363,7 @@ export default function RoomScreen() {
         },
         game: {
           currentPhase: GamePhase.QUESTION,
-          currentRound: 1,
+          currentRound: 0,
           totalRounds: selectedRounds,
           scores: {},
           gameMode: room.gameMode || room.gameId,
@@ -374,7 +374,8 @@ export default function RoomScreen() {
         host: room.host,
         hostId: room.host,
         playerAnswers: {},
-        askedQuestionIds: []
+        askedQuestionIds: [],
+        history: {},
       } : {
         phase: GamePhase.CHOIX,
         currentRound: room.gameId === 'the-hidden-village' ? 0 : 1,

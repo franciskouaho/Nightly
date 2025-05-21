@@ -37,6 +37,7 @@ export function useGame<T extends GameState = GameState>(gameId: string) {
           timer: null,
           questions: [],
           askedQuestionIds: [],
+          history: {},
           ...newState
         });
       } else {

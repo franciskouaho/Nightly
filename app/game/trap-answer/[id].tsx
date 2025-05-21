@@ -24,6 +24,15 @@ export default function TrapAnswerGame() {
   const [timeLeft, setTimeLeft] = useState(TIMER_DURATION);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Log pour inspecter gameState dès qu'il change
+  useEffect(() => {
+    if (gameState) {
+      console.log('[DEBUG GAME STATE]', JSON.stringify(gameState));
+      console.log('[DEBUG GAME STATE] History:', JSON.stringify(gameState.history));
+      console.log('[DEBUG GAME STATE] Current Round:', gameState.currentRound);
+    }
+  }, [gameState]); // Dépend de gameState pour se déclencher à chaque mise à jour
+
   useEffect(() => {
     const fetchQuestions = async () => {
       if (!gameState || gameState.questions?.length > 0) return;
@@ -32,12 +41,19 @@ export default function TrapAnswerGame() {
       if (fetchedQuestions.length > 0) {
         const firstQuestion = getRandomQuestion(fetchedQuestions, []);
         if (firstQuestion) {
+          const initialPlayersHistory: { [playerId: string]: number[] } = (gameState?.players || []).reduce((acc: { [playerId: string]: number[] }, player) => {
+            acc[player.id] = Array(gameState?.totalRounds || 5).fill(0);
+            return acc;
+          }, {});
+
           updateGameState({
             questions: fetchedQuestions,
             currentQuestion: firstQuestion,
             askedQuestionIds: [firstQuestion.id],
             phase: GamePhase.QUESTION,
             currentRound: 0,
+            history: initialPlayersHistory,
+            playerAnswers: {},
           });
         } else {
           updateGameState({ phase: GamePhase.END });
