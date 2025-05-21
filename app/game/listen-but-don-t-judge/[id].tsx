@@ -12,6 +12,7 @@ import { useListenButDontJudgeAnalytics } from '@/hooks/useListenButDontJudgeAna
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/contexts/LanguageContext';
 import i18n from '@/app/i18n/i18n';
+import { useRandomQuestions } from '@/hooks/useRandomQuestions';
 
 interface Player {
   id: string;
@@ -53,6 +54,7 @@ export default function ListenButDontJudgeScreen() {
   const [answer, setAnswer] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const gameStartTime = useRef(Date.now());
+  const { getRandomQuestion, resetAskedQuestions } = useRandomQuestions('listen-but-dont-judge');
 
   useEffect(() => {
     if (!id) return;
@@ -154,66 +156,41 @@ export default function ListenButDontJudgeScreen() {
   };
 
   const handleNextRound = async () => {
-    if (!game) return;
-    const db = getFirestore();
-    const gameRef = doc(db, 'games', String(id));
-
+    if (!game || !user) return;
+    if (game.currentRound >= game.totalRounds) {
+      // Game is over
+      return;
+    }
     try {
+      const db = getFirestore();
+      const gameRef = doc(db, 'games', String(id));
+      
       // Track la fin du round
-      await gameAnalytics.trackRoundComplete(String(id), game.currentRound, game.totalRounds);
+      await gameAnalytics.trackRoundComplete(
+        String(id),
+        game.currentRound,
+        game.totalRounds
+      );
 
-      // Sélectionne un nouveau joueur cible (différent du précédent si possible)
-      let nextTarget = null;
-      if (game.players.length > 1) {
-        const otherPlayers = game.players.filter(p => p.id !== game.targetPlayer?.id);
-        nextTarget = otherPlayers[Math.floor(Math.random() * otherPlayers.length)];
-      } else {
-        nextTarget = game.players[0];
-      }
-      
-      // Vérifier que le nom du joueur cible est bien défini
-      if (nextTarget && !nextTarget.name) {
-        console.error('Erreur: Joueur cible sans nom défini', nextTarget);
-        // Utiliser le nom du profil ou une valeur par défaut
-        nextTarget.name = nextTarget.username || t('game.player', 'the player');
-      }
-
-      // Récupère les questions dans la langue actuelle
-      const gameContent = await getGameContent('listen-but-don-t-judge');
-      const questions = gameContent.questions;
-      
-      console.log('Questions disponibles:', questions);
-      console.log('Langue actuelle:', i18n.language);
-      console.log('Joueur cible sélectionné:', nextTarget);
-      
-      if (!questions || !Array.isArray(questions) || questions.length === 0) {
-        Alert.alert(t('game.error'), t('game.listenButDontJudge.noQuestions'));
-        return;
-      }
-
-      // Prend une question aléatoire
-      const nextQuestion = questions[Math.floor(Math.random() * questions.length)];
-      console.log('Question sélectionnée:', nextQuestion);
+      // Obtenir une nouvelle question aléatoire
+      const nextQuestion = getRandomQuestion();
       
       if (!nextQuestion) {
         Alert.alert(t('game.error'), t('game.listenButDontJudge.noQuestions'));
         return;
       }
 
-      // Normaliser la question
-      const normalizedQuestion = normalizeQuestion(nextQuestion);
-
       await updateDoc(gameRef, {
-        currentRound: (game.currentRound || 1) + 1,
-        targetPlayer: nextTarget,
-        currentQuestion: normalizedQuestion,
+        currentRound: game.currentRound + 1,
+        phase: 'question',
+        currentQuestion: nextQuestion,
         answers: [],
         votes: {},
-        phase: 'question'
+        winningAnswerId: null
       });
     } catch (error) {
-      console.error('Erreur lors du passage au tour suivant:', error);
-      Alert.alert(t('game.error'), t('game.listenButDontJudge.errorNext'));
+      console.error('❌ Erreur lors du passage au tour suivant:', error);
+      Alert.alert('Erreur', 'Impossible de passer au tour suivant');
     }
   };
 

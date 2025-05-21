@@ -9,6 +9,7 @@ import { useInAppReview } from '@/hooks/useInAppReview';
 import { useGeniusOrLiarAnalytics } from '@/hooks/useGeniusOrLiarAnalytics';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useRandomQuestions } from '@/hooks/useRandomQuestions';
 
 interface FirebaseQuestion {
   type: string;
@@ -77,6 +78,7 @@ export default function KnowOrDrinkGame() {
   const gameStartTime = useRef(Date.now());
   const { t, i18n } = useTranslation();
   const { getGameContent, isRTL } = useLanguage();
+  const { getRandomQuestion, resetAskedQuestions } = useRandomQuestions('genius-or-liar');
 
   useEffect(() => {
     if (!id || !user) return;
@@ -471,6 +473,7 @@ export default function KnowOrDrinkGame() {
     try {
       const db = getFirestore();
       const gameRef = doc(db, 'games', String(id));
+      
       // Track la fin du round
       await gameAnalytics.trackRoundComplete(
         String(id),
@@ -479,71 +482,21 @@ export default function KnowOrDrinkGame() {
         gameState.playerAnswers[gameState.currentPlayerId]?.knows || false
       );
 
-      try {
-        // Récupérer les questions du jeu dans la bonne structure
-        const questionsRef = doc(db, 'gameQuestions', 'genius-or-liar');
-        const questionsDoc = await getDoc(questionsRef);
-        
-        if (!questionsDoc.exists()) {
-          console.error('Document de questions non trouvé');
-          Alert.alert(t('game.error'), t('game.geniusOrLiar.noQuestions'));
-          return;
-        }
-        
-        // Récupérer les questions selon la langue actuelle
-        const questionsData = questionsDoc.data();
-        const currentLanguage = isRTL ? 'ar' : (i18n.language || 'fr');
-        
-        // On s'attend à une structure { translations: { fr: [...], en: [...], etc. } }
-        const questions = questionsData?.translations?.[currentLanguage] || [];
-        
-        if (!questions || !Array.isArray(questions) || questions.length === 0) {
-          console.error('Aucune question trouvée pour la langue:', currentLanguage);
-          Alert.alert(t('game.error'), t('game.geniusOrLiar.noQuestions'));
-          return;
-        }
-        
-        // Liste des questions déjà posées
-        const askedIndexes = gameState.askedQuestions || [];
-        
-        // Filtrer les questions déjà posées
-        const availableQuestions = questions
-          .map((q, idx) => ({ ...q, _idx: idx }))
-          .filter(q => !askedIndexes.includes(String(q._idx)));
-          
-        if (availableQuestions.length === 0) {
-          Alert.alert(t('game.error'), t('game.geniusOrLiar.allQuestionsUsed'));
-          // Réinitialiser si toutes les questions ont été posées
-          const randomIndex = Math.floor(Math.random() * questions.length);
-          const nextQuestion = questions[randomIndex];
-          
-          await updateDoc(gameRef, {
-            currentRound: gameState.currentRound + 1,
-            phase: 'question',
-            currentUserState: {},
-            playerAnswers: {},
-            currentQuestion: nextQuestion,
-            askedQuestions: [String(randomIndex)],
-          });
-          return;
-        }
-        
-        // Tirer une nouvelle question au hasard
-        const randomIndex = Math.floor(Math.random() * availableQuestions.length);
-        const nextQuestion = availableQuestions[randomIndex];
-        
-        await updateDoc(gameRef, {
-          currentRound: gameState.currentRound + 1,
-          phase: 'question',
-          currentUserState: {},
-          playerAnswers: {},
-          currentQuestion: nextQuestion,
-          askedQuestions: [...askedIndexes, String(nextQuestion._idx)],
-        });
-      } catch (error) {
-        console.error('Erreur lors de la récupération des questions:', error);
-        Alert.alert(t('game.error'), t('game.geniusOrLiar.errorNext'));
+      // Obtenir une nouvelle question aléatoire
+      const nextQuestion = getRandomQuestion();
+      
+      if (!nextQuestion) {
+        Alert.alert(t('game.error'), t('game.geniusOrLiar.noQuestions'));
+        return;
       }
+
+      await updateDoc(gameRef, {
+        currentRound: gameState.currentRound + 1,
+        phase: 'question',
+        currentUserState: {},
+        playerAnswers: {},
+        currentQuestion: nextQuestion,
+      });
     } catch (error) {
       console.error('❌ Erreur lors du passage au tour suivant:', error);
       Alert.alert('Erreur', 'Impossible de passer au tour suivant');

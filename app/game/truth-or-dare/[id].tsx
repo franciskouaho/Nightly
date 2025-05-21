@@ -12,6 +12,7 @@ import { useInAppReview } from '@/hooks/useInAppReview';
 import { useTruthOrDareAnalytics } from '@/hooks/useTruthOrDareAnalytics';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useRandomQuestions } from '@/hooks/useRandomQuestions';
 
 interface TruthOrDareQuestion { text: string; type: string; }
 
@@ -154,6 +155,7 @@ export default function TruthOrDareGameScreen() {
   const gameStartTime = useRef(Date.now());
   const { t } = useTranslation();
   const { getGameContent } = useLanguage();
+  const { getRandomQuestion, resetAskedQuestions } = useRandomQuestions('truth-or-dare');
 
   useEffect(() => {
     if (!id) return;
@@ -764,25 +766,44 @@ export default function TruthOrDareGameScreen() {
     }
   }
 
-  async function handleNextRound() {
-    if (!game || !id) return;
-    
+  const handleNextRound = async () => {
+    if (!game || !user) return;
+    if (game.currentRound >= game.totalRounds) {
+      setIsGameOver(true);
+      return;
+    }
     try {
       const db = getFirestore();
-      await updateDoc(doc(db, 'games', String(id)), {
-        currentRound: game.currentRound + 1,
-        phase: 'choix',
-        currentChoice: null,
-        votes: {},
-        spectatorVotes: {}
-      });
+      const gameRef = doc(db, 'games', String(id));
       
       // Track la fin du round
-      await gameAnalytics.trackRoundComplete(String(id), game.currentRound, game.totalRounds);
+      await gameAnalytics.trackRoundComplete(
+        String(id),
+        game.currentRound,
+        game.totalRounds,
+        game.playerAnswers[game.currentPlayerId]?.knows || false
+      );
+
+      // Obtenir une nouvelle question aléatoire
+      const nextQuestion = getRandomQuestion();
+      
+      if (!nextQuestion) {
+        Alert.alert(t('game.error'), t('game.truthOrDare.noQuestions'));
+        return;
+      }
+
+      await updateDoc(gameRef, {
+        currentRound: game.currentRound + 1,
+        phase: 'question',
+        currentUserState: {},
+        playerAnswers: {},
+        currentQuestion: nextQuestion,
+      });
     } catch (error) {
-      console.error('Erreur lors du passage au round suivant:', error);
+      console.error('❌ Erreur lors du passage au tour suivant:', error);
+      Alert.alert('Erreur', 'Impossible de passer au tour suivant');
     }
-  }
+  };
 
   return null;
 }

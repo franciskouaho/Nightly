@@ -1271,6 +1271,8 @@ PODS:
     - Yoga
   - ExpoSplashScreen (0.29.22):
     - ExpoModulesCore
+  - ExpoStoreReview (8.0.1):
+    - ExpoModulesCore
   - ExpoSystemUI (4.0.9):
     - ExpoModulesCore
   - fast_float (6.1.4)
@@ -3419,6 +3421,7 @@ DEPENDENCIES:
   - ExpoModulesCore (from `../node_modules/expo-modules-core`)
   - ExpoScreenOrientation (from `../node_modules/expo-screen-orientation/ios`)
   - ExpoSplashScreen (from `../node_modules/expo-splash-screen/ios`)
+  - ExpoStoreReview (from `../node_modules/expo-store-review/ios`)
   - ExpoSystemUI (from `../node_modules/expo-system-ui/ios`)
   - fast_float (from `../node_modules/react-native/third-party-podspecs/fast_float.podspec`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
@@ -3571,6 +3574,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-screen-orientation/ios"
   ExpoSplashScreen:
     :path: "../node_modules/expo-splash-screen/ios"
+  ExpoStoreReview:
+    :path: "../node_modules/expo-store-review/ios"
   ExpoSystemUI:
     :path: "../node_modules/expo-system-ui/ios"
   fast_float:
@@ -3751,6 +3756,7 @@ SPEC CHECKSUMS:
   ExpoModulesCore: 8eec79e1392628058fdde9b2f6ba2ad918c27a55
   ExpoScreenOrientation: 4f1479023d703dd6f09088297696c39a9b14fab2
   ExpoSplashScreen: 643666b96a84e8d97d55fac43926fb4183c692d9
+  ExpoStoreReview: 32f7186925fdecacddf3c1bc9628dd11b10c3ddd
   ExpoSystemUI: fb8213e39d19e0861320fa69eb60cad7a839c080
   fast_float: 06eeec4fe712a76acc9376682e4808b05ce978b6
   FBLazyVector: 7605ea4810e0e10ae4815292433c09bf4324ba45
