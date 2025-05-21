@@ -11,7 +11,6 @@ import { useInAppReview } from '@/hooks/useInAppReview';
 import { useListenButDontJudgeAnalytics } from '@/hooks/useListenButDontJudgeAnalytics';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/contexts/LanguageContext';
-import i18n from '@/app/i18n/i18n';
 import { useRandomQuestions } from '@/hooks/useRandomQuestions';
 import { GamePhase } from '@/types/gameTypes';
 import FinalResults from '@/components/game/FinalResults';
