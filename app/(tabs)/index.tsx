@@ -143,7 +143,7 @@ export default function HomeScreen() {
         }],
         createdAt: new Date().toISOString(),
         status: "waiting",
-        maxPlayers: 8,
+        maxPlayers: 20,
         code: shortCode,
       };
 

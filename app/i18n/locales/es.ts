@@ -337,7 +337,8 @@ export default {
     notFound: "Sala no encontrada",
     codeLabel: "Código de sala",
     codeCopied: "Código copiado al portapapeles",
-    players: "Jugadores",
+    players: "{{count}} jugador",
+    players_plural: "{{count}} jugadores",
     host: "Anfitrión",
     ready: "¡Listo!",
     rules: "reglas",
@@ -357,7 +358,10 @@ export default {
     minPlayers: "Se necesitan al menos 2 jugadores para comenzar la partida.",
     allReady: "¡Todos los jugadores están listos!",
     waiting: "Esperando a otros jugadores...",
-    title: "SALA DE JUEGO"
+    title: "SALA DE JUEGO",
+    minPlayersRequired: "Mínimo {{count}} jugadores requeridos",
+    notEnoughPlayers: "No hay suficientes jugadores",
+    rounds: "rondas",
   },
 
   paywall: {

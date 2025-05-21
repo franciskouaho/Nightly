@@ -16,6 +16,16 @@ import i18n from '@/app/i18n/i18n';
 import { getQuestions } from '../game/trap-answer/questions';
 import { TrapGameState } from '@/types/types';
 
+// Configuration des jeux avec le nombre minimum de joueurs requis
+const GAME_CONFIG = {
+  'truth-or-dare': { minPlayers: 2 },
+  'listen-but-don-t-judge': { minPlayers: 2 },
+  'the-hidden-village': { minPlayers: 5 },
+  'trap-answer': { minPlayers: 2 },
+  'never-have-i-ever-hot': { minPlayers: 2 },
+  'genius-or-liar': { minPlayers: 2 }
+};
+
 // Type pour l'utilisateur
 interface User {
   id: string | number;
@@ -97,7 +107,7 @@ export const createFirebaseRoom = async (roomData: RoomCreationData, timeoutMs =
     host: roomData.host,
     status: 'waiting', 
     players: cleanedPlayers,
-    maxPlayers: roomData.maxPlayers || 6,
+    maxPlayers: roomData.maxPlayers || 20,
     createdAt: new Date().toISOString(), // Utiliser une chaîne ISO au lieu de serverTimestamp() pour résoudre des problèmes potentiels
     updatedAt: new Date().toISOString(),
     code: roomData.code || '',
@@ -234,9 +244,22 @@ export default function RoomScreen() {
     return () => unsubscribe();
   }, [id, user]);
 
+  const getMinPlayersForGame = (gameId: string): number => {
+    return GAME_CONFIG[gameId as keyof typeof GAME_CONFIG]?.minPlayers || 2;
+  };
+
   const handleStartGame = async () => {
     if (!room || !user) return;
-    
+
+    const minPlayers = getMinPlayersForGame(room.gameId);
+    if (room.players.length < minPlayers) {
+      Alert.alert(
+        t('room.notEnoughPlayers'),
+        t('room.minPlayersRequired', { count: minPlayers })
+      );
+      return;
+    }
+
     // Réinitialiser l'état de lecture des règles
     setHasReadRules(false);
     // Afficher les règles avant de démarrer la partie
@@ -542,6 +565,13 @@ export default function RoomScreen() {
           </View>
         </View>
 
+        {/* Message du minimum de joueurs déplacé ici */}
+        {room.players.length < getMinPlayersForGame(room.gameId) && (
+          <Text style={[styles.minPlayersWarning, styles.centeredWarning]}>
+            {t('room.minPlayersRequired', { count: getMinPlayersForGame(room.gameId) })}
+          </Text>
+        )}
+
         <View style={styles.codeContainer}>
           <Text style={styles.codeLabel}>{t('room.codeLabel')}</Text>
           <TouchableOpacity
@@ -555,7 +585,9 @@ export default function RoomScreen() {
 
         <View style={styles.playersContainer}>
           <View style={styles.playersHeaderRow}>
-            <Text style={styles.sectionTitle}>{t('room.players', {count: room.players.length})} ({room.players.length}/{room.maxPlayers})</Text>
+            <Text style={styles.sectionTitle}>
+              {t('room.players', {count: room.players.length})} ({room.players.length}/{room.maxPlayers})
+            </Text>
             <TouchableOpacity style={styles.rulesButtonRow} onPress={() => setIsRulesDrawerVisible(true)}>
               <Text style={styles.rulesText}>{t('room.rules')}</Text>
               <View style={styles.rulesCircle}>
@@ -721,8 +753,14 @@ export default function RoomScreen() {
               <RoundedButton
                 title={t('room.startGame')}
                 onPress={handleStartGame}
-                disabled={!room.players.every(p => p.isReady) || room.players.length < 2}
-                style={styles.startButton}
+                disabled={
+                  !room.players.every(p => p.isReady) || 
+                  room.players.length < getMinPlayersForGame(room.gameId)
+                }
+                style={[
+                  styles.startButton,
+                  room.players.length < getMinPlayersForGame(room.gameId) && styles.disabledButton
+                ]}
                 textStyle={styles.startButtonText}
               />
             </View>
@@ -1071,5 +1109,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginLeft: 10,
+  },
+  minPlayersWarning: {
+    color: '#ff6b6b',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  disabledButton: {
+    opacity: 0.5,
+  },
+  centeredWarning: {
+    textAlign: 'center',
+    marginBottom: 10,
   },
 });
