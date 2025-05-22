@@ -82,12 +82,12 @@ export const useInAppReview = () => {
       await AsyncStorage.setItem(LAST_REVIEW_ATTEMPT_KEY, Date.now().toString());
 
       if (Platform.OS === 'ios') {
-        const itunesItemId = 'VOTRE_ITUNES_ITEM_ID';
+        const itunesItemId = '6745452775';
         await Linking.openURL(
           `https://apps.apple.com/app/apple-store/id${itunesItemId}?action=write-review`
         );
       } else if (Platform.OS === 'android') {
-        const androidPackageName = 'VOTRE_PACKAGE_NAME';
+        const androidPackageName = 'com.emplica.nightly';
         await Linking.openURL(
           `https://play.google.com/store/apps/details?id=${androidPackageName}&showAllReviews=true`
         );
