@@ -145,11 +145,19 @@ export default function GameResults({
         )}
 
         {/* Section Rang Actuel Utilisateur */}
-        {currentUser && (
-           <View style={styles.currentUserRankContainer}>
-              <Text style={styles.currentUserRankText}>Votre rang actuel</Text>
-              <Text style={styles.currentUserRankNumber}>{userRank + 1}</Text>
-           </View>
+        {currentUser && userRank !== -1 && (
+           <LinearGradient
+              colors={['#7B2CBF', '#661A59', '#7B2CBF']}
+              start={{ x: 0, y: 0.5 }}
+              end={{ x: 1, y: 0.5 }}
+              style={styles.currentUserRankGradientContainer}
+            >
+              <View style={styles.currentUserRankContent}>
+                <Text style={styles.currentUserRankLabel}>Votre rang actuel</Text>
+                <Text style={styles.currentUserRankValue}>{userRank + 1}</Text>
+                <Ionicons name="arrow-up" size={24} color="#A0EEB5" />
+              </View>
+           </LinearGradient>
         )}
 
         {/* Section Autres Joueurs */}
@@ -314,19 +322,52 @@ const styles = StyleSheet.create({
     color: '#FFD700',
   },
   currentUserRankContainer: {
-    alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 30,
+    // Styles originaux commentés ou supprimés si non utilisés ailleurs
+    // alignItems: 'center',
+    // marginTop: 20,
+    // marginBottom: 30,
   },
   currentUserRankText: {
-    color: '#fff',
-    fontSize: 16,
-    marginBottom: 5,
+    // color: '#fff',
+    // fontSize: 16,
+    // marginBottom: 5,
   },
   currentUserRankNumber: {
-    color: '#FFD700',
-    fontSize: 32,
+    // color: '#FFD700',
+    // fontSize: 32,
+    // fontWeight: 'bold',
+  },
+  currentUserRankGradientContainer: {
+    marginTop: 20,
+    marginBottom: 30,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    width: '90%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 8,
+  },
+  currentUserRankContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  currentUserRankLabel: {
+    color: '#fff',
+    fontSize: 18,
     fontWeight: 'bold',
+  },
+  currentUserRankValue: {
+    color: '#A0EEB5', // Couleur verte pour le rang
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginHorizontal: 10,
   },
   otherPlayersList: {
     width: '100%',

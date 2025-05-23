@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
+import { getFirestore, doc, onSnapshot } from '@react-native-firebase/firestore';
 
 interface PointsDisplayProps {
   size?: 'small' | 'medium' | 'large';
@@ -18,7 +19,31 @@ export default function PointsDisplay({
 }: PointsDisplayProps) {
   const { user } = useAuth();
   const router = useRouter();
-  const points = customPoints ?? user?.points ?? 0;
+  const [points, setPoints] = useState(customPoints ?? user?.points ?? 0);
+
+  useEffect(() => {
+    if (customPoints !== undefined) {
+      setPoints(customPoints);
+      return;
+    }
+
+    if (!user?.uid) {
+      setPoints(0);
+      return;
+    }
+
+    const db = getFirestore();
+    const userRef = doc(db, 'users', user.uid);
+
+    const unsubscribe = onSnapshot(userRef, (doc) => {
+      if (doc.exists()) {
+        const userData = doc.data() as { points: number };
+        setPoints(userData.points || 0);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [user?.uid, customPoints]);
 
   const handlePress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
