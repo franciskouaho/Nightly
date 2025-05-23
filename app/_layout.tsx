@@ -6,8 +6,11 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import '@/config/firebase';
 import NotificationService from '@/services/notifications';
 import { LanguageProvider } from '@/contexts/LanguageContext';
+import {useAppsFlyer} from "@/hooks/useAppsFlyer";
 
 export default function RootLayout() {
+  useAppsFlyer();
+
   useEffect(() => {
     NotificationService.initialize();
   }, []);

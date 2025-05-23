@@ -75,6 +75,12 @@ export default {
     logoutError: 'Une erreur est survenue lors de la déconnexion. Veuillez réessayer.',
     contact: 'Nous contacter',
     contactEmail: 'Envoyez-nous un email à support@cosmicquest.com',
+    buyAssetsTitle: 'Acheter des assets',
+    insufficientPoints: 'Points insuffisants',
+    insufficientPointsMessage: 'Vous n\'avez pas assez de points pour débloquer cet asset.',
+    success: 'Succès',
+    assetUnlocked: '{{asset}} a été débloqué avec succès !',
+    unlockError: 'Une erreur est survenue lors du déblocage de l\'asset.',
     premium: {
       title: 'Passe Premium',
       try: 'Essayer le premium',
@@ -186,6 +192,19 @@ export default {
     darkMode: 'Mode sombre',
     lightMode: 'Mode clair',
     system: 'Système',
+    buyAssets: {
+      title: 'Acheter des assets',
+      available: 'Assets disponibles',
+      owned: 'Assets possédés',
+      cost: 'Coût',
+      points: 'points',
+      buy: 'Acheter',
+      confirm: 'Confirmer l\'achat',
+      cancel: 'Annuler',
+      success: 'Asset acheté avec succès !',
+      error: 'Erreur lors de l\'achat',
+      insufficientPoints: 'Points insuffisants',
+    },
   },
 
   // Jeu
@@ -509,5 +528,54 @@ export default {
       currency: '€'
     },
     freeTrial: 'Gratuit 3 jours',
+  },
+
+  assets: {
+    avatars: {
+      'avatar-panda': {
+        name: 'Panda',
+        description: 'Un adorable panda pour votre profil'
+      },
+      'avatar-chat': {
+        name: 'Chat',
+        description: 'Un chat mignon et joueur'
+      },
+      'avatar-chat-rare': {
+        name: 'Chat Rare',
+        description: 'Un chat mystérieux aux yeux brillants'
+      },
+      'avatar-chat-rare-2': {
+        name: 'Chat Rare 2',
+        description: 'Un chat rare avec un design unique'
+      },
+      'avatar-crocodile': {
+        name: 'Crocodile',
+        description: 'Un crocodile impressionnant'
+      },
+      'avatar-hibou': {
+        name: 'Hibou',
+        description: 'Un hibou sage et mystérieux'
+      },
+      'avatar-grenouille': {
+        name: 'Grenouille',
+        description: 'Une grenouille magique et colorée'
+      },
+      'avatar-oiseau': {
+        name: 'Oiseau',
+        description: 'Un oiseau aux couleurs vives'
+      },
+      'avatar-renard': {
+        name: 'Renard',
+        description: 'Un renard rusé et élégant'
+      },
+      'avatar-dragon': {
+        name: 'Dragon',
+        description: 'Un dragon majestueux cracheur de feu'
+      },
+      'avatar-phoenix': {
+        name: 'Phénix',
+        description: 'Un phénix légendaire qui renaît de ses cendres'
+      }
+    }
   },
 }; 

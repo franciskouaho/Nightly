@@ -72,18 +72,24 @@ export default {
     changeAvatar: 'Cambiar foto',
     settings: 'Ajustes',
     logout: 'Cerrar sesión',
-    logoutError: 'Ha ocurrido un error al cerrar sesión. Por favor, inténtalo de nuevo.',
+    logoutError: 'Ocurrió un error al cerrar sesión. Por favor, inténtalo de nuevo.',
     contact: 'Contáctanos',
     contactEmail: 'Envíanos un correo a support@cosmicquest.com',
+    buyAssetsTitle: 'Comprar assets',
+    insufficientPoints: 'Puntos insuficientes',
+    insufficientPointsMessage: 'No tienes suficientes puntos para desbloquear este asset.',
+    success: 'Éxito',
+    assetUnlocked: '¡{{asset}} ha sido desbloqueado con éxito!',
+    unlockError: 'Ocurrió un error al desbloquear el asset.',
     premium: {
       title: 'Pase Premium',
-      try: 'Probar premium',
+      try: 'Probar Premium',
       free: 'Gratis 3 días',
-      price: 'luego 3,99€ por semana',
+      price: 'luego 3,99€/semana',
       features: {
         unlock: 'Desbloquea todos los modos',
-        weekly: 'Nuevo paquete cada semana',
-        friends: 'Acceso gratuito para tus amigos',
+        weekly: 'Nuevo pack cada semana',
+        friends: 'Acceso gratis para amigos',
         cancel: 'Cancela cuando quieras',
       },
     },
@@ -186,6 +192,19 @@ export default {
     darkMode: 'Modo oscuro',
     lightMode: 'Modo claro',
     system: 'Sistema',
+    buyAssets: {
+      title: 'Comprar assets',
+      available: 'Assets disponibles',
+      owned: 'Assets adquiridos',
+      cost: 'Costo',
+      points: 'puntos',
+      buy: 'Comprar',
+      confirm: 'Confirmar compra',
+      cancel: 'Cancelar',
+      success: '¡Asset comprado con éxito!',
+      error: 'Error durante la compra',
+      insufficientPoints: 'Puntos insuficientes',
+    },
   },
 
   // Game
@@ -437,5 +456,54 @@ export default {
       currency: '€'
     },
     freeTrial: 'Gratis 3 días',
+  },
+
+  assets: {
+    avatars: {
+      'avatar-panda': {
+        name: 'Panda',
+        description: 'Un adorable panda para tu perfil'
+      },
+      'avatar-chat': {
+        name: 'Gato',
+        description: 'Un gato lindo y juguetón'
+      },
+      'avatar-chat-rare': {
+        name: 'Gato Raro',
+        description: 'Un gato misterioso con ojos brillantes'
+      },
+      'avatar-chat-rare-2': {
+        name: 'Gato Raro 2',
+        description: 'Un gato raro con un diseño único'
+      },
+      'avatar-crocodile': {
+        name: 'Cocodrilo',
+        description: 'Un impresionante cocodrilo'
+      },
+      'avatar-hibou': {
+        name: 'Búho',
+        description: 'Un búho sabio y misterioso'
+      },
+      'avatar-grenouille': {
+        name: 'Rana',
+        description: 'Una rana mágica y colorida'
+      },
+      'avatar-oiseau': {
+        name: 'Pájaro',
+        description: 'Un pájaro con colores vibrantes'
+      },
+      'avatar-renard': {
+        name: 'Zorro',
+        description: 'Un zorro astuto y elegante'
+      },
+      'avatar-dragon': {
+        name: 'Dragón',
+        description: 'Un majestuoso dragón escupefuego'
+      },
+      'avatar-phoenix': {
+        name: 'Fénix',
+        description: 'Un legendario fénix que renace de sus cenizas'
+      }
+    }
   },
 }; 

@@ -68,22 +68,28 @@ export default {
     defaultUsername: 'Player',
     email: 'Email',
     bio: 'Bio',
-    avatar: 'Profile picture',
-    changeAvatar: 'Change picture',
+    avatar: 'Profile Picture',
+    changeAvatar: 'Change Picture',
     settings: 'Settings',
     logout: 'Logout',
     logoutError: 'An error occurred while logging out. Please try again.',
-    contact: 'Contact us',
+    contact: 'Contact Us',
     contactEmail: 'Send us an email at support@cosmicquest.com',
+    buyAssetsTitle: 'Buy Assets',
+    insufficientPoints: 'Insufficient Points',
+    insufficientPointsMessage: 'You don\'t have enough points to unlock this asset.',
+    success: 'Success',
+    assetUnlocked: '{{asset}} has been successfully unlocked!',
+    unlockError: 'An error occurred while unlocking the asset.',
     premium: {
       title: 'Premium Pass',
-      try: 'Try premium',
+      try: 'Try Premium',
       free: 'Free 3 days',
-      price: 'then $3.99 per week',
+      price: 'then $3.99/week',
       features: {
         unlock: 'Unlock all modes',
         weekly: 'New pack every week',
-        friends: 'Free access for your friends',
+        friends: 'Free access for friends',
         cancel: 'Cancel anytime',
       },
     },
@@ -183,9 +189,22 @@ export default {
     privacy: 'Privacy',
     about: 'About',
     help: 'Help',
-    darkMode: 'Dark mode',
-    lightMode: 'Light mode',
+    darkMode: 'Dark Mode',
+    lightMode: 'Light Mode',
     system: 'System',
+    buyAssets: {
+      title: 'Buy Assets',
+      available: 'Available Assets',
+      owned: 'Owned Assets',
+      cost: 'Cost',
+      points: 'points',
+      buy: 'Buy',
+      confirm: 'Confirm Purchase',
+      cancel: 'Cancel',
+      success: 'Asset purchased successfully!',
+      error: 'Error during purchase',
+      insufficientPoints: 'Insufficient points',
+    },
   },
 
   // Game
@@ -505,5 +524,54 @@ export default {
       currency: '$'
     },
     freeTrial: 'Free 3 days',
+  },
+
+  assets: {
+    avatars: {
+      'avatar-panda': {
+        name: 'Panda',
+        description: 'An adorable panda for your profile'
+      },
+      'avatar-chat': {
+        name: 'Cat',
+        description: 'A cute and playful cat'
+      },
+      'avatar-chat-rare': {
+        name: 'Rare Cat',
+        description: 'A mysterious cat with glowing eyes'
+      },
+      'avatar-chat-rare-2': {
+        name: 'Rare Cat 2',
+        description: 'A rare cat with a unique design'
+      },
+      'avatar-crocodile': {
+        name: 'Crocodile',
+        description: 'An impressive crocodile'
+      },
+      'avatar-hibou': {
+        name: 'Owl',
+        description: 'A wise and mysterious owl'
+      },
+      'avatar-grenouille': {
+        name: 'Frog',
+        description: 'A magical and colorful frog'
+      },
+      'avatar-oiseau': {
+        name: 'Bird',
+        description: 'A bird with vibrant colors'
+      },
+      'avatar-renard': {
+        name: 'Fox',
+        description: 'A cunning and elegant fox'
+      },
+      'avatar-dragon': {
+        name: 'Dragon',
+        description: 'A majestic fire-breathing dragon'
+      },
+      'avatar-phoenix': {
+        name: 'Phoenix',
+        description: 'A legendary phoenix that rises from its ashes'
+      }
+    }
   },
 }; 

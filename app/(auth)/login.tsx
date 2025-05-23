@@ -10,14 +10,9 @@ import { useAuthAnalytics } from '@/hooks/useAuthAnalytics';
 import { useTranslation } from 'react-i18next';
 
 const profils = [
-  require('@/assets/profils/chat.png'),
-  require('@/assets/profils/renard.png'),
-  require('@/assets/profils/grenouille.png'),
-  require('@/assets/profils/hibou.png'),
-  require('@/assets/profils/crocodile.png'),
-  require('@/assets/profils/chatRare.png'),
-  require('@/assets/profils/panda.png'),
-  require('@/assets/profils/chatRare2.png'),
+  require('../../../../workspace/Nightly/assets/profils/chat.png'),
+  require('../../../../workspace/Nightly/assets/profils/renard.png'),
+  require('../../../../workspace/Nightly/assets/profils/grenouille.png'),
 ];
 
 function chunkArray<T>(array: T[], size: number): T[][] {
@@ -52,16 +47,16 @@ export default function LoginScreen() {
     try {
       const avatarUri = Image.resolveAssetSource(selectedProfile).uri;
       await signIn(username, avatarUri);
-      
+
       await authAnalytics.trackLogin('username', true);
-      
+
       router.replace('/(tabs)');
     } catch (error: any) {
       await authAnalytics.trackLogin('username', false);
-      
+
       Alert.alert(
-        t('errors.general'),
-        error.message || t('errors.authError')
+          t('errors.general'),
+          error.message || t('errors.authError')
       );
     } finally {
       setIsLoading(false);
@@ -69,68 +64,68 @@ export default function LoginScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <LinearGradient
-        colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
-        locations={[0, 0.2, 0.5, 0.8, 1]}
-        style={styles.background}
+      <KeyboardAvoidingView
+          style={styles.container}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <View style={styles.content}>
-          <View style={styles.header}>
-            <Image
-              source={selectedProfile}
-              style={styles.selectedProfileImage}
-            />
-            <Text style={styles.title}>{t('app.name')}</Text>
-            <Text style={styles.subtitle}>{t('auth.login.enterUsername')}</Text>
-          </View>
-
-          <View style={styles.form}>
-            <View style={styles.inputContainer}>
-              <Ionicons name="person-outline" size={24} color="#fff" />
-              <TextInput
-                style={styles.input}
-                placeholder={t('auth.login.username')}
-                placeholderTextColor="rgba(255,255,255,0.5)"
-                value={username}
-                onChangeText={setUsername}
-                autoCapitalize="none"
-                maxLength={20}
+        <LinearGradient
+            colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
+            locations={[0, 0.2, 0.5, 0.8, 1]}
+            style={styles.background}
+        >
+          <View style={styles.content}>
+            <View style={styles.header}>
+              <Image
+                  source={selectedProfile}
+                  style={styles.selectedProfileImage}
               />
+              <Text style={styles.title}>{t('app.name')}</Text>
+              <Text style={styles.subtitle}>{t('auth.login.enterUsername')}</Text>
             </View>
 
-            {chunkArray(profils, 4).map((row: any[], rowIdx: number) => (
-              <View style={styles.profilesRow} key={rowIdx}>
-                {row.map((img: any, idx: number) => (
-                  <TouchableOpacity key={idx} onPress={() => setSelectedProfile(img)}>
-                    <Image
-                      source={img}
-                      style={[
-                        styles.profileImg,
-                        selectedProfile === img && styles.profileImgSelected,
-                      ]}
-                    />
-                  </TouchableOpacity>
-                ))}
+            <View style={styles.form}>
+              <View style={styles.inputContainer}>
+                <Ionicons name="person-outline" size={24} color="#fff" />
+                <TextInput
+                    style={styles.input}
+                    placeholder={t('auth.login.username')}
+                    placeholderTextColor="rgba(255,255,255,0.5)"
+                    value={username}
+                    onChangeText={setUsername}
+                    autoCapitalize="none"
+                    maxLength={20}
+                />
               </View>
-            ))}
 
-            <TouchableOpacity
-              style={[styles.button, isLoading && styles.buttonDisabled]}
-              onPress={handleLogin}
-              disabled={isLoading}
-            >
-              <Text style={styles.buttonText}>
-                {isLoading ? t('auth.login.connecting') : t('auth.login.play')}
-              </Text>
-            </TouchableOpacity>
+              {chunkArray(profils, 4).map((row: any[], rowIdx: number) => (
+                  <View style={styles.profilesRow} key={rowIdx}>
+                    {row.map((img: any, idx: number) => (
+                        <TouchableOpacity key={idx} onPress={() => setSelectedProfile(img)}>
+                          <Image
+                              source={img}
+                              style={[
+                                styles.profileImg,
+                                selectedProfile === img && styles.profileImgSelected,
+                              ]}
+                          />
+                        </TouchableOpacity>
+                    ))}
+                  </View>
+              ))}
+
+              <TouchableOpacity
+                  style={[styles.button, isLoading && styles.buttonDisabled]}
+                  onPress={handleLogin}
+                  disabled={isLoading}
+              >
+                <Text style={styles.buttonText}>
+                  {isLoading ? t('auth.login.connecting') : t('auth.login.play')}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </LinearGradient>
-    </KeyboardAvoidingView>
+        </LinearGradient>
+      </KeyboardAvoidingView>
   );
 }
 

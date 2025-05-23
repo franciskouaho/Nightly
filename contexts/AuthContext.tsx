@@ -11,6 +11,7 @@ interface User {
   pseudo: string;
   createdAt: string;
   avatar: string;
+  points: number;
 }
 
 interface AuthContextType {
@@ -86,6 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         pseudo,
         createdAt: new Date().toISOString(),
         avatar,
+        points: 0,
       };
       await setDoc(doc(db, 'users', uid), userData);
       setUser(userData);

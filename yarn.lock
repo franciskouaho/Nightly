@@ -11899,6 +11899,7 @@ __metadata:
     react-dom: "npm:18.3.1"
     react-i18next: "npm:^15.5.1"
     react-native: "npm:0.76.9"
+    react-native-appsflyer: "npm:^6.16.2"
     react-native-confetti: "npm:^0.1.0"
     react-native-country-flag: "npm:^2.0.2"
     react-native-gesture-handler: "npm:~2.20.2"
@@ -12999,6 +13000,13 @@ __metadata:
   version: 16.13.1
   resolution: "react-is@npm:16.13.1"
   checksum: 10c0/33977da7a5f1a287936a0c85639fec6ca74f4f15ef1e59a6bc20338fc73dc69555381e211f7a3529b8150a1f71e4225525b41b60b52965bda53ce7d47377ada1
+  languageName: node
+  linkType: hard
+
+"react-native-appsflyer@npm:^6.16.2":
+  version: 6.16.2
+  resolution: "react-native-appsflyer@npm:6.16.2"
+  checksum: 10c0/cbedf931013fd9220e1001a03fe6824706882d67c96eadb9a7a3601a235a30e1bce399ec39dac217dbc7ffccd0ac2fe8c9ec9df247f4b4b95947c232c7a8f517
   languageName: node
   linkType: hard
 

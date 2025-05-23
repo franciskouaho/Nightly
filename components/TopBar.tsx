@@ -6,15 +6,37 @@ import * as Haptics from 'expo-haptics';
 import { useAuth } from '@/contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
+import PointsDisplay from './PointsDisplay';
 
 type TopBarProps = {
   showNotificationButton?: boolean;
   rightButtons?: React.ReactNode;
+  currentQuestion?: {
+    id: string;
+    text: string;
+    theme?: string;
+  } | null;
+};
+
+const QuestionDisplay = ({ question }: { question: TopBarProps['currentQuestion'] }) => {
+  if (!question) return null;
+
+  return (
+    <View style={styles.questionContainer}>
+      {question.theme && (
+        <View style={styles.themeBadge}>
+          <Text style={styles.themeText}>{question.theme}</Text>
+        </View>
+      )}
+      <Text style={styles.questionText}>{question.text}</Text>
+    </View>
+  );
 };
 
 export default function TopBar({ 
   showNotificationButton = true,
-  rightButtons
+  rightButtons,
+  currentQuestion
 }: TopBarProps) {
   const router = useRouter();
   const { user } = useAuth();
@@ -34,7 +56,10 @@ export default function TopBar({
         </View>
       </View>
       
+      {currentQuestion && <QuestionDisplay question={currentQuestion} />}
+      
       <View style={styles.rightContainer}>
+        <PointsDisplay size="medium" />
         <TouchableOpacity
           style={styles.iconButton}
           onPress={() => router.push('/(tabs)/profil')}
@@ -102,5 +127,29 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginLeft: 10,
+  },
+  questionContainer: {
+    flex: 1,
+    marginHorizontal: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  themeBadge: {
+    backgroundColor: '#7B2CBF',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
+    marginBottom: 4,
+  },
+  themeText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  questionText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '500',
+    textAlign: 'center',
   }
 });

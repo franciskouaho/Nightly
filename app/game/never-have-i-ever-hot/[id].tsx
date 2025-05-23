@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { View, Text, StyleSheet, Pressable, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, Pressable, ActivityIndicator, Alert, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
-import {  Question as GameQuestion, GamePhase } from '@/types/gameTypes';
+import {  Question as GameQuestion, GamePhase, Player } from '@/types/gameTypes';
 import RoundedButton from '@/components/RoundedButton';
 import { router } from 'expo-router';
 import { useGame } from '@/hooks/useGame';
@@ -11,6 +11,27 @@ import { useInAppReview } from '@/hooks/useInAppReview';
 import { useNeverHaveIEverHotAnalytics } from '@/hooks/useNeverHaveIEverHotAnalytics';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/contexts/LanguageContext';
+import GameResults from '@/components/game/GameResults';
+import { usePoints } from '@/hooks/usePoints';
+
+interface NeverHaveIEverHotGameState {
+  phase: GamePhase;
+  currentRound: number;
+  totalRounds: number;
+  currentQuestion: GameQuestion | null;
+  targetPlayer: Player | null;
+  players: Player[];
+  scores: Record<string, number>;
+  answers: Array<{
+    id: string;
+    text: string;
+    playerId: string;
+    playerName: string;
+  }>;
+  theme: string;
+  timer: number | null;
+  gameMode: 'never-have-i-ever-hot';
+}
 
 function ModeSelector({ onSelect, isTarget }: { onSelect: (mode: 'never' | 'ever' | null) => void, isTarget: boolean }) {
   const { t } = useTranslation();
@@ -68,6 +89,7 @@ export default function NeverHaveIEverHotGame() {
   const { user } = useAuth();
   const { requestReview } = useInAppReview();
   const gameAnalytics = useNeverHaveIEverHotAnalytics();
+  const { awardGamePoints } = usePoints();
   
   // State hooks - Garder un ordre constant
   const [currentQuestion, setCurrentQuestion] = useState<GameQuestion | null>(null);
@@ -180,7 +202,8 @@ export default function NeverHaveIEverHotGame() {
         currentQuestion: {...nextQuestion},
         targetPlayer: {...nextPlayer},
         currentRound: gameState.currentRound + 1,
-        phase: GamePhase.QUESTION
+        phase: GamePhase.QUESTION,
+        gameMode: 'never-have-i-ever-hot'
       };
       
       console.log('[DEBUG] Mise à jour avec nouvelle question:', nextQuestion.id);
@@ -440,21 +463,27 @@ export default function NeverHaveIEverHotGame() {
   }
 
   if (gameState.phase === GamePhase.END) {
+    // Attribuer les points avant d'afficher les résultats
+    if (gameState.gameMode) {
+      awardGamePoints(
+        gameId,
+        gameState.gameMode,
+        gameState.players,
+        gameState.scores
+      );
+    }
+
     return (
-      <LinearGradient
-        colors={["#D81B60", "#661A59", "#21101C"]}
-        style={styles.endContainer}
-      >
-        <Text style={styles.celebrationEmoji}>🎉</Text>
-        <Text style={styles.endTitle}>{t('game.neverHaveIEverHot.endTitle')}</Text>
-        <Text style={styles.endSubtitle}>{t('game.neverHaveIEverHot.endSubtitle')}</Text>
-        <RoundedButton
-          title={t('game.neverHaveIEverHot.home')}
-          onPress={() => {
-            router.replace('/');
-          }}
-        />
-      </LinearGradient>
+      <GameResults
+        players={gameState.players || []}
+        scores={gameState.scores || {}}
+        userId={user?.uid || ''}
+        pointsConfig={{
+          firstPlace: 30,
+          secondPlace: 20,
+          thirdPlace: 10
+        }}
+      />
     );
   }
 

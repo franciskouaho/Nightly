@@ -6,14 +6,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { getFirestore, doc, onSnapshot, updateDoc } from '@react-native-firebase/firestore';
 import { useAuth } from '@/contexts/AuthContext';
 import RoundedButton from '@/components/RoundedButton';
-import ResultsPhase from '@/components/game/ResultsPhase';
+import GameResults from '@/components/game/GameResults';
 import { useInAppReview } from '@/hooks/useInAppReview';
 import { useListenButDontJudgeAnalytics } from '@/hooks/useListenButDontJudgeAnalytics';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useRandomQuestions } from '@/hooks/useRandomQuestions';
 import { GamePhase } from '@/types/gameTypes';
-import FinalResults from '@/components/game/FinalResults';
+import ResultsPhase from '@/components/game/ResultsPhase';
 
 // Define interfaces outside the component
 interface Player {
@@ -48,6 +48,8 @@ interface GameState {
   votes: Record<string, string>;
   theme?: string;
   winningAnswerId?: string;
+  gameMode: 'listen-but-don-t-judge';
+  isLastRound: boolean;
 }
 
 export default function ListenButDontJudgeScreen() {
@@ -115,16 +117,15 @@ export default function ListenButDontJudgeScreen() {
     const unsubscribe = onSnapshot(gameRef, (docSnap) => {
       if (docSnap.exists()) {
         const gameData = docSnap.data() as GameState;
-        // Only update state if there's an actual change we care about for rendering
-        // Deep comparison might be needed for complex objects like players or answers
-        // For now, a simple check if the data object reference changes:
+        // S'assurer que le gameMode est défini
+        if (!gameData.gameMode) {
+          updateDoc(gameRef, {
+            gameMode: 'listen-but-don-t-judge'
+          }).catch(e => console.error("Error updating gameMode:", e));
+        }
         setGame(prevGame => {
-          // Optional: Add a deep comparison here if needed for performance optimization
-          // if (JSON.stringify(prevGame) === JSON.stringify(gameData)) {
-          //     return prevGame; // No change, prevent re-render
-          // }
-          console.log('[DEBUG] Game state updated by onSnapshot'); // Log to see how often this runs
-          return gameData; // Update state
+          console.log('[DEBUG] Game state updated by onSnapshot');
+          return gameData;
         });
 
         // Si la phase est 'choix', on la change en 'question' - do this only once
@@ -142,9 +143,9 @@ export default function ListenButDontJudgeScreen() {
     });
     return () => {
       unsubscribe();
-      console.log('[DEBUG] onSnapshot unsubscribed'); // Log when cleanup runs
+      console.log('[DEBUG] onSnapshot unsubscribed');
     };
-  }, [id, game?.phase]); // Depend on id and game?.phase to handle phase change for 'choix' logic
+  }, [id, game?.phase]);
 
   useEffect(() => {
     // Log game state changes to debug frequent updates
@@ -375,7 +376,7 @@ export default function ListenButDontJudgeScreen() {
     };
   }, [game?.currentQuestion, game?.targetPlayer, game?.theme, game?.currentRound, safeTranslate]); // Depend on relevant game state and safeTranslate
 
-  // Render FinalResults when game phase is END
+  // Render GameResults when game phase is END
   if (game?.phase === GamePhase.END) {
     return (
       <View style={styles.container}>
@@ -384,10 +385,15 @@ export default function ListenButDontJudgeScreen() {
           locations={[0, 0.2, 0.5, 0.8, 1]}
           style={StyleSheet.absoluteFillObject}
         />
-        <FinalResults
+        <GameResults
           players={game.players || []}
           scores={game.scores || {}}
-          gameId={String(id ?? "")}
+          userId={user?.uid || ''}
+          pointsConfig={{
+            firstPlace: 30,
+            secondPlace: 20,
+            thirdPlace: 10
+          }}
         />
       </View>
     );
@@ -513,19 +519,27 @@ export default function ListenButDontJudgeScreen() {
             )
           )}
           {game.phase === 'results' && memoizedFormattedQuestion && (
-            <ResultsPhase
-              answers={game.answers}
-              scores={game.scores}
-              players={game.players}
-              question={memoizedFormattedQuestion} // Use the memoized value
-              targetPlayer={game.targetPlayer}
-              onNextRound={handleNextRound}
-              isLastRound={game.currentRound === game.totalRounds}
-              timer={game.timer}
-              gameId={String(id ?? "")}
-              totalRounds={game.totalRounds}
-              winningAnswerId={game.winningAnswerId}
-            />
+            <View style={styles.container}>
+              <GameResults
+                players={game.players}
+                scores={game.scores}
+                userId={user?.uid || ''}
+                pointsConfig={{
+                  firstPlace: 30,
+                  secondPlace: 20,
+                  thirdPlace: 10
+                }}
+              />
+              {!game.isLastRound && (
+                <View style={styles.nextRoundButtonContainer}>
+                  <RoundedButton
+                    title={t('game.nextRound', 'Tour suivant')}
+                    onPress={handleNextRound}
+                    style={styles.nextRoundButton}
+                  />
+                </View>
+              )}
+            </View>
           )}
         </View>
       </ScrollView>
@@ -694,5 +708,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 28,
     fontWeight: '500',
+  },
+  nextRoundButtonContainer: {
+    position: 'absolute',
+    bottom: 40,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+  },
+  nextRoundButton: {
+    width: '80%',
+    maxWidth: 300,
   },
 });

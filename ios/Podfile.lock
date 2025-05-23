@@ -1188,6 +1188,9 @@ PODS:
     - abseil/meta/type_traits
     - abseil/xcprivacy
   - abseil/xcprivacy (1.20240722.0)
+  - AppsFlyerFramework (6.16.2):
+    - AppsFlyerFramework/Main (= 6.16.2)
+  - AppsFlyerFramework/Main (6.16.2)
   - boost (1.84.0)
   - BoringSSL-GRPC (0.0.37):
     - BoringSSL-GRPC/Implementation (= 0.0.37)
@@ -2812,6 +2815,9 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - react-native-appsflyer (6.16.2):
+    - AppsFlyerFramework (= 6.16.2)
+    - React
   - react-native-in-app-review (4.3.5):
     - React-Core
   - react-native-netinfo (11.4.1):
@@ -3462,6 +3468,7 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
+  - react-native-appsflyer (from `../node_modules/react-native-appsflyer`)
   - react-native-in-app-review (from `../node_modules/react-native-in-app-review`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
@@ -3509,6 +3516,7 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - abseil
+    - AppsFlyerFramework
     - BoringSSL-GRPC
     - Firebase
     - FirebaseAnalytics
@@ -3652,6 +3660,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   React-microtasksnativemodule:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/microtasks"
+  react-native-appsflyer:
+    :path: "../node_modules/react-native-appsflyer"
   react-native-in-app-review:
     :path: "../node_modules/react-native-in-app-review"
   react-native-netinfo:
@@ -3741,6 +3751,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   abseil: a05cc83bf02079535e17169a73c5be5ba47f714b
+  AppsFlyerFramework: fe5303bffcdfd941d5f570c2d21eaaea982e7bdc
   boost: 1dca942403ed9342f98334bf4c3621f011aa7946
   BoringSSL-GRPC: dded2a44897e45f28f08ae87a55ee4bcd19bc508
   DoubleConversion: f16ae600a246532c4020132d54af21d0ddb2a385
@@ -3822,6 +3833,7 @@ SPEC CHECKSUMS:
   React-logger: c4052eb941cca9a097ef01b59543a656dc088559
   React-Mapbuffer: 9343a5c14536d4463c80f09a960653d754daae21
   React-microtasksnativemodule: c7cafd8f4470cf8a4578ee605daa4c74d3278bf8
+  react-native-appsflyer: 4ac00a02833e9e81cc08da668728817fdc2a94e0
   react-native-in-app-review: 668f4c80d7f95945e0ad7833e98c466cb40d6808
   react-native-netinfo: cec9c4e86083cb5b6aba0e0711f563e2fbbff187
   react-native-safe-area-context: 3ec0dbf4635e3344cb1303d15fcc4a22876b3e59

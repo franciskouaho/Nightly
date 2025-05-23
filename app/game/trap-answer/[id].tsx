@@ -2,14 +2,39 @@ import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { GamePhase } from '@/types/gameTypes';
+import { GamePhase, Player } from '@/types/gameTypes';
 import { useGame } from '@/hooks/useGame';
 import { useAuth } from '@/contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getQuestions } from './questions';
-import { TrapAnswer, TrapGameState, TrapPlayerAnswer, TrapQuestion } from "@/types/types";
+import { TrapAnswer, TrapPlayerAnswer, TrapQuestion } from "@/types/types";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import RoundedButton from '@/components/RoundedButton';
+import GameResults from '@/components/game/GameResults';
+import { usePoints } from '@/hooks/usePoints';
+
+interface TrapGameState {
+  phase: GamePhase;
+  currentRound: number;
+  totalRounds: number;
+  currentQuestion: TrapQuestion | null;
+  questions: TrapQuestion[];
+  askedQuestionIds: string[];
+  playerAnswers: Record<string, TrapPlayerAnswer>;
+  scores: Record<string, number>;
+  players: Player[];
+  history: Record<string, number[]>;
+  gameMode: 'trap-answer';
+  targetPlayer: Player | null;
+  answers: Array<{
+    id: string;
+    text: string;
+    playerId: string;
+    playerName: string;
+  }>;
+  theme: string;
+  timer: number | null;
+}
 
 export default function TrapAnswerGame() {
   const { t } = useTranslation();
@@ -18,6 +43,7 @@ export default function TrapAnswerGame() {
   const gameId = typeof id === 'string' ? id : id?.[0] || '';
   const { user } = useAuth();
   const { gameState, updateGameState } = useGame<TrapGameState>(gameId);
+  const { awardGamePoints } = usePoints();
 
   // Timer pour la barre de temps (UI only)
   const TIMER_DURATION = 25; // secondes
@@ -54,6 +80,7 @@ export default function TrapAnswerGame() {
             currentRound: 0,
             history: initialPlayersHistory,
             playerAnswers: {},
+            gameMode: 'trap-answer'
           });
         } else {
           updateGameState({ phase: GamePhase.END });
@@ -94,7 +121,17 @@ export default function TrapAnswerGame() {
   const getRandomQuestion = (allQuestions: TrapQuestion[], askedIds: string[]): TrapQuestion | null => {
     const available = allQuestions.filter(q => !askedIds.includes(q.id));
     if (available.length === 0) return null;
-    return available[Math.floor(Math.random() * available.length)] || null;
+    const question = available[Math.floor(Math.random() * available.length)] || null;
+    
+    if (question) {
+      // Mélanger les réponses
+      const shuffledAnswers = [...question.answers].sort(() => Math.random() - 0.5);
+      return {
+        ...question,
+        answers: shuffledAnswers
+      };
+    }
+    return null;
   };
 
   const nextQuestion = () => {
@@ -178,11 +215,26 @@ export default function TrapAnswerGame() {
   if (!gameState) return null;
 
   if (gameState.phase === GamePhase.END) {
+    // Attribuer les points avant d'afficher les résultats
+    if (gameState.gameMode) {
+      awardGamePoints(
+        gameId,
+        gameState.gameMode,
+        gameState.players,
+        gameState.scores
+      );
+    }
+
     return (
       <GameResults
         players={gameState.players || []}
         scores={gameState.scores || {}}
         userId={user?.uid || ''}
+        pointsConfig={{
+          firstPlace: 25,
+          secondPlace: 15,
+          thirdPlace: 10
+        }}
       />
     );
   }
@@ -318,64 +370,6 @@ export default function TrapAnswerGame() {
           />
         </View>
       )}
-    </LinearGradient>
-  );
-}
-
-function GameResults({ players, scores, userId }: { players: any[], scores: Record<string, number>, userId: string }) {
-  const router = useRouter();
-  // Trie les joueurs par score décroissant
-  const sortedPlayers = [...players].sort((a, b) => (scores[b.id] || 0) - (scores[a.id] || 0));
-  const winner = sortedPlayers[0];
-  const userRank = sortedPlayers.findIndex(p => p.id === userId) + 1;
-  const userScore = scores[userId] || 0;
-
-  let message = '';
-  if (userRank === 1) message = "Bien joué, tu es en tête !";
-  else message = `Tu es ${userRank}ème !`;
-
-  // Pour la hauteur des barres
-  const maxScore = Math.max(...sortedPlayers.map(p => scores[p.id] || 0), 1);
-
-  return (
-    <LinearGradient colors={["#0E1117", "#661A59", "#21101C"]} style={styles.bg}>
-      <Text style={styles.roundNumber}>🏆</Text>
-      <Text style={styles.message}>{message}</Text>
-      <View style={styles.barsRow}>
-        {sortedPlayers.map((player, idx) => {
-          const score = scores[player.id] || 0;
-          const isUser = player.id === userId;
-          const isWinner = idx === 0;
-          // Hauteur proportionnelle
-          const barHeight = 120 + 80 * (score / maxScore);
-          let barStyle = styles.bar;
-          if (isWinner) barStyle = styles.barWinner;
-          else if (isUser) barStyle = styles.barUser;
-          else barStyle = styles.barOther;
-          return (
-            <View key={player.id} style={styles.barCol}>
-              <View style={styles.barBg}>
-                <View style={[barStyle, { height: barHeight }]} />
-              </View>
-              <View style={styles.avatarWrapper}>
-                <Image source={{ uri: player.avatar }} style={styles.avatarImg} />
-                {isWinner && <View style={styles.crown}><Text style={styles.crownText}>1</Text></View>}
-              </View>
-              <Text style={[styles.score, isWinner && styles.scoreWinner, isUser && styles.scoreUser]}>{score}</Text>
-              <Text style={[styles.pseudo, isUser && styles.pseudoUser]} numberOfLines={1}>{player.name}</Text>
-            </View>
-          );
-        })}
-      </View>
-      <View style={styles.homeBtnAbsolute}>
-        <RoundedButton
-          title="Accueil"
-          onPress={() => router.replace("/")}
-          icon={<Ionicons name="home" size={22} color="#fff" />}
-          gradientColors={["#7B2CBF", "#661A59"]}
-          style={{ width: '90%' }}
-        />
-      </View>
     </LinearGradient>
   );
 }
@@ -731,4 +725,156 @@ const styles = StyleSheet.create({
   },
   homeBtn: { borderRadius: 18, paddingVertical: 16, alignItems: 'center', justifyContent: 'center', width: '100%', shadowColor: '#7B2CBF', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 },
   homeBtnText: { color: '#fff', fontSize: 20, fontWeight: 'bold', letterSpacing: 1 },
+  resultsBg: {
+    flex: 1,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    paddingTop: 40,
+  },
+  topPlayersContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+    marginBottom: 18,
+  },
+  playerRankContainer: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  avatarWrapperResults: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    borderWidth: 3,
+    borderColor: '#661A59',
+    marginBottom: 4,
+    backgroundColor: '#21101C',
+    shadowColor: '#661A59',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avatarImgResults: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 29,
+  },
+  rankBadge: {
+    position: 'absolute',
+    top: -10,
+    right: -10,
+    backgroundColor: '#FFD600',
+    borderRadius: 12,
+    width: 24,
+    height: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#fff',
+  },
+  rankBadgeText: {
+    color: '#232323',
+    fontWeight: 'bold',
+    fontSize: 15,
+  },
+  playerNameResults: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 15,
+    marginTop: 2,
+    textShadowColor: 'rgba(0,0,0,0.25)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  playerRankContainerCenter: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  avatarWrapperRank1: {
+    borderWidth: 3,
+    borderColor: '#00C853',
+  },
+  avatarWrapperRank2: {
+    borderWidth: 3,
+    borderColor: '#FFD600',
+  },
+  avatarWrapperRank3: {
+    borderWidth: 3,
+    borderColor: '#D32F2F',
+  },
+  playerNameWinner: {
+    color: '#00C853',
+    fontSize: 22,
+  },
+  currentUserRankContainer: {
+    alignItems: 'center',
+    marginBottom: 18,
+  },
+  currentUserRankText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 15,
+    marginBottom: 2,
+    textShadowColor: 'rgba(0,0,0,0.25)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  currentUserRankNumber: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 20,
+  },
+  otherPlayersList: {
+    width: '100%',
+    marginTop: 18,
+  },
+  otherPlayerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  otherPlayerAvatar: {
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    marginRight: 8,
+  },
+  otherPlayerName: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 15,
+    textShadowColor: 'rgba(0,0,0,0.25)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  otherPlayerRank: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 15,
+  },
+  homeButtonContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 40,
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  crownTop: {
+    position: 'absolute',
+    top: -20,
+    right: -10,
+    backgroundColor: '#FFD600',
+    borderRadius: 12,
+    width: 24,
+    height: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#fff',
+    zIndex: 1,
+  },
 });

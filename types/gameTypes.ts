@@ -59,4 +59,5 @@ export interface GameState {
   };
   allPlayersVoted?: boolean;
   currentPlayerId?: string;
+  gameMode?: string;
 } 

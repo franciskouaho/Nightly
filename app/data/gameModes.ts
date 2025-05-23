@@ -50,7 +50,7 @@ export const gameCategories: GameCategory[] = [
                 shadowColor: "#3B5FD9",
                 tag: 'PREMIUM',
                 tagColor: "#D81B60",
-                premium: true,
+                premium: false,
                 interactive: 'write'
             }
         ]
@@ -70,7 +70,7 @@ export const gameCategories: GameCategory[] = [
                 shadowColor: "#3F51B5",
                 tag: 'PREMIUM',
                 tagColor: '#D81B60',
-                premium: true,
+                premium: false,
                 interactive: 'action'
             },
             {
@@ -83,7 +83,7 @@ export const gameCategories: GameCategory[] = [
                 shadowColor: "#D81B60",
                 tag: 'PREMIUM',
                 tagColor: "#D81B60",
-                premium: true,
+                premium: false,
                 interactive: 'write'
             }
         ]
@@ -103,7 +103,7 @@ export const gameCategories: GameCategory[] = [
                 shadowColor: "#212121",
                 tag: 'PREMIUM',
                 tagColor: "#D81B60",
-                premium: true,
+                premium: false,
                 interactive: 'write'
             },
             {
@@ -116,7 +116,7 @@ export const gameCategories: GameCategory[] = [
                 shadowColor: "#A855F7",
                 tag: 'PREMIUM',
                 tagColor: "#D81B60",
-                premium: true,
+                premium: false,
                 interactive: 'choice'
             },
         ]

@@ -6,6 +6,7 @@ import { useLocalSearchParams, useRouter, usePathname } from 'expo-router';
 import RoundedButton from '@/components/RoundedButton';
 import { useAuth } from '@/contexts/AuthContext';
 import { getFirestore, doc, onSnapshot, updateDoc } from '@react-native-firebase/firestore';
+import { usePoints } from '@/hooks/usePoints';
 
 interface Role {
   id: string;
@@ -14,6 +15,23 @@ interface Role {
   description: string;
   color: string;
   image: any;
+}
+
+interface TheHiddenVillageGameState {
+  id: string;
+  host: string;
+  players: Array<{
+    id: string;
+    name: string;
+    role: string;
+    isAlive: boolean;
+  }>;
+  phase: 'night' | 'day' | 'end';
+  status: string;
+  currentRound: number;
+  totalRounds: number;
+  scores: Record<string, number>;
+  gameMode: 'the-hidden-village';
 }
 
 const ROLE_CARDS: Role[] = [
@@ -65,7 +83,8 @@ export default function TheHiddenVillageGame() {
   const router = useRouter();
   const pathname = usePathname();
   const { user } = useAuth();
-  const [game, setGame] = useState<any>(null);
+  const { awardGamePoints } = usePoints();
+  const [game, setGame] = useState<TheHiddenVillageGameState | null>(null);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
 
   useEffect(() => {
@@ -75,7 +94,14 @@ export default function TheHiddenVillageGame() {
     const unsubscribe = onSnapshot(gameRef, (doc) => {
       const data = doc.data();
       if (data) {
-        setGame({ ...data, id: doc.id });
+        const gameData = { ...data, id: doc.id } as TheHiddenVillageGameState;
+        // S'assurer que le gameMode est défini
+        if (!gameData.gameMode) {
+          updateDoc(gameRef, {
+            gameMode: 'the-hidden-village'
+          }).catch(e => console.error("Error updating gameMode:", e));
+        }
+        setGame(gameData);
         if (data.status === 'roles') {
           router.replace(`/game/the-hidden-village/roles?id=${id}`);
         }
@@ -83,6 +109,18 @@ export default function TheHiddenVillageGame() {
     });
     return () => unsubscribe();
   }, [id, router]);
+
+  useEffect(() => {
+    if (game?.phase === 'end' && game.gameMode) {
+      // Attribuer les points à la fin du jeu
+      awardGamePoints(
+        game.id,
+        game.gameMode,
+        game.players,
+        game.scores
+      );
+    }
+  }, [game?.phase, game?.gameMode, game?.id, game?.players, game?.scores, awardGamePoints]);
 
   useEffect(() => {
     if (!game) return;

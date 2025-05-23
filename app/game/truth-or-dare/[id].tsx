@@ -13,6 +13,8 @@ import { useTruthOrDareAnalytics } from '@/hooks/useTruthOrDareAnalytics';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useRandomQuestions } from '@/hooks/useRandomQuestions';
+import { usePoints } from '@/hooks/usePoints';
+import GameResults from '@/components/game/GameResults';
 
 interface TruthOrDareQuestion { text: string; type: string; }
 
@@ -25,6 +27,7 @@ interface TruthOrDareGameState extends Omit<GameState, 'phase'> {
   spectatorVotes?: { [playerId: string]: 'yes' | 'no' };
   spectators?: string[];
   playerScores: { [playerId: string]: number };
+  gameMode: 'truth-or-dare';
 }
 
 const CARD_COLOR = '#4B277D';
@@ -145,6 +148,7 @@ export default function TruthOrDareGameScreen() {
   const router = useRouter();
   const { requestReview } = useInAppReview();
   const gameAnalytics = useTruthOrDareAnalytics();
+  const { awardGamePoints } = usePoints();
   const [game, setGame] = useState<TruthOrDareGameState | null>(null);
   const [loading, setLoading] = useState(true);
   const [questions, setQuestions] = useState<TruthOrDareQuestion[]>([]);
@@ -157,12 +161,61 @@ export default function TruthOrDareGameScreen() {
   const { getGameContent } = useLanguage();
   const { getRandomQuestion, resetAskedQuestions } = useRandomQuestions('truth-or-dare');
 
+  const handleNextRound = async () => {
+    if (!game || !user) return;
+    try {
+      const db = getFirestore();
+      const gameRef = doc(db, 'games', String(id));
+      
+      await gameAnalytics.trackRoundComplete(
+        String(id),
+        game.currentRound,
+        game.totalRounds
+      );
+
+      const nextQuestion = getRandomQuestion();
+      
+      if (!nextQuestion) {
+        Alert.alert(
+          t('game.error'),
+          t('game.truthOrDare.noQuestions')
+        );
+        return;
+      }
+
+      await updateDoc(gameRef, {
+        currentRound: game.currentRound + 1,
+        phase: 'question',
+        currentQuestion: nextQuestion,
+        answers: [],
+        votes: {},
+        winningAnswerId: null,
+        gameMode: 'truth-or-dare'
+      });
+    } catch (error) {
+      console.error('Error moving to next round:', error);
+      Alert.alert(
+        t('game.error'),
+        t('game.truthOrDare.errorNextRound')
+      );
+    }
+  };
+
   useEffect(() => {
     if (!id) return;
     const db = getFirestore();
     const gameRef = doc(db, 'games', String(id));
     const unsubscribe = onSnapshot(gameRef, (docSnap) => {
-      if (docSnap.exists()) setGame(docSnap.data() as TruthOrDareGameState);
+      if (docSnap.exists()) {
+        const gameData = docSnap.data() as TruthOrDareGameState;
+        // S'assurer que le gameMode est défini
+        if (!gameData.gameMode) {
+          updateDoc(gameRef, {
+            gameMode: 'truth-or-dare'
+          }).catch(e => console.error("Error updating gameMode:", e));
+        }
+        setGame(gameData);
+      }
       setLoading(false);
     });
     return () => unsubscribe();
@@ -190,6 +243,16 @@ export default function TruthOrDareGameScreen() {
       // Track la fin du jeu
       if (id) {
         gameAnalytics.trackGameComplete(String(id), game.totalRounds, gameDuration);
+        
+        // Attribuer les points avant la redirection
+        if (game.gameMode) {
+          awardGamePoints(
+            id,
+            game.gameMode,
+            game.players,
+            game.playerScores
+          );
+        }
       }
       
       // Redirection immédiate vers les résultats sans délai
@@ -197,7 +260,7 @@ export default function TruthOrDareGameScreen() {
     } else {
       setIsGameOver(false);
     }
-  }, [game, id, router, requestReview, gameAnalytics]);
+  }, [game, id, router, requestReview, gameAnalytics, awardGamePoints]);
 
   // Timer pour le vote
   useEffect(() => {
@@ -375,41 +438,24 @@ export default function TruthOrDareGameScreen() {
   }
 
   if (isGameOver) {
-    const ScoreBoard = () => (
-      <View style={{width: '100%', marginTop: 8}}>
-        {game?.players.sort((a, b) => (game.playerScores?.[b.id] || 0) - (game.playerScores?.[a.id] || 0)).map((player, index) => (
-          <View key={index} style={{flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8, backgroundColor: 'rgba(61, 28, 105, 0.5)', padding: 10, borderRadius: 8}}>
-            <Text style={{color: '#fff', fontSize: 16}}>{player.name}</Text>
-            <Text style={{color: '#ff9f43', fontSize: 16, fontWeight: 'bold'}}>{game.playerScores?.[player.id] || 0} pts</Text>
-          </View>
-        ))}
-      </View>
-    );
-
     return (
-      <LinearGradient
-        colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
-        locations={[0, 0.2, 0.5, 0.8, 1]}
-        style={[StyleSheet.absoluteFillObject, { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }]}
-      >
-        <StatusBar style="light" />
-        <View style={styles.cardContainer}>
-          <Text style={styles.voteTitle}>{t('game.truthOrDare.endTitle')}</Text>
-          <Text style={styles.voteSubtitle}>{t('game.truthOrDare.endSubtitle')}</Text>
-          
-          <View style={{marginVertical: 24, width: '100%'}}>
-            <Text style={styles.scoreBoardTitle}>{t('game.truthOrDare.scores')}</Text>
-            <ScoreBoard />
-          </View>
-        </View>
-        
-        <RoundedButton
-          title={t('game.results.home')}
-          onPress={() => router.replace('/')}
-          style={styles.gradientButton}
-          textStyle={styles.gradientButtonText}
+      <View style={styles.container}>
+        <LinearGradient
+          colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
+          locations={[0, 0.2, 0.5, 0.8, 1]}
+          style={StyleSheet.absoluteFillObject}
         />
-      </LinearGradient>
+        <GameResults
+          players={game?.players || []}
+          scores={game?.playerScores || {}}
+          userId={user?.uid || ''}
+          pointsConfig={{
+            firstPlace: 30,
+            secondPlace: 20,
+            thirdPlace: 10
+          }}
+        />
+      </View>
     );
   }
 
@@ -765,45 +811,6 @@ export default function TruthOrDareGameScreen() {
       console.error('[DEBUG] Erreur lors du vote:', error);
     }
   }
-
-  const handleNextRound = async () => {
-    if (!game || !user) return;
-    if (game.currentRound >= game.totalRounds) {
-      setIsGameOver(true);
-      return;
-    }
-    try {
-      const db = getFirestore();
-      const gameRef = doc(db, 'games', String(id));
-      
-      // Track la fin du round
-      await gameAnalytics.trackRoundComplete(
-        String(id),
-        game.currentRound,
-        game.totalRounds,
-        game.playerAnswers[game.currentPlayerId]?.knows || false
-      );
-
-      // Obtenir une nouvelle question aléatoire
-      const nextQuestion = getRandomQuestion();
-      
-      if (!nextQuestion) {
-        Alert.alert(t('game.error'), t('game.truthOrDare.noQuestions'));
-        return;
-      }
-
-      await updateDoc(gameRef, {
-        currentRound: game.currentRound + 1,
-        phase: 'question',
-        currentUserState: {},
-        playerAnswers: {},
-        currentQuestion: nextQuestion,
-      });
-    } catch (error) {
-      console.error('❌ Erreur lors du passage au tour suivant:', error);
-      Alert.alert('Erreur', 'Impossible de passer au tour suivant');
-    }
-  };
 
   return null;
 }
