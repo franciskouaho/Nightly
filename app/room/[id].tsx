@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next';
 import i18n from '@/app/i18n/i18n';
 import { getQuestions } from '../game/trap-answer/questions';
 import { TrapGameState } from '@/types/types';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Configuration des jeux avec le nombre minimum de joueurs requis
 const GAME_CONFIG = {
@@ -196,6 +197,7 @@ export default function RoomScreen() {
   const [selectedRounds, setSelectedRounds] = useState(5);
   const [showRoundSelector, setShowRoundSelector] = useState(false);
   const { t } = useTranslation();
+  const { language, isRTL } = useLanguage();
 
   useEffect(() => {
     if (!id || !user) return;
@@ -309,8 +311,10 @@ export default function RoomScreen() {
       let questions = [];
       let data;
       
+      const currentLanguage = isRTL ? 'ar' : (language || 'fr');
+
       if (room.gameId === 'trap-answer') {
-        questions = await getQuestions();
+        questions = await getQuestions(currentLanguage);
       } else {
         // 1. Récupérer les questions pour le mode de jeu
         const questionsRef = doc(
@@ -327,7 +331,6 @@ export default function RoomScreen() {
         data = questionsDoc.data();
         // Récupération des questions dans la langue actuelle
         const translations = data?.translations || {};
-        const currentLanguage = i18n.language || 'fr';
         questions = translations[currentLanguage] || translations.fr || [];
       }
       

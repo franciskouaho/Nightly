@@ -6,12 +6,13 @@ import { GamePhase, Player } from '@/types/gameTypes';
 import { useGame } from '@/hooks/useGame';
 import { useAuth } from '@/contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
-import { getQuestions } from './questions';
+import { useTrapAnswerQuestions } from './questions';
 import { TrapAnswer, TrapPlayerAnswer, TrapQuestion } from "@/types/types";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import RoundedButton from '@/components/RoundedButton';
 import GameResults from '@/components/game/GameResults';
 import { usePoints } from '@/hooks/usePoints';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface TrapGameState {
   phase: GamePhase;
@@ -44,6 +45,10 @@ export default function TrapAnswerGame() {
   const { user } = useAuth();
   const { gameState, updateGameState } = useGame<TrapGameState>(gameId);
   const { awardGamePoints } = usePoints();
+  const { isRTL, language } = useLanguage();
+
+  // Utiliser le hook pour gérer les questions
+  const { questions, getRandomQuestion, askedQuestions } = useTrapAnswerQuestions();
 
   // Timer pour la barre de temps (UI only)
   const TIMER_DURATION = 25; // secondes
@@ -59,39 +64,30 @@ export default function TrapAnswerGame() {
     }
   }, [gameState]); // Dépend de gameState pour se déclencher à chaque mise à jour
 
+  // Charger la première question lorsque les questions sont disponibles
   useEffect(() => {
-    const fetchQuestions = async () => {
-      if (!gameState || gameState.questions?.length > 0) return;
-      
-      const fetchedQuestions = await getQuestions();
-      if (fetchedQuestions.length > 0) {
-        const firstQuestion = getRandomQuestion(fetchedQuestions, []);
-        if (firstQuestion) {
-          const initialPlayersHistory: { [playerId: string]: number[] } = (gameState?.players || []).reduce((acc: { [playerId: string]: number[] }, player) => {
-            acc[player.id] = Array(gameState?.totalRounds || 5).fill(0);
-            return acc;
-          }, {});
+    if (!gameState || gameState.currentQuestion || questions.length === 0) return;
 
-          updateGameState({
-            questions: fetchedQuestions,
-            currentQuestion: firstQuestion,
-            askedQuestionIds: [firstQuestion.id],
-            phase: GamePhase.QUESTION,
-            currentRound: 0,
-            history: initialPlayersHistory,
-            playerAnswers: {},
-            gameMode: 'trap-answer'
-          });
-        } else {
-          updateGameState({ phase: GamePhase.END });
-        }
-      } else {
-        updateGameState({ phase: GamePhase.END });
-      }
-    };
+    const firstQuestion = getRandomQuestion();
+    if (firstQuestion) {
+      const initialPlayersHistory: { [playerId: string]: number[] } = (gameState.players || []).reduce((acc: { [playerId: string]: number[] }, player) => {
+        acc[player.id] = Array(gameState.totalRounds || 5).fill(0);
+        return acc;
+      }, {});
 
-    fetchQuestions();
-  }, [gameState?.questions?.length]);
+      updateGameState({
+        currentQuestion: firstQuestion,
+        askedQuestionIds: [firstQuestion.id], // askedQuestions est géré par le hook, mais on garde l'état du jeu pour la persistance
+        phase: GamePhase.QUESTION,
+        currentRound: 0,
+        history: initialPlayersHistory,
+        playerAnswers: {},
+        gameMode: 'trap-answer'
+      });
+    } else {
+      updateGameState({ phase: GamePhase.END });
+    }
+  }, [gameState?.currentQuestion, questions, gameState?.players, gameState?.totalRounds]); // Ajout de dépendances manquantes
 
   useEffect(() => {
     if (gameState?.phase === GamePhase.QUESTION) {
@@ -118,37 +114,22 @@ export default function TrapAnswerGame() {
     return 0;
   };
 
-  const getRandomQuestion = (allQuestions: TrapQuestion[], askedIds: string[]): TrapQuestion | null => {
-    const available = allQuestions.filter(q => !askedIds.includes(q.id));
-    if (available.length === 0) return null;
-    const question = available[Math.floor(Math.random() * available.length)] || null;
-    
-    if (question) {
-      // Mélanger les réponses
-      const shuffledAnswers = [...question.answers].sort(() => Math.random() - 0.5);
-      return {
-        ...question,
-        answers: shuffledAnswers
-      };
-    }
-    return null;
-  };
-
   const nextQuestion = () => {
-    if (!gameState?.questions?.length) return;
-    
-    const nextQ = getRandomQuestion(
-      gameState.questions,
-      [...(gameState.askedQuestionIds || []), gameState.currentQuestion?.id].filter((id): id is string => !!id)
-    );
+    if (!questions?.length) return; // Utiliser questions du hook
+
+    // getRandomQuestion gère déjà l'historique des questions posées via le hook
+    const nextQ = getRandomQuestion();
 
     if (nextQ) {
       updateGameState({
         currentQuestion: nextQ,
-        askedQuestionIds: [...(gameState.askedQuestionIds || []), nextQ.id],
+        // askedQuestionIds est maintenant géré par le hook useTrapAnswerQuestions
+        // On peut le synchroniser avec l'état du jeu si nécessaire pour la persistance, 
+        // mais le hook est la source de vérité pour la session courante.
+        askedQuestionIds: [...(gameState?.askedQuestionIds || []), nextQ.id].filter((id): id is string => !!id), // garder pour l'état du jeu si persistant
         playerAnswers: {},
         phase: GamePhase.QUESTION,
-        currentRound: (gameState.currentRound ?? 0) + 1,
+        currentRound: (gameState?.currentRound ?? 0) + 1,
       });
     } else {
       updateGameState({ phase: GamePhase.END });
@@ -177,7 +158,7 @@ export default function TrapAnswerGame() {
     };
 
     // Historique robuste : toujours un array de la bonne taille
-    const totalRounds = gameState.totalRounds || 5;
+    const totalRounds = gameState?.totalRounds || 5;
     const baseHistory = (gameState as any)?.history || {};
     const newHistory = { ...baseHistory };
     if (!newHistory[user.uid]) newHistory[user.uid] = [];
@@ -185,7 +166,9 @@ export default function TrapAnswerGame() {
     while (newHistory[user.uid].length < totalRounds) {
       newHistory[user.uid].push(0);
     }
-    newHistory[user.uid][gameState.currentRound] = answer.isCorrect ? 1 : answer.isTrap ? -1 : 0;
+    if (gameState?.currentRound !== undefined) {
+        newHistory[user.uid][gameState.currentRound] = answer.isCorrect ? 1 : answer.isTrap ? -1 : 0;
+    }
 
     const updateData: Partial<TrapGameState> = {
       scores: newScores,

@@ -91,7 +91,7 @@ export function useTrapAnswerQuestions() {
 }
 
 // Fonction de compatibilité pour le code existant
-export const getQuestions = async (): Promise<TrapQuestion[]> => {
+export const getQuestions = async (currentLanguage: string = 'fr'): Promise<TrapQuestion[]> => {
   try {
     const db = getFirestore();
     const questionsRef = doc(db, 'gameQuestions', 'trap-answer');
@@ -99,7 +99,7 @@ export const getQuestions = async (): Promise<TrapQuestion[]> => {
 
     if (questionsDoc.exists()) {
       const questionsData = questionsDoc.data();
-      const rawQuestions = questionsData?.translations?.fr || [];
+      const rawQuestions = questionsData?.translations?.[currentLanguage] || [];
       return rawQuestions.map(transformQuestion);
     } else {
       console.error("No questions found in Firebase");
