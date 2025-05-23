@@ -254,9 +254,6 @@ export default function TruthOrDareGameScreen() {
           );
         }
       }
-      
-      // Redirection immédiate vers les résultats sans délai
-      router.replace(`/game/results/${id}`);
     } else {
       setIsGameOver(false);
     }
@@ -439,7 +436,7 @@ export default function TruthOrDareGameScreen() {
 
   if (isGameOver) {
     return (
-      <View style={styles.container}>
+      <View style={styles.gameOverContainer}>
         <LinearGradient
           colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
           locations={[0, 0.2, 0.5, 0.8, 1]}
@@ -1175,5 +1172,8 @@ const styles = StyleSheet.create({
     fontSize: 19,
     marginBottom: 18,
     textAlign: 'center',
+  },
+  gameOverContainer: {
+    flex: 1,
   },
 }); 

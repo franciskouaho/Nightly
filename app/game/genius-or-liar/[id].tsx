@@ -530,29 +530,6 @@ export default function KnowOrDrinkGame() {
     }
   };
 
-  // Affichage de la fin de partie
-  if (gameState?.phase === 'end') {
-    return (
-      <View style={styles.container}>
-        <LinearGradient
-          colors={["#1A0A33", "#3A1A59"]}
-          locations={[0, 0.2, 0.5, 0.8, 1]}
-          style={StyleSheet.absoluteFillObject}
-        />
-        <GameResults
-          players={gameState.players || []}
-          scores={gameState.scores || {}}
-          userId={user?.uid || ''}
-          pointsConfig={{
-            firstPlace: 30,
-            secondPlace: 20,
-            thirdPlace: 10
-          }}
-        />
-      </View>
-    );
-  }
-
   const renderResultsPhase = () => {
     if (!gameState || !user) return null;
 
@@ -563,16 +540,47 @@ export default function KnowOrDrinkGame() {
     });
 
     return (
-      <GameResults
-        players={gameState.players}
-        scores={finalScores}
-        userId={user.uid}
-        pointsConfig={{
-          firstPlace: 30,
-          secondPlace: 20,
-          thirdPlace: 10
-        }}
-      />
+      <View style={styles.container}>
+        <View style={styles.contentContainer}>
+          <Text style={styles.phaseTitle}>{t('game.geniusOrLiar.roundResults')}</Text>
+          {gameState.players.map((player) => {
+            const status = getPlayerStatus(player.id);
+            const accuserStatus = getAccuserStatus(player.id);
+            const playerScore = finalScores[player.id] || 0;
+            return (
+              <View key={player.id} style={styles.resultCard}>
+                <Text style={styles.playerName}>{player.name}</Text>
+                <Text style={[styles.statusText, { color: status.color }]}>
+                  {status.icon} {status.label}
+                </Text>
+                {accuserStatus && (
+                  <Text style={[styles.accuserText, { color: accuserStatus.color }]}>
+                    {accuserStatus.icon} {accuserStatus.label}
+                  </Text>
+                )}
+                {gameState.gameMode === 'points' ? (
+                  <Text style={[styles.scoreText, playerScore >= 0 ? styles.positiveScore : styles.negativeScore]}>
+                    {playerScore > 0 ? '+' : ''}{playerScore} points
+                  </Text>
+                ) : (
+                  <Text style={styles.drinksText}>
+                    {playerScore} {t('game.geniusOrLiar.drinks')}
+                  </Text>
+                )}
+              </View>
+            );
+          })}
+          <TouchableOpacity style={styles.nextButton} onPress={handleNextRound}>
+            <LinearGradient colors={["#A259FF", "#C471F5"]} style={styles.buttonGradient}>
+              <Text style={styles.buttonText}>
+                {gameState.currentRound >= gameState.totalRounds 
+                  ? t('game.geniusOrLiar.endGame') 
+                  : t('game.geniusOrLiar.nextRound')}
+              </Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
+      </View>
     );
   };
 
@@ -610,7 +618,7 @@ export default function KnowOrDrinkGame() {
     if (gameState && gameState.currentRound >= gameState.totalRounds && gameState.phase === 'results') {
       const gameDuration = Date.now() - gameStartTime.current;
       const userScore = gameState.scores[user?.uid || ''] || 0;
-      
+
       // Track la fin du jeu
       gameAnalytics.trackGameComplete(
         String(id),
@@ -618,7 +626,7 @@ export default function KnowOrDrinkGame() {
         gameDuration,
         userScore
       );
-      
+
       const timeout = setTimeout(async () => {
         await requestReview();
         const db = getFirestore();
@@ -627,7 +635,8 @@ export default function KnowOrDrinkGame() {
       }, 2000);
       return () => clearTimeout(timeout);
     }
-    return () => {}; // Retour par défaut pour les autres cas
+    // Retourner une fonction de nettoyage vide si la condition n'est pas remplie
+    return () => {};
   }, [gameState, id, requestReview, gameAnalytics, user]);
 
   // Fonction pour calculer les scores de tous les joueurs (variante points complète)
@@ -687,7 +696,8 @@ export default function KnowOrDrinkGame() {
       }, 2000);
       return () => clearTimeout(timeout);
     }
-    return () => {}; // Retour par défaut pour les autres cas
+    // Retourner une fonction de nettoyage vide si la condition n'est pas remplie
+    return () => {};
   }, [gameState, id, requestReview]);
 
   const renderChoicePhase = () => (
@@ -752,6 +762,7 @@ export default function KnowOrDrinkGame() {
       }, 2000);
       return () => clearTimeout(timeout);
     }
+    return () => {}; // Retour par défaut pour les autres cas
   }, [gameState, id, requestReview, gameAnalytics, user]);
 
   // Dans useEffect, ajoutons une vérification pour charger les questions depuis Firebase si nécessaire
@@ -776,25 +787,56 @@ export default function KnowOrDrinkGame() {
     }
   }, [gameState, id, isRTL, i18n.language]);
 
-  if (loading) {
-    return (
-      <View style={styles.container}>
+  // Déplacer la logique de rendu conditionnelle à la fin du composant
+  const renderContent = () => {
+    if (loading) {
+      return (
         <View style={styles.contentContainer}>
           <Text style={styles.loadingText}>Chargement du jeu...</Text>
         </View>
-      </View>
-    );
-  }
+      );
+    }
 
-  if (!gameState) {
-    return (
-      <View style={styles.container}>
+    if (!gameState) {
+      return (
         <View style={styles.contentContainer}>
           <Text style={styles.errorText}>Jeu non trouvé</Text>
         </View>
-      </View>
+      );
+    }
+
+    // Nouvelle logique pour inclure la phase 'end'
+    if (gameState.phase === 'end') {
+      return (
+        <View style={styles.container}>
+          <LinearGradient
+            colors={["#1A0A33", "#3A1A59"]}
+            locations={[0, 0.2, 0.5, 0.8, 1]}
+            style={StyleSheet.absoluteFillObject}
+          />
+          <GameResults
+            players={gameState.players || []}
+            scores={gameState.scores || {}}
+            userId={user?.uid || ''}
+            pointsConfig={{
+              firstPlace: 30,
+              secondPlace: 20,
+              thirdPlace: 10
+            }}
+          />
+        </View>
+      );
+    }
+
+    return (
+      <>
+        {gameState.phase === 'choix' && renderChoicePhase()}
+        {gameState.phase === 'question' && renderQuestionPhase()}
+        {gameState.phase === 'vote' && renderAccusationPhase()}
+        {gameState.phase === 'results' && renderResultsPhase()}
+      </>
     );
-  }
+  };
 
   return (
     <KeyboardAvoidingView
@@ -806,10 +848,7 @@ export default function KnowOrDrinkGame() {
         locations={[0, 0.2, 0.5, 0.8, 1]}
         style={styles.background}
       >
-        {gameState.phase === 'choix' && renderChoicePhase()}
-        {gameState.phase === 'question' && renderQuestionPhase()}
-        {gameState.phase === 'vote' && renderAccusationPhase()}
-        {gameState.phase === 'results' && renderResultsPhase()}
+        {renderContent()}
       </LinearGradient>
     </KeyboardAvoidingView>
   );

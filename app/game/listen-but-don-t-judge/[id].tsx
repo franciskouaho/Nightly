@@ -157,10 +157,8 @@ export default function ListenButDontJudgeScreen() {
       // Track la fin du jeu
       gameAnalytics.trackGameComplete(String(id), game.totalRounds, gameDuration);
       
-      const timeout = setTimeout(async () => {
-        await requestReview();
-      }, 2000);
-      return () => clearTimeout(timeout);
+    
+      return () => {};
     }
 
     return () => {};

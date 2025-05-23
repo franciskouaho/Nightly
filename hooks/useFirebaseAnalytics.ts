@@ -5,20 +5,30 @@ export const useFirebaseAnalytics = () => {
   // Événements de base
   const logEvent = useCallback(async (eventName: string, params?: Record<string, any>) => {
     try {
+      if (!analytics()) {
+        console.warn('Firebase Analytics n\'est pas initialisé');
+        return;
+      }
       await analytics().logEvent(eventName, params);
     } catch (error) {
       console.error('Erreur lors de la journalisation de l\'événement Firebase:', error);
+      // Ne pas propager l'erreur pour éviter de bloquer l'application
     }
   }, []);
 
   const logScreenView = useCallback(async (screenName: string, screenClass?: string) => {
     try {
+      if (!analytics()) {
+        console.warn('Firebase Analytics n\'est pas initialisé');
+        return;
+      }
       await analytics().logScreenView({
         screen_name: screenName,
         screen_class: screenClass,
       });
     } catch (error) {
       console.error('Erreur lors de la journalisation de la vue d\'écran Firebase:', error);
+      // Ne pas propager l'erreur pour éviter de bloquer l'application
     }
   }, []);
 
@@ -190,9 +200,14 @@ export const useFirebaseAnalytics = () => {
 
   const setAnalyticsCollectionEnabled = useCallback(async (enabled: boolean) => {
     try {
+      if (!analytics()) {
+        console.warn('Firebase Analytics n\'est pas initialisé');
+        return;
+      }
       await analytics().setAnalyticsCollectionEnabled(enabled);
     } catch (error) {
       console.error('Erreur lors de la modification de la collection d\'analytics Firebase:', error);
+      // Ne pas propager l'erreur pour éviter de bloquer l'application
     }
   }, []);
 

@@ -8,6 +8,7 @@ import RoundedButton from '@/components/RoundedButton';
 import { usePoints } from '@/hooks/usePoints';
 import { Player } from '@/types/gameTypes';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useInAppReview } from '@/hooks/useInAppReview';
 
 interface GameResultsProps {
   players: Player[];
@@ -32,6 +33,7 @@ export default function GameResults({
 }: GameResultsProps) {
   const router = useRouter();
   const { addPointsToUser, getUserPoints } = usePoints();
+  const { requestReview } = useInAppReview();
   const insets = useSafeAreaInsets();
   const [userPoints, setUserPoints] = useState<number | null>(null);
   const [pointsGained, setPointsGained] = useState<number | null>(null);
@@ -76,9 +78,12 @@ export default function GameResults({
       const newPoints = await getUserPoints(userId);
       setUserPoints(newPoints);
       setPointsGained(awarded); // Stocke les points gagnés par l'utilisateur actuel
+
+      // Demander une review si l'utilisateur a gagné des points
+        await requestReview();
     };
     awardPoints();
-  }, [sortedPlayers, addPointsToUser, pointsConfig, userId, getUserPoints, pointsGained]); // Ajout de pointsGained aux dépendances
+  }, [sortedPlayers, addPointsToUser, pointsConfig, userId, getUserPoints, pointsGained, requestReview]); // Ajout de requestReview aux dépendances
 
   // Trouver les 3 meilleurs joueurs (ou moins s'il n'y en a pas assez)
   const player1 = topPlayers[0];
@@ -249,113 +254,92 @@ const styles = StyleSheet.create({
     backgroundColor: '#eee',
     alignItems: 'center',
     justifyContent: 'center',
+    position: 'relative',
   },
   avatarWrapperRank1: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    borderWidth: 4,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     borderColor: '#FFD700',
-    shadowColor: '#FFD700',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 15,
+    marginBottom: 15,
   },
   avatarWrapperRank2: {
     borderColor: '#C0C0C0',
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    borderWidth: 3,
   },
   avatarWrapperRank3: {
     borderColor: '#CD7F32',
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    borderWidth: 3,
   },
   avatarImgResults: {
     width: '100%',
     height: '100%',
-    borderRadius: 60,
+    borderRadius: 50,
   },
   rankBadge: {
     position: 'absolute',
-    bottom: -10,
-    backgroundColor: '#fff',
-    borderRadius: 15,
-    width: 30,
-    height: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#000',
-  },
-  rankBadgeText: {
-    color: '#000',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  crownTop: {
-    position: 'absolute',
-    top: -20,
-    backgroundColor: '#FFD600',
+    bottom: -5,
+    right: -5,
+    backgroundColor: '#FFD700',
     borderRadius: 12,
     width: 24,
     height: 24,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: '#fff',
-    zIndex: 1,
+    borderColor: '#1A0A33',
+  },
+  rankBadgeText: {
+    color: '#1A0A33',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  crownTop: {
+    position: 'absolute',
+    top: -20,
+    left: '50%',
+    transform: [{ translateX: -15 }],
   },
   crownText: {
-    color: '#232323',
-    fontWeight: 'bold',
-    fontSize: 15,
+    fontSize: 30,
   },
   playerNameResults: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
-    marginTop: 8,
+    fontWeight: '500',
+    textAlign: 'center',
+    maxWidth: 100,
   },
   playerNameWinner: {
+    fontSize: 18,
+    fontWeight: 'bold',
     color: '#FFD700',
   },
   currentUserRankContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'rgba(123, 44, 191, 0.3)',
-    borderRadius: 10,
-    padding: 15,
-    marginHorizontal: 20,
-    marginBottom: 20,
-    width: '90%',
+    marginTop: 20,
+    marginBottom: 30,
   },
   currentUserRankText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: '600',
+    marginBottom: 5,
   },
   currentUserRankNumber: {
     color: '#FFD700',
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: 'bold',
   },
   otherPlayersList: {
-    width: '90%',
-    marginBottom: 20,
+    width: '100%',
+    paddingHorizontal: 20,
+    marginBottom: 30,
   },
   otherPlayerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 10,
     padding: 10,
-    marginBottom: 10,
+    borderRadius: 10,
+    marginBottom: 8,
   },
   otherPlayerAvatar: {
     width: 40,
@@ -377,10 +361,7 @@ const styles = StyleSheet.create({
   homeButtonContainer: {
     width: '100%',
     alignItems: 'center',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    paddingBottom: 20,
+    marginTop: 'auto',
+    marginBottom: 20,
   },
 }); 

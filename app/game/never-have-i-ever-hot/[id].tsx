@@ -439,16 +439,6 @@ export default function NeverHaveIEverHotGame() {
     }
   }, [gameState?.currentQuestion?.id, initializeAnswers, trackQuestionStart, askedQuestions, currentQuestion?.id]);
 
-  // Écran de fin de jeu
-  useEffect(() => {
-    if (gameState && gameState.phase === GamePhase.END) {
-      const timeout = setTimeout(async () => {
-        await requestReview();
-        router.replace(`/game/results/${gameId}`);
-      }, 2000);
-      return () => clearTimeout(timeout);
-    }
-  }, [gameState?.phase, gameId, requestReview]);
 
   // Gestion des rendus conditionnels
   if (!gameState) {
