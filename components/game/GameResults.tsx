@@ -7,6 +7,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import RoundedButton from '@/components/RoundedButton';
 import { usePoints } from '@/hooks/usePoints';
 import { Player } from '@/types/gameTypes';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface GameResultsProps {
   players: Player[];
@@ -31,6 +32,7 @@ export default function GameResults({
 }: GameResultsProps) {
   const router = useRouter();
   const { addPointsToUser, getUserPoints } = usePoints();
+  const insets = useSafeAreaInsets();
   const [userPoints, setUserPoints] = useState<number | null>(null);
   const [pointsGained, setPointsGained] = useState<number | null>(null);
 
@@ -85,85 +87,89 @@ export default function GameResults({
 
   return (
     <LinearGradient colors={['#1A0A33', '#3A1A59']} style={styles.resultsBg}>
-      {/* Section Top 3 */}
-      <View style={styles.topPlayersContainer}>
-        {/* Joueur 2 */}
-        {player2 && (
-          <View style={styles.playerRankContainer}>
-             <View style={[styles.avatarWrapperResults, styles.avatarWrapperRank2]}>
-                <Image source={{ uri: player2.avatar || 'https://via.placeholder.com/80' }} style={styles.avatarImgResults} />
-                <View style={styles.rankBadge}><Text style={styles.rankBadgeText}>2</Text></View>
-             </View>
-            <Text style={styles.playerNameResults} numberOfLines={1}>{player2.name}</Text>
-          </View>
-        )}
+      {/* Rétablissement du contentContainer */}
+      <View style={[styles.contentContainer, { paddingTop: insets.top, paddingBottom: insets.bottom, paddingLeft: insets.left, paddingRight: insets.right }]}>
 
-        {/* Joueur 1 */}
-        {player1 && (
-          <View style={styles.playerRankContainerCenter}>
-            <View style={[styles.avatarWrapperResults, styles.avatarWrapperRank1]}>
-               <Image source={{ uri: player1.avatar || 'https://via.placeholder.com/120' }} style={styles.avatarImgResults} />
-               <View style={styles.rankBadge}><Text style={styles.rankBadgeText}>1</Text></View>
-               <View style={styles.crownTop}><Text style={styles.crownText}>👑</Text></View>
+        {/* Section Top 3 */}
+        <View style={styles.topPlayersContainer}>
+          {/* Joueur 2 */}
+          {player2 && (
+            <View style={styles.playerRankContainer}>
+               <View style={[styles.avatarWrapperResults, styles.avatarWrapperRank2]}>
+                  <Image source={{ uri: player2.avatar || 'https://via.placeholder.com/80' }} style={styles.avatarImgResults} />
+                  <View style={styles.rankBadge}><Text style={styles.rankBadgeText}>2</Text></View>
+               </View>
+              <Text style={styles.playerNameResults} numberOfLines={1}>{player2.name}</Text>
             </View>
-            <Text style={[styles.playerNameResults, styles.playerNameWinner]} numberOfLines={1}>{player1.name}</Text>
+          )}
+
+          {/* Joueur 1 */}
+          {player1 && (
+            <View style={styles.playerRankContainerCenter}>
+              <View style={[styles.avatarWrapperResults, styles.avatarWrapperRank1]}>
+                 <Image source={{ uri: player1.avatar || 'https://via.placeholder.com/120' }} style={styles.avatarImgResults} />
+                 <View style={styles.rankBadge}><Text style={styles.rankBadgeText}>1</Text></View>
+                 <View style={styles.crownTop}><Text style={styles.crownText}>👑</Text></View>
+              </View>
+              <Text style={[styles.playerNameResults, styles.playerNameWinner]} numberOfLines={1}>{player1.name}</Text>
+            </View>
+          )}
+
+          {/* Joueur 3 */}
+           {player3 && (
+            <View style={styles.playerRankContainer}>
+               <View style={[styles.avatarWrapperResults, styles.avatarWrapperRank3]}>
+                  <Image source={{ uri: player3.avatar || 'https://via.placeholder.com/80' }} style={styles.avatarImgResults} />
+                  <View style={styles.rankBadge}><Text style={styles.rankBadgeText}>3</Text></View>
+               </View>
+              <Text style={styles.playerNameResults} numberOfLines={1}>{player3.name}</Text>
+            </View>
+          )}
+        </View>
+
+        {/* Section Points de l'utilisateur */}
+        {pointsGained !== null && pointsGained > 0 && (
+          <View style={styles.pointsGainedContainer}>
+             <MaterialCommunityIcons
+               name="currency-btc"
+               size={20}
+               color="#FFD700"
+             />
+            <Text style={styles.pointsGainedText}>+{pointsGained} Lumicoins</Text>
           </View>
         )}
 
-        {/* Joueur 3 */}
-         {player3 && (
-          <View style={styles.playerRankContainer}>
-             <View style={[styles.avatarWrapperResults, styles.avatarWrapperRank3]}>
-                <Image source={{ uri: player3.avatar || 'https://via.placeholder.com/80' }} style={styles.avatarImgResults} />
-                <View style={styles.rankBadge}><Text style={styles.rankBadgeText}>3</Text></View>
-             </View>
-            <Text style={styles.playerNameResults} numberOfLines={1}>{player3.name}</Text>
+        {/* Section Rang Actuel Utilisateur */}
+        {currentUser && (
+           <View style={styles.currentUserRankContainer}>
+              <Text style={styles.currentUserRankText}>Votre rang actuel</Text>
+              <Text style={styles.currentUserRankNumber}>{userRank + 1}</Text>
+           </View>
+        )}
+
+        {/* Section Autres Joueurs */}
+        {otherPlayers.length > 0 && (
+          <View style={styles.otherPlayersList}>
+             {otherPlayers.map((player) => (
+               <View key={player.id} style={styles.otherPlayerRow}>
+                  <Image source={{ uri: player.avatar || 'https://via.placeholder.com/40' }} style={styles.otherPlayerAvatar} />
+                  <Text style={styles.otherPlayerName}>{player.name}</Text>
+                  <Text style={styles.otherPlayerRank}>{sortedPlayers.findIndex(p => p.id === player.id) + 1}</Text>
+               </View>
+             ))}
           </View>
         )}
-      </View>
 
-      {/* Section Points de l'utilisateur */}
-      {pointsGained !== null && pointsGained > 0 && (
-        <View style={styles.pointsGainedContainer}>
-           <MaterialCommunityIcons
-             name="currency-btc"
-             size={20}
-             color="#FFD700"
-           />
-          <Text style={styles.pointsGainedText}>+{pointsGained} Lumicoins</Text>
+        {/* Bouton Accueil */}
+        <View style={styles.homeButtonContainer}>
+          <RoundedButton
+            title="Accueil"
+            onPress={() => router.replace("/(tabs)")}
+            icon={<Ionicons name="home" size={22} color="#fff" />}
+            gradientColors={["#7B2CBF", "#661A59"]}
+            style={{ width: '90%' }}
+          />
         </View>
-      )}
-
-      {/* Section Rang Actuel Utilisateur */}
-      {currentUser && (
-         <View style={styles.currentUserRankContainer}>
-            <Text style={styles.currentUserRankText}>Votre rang actuel</Text>
-            <Text style={styles.currentUserRankNumber}>{userRank + 1}</Text>
-         </View>
-      )}
-
-      {/* Section Autres Joueurs */}
-      {otherPlayers.length > 0 && (
-        <View style={styles.otherPlayersList}>
-           {otherPlayers.map((player) => (
-             <View key={player.id} style={styles.otherPlayerRow}>
-                <Image source={{ uri: player.avatar || 'https://via.placeholder.com/40' }} style={styles.otherPlayerAvatar} />
-                <Text style={styles.otherPlayerName}>{player.name}</Text>
-                <Text style={styles.otherPlayerRank}>{sortedPlayers.findIndex(p => p.id === player.id) + 1}</Text>
-             </View>
-           ))}
-        </View>
-      )}
-
-      {/* Bouton Accueil */}
-      <View style={styles.homeButtonContainer}>
-        <RoundedButton
-          title="Accueil"
-          onPress={() => router.replace("/")}
-          icon={<Ionicons name="home" size={22} color="#fff" />}
-          gradientColors={["#7B2CBF", "#661A59"]}
-          style={{ width: '90%' }}
-        />
       </View>
     </LinearGradient>
   );
@@ -172,9 +178,12 @@ export default function GameResults({
 const styles = StyleSheet.create({
   resultsBg: {
     flex: 1,
-    alignItems: 'center',
-    paddingTop: 100,
     backgroundColor: '#1A0A33',
+  },
+  contentContainer: {
+    flex: 1,
+    alignItems: 'center',
+    width: '100%',
   },
   topPlayersContainer: {
     flexDirection: 'row',
@@ -202,16 +211,24 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     paddingVertical: 8,
     paddingHorizontal: 15,
-    backgroundColor: 'rgba(162, 89, 255, 0.2)', // Couleur violette semi-transparente
+    backgroundColor: 'rgba(255, 215, 0, 0.15)',
     borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#FFD700', // Couleur or pour le contour
+    borderWidth: 2,
+    borderColor: '#FFD700',
+    shadowColor: '#FFD700',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
   pointsGainedText: {
     fontSize: 18,
-    color: '#FFD700', // Couleur or
+    color: '#FFD700',
     fontWeight: 'bold',
     marginLeft: 5,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   playerRankContainer: {
     alignItems: 'center',
@@ -360,10 +377,10 @@ const styles = StyleSheet.create({
   homeButtonContainer: {
     width: '100%',
     alignItems: 'center',
-    position: 'absolute', // Positionnement absolu
-    bottom: 0, // Ancré en bas
+    position: 'absolute',
+    bottom: 0,
     left: 0,
     right: 0,
-    paddingBottom: 20, // Ajoute un peu d'espace en bas
+    paddingBottom: 20,
   },
 }); 

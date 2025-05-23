@@ -10,7 +10,7 @@ import { useGeniusOrLiarAnalytics } from '@/hooks/useGeniusOrLiarAnalytics';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useRandomQuestions } from '@/hooks/useRandomQuestions';
-import ResultsPhase from '@/components/game/ResultsPhase';
+import GameResults from '@/components/game/GameResults';
 
 interface FirebaseQuestion {
   type: string;
@@ -26,7 +26,7 @@ interface FirebaseQuestion {
   };
 }
 
-interface GeniusOrLiarGameState {
+interface KnowOrDrinkGameState {
   phase: GamePhase;
   currentRound: number;
   totalRounds: number;
@@ -37,11 +37,21 @@ interface GeniusOrLiarGameState {
   scores: Record<string, number>;
   theme: string;
   timer: number | null;
-  currentUserState: Record<string, {
-    isTargetPlayer: boolean;
-    hasAnswered: boolean;
-    hasVoted: boolean;
-  }>;
+  currentUserState: {
+    [key: string]: {
+      isTargetPlayer: boolean;
+      hasAnswered: boolean;
+      hasVoted: boolean;
+    };
+  };
+  game?: {
+    currentPhase: string;
+    currentRound: number;
+    totalRounds: number;
+    scores: Record<string, number>;
+    gameMode: string;
+    hostId?: string;
+  };
   currentPlayerId: string;
   playerAnswers: {
     [playerId: string]: {
@@ -51,20 +61,17 @@ interface GeniusOrLiarGameState {
       accusedBy: string[];
     };
   };
-  gameMode: 'genius-or-liar' | 'points' | 'gages';
+  gameMode: 'points' | 'gages';
   questions: FirebaseQuestion[];
   askedQuestions?: string[];
-  isLastRound: boolean;
 }
 
-export default function GeniusOrLiarGame() {
+export default function KnowOrDrinkGame() {
   const { id } = useLocalSearchParams();
-  const gameId = typeof id === 'string' ? id : id?.[0] || '';
-  const router = useRouter();
   const { user } = useAuth();
   const { requestReview } = useInAppReview();
   const gameAnalytics = useGeniusOrLiarAnalytics();
-  const [gameState, setGameState] = useState<GeniusOrLiarGameState | null>(null);
+  const [gameState, setGameState] = useState<KnowOrDrinkGameState | null>(null);
   const [loading, setLoading] = useState(true);
   const [answer, setAnswer] = useState('');
   const [showAnswerInput, setShowAnswerInput] = useState(false);
@@ -72,7 +79,7 @@ export default function GeniusOrLiarGame() {
   const gameStartTime = useRef(Date.now());
   const { t, i18n } = useTranslation();
   const { isRTL } = useLanguage();
-  const { getRandomQuestion, resetAskedQuestions } = useRandomQuestions('genius-or-liar');
+  const { getRandomQuestion } = useRandomQuestions('genius-or-liar');
 
   useEffect(() => {
     if (!id || !user) return;
@@ -82,7 +89,11 @@ export default function GeniusOrLiarGame() {
 
     const unsubscribe = onSnapshot(gameRef, (doc) => {
       if (doc.exists()) {
-        const data = doc.data() as GeniusOrLiarGameState;
+        const data = doc.data() as KnowOrDrinkGameState;
+        console.log('📝 Données du jeu:', JSON.stringify(data, null, 2));
+        console.log('❓ Question actuelle:', JSON.stringify(data.currentQuestion, null, 2));
+        console.log('🎮 Phase du jeu:', data.phase);
+        console.log('👥 Joueurs:', data.players);
         setGameState(data);
       }
       setLoading(false);
@@ -90,20 +101,6 @@ export default function GeniusOrLiarGame() {
 
     return () => unsubscribe();
   }, [id, user]);
-
-  useEffect(() => {
-    if (!gameState || !user) return;
-
-    const db = getFirestore();
-    const gameRef = doc(db, 'games', String(id));
-
-    // Vérifie si le gameMode est défini
-    if (gameState.gameMode !== 'genius-or-liar') {
-      updateDoc(gameRef, {
-        gameMode: 'genius-or-liar'
-      });
-    }
-  }, [gameState, user, id]);
 
   const handleKnow = async () => {
     if (!gameState || !user) return;
@@ -170,11 +167,9 @@ export default function GeniusOrLiarGame() {
       // Track le vote du joueur
       await gameAnalytics.trackVote(String(id), user.uid, targetPlayerId, 'liar');
 
-      const currentAccusedBy = gameState.playerAnswers[targetPlayerId]?.accusedBy || [];
-      
       await updateDoc(gameRef, {
         [`playerAnswers.${targetPlayerId}.isAccused`]: true,
-        [`playerAnswers.${targetPlayerId}.accusedBy`]: [...currentAccusedBy, user.uid],
+        [`playerAnswers.${targetPlayerId}.accusedBy`]: [...(gameState.playerAnswers[targetPlayerId]?.accusedBy || []), user.uid],
         [`currentUserState.${user.uid}.hasVoted`]: true
       });
     } catch (error) {
@@ -199,30 +194,56 @@ export default function GeniusOrLiarGame() {
     }
   };
 
-  const calculateScore = (playerId: string) => {
-    if (!gameState?.gameMode) return 0;
-    const playerAnswer = gameState?.playerAnswers?.[playerId];
+  // Fonction pour normaliser les réponses (gérer les variations d'orthographe, articles, ponctuation)
+  const normalizeAnswer = (answer: string): string => {
+    return answer
+      .toLowerCase()
+      .trim()
+      // Supprime les articles courants (le, la, les, un, une, des, the, a, an) et certains signes de ponctuation courants
+      .replace(/^(le|la|les|un|une|des|the|a|an)\s+/, '') // Supprime les articles au début
+      .replace(/[\.,!?;:]/g, '') // Supprime la ponctuation courante (garde les espaces)
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, ''); // Enlève les accents
+  };
+
+  const calculateScore = (playerId: string): number => {
+    if (!gameState || !gameState.gameMode || !gameState.playerAnswers) return 0;
+    const playerAnswer = gameState.playerAnswers[playerId];
     if (!playerAnswer) return 0;
+
+    let score = 0;
+    const correctAnswer = gameState.currentQuestion?.answer;
+    const playerResponse = playerAnswer.answer;
 
     if (gameState.gameMode === 'points') {
       if (playerAnswer.knows) {
-        if (playerAnswer.isAccused) {
-          return -1; // Perd 1 point si accusé à raison
+        // Vérifie si la réponse est correcte (en tenant compte des variations)
+        const isCorrect = correctAnswer && playerResponse && 
+          normalizeAnswer(playerResponse) === normalizeAnswer(correctAnswer);
+
+        if (isCorrect) {
+          if (playerAnswer.isAccused) {
+            score = 3; // +2 pour bonne réponse +1 bonus pour accusation injuste
+          } else {
+            score = 2; // +2 pour bonne réponse
+          }
+        } else {
+          score = -1; // -1 pour mauvaise réponse
         }
-        return 1; // Gagne 1 point si sait la réponse
       } else {
-        return 0; // 0 point si ne sait pas
+        score = 0; // 0 pour "je ne sais pas"
       }
     } else { // Mode gages
       if (playerAnswer.knows) {
         if (playerAnswer.isAccused) {
-          return 2; // Reçoit 2 gages si accusé à raison
+          score = 2; // 2 gages si accusé à raison
         }
-        return 0; // Pas de gage si sait la réponse
       } else {
-        return 1; // Reçoit 1 gage si ne sait pas
+        score = 1; // 1 gage si ne sait pas
       }
     }
+
+    return score;
   };
 
   const renderProgressBar = () => {
@@ -384,7 +405,7 @@ export default function GeniusOrLiarGame() {
                 player.id === user?.uid && styles.currentUserCard
               ]}
               onPress={() => handleAccuse(player.id)}
-              disabled={Boolean(player.id === user?.uid || (gameState?.currentUserState && user?.uid && gameState.currentUserState[user.uid]?.hasVoted))}
+              disabled={player.id === user?.uid || (user?.uid != null && gameState?.currentUserState?.[user.uid]?.hasVoted) }
             >
               <Text style={styles.playerName}>{player.name}</Text>
               {gameState.playerAnswers[player.id]?.knows && (
@@ -398,7 +419,7 @@ export default function GeniusOrLiarGame() {
             </TouchableOpacity>
           ))}
         </View>
-        {gameState?.currentUserState && user?.uid && !gameState.currentUserState[user.uid]?.hasVoted && (
+        {! (user?.uid != null && gameState?.currentUserState?.[user.uid]?.hasVoted) && (
           <TouchableOpacity style={styles.skipButton} onPress={handleSkipAccuse}>
             <LinearGradient colors={["#3D2956", "#A259FF"]} style={styles.buttonGradient}>
               <Text style={styles.buttonText}>{t('game.geniusOrLiar.accuseNoOne')}</Text>
@@ -509,80 +530,123 @@ export default function GeniusOrLiarGame() {
     }
   };
 
-  const renderResultsPhase = () => {
-    if (!gameState) return null;
-    const question = gameState.currentQuestion
-      ? {
-          id: gameState.currentQuestion.id || '',
-          text: gameState.currentQuestion.question || '',
-          theme: gameState.currentQuestion.theme || '',
-          roundNumber: gameState.currentRound
-        }
-      : null;
+  // Affichage de la fin de partie
+  if (gameState?.phase === 'end') {
     return (
-      <ResultsPhase
-        answers={Object.entries(gameState.playerAnswers).map(([playerId, answer]) => ({
-          id: playerId,
-          text: answer.answer,
-          playerId: playerId,
-          playerName: gameState.players.find(p => p.id === playerId)?.name || '',
-        }))}
-        scores={gameState.scores}
+      <View style={styles.container}>
+        <LinearGradient
+          colors={["#1A0A33", "#3A1A59"]}
+          locations={[0, 0.2, 0.5, 0.8, 1]}
+          style={StyleSheet.absoluteFillObject}
+        />
+        <GameResults
+          players={gameState.players || []}
+          scores={gameState.scores || {}}
+          userId={user?.uid || ''}
+          pointsConfig={{
+            firstPlace: 30,
+            secondPlace: 20,
+            thirdPlace: 10
+          }}
+        />
+      </View>
+    );
+  }
+
+  const renderResultsPhase = () => {
+    if (!gameState || !user) return null;
+
+    // Calculer les scores finaux
+    const finalScores: Record<string, number> = {};
+    gameState.players.forEach(player => {
+      finalScores[player.id] = calculateScore(player.id);
+    });
+
+    return (
+      <GameResults
         players={gameState.players}
-        question={question}
-        targetPlayer={gameState.targetPlayer}
-        onNextRound={handleNextRound}
-        isLastRound={gameState.currentRound === gameState.totalRounds}
-        timer={gameState.timer}
-        gameId={String(id ?? "")}
-        totalRounds={gameState.totalRounds}
-        winningAnswerId={undefined}
+        scores={finalScores}
+        userId={user.uid}
+        pointsConfig={{
+          firstPlace: 30,
+          secondPlace: 20,
+          thirdPlace: 10
+        }}
       />
     );
   };
 
+  // Vérifie si tous les joueurs ont répondu (phase question)
   const allPlayersAnswered = () => {
-    if (!gameState?.currentUserState) return false;
-    return Object.values(gameState.currentUserState).every(state => state.hasAnswered);
+    if (!gameState || !gameState.players || !gameState.playerAnswers) return false;
+    return gameState.players.every(
+      (player) => !!gameState.playerAnswers[player.id] && typeof gameState.playerAnswers[player.id]?.knows === 'boolean'
+    );
   };
 
+  // Nouvelle fonction pour vérifier si tous les joueurs ont voté
   const allPlayersVoted = () => {
-    if (!gameState?.currentUserState) return false;
-    return Object.values(gameState.currentUserState).every(state => state.hasVoted);
+    if (!gameState || !gameState.players || !gameState.currentUserState) return false;
+    // Supposons que chaque joueur a un état dans gameState.currentUserState sous la forme { [playerId]: { hasVoted: boolean } }
+    return gameState.players.every(
+      (player) => gameState.currentUserState && gameState.currentUserState[player.id]?.hasVoted === true
+    );
   };
 
-  const computeScores = () => {
-    if (!gameState?.playerAnswers) return {};
-    
+  // Dans useEffect, remplacer la logique d'accusation :
+  useEffect(() => {
+    if (!gameState || !user) return;
+    const db = getFirestore();
+    const gameRef = doc(db, 'games', String(id));
+    if (gameState.phase === 'question' && allPlayersAnswered()) {
+      updateDoc(gameRef, { phase: 'vote' });
+    }
+    if (gameState.phase === 'vote' && allPlayersVoted()) {
+      updateDoc(gameRef, { phase: 'results' });
+    }
+  }, [gameState]);
+
+  useEffect(() => {
+    if (gameState && gameState.currentRound >= gameState.totalRounds && gameState.phase === 'results') {
+      const gameDuration = Date.now() - gameStartTime.current;
+      const userScore = gameState.scores[user?.uid || ''] || 0;
+      
+      // Track la fin du jeu
+      gameAnalytics.trackGameComplete(
+        String(id),
+        gameState.totalRounds,
+        gameDuration,
+        userScore
+      );
+      
+      const timeout = setTimeout(async () => {
+        await requestReview();
+        const db = getFirestore();
+        const gameRef = doc(db, 'games', String(id));
+        await updateDoc(gameRef, { phase: 'end' });
+      }, 2000);
+      return () => clearTimeout(timeout);
+    }
+    return () => {}; // Retour par défaut pour les autres cas
+  }, [gameState, id, requestReview, gameAnalytics, user]);
+
+  // Fonction pour calculer les scores de tous les joueurs (variante points complète)
+  const computeScores = (): Record<string, number> => {
+    if (!gameState) return {};
+
     const scores: Record<string, number> = {};
     
-    Object.entries(gameState.playerAnswers).forEach(([playerId, answer]) => {
-      if (!answer) return;
-      
-      let score = 0;
-      
-      // Points pour une réponse correcte
-      if (answer.knows && !answer.isAccused) {
-        score += 2;
-      }
-      
-      // Points pour avoir accusé correctement
-      if (answer.accusedBy) {
-        answer.accusedBy.forEach(accuserId => {
-          if (gameState.playerAnswers[accuserId]?.knows) {
-            scores[accuserId] = (scores[accuserId] || 0) + 1;
-          }
-        });
-      }
-      
-      // Points pour avoir évité une accusation incorrecte
-      if (!answer.knows && !answer.isAccused) {
-        score += 1;
-      }
-      
-      scores[playerId] = (scores[playerId] || 0) + score;
+    // Initialiser tous les scores à 0
+    gameState.players.forEach(player => {
+      scores[player.id] = 0;
     });
-    
+
+    // Calculer les scores pour chaque joueur
+    gameState.players.forEach(player => {
+      const score = calculateScore(player.id);
+      scores[player.id] = score;
+    });
+
     return scores;
   };
 
@@ -612,49 +676,19 @@ export default function GeniusOrLiarGame() {
     }
   }
 
-  // Effet pour gérer la fin du jeu
   useEffect(() => {
-    if (gameState && gameState.currentRound >= gameState.totalRounds && gameState.phase === 'results') {
-      const gameDuration = Date.now() - gameStartTime.current;
-      
-      // Track la fin du jeu
-      gameAnalytics.trackGameComplete(
-        String(id),
-        gameState.totalRounds,
-        gameDuration,
-        gameState.scores[user?.uid || ''] || 0
-      );
-      
+    if (gameState && gameState.currentRound > gameState.totalRounds) {
+      setIsEnd(true);
       const timeout = setTimeout(async () => {
         await requestReview();
-        router.replace(`/game/results/${id}`);
+        const db = getFirestore();
+        const gameRef = doc(db, 'games', String(id));
+        await updateDoc(gameRef, { phase: 'end' });
       }, 2000);
       return () => clearTimeout(timeout);
     }
-    return undefined;
-  }, [gameState, id, router, requestReview, gameAnalytics, user]);
-
-  // Dans useEffect, ajoutons une vérification pour charger les questions depuis Firebase si nécessaire
-  useEffect(() => {
-    if (gameState && gameState.phase === 'question' &&
-        (!gameState.currentQuestion?.question && !gameState.currentQuestion?.text?.question) &&
-        gameState.currentQuestion) {
-
-      console.log('[DEBUG GeniusOrLiarGame] Attempting to load initial random question.');
-      const firstQuestion = getRandomQuestion();
-      if (firstQuestion) {
-        console.log('[DEBUG GeniusOrLiarGame] Initial random question selected:', firstQuestion.id);
-        const db = getFirestore();
-        const gameRef = doc(db, 'games', String(id));
-        updateDoc(gameRef, { 
-          currentQuestion: firstQuestion,
-          askedQuestions: [firstQuestion.id] // Marquer la première question comme posée
-        });
-      } else {
-        console.warn('[DEBUG GeniusOrLiarGame] No initial random question available.');
-      }
-    }
-  }, [gameState, id, isRTL, i18n.language]);
+    return () => {}; // Retour par défaut pour les autres cas
+  }, [gameState, id, requestReview]);
 
   const renderChoicePhase = () => (
     <View style={styles.container}>
@@ -696,6 +730,51 @@ export default function GeniusOrLiarGame() {
       Alert.alert('Erreur', 'Impossible de sélectionner le mode de jeu');
     }
   };
+
+  useEffect(() => {
+    if (gameState && gameState.currentRound >= gameState.totalRounds && gameState.phase === 'results') {
+      const gameDuration = Date.now() - gameStartTime.current;
+      const userScore = gameState.scores[user?.uid || ''] || 0;
+      
+      // Track la fin du jeu
+      gameAnalytics.trackGameComplete(
+        String(id),
+        gameState.totalRounds,
+        gameDuration,
+        userScore
+      );
+      
+      const timeout = setTimeout(async () => {
+        await requestReview();
+        const db = getFirestore();
+        const gameRef = doc(db, 'games', String(id));
+        await updateDoc(gameRef, { phase: 'end' });
+      }, 2000);
+      return () => clearTimeout(timeout);
+    }
+  }, [gameState, id, requestReview, gameAnalytics, user]);
+
+  // Dans useEffect, ajoutons une vérification pour charger les questions depuis Firebase si nécessaire
+  useEffect(() => {
+    if (gameState && gameState.phase === 'question' &&
+        (!gameState.currentQuestion?.question && !gameState.currentQuestion?.text?.question) &&
+        gameState.currentQuestion) {
+
+      console.log('[DEBUG GeniusOrLiarGame] Attempting to load initial random question.');
+      const firstQuestion = getRandomQuestion();
+      if (firstQuestion) {
+        console.log('[DEBUG GeniusOrLiarGame] Initial random question selected:', firstQuestion.id);
+        const db = getFirestore();
+        const gameRef = doc(db, 'games', String(id));
+        updateDoc(gameRef, { 
+          currentQuestion: firstQuestion,
+          askedQuestions: [firstQuestion.id] // Marquer la première question comme posée
+        });
+      } else {
+        console.warn('[DEBUG GeniusOrLiarGame] No initial random question available.');
+      }
+    }
+  }, [gameState, id, isRTL, i18n.language]);
 
   if (loading) {
     return (
@@ -961,16 +1040,18 @@ const styles = StyleSheet.create({
     marginTop: 2,
     fontFamily: 'System',
   },
-  nextRoundButtonContainer: {
-    position: 'absolute',
-    bottom: 40,
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-  },
-  nextRoundButton: {
-    width: '80%',
-    maxWidth: 300,
+  nextButton: {
+    marginTop: 32,
+    borderRadius: 12,
+    overflow: 'hidden',
+    alignSelf: 'center',
+    width: '100%',
+    maxWidth: 400,
+    shadowColor: '#A259FF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.18,
+    shadowRadius: 8,
+    elevation: 6,
   },
   currentUserCard: {
     borderColor: '#C471F5',

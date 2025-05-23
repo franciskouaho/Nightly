@@ -159,7 +159,6 @@ export default function ListenButDontJudgeScreen() {
       
       const timeout = setTimeout(async () => {
         await requestReview();
-        router.replace(`/game/results/${id}`);
       }, 2000);
       return () => clearTimeout(timeout);
     }
@@ -376,29 +375,6 @@ export default function ListenButDontJudgeScreen() {
     };
   }, [game?.currentQuestion, game?.targetPlayer, game?.theme, game?.currentRound, safeTranslate]); // Depend on relevant game state and safeTranslate
 
-  // Render GameResults when game phase is END
-  if (game?.phase === GamePhase.END) {
-    return (
-      <View style={styles.container}>
-        <LinearGradient
-          colors={["#0E1117", "#0E1117", "#661A59", "0E1117", "#21101C"]}
-          locations={[0, 0.2, 0.5, 0.8, 1]}
-          style={StyleSheet.absoluteFillObject}
-        />
-        <GameResults
-          players={game.players || []}
-          scores={game.scores || {}}
-          userId={user?.uid || ''}
-          pointsConfig={{
-            firstPlace: 30,
-            secondPlace: 20,
-            thirdPlace: 10
-          }}
-        />
-      </View>
-    );
-  }
-
   if (loading) {
     return (
       <View style={styles.container}>
@@ -434,103 +410,117 @@ export default function ListenButDontJudgeScreen() {
     >
       <StatusBar style="light" />
       <LinearGradient
-        colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
+        colors={game?.phase === 'results' && game?.currentRound >= game?.totalRounds ? ['#1A0A33', '#3A1A59'] : ["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
         locations={[0, 0.2, 0.5, 0.8, 1]}
         style={StyleSheet.absoluteFillObject}
       />
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
-        <View style={[styles.content, { flex: 1 }]}>
-          <View style={styles.progressRow}>
-            <View style={styles.progressBarBackground}>
-              <View
-                style={[
-                  styles.progressBarFill,
-                  { width: `${(game.currentRound / game.totalRounds) * 100}%` }
-                ]}
-              />
+      {game?.phase === 'results' && game?.currentRound >= game?.totalRounds ? (
+        <GameResults
+          players={game.players || []}
+          scores={game.scores || {}}
+          userId={user?.uid || ''}
+          pointsConfig={{
+            firstPlace: 30,
+            secondPlace: 20,
+            thirdPlace: 10
+          }}
+        />
+      ) : (
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
+          <View style={[styles.content, { flex: 1 }]}>
+            <View style={styles.progressRow}>
+              <View style={styles.progressBarBackground}>
+                <View
+                  style={[
+                    styles.progressBarFill,
+                    { width: `${(game.currentRound / game.totalRounds) * 100}%` }
+                  ]}
+                />
+              </View>
+              <Text style={styles.progressText}>
+                {game.currentRound}/{game.totalRounds}
+              </Text>
             </View>
-            <Text style={styles.progressText}>
-              {game.currentRound}/{game.totalRounds}
-            </Text>
-          </View>
-          {game.phase === 'question' && (
-            user?.uid !== game.targetPlayer?.id ? (
-              <View style={styles.questionContainer}>
-                <View style={styles.questionCard}>
-                  <Text style={styles.questionText}>
-                    {memoizedQuestionText} {/* Use the memoized value */}
-                  </Text>
-                </View>
-                <TextInput
-                  style={styles.input}
-                  placeholder={t('game.listenButDontJudge.answerPlaceholder', "Écrivez votre réponse ici...")}
-                  placeholderTextColor="#666"
-                  value={answer}
-                  onChangeText={setAnswer}
-                  multiline
-                  maxLength={200}
-                />
-                <RoundedButton
-                  title={t('game.listenButDontJudge.submit', "Soumettre")}
-                  onPress={handleSubmitAnswer}
-                  disabled={isSubmitting || !answer.trim()}
-                  style={styles.submitButton}
-                />
-              </View>
-            ) : (
-              <View style={styles.questionContainer}>
-                <View style={styles.questionCard}>
-                  <Text style={styles.waitingText}>
-                    {safeTranslate('game.listenButDontJudge.waiting', "En attente des autres joueurs...")}
-                  </Text>
-                </View>
-              </View>
-            )
-          )}
-          {game.phase === 'vote' && (
-            user?.uid === game.targetPlayer?.id ? (
-              <View style={styles.voteContainer}>
-                <View style={styles.questionCard}>
-                  <Text style={styles.questionText}>
-                    {memoizedQuestionText} {/* Use the memoized value */}
-                  </Text>
-                </View>
-                <Text style={styles.voteTitle}>{t('game.listenButDontJudge.voteTitle', "Choisissez la meilleure réponse")}</Text>
-                {game.answers.map((answer) => (
-                  <RoundedButton
-                    key={answer.id}
-                    title={answer.text}
-                    onPress={() => handleVote(answer.id)}
-                    style={styles.voteButton}
+            {game.phase === 'question' && (
+              user?.uid !== game.targetPlayer?.id ? (
+                <View style={styles.questionContainer}>
+                  <View style={styles.questionCard}>
+                    <Text style={styles.questionText}>
+                      {memoizedQuestionText}
+                    </Text>
+                  </View>
+                  <TextInput
+                    style={styles.input}
+                    placeholder={t('game.listenButDontJudge.answerPlaceholder', "Écrivez votre réponse ici...")}
+                    placeholderTextColor="#666"
+                    value={answer}
+                    onChangeText={setAnswer}
+                    multiline
+                    maxLength={200}
                   />
-                ))}
-              </View>
-            ) : (
-              <View style={styles.voteContainer}>
-                <View style={styles.questionCard}>
-                  <Text style={styles.waitingText}>
-                    {game.votes && user?.uid && game.votes[user.uid] ?
-                      safeTranslate('game.listenButDontJudge.waitingForOthers', "En attente des autres votes...") :
-                      safeTranslate('game.listenButDontJudge.waitingVote', "En attente du vote du joueur cible...")
-                    }
-                  </Text>
+                  <RoundedButton
+                    title={t('game.listenButDontJudge.submit', "Soumettre")}
+                    onPress={handleSubmitAnswer}
+                    disabled={isSubmitting || !answer.trim()}
+                    style={styles.submitButton}
+                  />
                 </View>
-              </View>
-            )
-          )}
-          {game.phase === 'results' && memoizedFormattedQuestion && (
-            <View style={styles.container}>
-              <GameResults
-                players={game.players}
-                scores={game.scores}
-                userId={user?.uid || ''}
-                pointsConfig={{
-                  firstPlace: 30,
-                  secondPlace: 20,
-                  thirdPlace: 10
-                }}
-              />
-              {!game.isLastRound && (
+              ) : (
+                <View style={styles.questionContainer}>
+                  <View style={styles.questionCard}>
+                    <Text style={styles.waitingText}>
+                      {safeTranslate('game.listenButDontJudge.waiting', "En attente des autres joueurs...")}
+                    </Text>
+                  </View>
+                </View>
+              )
+            )}
+            {game.phase === 'vote' && (
+              user?.uid === game.targetPlayer?.id ? (
+                <View style={styles.voteContainer}>
+                  <View style={styles.questionCard}>
+                    <Text style={styles.questionText}>
+                      {memoizedQuestionText}
+                    </Text>
+                  </View>
+                  <Text style={styles.voteTitle}>{t('game.listenButDontJudge.voteTitle', "Choisissez la meilleure réponse")}</Text>
+                  {game.answers.map((answer) => (
+                    <RoundedButton
+                      key={answer.id}
+                      title={answer.text}
+                      onPress={() => handleVote(answer.id)}
+                      style={styles.voteButton}
+                    />
+                  ))}
+                </View>
+              ) : (
+                <View style={styles.voteContainer}>
+                  <View style={styles.questionCard}>
+                    <Text style={styles.waitingText}>
+                      {game.votes && user?.uid && game.votes[user.uid] ?
+                        safeTranslate('game.listenButDontJudge.waitingForOthers', "En attente des autres votes...") :
+                        safeTranslate('game.listenButDontJudge.waitingVote', "En attente du vote du joueur cible...")
+                      }
+                    </Text>
+                  </View>
+                </View>
+              )
+            )}
+            {game.phase === 'results' && memoizedFormattedQuestion && game?.currentRound < game?.totalRounds && (
+              <View style={styles.container}>
+                <ResultsPhase
+                  answers={game.answers}
+                  scores={game.scores}
+                  players={game.players}
+                  question={memoizedFormattedQuestion}
+                  targetPlayer={game.targetPlayer}
+                  onNextRound={handleNextRound}
+                  isLastRound={game.currentRound === game.totalRounds}
+                  timer={game.timer}
+                  gameId={String(id ?? "")}
+                  totalRounds={game.totalRounds}
+                  winningAnswerId={game.winningAnswerId}
+                />
                 <View style={styles.nextRoundButtonContainer}>
                   <RoundedButton
                     title={t('game.nextRound', 'Tour suivant')}
@@ -538,11 +528,11 @@ export default function ListenButDontJudgeScreen() {
                     style={styles.nextRoundButton}
                   />
                 </View>
-              )}
-            </View>
-          )}
-        </View>
-      </ScrollView>
+              </View>
+            )}
+          </View>
+        </ScrollView>
+      )}
     </KeyboardAvoidingView>
   );
 }
