@@ -68,18 +68,33 @@ export default function TrapAnswerGame() {
   useEffect(() => {
     if (!gameState || gameState.currentQuestion || questions.length === 0) return;
 
-    const firstQuestion = getRandomQuestion();
+    // Mélanger les questions disponibles explicitement pour la première question
+    const shuffledAvailableQuestions = [...questions].sort(() => Math.random() - 0.5);
+    const firstQuestion = shuffledAvailableQuestions[0];
+
     if (firstQuestion) {
+      // Mettre à jour l'état des questions disponibles dans le hook via une fonction de réinitialisation ou similaire si possible
+      // Alternativement, si le hook gère l'état interne de manière robuste, cela devrait suffire.
+      // Pour l'instant, basons-nous sur le hook qui gère les 'askedQuestions'.
+
+      // S'assurer que les réponses de la première question sont bien mélangées
+      const shuffledAnswers = [...firstQuestion.answers].sort(() => Math.random() - 0.5);
+      const firstQuestionWithShuffledAnswers = {
+          ...firstQuestion,
+          answers: shuffledAnswers
+      };
+
+
       const initialPlayersHistory: { [playerId: string]: number[] } = (gameState.players || []).reduce((acc: { [playerId: string]: number[] }, player) => {
         acc[player.id] = Array(gameState.totalRounds || 5).fill(0);
         return acc;
       }, {});
 
       updateGameState({
-        currentQuestion: firstQuestion,
-        askedQuestionIds: [firstQuestion.id], // askedQuestions est géré par le hook, mais on garde l'état du jeu pour la persistance
+        currentQuestion: firstQuestionWithShuffledAnswers,
+        askedQuestionIds: [firstQuestion.id], 
         phase: GamePhase.QUESTION,
-        currentRound: 0,
+        currentRound: 1,
         history: initialPlayersHistory,
         playerAnswers: {},
         gameMode: 'trap-answer'
@@ -115,18 +130,28 @@ export default function TrapAnswerGame() {
   };
 
   const nextQuestion = () => {
-    if (!questions?.length) return; // Utiliser questions du hook
+    if (!questions?.length) return;
+
+    // Vérifier si on a atteint le nombre maximum de rounds
+    if ((gameState?.currentRound ?? 0) >= (gameState?.totalRounds || 5)) {
+      updateGameState({ phase: GamePhase.END });
+      return;
+    }
 
     // getRandomQuestion gère déjà l'historique des questions posées via le hook
     const nextQ = getRandomQuestion();
 
     if (nextQ) {
+      // Mélanger les réponses aléatoirement
+      const shuffledAnswers = [...nextQ.answers].sort(() => Math.random() - 0.5);
+      const shuffledQuestion = {
+        ...nextQ,
+        answers: shuffledAnswers
+      };
+
       updateGameState({
-        currentQuestion: nextQ,
-        // askedQuestionIds est maintenant géré par le hook useTrapAnswerQuestions
-        // On peut le synchroniser avec l'état du jeu si nécessaire pour la persistance, 
-        // mais le hook est la source de vérité pour la session courante.
-        askedQuestionIds: [...(gameState?.askedQuestionIds || []), nextQ.id].filter((id): id is string => !!id), // garder pour l'état du jeu si persistant
+        currentQuestion: shuffledQuestion,
+        askedQuestionIds: [...(gameState?.askedQuestionIds || []), nextQ.id].filter((id): id is string => !!id),
         playerAnswers: {},
         phase: GamePhase.QUESTION,
         currentRound: (gameState?.currentRound ?? 0) + 1,
@@ -240,14 +265,19 @@ export default function TrapAnswerGame() {
           </View>
           <Text style={styles.duelPlayerName}>{leftPlayer?.name || 'En attente...'}</Text>
           <View style={styles.duelWinsRow}>
-            {[...Array(gameState.totalRounds)].map((_, i) => {
-              const roundArr = leftPlayer?.id && (gameState as any)?.history ? (gameState as any).history[leftPlayer.id] || [] : [];
-              const round = typeof roundArr[i] === 'number' ? roundArr[i] : 0;
-              let dotStyle = styles.duelLoseDot;
-              if (round === 1) dotStyle = styles.duelWinDot;
-              if (round === -1) dotStyle = styles.duelTrapDot;
-              return <View key={i} style={dotStyle} />;
-            })}
+            {[...Array(Math.ceil((gameState.totalRounds || 5) / 5))].map((_, rowIndex) => (
+              <View key={rowIndex} style={styles.dotRow}>
+                {[...Array(Math.min(5, (gameState.totalRounds || 5) - rowIndex * 5))].map((__, dotIndex) => {
+                  const globalIndex = rowIndex * 5 + dotIndex;
+                  const roundArr = leftPlayer?.id && (gameState as any)?.history ? (gameState as any).history[leftPlayer.id] || [] : [];
+                  const round = typeof roundArr[globalIndex] === 'number' ? roundArr[globalIndex] : 0;
+                  let dotStyle = styles.duelLoseDot;
+                  if (round === 1) dotStyle = styles.duelWinDot;
+                  if (round === -1) dotStyle = styles.duelTrapDot;
+                  return <View key={globalIndex} style={dotStyle} />;
+                })}
+              </View>
+            ))}
           </View>
         </View>
         {/* Icône duel au centre */}
@@ -269,14 +299,19 @@ export default function TrapAnswerGame() {
           </View>
           <Text style={styles.duelPlayerName}>{rightPlayer?.name || 'En attente...'}</Text>
           <View style={styles.duelWinsRow}>
-            {[...Array(gameState.totalRounds)].map((_, i) => {
-              const roundArr = rightPlayer?.id && (gameState as any)?.history ? (gameState as any).history[rightPlayer.id] || [] : [];
-              const round = typeof roundArr[i] === 'number' ? roundArr[i] : 0;
-              let dotStyle = styles.duelLoseDot;
-              if (round === 1) dotStyle = styles.duelWinDot;
-              if (round === -1) dotStyle = styles.duelTrapDot;
-              return <View key={i} style={dotStyle} />;
-            })}
+            {[...Array(Math.ceil((gameState.totalRounds || 5) / 5))].map((_, rowIndex) => (
+              <View key={rowIndex} style={styles.dotRow}>
+                {[...Array(Math.min(5, (gameState.totalRounds || 5) - rowIndex * 5))].map((__, dotIndex) => {
+                  const globalIndex = rowIndex * 5 + dotIndex;
+                  const roundArr = rightPlayer?.id && (gameState as any)?.history ? (gameState as any).history[rightPlayer.id] || [] : [];
+                  const round = typeof roundArr[globalIndex] === 'number' ? roundArr[globalIndex] : 0;
+                  let dotStyle = styles.duelLoseDot;
+                  if (round === 1) dotStyle = styles.duelWinDot;
+                  if (round === -1) dotStyle = styles.duelTrapDot;
+                  return <View key={globalIndex} style={dotStyle} />;
+                })}
+              </View>
+            ))}
           </View>
         </View>
       </View>
@@ -624,9 +659,14 @@ const styles = StyleSheet.create({
     textShadowRadius: 2,
   },
   duelWinsRow: {
-    flexDirection: 'row',
     marginTop: 2,
     marginBottom: 2,
+    alignItems: 'center',
+  },
+  dotRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 4,
   },
   duelWinDot: {
     width: 16,

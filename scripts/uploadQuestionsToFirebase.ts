@@ -25,6 +25,44 @@ const questions = {
         'Quelle est la chose la plus gentille que {playerName} ait jamais faite pour quelqu\'un ?',
         'Si {playerName} pouvait changer une chose dans sa vie, quelle serait-elle selon vous ?',
         'Quelle situation fait le plus douter {playerName} de ses capacités ?',
+        'Quel est le rêve secret de {playerName} selon vous ?',
+        'Quelle est la plus belle qualité cachée de {playerName} ?',
+        'Si {playerName} écrivait un livre, quel en serait le titre ?',
+        'Comment {playerName} exprime-t-il/elle son affection ?',
+        'Quel compliment {playerName} aimerait-il/elle entendre plus souvent ?',
+        'Quelle est la plus grande force de {playerName} en amitié ?',
+        'Si {playerName} avait une baguette magique, que changerait-il/elle en premier ?',
+        'Quel est le talent caché de {playerName} que peu de gens connaissent ?',
+        'Comment {playerName} gère-t-il/elle le stress selon vous ?',
+        'Quelle est la chose qui fait le plus sourire {playerName} ?',
+        'Si {playerName} était un super-héros, quel serait son pouvoir ?',
+        'Quelle est la plus grande leçon que {playerName} a apprise dans sa vie ?',
+        'Comment {playerName} montre-t-il/elle qu\'il/elle tient à quelqu\'un ?',
+        'Si {playerName} pouvait revivre un moment de sa vie, lequel choisirait-il/elle ?',
+        'Quelle est la chose que {playerName} fait mieux que tout le monde ?',
+        'Si {playerName} était un animal, lequel serait-il et pourquoi ?',
+        'Comment {playerName} inspire-t-il/elle les autres sans s\'en rendre compte ?',
+        'Si {playerName} pouvait donner un conseil au monde entier, que dirait-il/elle ?',
+        'Comment {playerName} voit-il/elle l\'amour idéal ?',
+        'Si {playerName} était une chanson, laquelle serait-ce ?',
+        'Comment {playerName} réconforte-t-il/elle ses proches ?',
+        'Si {playerName} pouvait rencontrer une personne célèbre, qui choisirait-il/elle ?',
+        'Comment {playerName} définit-il/elle le bonheur selon vous ?',
+        'Comment {playerName} exprime-t-il/elle sa créativité ?',
+        'Si {playerName} pouvait apprendre instantanément une compétence, laquelle choisirait-il/elle ?',
+        'Comment {playerName} imagine-t-il/elle sa retraite idéale ?',
+        'Si {playerName} était un parfum, quelle serait son essence ?',
+        'Comment {playerName} réagit-il/elle quand personne ne le/la regarde ?',
+        'Si {playerName} pouvait changer le monde, par quoi commencerait-il/elle ?',
+        'Comment {playerName} célèbre-t-il/elle ses petites victoires ?',
+        'Si {playerName} était un dessert, lequel serait-il et pourquoi ?',
+        'Comment {playerName} gère-t-il/elle les moments difficiles ?',
+        'Si {playerName} pouvait posséder un objet magique, lequel choisirait-il/elle ?',
+        'Comment {playerName} exprime-t-il/elle sa reconnaissance ?',
+        'Si {playerName} était une couleur, laquelle serait-ce et pourquoi ?',
+        'Comment {playerName} montre-t-il/elle qu\'il/elle est heureux/se ?',
+        'Si {playerName} pouvait voyager dans le temps, quelle époque visiterait-il/elle ?',
+        'Quelle est la plus belle leçon que la vie a enseignée à {playerName} ?'
       ],
       en: [
         'If {playerName} had to confess a cute sin, what would it be?',
@@ -39,6 +77,44 @@ const questions = {
         'What is the kindest thing {playerName} has ever done for someone?',
         'If {playerName} could change one thing in their life, what do you think it would be?',
         'What situation makes {playerName} doubt their abilities the most?',
+        'What do you think is {playerName}\'s secret dream?',
+        'What is {playerName}\'s most beautiful hidden quality?',
+        'If {playerName} wrote a book, what would the title be?',
+        'How does {playerName} express affection?',
+        'What compliment would {playerName} like to hear more often?',
+        'What is {playerName}\'s greatest strength in friendship?',
+        'If {playerName} had a magic wand, what would they change first?',
+        'What is {playerName}\'s hidden talent that few people know about?',
+        'How do you think {playerName} handles stress?',
+        'What is the thing that makes {playerName} smile the most?',
+        'If {playerName} were a superhero, what would their power be?',
+        'What is the greatest lesson {playerName} has learned in life?',
+        'How does {playerName} show that they care about someone?',
+        'If {playerName} could relive one moment of their life, which would they choose?',
+        'What is the thing {playerName} does better than anyone else?',
+        'If {playerName} were an animal, which one would they be and why?',
+        'How does {playerName} inspire others without realizing it?',
+        'If {playerName} could give advice to the whole world, what would they say?',
+        'How does {playerName} view ideal love?',
+        'If {playerName} were a song, which one would it be?',
+        'How does {playerName} comfort their loved ones?',
+        'If {playerName} could meet a famous person, who would they choose?',
+        'How do you think {playerName} defines happiness?',
+        'How does {playerName} express their creativity?',
+        'If {playerName} could instantly learn a skill, which would they choose?',
+        'How does {playerName} imagine their ideal retirement?',
+        'If {playerName} were a perfume, what would be their essence?',
+        'How does {playerName} act when no one is watching?',
+        'If {playerName} could change the world, where would they start?',
+        'How does {playerName} celebrate their small victories?',
+        'If {playerName} were a dessert, which would they be and why?',
+        'How does {playerName} handle difficult moments?',
+        'If {playerName} could own a magical object, which would they choose?',
+        'How does {playerName} express gratitude?',
+        'If {playerName} were a color, which would it be and why?',
+        'How does {playerName} show that they are happy?',
+        'If {playerName} could time travel, what era would they visit?',
+        'What is the most beautiful lesson life has taught {playerName}?'
       ],
       es: [
         'Si {playerName} tuviera que confesar un pecado adorable, ¿cuál sería?',
@@ -53,6 +129,44 @@ const questions = {
         '¿Cuál es la cosa más amable que {playerName} ha hecho por alguien?',
         'Si {playerName} pudiera cambiar una cosa en su vida, ¿qué crees que sería?',
         '¿Qué situación hace que {playerName} dude más de sus capacidades?',
+        '¿Cuál crees que es el sueño secreto de {playerName}?',
+        '¿Cuál es la cualidad oculta más hermosa de {playerName}?',
+        'Si {playerName} escribiera un libro, ¿cuál sería el título?',
+        '¿Cómo expresa {playerName} el cariño?',
+        '¿Qué cumplido le gustaría a {playerName} escuchar más a menudo?',
+        '¿Cuál es la mayor fortaleza de {playerName} en la amistad?',
+        'Si {playerName} tuviera una varita mágica, ¿qué cambiaría primero?',
+        '¿Cuál es el talento oculto de {playerName} que poca gente conoce?',
+        '¿Cómo crees que {playerName} maneja el estrés?',
+        '¿Qué es lo que más hace sonreír a {playerName}?',
+        'Si {playerName} fuera un superhéroe, ¿cuál sería su poder?',
+        '¿Cuál es la lección más grande que {playerName} ha aprendido en la vida?',
+        '¿Cómo demuestra {playerName} que le importa alguien?',
+        'Si {playerName} pudiera revivir un momento de su vida, ¿cuál elegiría?',
+        '¿Qué es lo que {playerName} hace mejor que nadie?',
+        'Si {playerName} fuera un animal, ¿cuál sería y por qué?',
+        '¿Cómo inspira {playerName} a otros sin darse cuenta?',
+        'Si {playerName} pudiera dar un consejo al mundo entero, ¿qué diría?',
+        '¿Cómo ve {playerName} el amor ideal?',
+        'Si {playerName} fuera una canción, ¿cuál sería?',
+        '¿Cómo consuela {playerName} a sus seres queridos?',
+        'Si {playerName} pudiera conocer a una persona famosa, ¿a quién elegiría?',
+        '¿Cómo crees que {playerName} define la felicidad?',
+        '¿Cómo expresa {playerName} su creatividad?',
+        'Si {playerName} pudiera aprender instantáneamente una habilidad, ¿cuál elegiría?',
+        '¿Cómo imagina {playerName} su jubilación ideal?',
+        'Si {playerName} fuera un perfume, ¿cuál sería su esencia?',
+        '¿Cómo actúa {playerName} cuando nadie lo/la mira?',
+        'Si {playerName} pudiera cambiar el mundo, ¿por dónde empezaría?',
+        '¿Cómo celebra {playerName} sus pequeñas victorias?',
+        'Si {playerName} fuera un postre, ¿cuál sería y por qué?',
+        '¿Cómo maneja {playerName} los momentos difíciles?',
+        'Si {playerName} pudiera poseer un objeto mágico, ¿cuál elegiría?',
+        '¿Cómo expresa {playerName} la gratitud?',
+        'Si {playerName} fuera un color, ¿cuál sería y por qué?',
+        '¿Cómo demuestra {playerName} que está feliz?',
+        'Si {playerName} pudiera viajar en el tiempo, ¿qué época visitaría?',
+        '¿Cuál es la lección más hermosa que la vida le ha enseñado a {playerName}?'
       ],
       de: [
         'Wenn {playerName} eine niedliche Sünde gestehen müsste, welche wäre das?',
@@ -67,6 +181,44 @@ const questions = {
         'Was ist das Netteste, was {playerName} jemals für jemanden getan hat?',
         'Wenn {playerName} eine Sache in seinem/ihrem Leben ändern könnte, was wäre es deiner Meinung nach?',
         'Welche Situation lässt {playerName} am meisten an seinen/ihren Fähigkeiten zweifeln?',
+        'Was ist deiner Meinung nach der geheime Traum von {playerName}?',
+        'Was ist die schönste versteckte Eigenschaft von {playerName}?',
+        'Wenn {playerName} ein Buch schreiben würde, wie würde der Titel lauten?',
+        'Wie drückt {playerName} Zuneigung aus?',
+        'Welches Kompliment würde {playerName} gerne öfter hören?',
+        'Was ist {playerName}s größte Stärke in der Freundschaft?',
+        'Wenn {playerName} einen Zauberstab hätte, was würde er/sie zuerst ändern?',
+        'Was ist das versteckte Talent von {playerName}, das nur wenige kennen?',
+        'Wie denkst du, geht {playerName} mit Stress um?',
+        'Was bringt {playerName} am meisten zum Lächeln?',
+        'Wenn {playerName} ein Superheld wäre, was wäre seine/ihre Kraft?',
+        'Was ist die größte Lektion, die {playerName} im Leben gelernt hat?',
+        'Wie zeigt {playerName}, dass ihm/ihr jemand wichtig ist?',
+        'Wenn {playerName} einen Moment seines/ihres Lebens wiederleben könnte, welchen würde er/sie wählen?',
+        'Was macht {playerName} besser als alle anderen?',
+        'Wenn {playerName} ein Tier wäre, welches wäre es und warum?',
+        'Wie inspiriert {playerName} andere, ohne es zu merken?',
+        'Wenn {playerName} der ganzen Welt einen Rat geben könnte, was würde er/sie sagen?',
+        'Wie sieht {playerName} die ideale Liebe?',
+        'Wenn {playerName} ein Lied wäre, welches wäre es?',
+        'Wie tröstet {playerName} seine/ihre Lieben?',
+        'Wenn {playerName} eine berühmte Person treffen könnte, wen würde er/sie wählen?',
+        'Wie definiert {playerName} deiner Meinung nach Glück?',
+        'Wie drückt {playerName} seine/ihre Kreativität aus?',
+        'Wenn {playerName} sofort eine Fähigkeit erlernen könnte, welche würde er/sie wählen?',
+        'Wie stellt sich {playerName} seinen/ihren idealen Ruhestand vor?',
+        'Wenn {playerName} ein Parfüm wäre, was wäre seine/ihre Essenz?',
+        'Wie verhält sich {playerName}, wenn niemand hinschaut?',
+        'Wenn {playerName} die Welt verändern könnte, womit würde er/sie anfangen?',
+        'Wie feiert {playerName} seine/ihre kleinen Siege?',
+        'Wenn {playerName} ein Dessert wäre, welches wäre es und warum?',
+        'Wie geht {playerName} mit schwierigen Momenten um?',
+        'Wenn {playerName} einen magischen Gegenstand besitzen könnte, welchen würde er/sie wählen?',
+        'Wie drückt {playerName} Dankbarkeit aus?',
+        'Wenn {playerName} eine Farbe wäre, welche wäre es und warum?',
+        'Wie zeigt {playerName}, dass er/sie glücklich ist?',
+        'Wenn {playerName} durch die Zeit reisen könnte, welche Epoche würde er/sie besuchen?',
+        'Was ist die schönste Lektion, die das Leben {playerName} gelehrt hat?'
       ],
       it: [
         'Se {playerName} dovesse confessare un piccolo peccato, quale sarebbe?',
@@ -81,6 +233,44 @@ const questions = {
         'Qual è la cosa più gentile che {playerName} abbia mai fatto per qualcuno?',
         'Se {playerName} potesse cambiare una cosa nella sua vita, quale pensi che sarebbe?',
         'Quale situazione fa dubitare maggiormente {playerName} delle proprie capacità?',
+        'Qual è secondo te il sogno segreto di {playerName}?',
+        'Qual è la più bella qualità nascosta di {playerName}?',
+        'Se {playerName} scrivesse un libro, quale sarebbe il titolo?',
+        'Come esprime {playerName} l\'affetto?',
+        'Quale complimento a {playerName} piacerebbe sentire più spesso?',
+        'Qual è il più grande punto di forza di {playerName} nell\'amicizia?',
+        'Se {playerName} avesse una bacchetta magica, cosa cambierebbe per primo?',
+        'Qual è il talento nascosto di {playerName} che poche persone conoscono?',
+        'Come pensi che {playerName} gestisca lo stress?',
+        'Qual è la cosa che fa sorridere di più {playerName}?',
+        'Se {playerName} fosse un supereroe, quale sarebbe il suo potere?',
+        'Qual è la lezione più grande che {playerName} ha imparato nella vita?',
+        'Come dimostra {playerName} che tiene a qualcuno?',
+        'Se {playerName} potesse rivivere un momento della sua vita, quale sceglierebbe?',
+        'Qual è la cosa che {playerName} fa meglio di chiunque altro?',
+        'Se {playerName} fosse un animale, quale sarebbe e perché?',
+        'Come ispira {playerName} gli altri senza rendersene conto?',
+        'Se {playerName} potesse dare un consiglio al mondo intero, cosa direbbe?',
+        'Come vede {playerName} l\'amore ideale?',
+        'Se {playerName} fosse una canzone, quale sarebbe?',
+        'Come consola {playerName} i suoi cari?',
+        'Se {playerName} potesse incontrare una persona famosa, chi sceglierebbe?',
+        'Come pensi che {playerName} definisca la felicità?',
+        'Come esprime {playerName} la sua creatività?',
+        'Se {playerName} potesse imparare istantaneamente un\'abilità, quale sceglierebbe?',
+        'Come immagina {playerName} la sua pensione ideale?',
+        'Se {playerName} fosse un profumo, quale sarebbe la sua essenza?',
+        'Come si comporta {playerName} quando nessuno lo/la guarda?',
+        'Se {playerName} potesse cambiare il mondo, da dove inizierebbe?',
+        'Come celebra {playerName} le sue piccole vittorie?',
+        'Se {playerName} fosse un dolce, quale sarebbe e perché?',
+        'Come affronta {playerName} i momenti difficili?',
+        'Se {playerName} potesse possedere un oggetto magico, quale sceglierebbe?',
+        'Come esprime {playerName} la gratitudine?',
+        'Se {playerName} fosse un colore, quale sarebbe e perché?',
+        'Come dimostra {playerName} che è felice?',
+        'Se {playerName} potesse viaggiare nel tempo, quale epoca visiterebbe?',
+        'Qual è la lezione più bella che la vita ha insegnato a {playerName}?'
       ],
       pt: [
         'Se {playerName} tivesse que confessar um pecado fofo, qual seria?',
@@ -95,6 +285,44 @@ const questions = {
         'Qual é a coisa mais gentil que {playerName} já fez por alguém?',
         'Se {playerName} pudesse mudar uma coisa em sua vida, o que você acha que seria?',
         'Que situação faz {playerName} duvidar mais de suas habilidades?',
+        'Qual você acha que é o sonho secreto de {playerName}?',
+        'Qual é a mais bela qualidade oculta de {playerName}?',
+        'Se {playerName} escrevesse um livro, qual seria o título?',
+        'Como {playerName} expressa carinho?',
+        'Que elogio {playerName} gostaria de ouvir mais frequentemente?',
+        'Qual é a maior força de {playerName} na amizade?',
+        'Se {playerName} tivesse uma varinha mágica, o que mudaria primeiro?',
+        'Qual é o talento oculto de {playerName} que poucas pessoas conhecem?',
+        'Como você acha que {playerName} lida com o estresse?',
+        'O que mais faz {playerName} sorrir?',
+        'Se {playerName} fosse um super-herói, qual seria seu poder?',
+        'Qual é a maior lição que {playerName} aprendeu na vida?',
+        'Como {playerName} demonstra que se importa com alguém?',
+        'Se {playerName} pudesse reviver um momento de sua vida, qual escolheria?',
+        'O que {playerName} faz melhor que qualquer outra pessoa?',
+        'Se {playerName} fosse um animal, qual seria e por quê?',
+        'Como {playerName} inspira outros sem perceber?',
+        'Se {playerName} pudesse dar um conselho ao mundo inteiro, o que diria?',
+        'Como {playerName} vê o amor ideal?',
+        'Se {playerName} fosse uma música, qual seria?',
+        'Como {playerName} consola seus entes queridos?',
+        'Se {playerName} pudesse conhecer uma pessoa famosa, quem escolheria?',
+        'Como você acha que {playerName} define felicidade?',
+        'Como {playerName} expressa sua criatividade?',
+        'Se {playerName} pudesse aprender instantaneamente uma habilidade, qual escolheria?',
+        'Como {playerName} imagina sua aposentadoria ideal?',
+        'Se {playerName} fosse um perfume, qual seria sua essência?',
+        'Como {playerName} age quando ninguém está olhando?',
+        'Se {playerName} pudesse mudar o mundo, por onde começaria?',
+        'Como {playerName} celebra suas pequenas vitórias?',
+        'Se {playerName} fosse uma sobremesa, qual seria e por quê?',
+        'Como {playerName} lida com momentos difíceis?',
+        'Se {playerName} pudesse possuir um objeto mágico, qual escolheria?',
+        'Como {playerName} expressa gratidão?',
+        'Se {playerName} fosse uma cor, qual seria e por quê?',
+        'Como {playerName} demonstra que está feliz?',
+        'Se {playerName} pudesse viajar no tempo, que época visitaria?',
+        'Qual é a mais bela lição que a vida ensinou a {playerName}?'
       ],
       ar: [
         'إذا كان على {playerName} الاعتراف بخطيئة لطيفة، فماذا ستكون؟',
@@ -109,6 +337,44 @@ const questions = {
         'ما هو ألطف شيء قام به {playerName} لشخص ما؟',
         'إذا كان بإمكان {playerName} تغيير شيء واحد في حياته، ما الذي تعتقد أنه سيكون؟',
         'ما هو الموقف الذي يجعل {playerName} يشك في قدراته أكثر؟',
+        'ما الذي تعتقد أنه الحلم السري لـ {playerName}؟',
+        'ما هي أجمل صفة مخفية لدى {playerName}؟',
+        'إذا كتب {playerName} كتابًا، فما سيكون عنوانه؟',
+        'كيف يعبر {playerName} عن المودة؟',
+        'أي مجاملة يحب {playerName} أن يسمعها أكثر؟',
+        'ما هي أكبر نقطة قوة لدى {playerName} في الصداقة؟',
+        'إذا كان لدى {playerName} عصا سحرية، فما الذي سيغيره أولاً؟',
+        'ما هي الموهبة المخفية لدى {playerName} التي يعرفها القليل من الناس؟',
+        'كيف تعتقد أن {playerName} يتعامل مع التوتر؟',
+        'ما الذي يجعل {playerName} يبتسم أكثر؟',
+        'إذا كان {playerName} بطلاً خارقًا، فما ستكون قوته؟',
+        'ما هي أعظم درس تعلمه {playerName} في الحياة؟',
+        'كيف يُظهر {playerName} اهتمامه بشخص ما؟',
+        'إذا كان بإمكان {playerName} إعادة عيش لحظة من حياته، فأيها سيختار؟',
+        'ما الذي يفعله {playerName} أفضل من أي شخص آخر؟',
+        'إذا كان {playerName} حيوانًا، فأي حيوان سيكون ولماذا؟',
+        'كيف يلهم {playerName} الآخرين دون أن يدرك ذلك؟',
+        'إذا كان بإمكان {playerName} إعطاء نصيحة للعالم كله، فماذا سيقول؟',
+        'كيف يرى {playerName} الحب المثالي؟',
+        'إذا كان {playerName} أغنية، فأي أغنية ستكون؟',
+        'كيف يواسي {playerName} أحباءه؟',
+        'إذا كان بإمكان {playerName} مقابلة شخصية مشهورة، فمن سيختار؟',
+        'كيف تعتقد أن {playerName} يعرّف السعادة؟',
+        'كيف يعبر {playerName} عن إبداعه؟',
+        'إذا كان بإمكان {playerName} تعلم مهارة فورًا، فأيها سيختار؟',
+        'كيف يتخيل {playerName} تقاعده المثالي؟',
+        'إذا كان {playerName} عطرًا، فما ستكون جوهره؟',
+        'كيف يتصرف {playerName} عندما لا يراقبه أحد؟',
+        'إذا كان بإمكان {playerName} تغيير العالم، فمن أين سيبدأ؟',
+        'كيف يحتفل {playerName} بانتصاراته الصغيرة؟',
+        'إذا كان {playerName} حلوى، فأي حلوى سيكون ولماذا؟',
+        'كيف يتعامل {playerName} مع اللحظات الصعبة؟',
+        'إذا كان بإمكان {playerName} امتلاك شيء سحري، فماذا سيختار؟',
+        'كيف يعبر {playerName} عن الامتنان؟',
+        'إذا كان {playerName} لونًا، فأي لون سيكون ولماذا؟',
+        'كيف يُظهر {playerName} أنه سعيد؟',
+        'إذا كان بإمكان {playerName} السفر عبر الزمن، فأي عصر سيزور؟',
+        'ما هي أجمل درس علمته الحياة لـ {playerName}؟'
       ]
     }
   },
@@ -123,6 +389,198 @@ const questions = {
           type: "verite",
           text: "Quelle est la dernière chose que tu as faite en secret et que personne ici ne soupçonnerait ?"
         },
+        {
+          type: "action",
+          text: "Fais un spectacle de mode avec les objets qui traînent dans la pièce pendant 2 minutes."
+        },
+        {
+          type: "verite",
+          text: "Quel est le mensonge le plus innocent que tu as dit récemment ?"
+        },
+        {
+          type: "action",
+          text: "Imite ta célébrité préférée pendant 1 minute sans dire qui c'est."
+        },
+        {
+          type: "verite",
+          text: "Quelle est la chose la plus embarrassante dans ton historique de recherche ?"
+        },
+        {
+          type: "action",
+          text: "Chante l'alphabet à l'envers en dansant la macarena."
+        },
+        {
+          type: "verite",
+          text: "Si tu pouvais lire dans les pensées de quelqu'un ici, qui choisirais-tu ?"
+        },
+        {
+          type: "action",
+          text: "Fais un discours passionné de 30 secondes sur l'importance des chaussettes dépareillées."
+        },
+        {
+          type: "verite",
+          text: "Quel est le compliment le plus bizarre qu'on t'ait jamais fait ?"
+        },
+        {
+          type: "action",
+          text: "Dessine un portrait de quelqu'un du groupe avec tes pieds."
+        },
+        {
+          type: "verite",
+          text: "Quelle est la chose la plus étrange que tu fais quand tu es seul(e) ?"
+        },
+        {
+          type: "action",
+          text: "Raconte une histoire de 2 minutes en ne parlant qu'en questions."
+        },
+        {
+          type: "verite",
+          text: "Quel est ton plus grand regret de ces 5 dernières années ?"
+        },
+        {
+          type: "action",
+          text: "Fais une séance de yoga en commentant comme un prof très zen."
+        },
+        {
+          type: "verite",
+          text: "Si tu devais être enfermé(e) dans une pièce avec quelqu'un d'ici, qui choisirais-tu ?"
+        },
+        {
+          type: "action",
+          text: "Invente et interprète une pub de 30 secondes pour un produit imaginaire."
+        },
+        {
+          type: "verite",
+          text: "Quelle est la chose la plus puérile que tu fais encore ?"
+        },
+        {
+          type: "action",
+          text: "Mime ton film préféré pendant que les autres devinent."
+        },
+        {
+          type: "verite",
+          text: "Quel est le surnom le plus ridicule qu'on t'ait donné ?"
+        },
+        {
+          type: "action",
+          text: "Fais un défilé de mode en utilisant uniquement du papier toilette."
+        },
+        {
+          type: "verite",
+          text: "Si tu pouvais échanger de place avec quelqu'un ici pour une journée, qui ce serait ?"
+        },
+        {
+          type: "action",
+          text: "Parle avec l'accent le plus ridicule possible pendant 3 minutes."
+        },
+        {
+          type: "verite",
+          text: "Quelle est la chose la plus impulsive que tu aies jamais faite ?"
+        },
+        {
+          type: "action",
+          text: "Fais une chorégraphie sur ta chanson préférée avec uniquement tes mains."
+        },
+        {
+          type: "verite",
+          text: "Quel est le message le plus gênant que tu aies envoyé par erreur ?"
+        },
+        {
+          type: "action",
+          text: "Raconte une blague en faisant différentes voix pour chaque personnage."
+        },
+        {
+          type: "verite",
+          text: "Si tu pouvais supprimer une de tes habitudes, laquelle ce serait ?"
+        },
+        {
+          type: "action",
+          text: "Fais un selfie groupe en dirigeant la séance photo comme un photographe professionnel."
+        },
+        {
+          type: "verite",
+          text: "Quelle est la célébrité avec qui tu aimerais le plus prendre un café ?"
+        },
+        {
+          type: "action",
+          text: "Invente un nouveau style de danse et apprends-le au groupe."
+        },
+        {
+          type: "verite",
+          text: "Quel est ton plus gros complexe que tu n'avoues jamais ?"
+        },
+        {
+          type: "action",
+          text: "Fais un one-man-show de stand-up pendant 2 minutes."
+        },
+        {
+          type: "verite",
+          text: "Si tu devais déménager dans un autre pays demain, lequel choisirais-tu ?"
+        },
+        {
+          type: "action",
+          text: "Imite chaque personne du groupe pendant 10 secondes chacune."
+        },
+        {
+          type: "verite",
+          text: "Quelle est la chose la plus embarrassante que tes parents aient faite devant tes amis ?"
+        },
+        {
+          type: "action",
+          text: "Crée un rap improvisé sur ce qui se passe en ce moment dans la pièce."
+        },
+        {
+          type: "verite",
+          text: "Quel est le mensonge que tu dis le plus souvent ?"
+        },
+        {
+          type: "action",
+          text: "Fais un cours de cuisine imaginaire en préparant un plat invisible."
+        },
+        {
+          type: "verite",
+          text: "Si tu pouvais avoir accès aux DM de quelqu'un, qui choisirais-tu ?"
+        },
+        {
+          type: "action",
+          text: "Joue le rôle d'un commentateur sportif décrivant quelqu'un qui mange."
+        },
+        {
+          type: "verite",
+          text: "Quelle est la règle sociale que tu brises le plus souvent ?"
+        },
+        {
+          type: "action",
+          text: "Fais une présentation TED talk de 2 minutes sur un sujet totalement absurde."
+        },
+        {
+          type: "verite",
+          text: "Quel est le secret que tu gardes depuis le plus longtemps ?"
+        },
+        {
+          type: "action",
+          text: "Crée une nouvelle langue et enseigne-nous 5 mots."
+        },
+        {
+          type: "verite",
+          text: "Si tu pouvais retourner en arrière et changer une conversation, laquelle ce serait ?"
+        },
+        {
+          type: "action",
+          text: "Fais un karaoké muet : chante une chanson connue sans le son."
+        },
+        {
+          type: "verite",
+          text: "Quelle est la chose la plus bizarre que tu aies trouvée attirante chez quelqu'un ?"
+        },
+        {
+          type: "action",
+          text: "Organise un jeu télévisé improvisé avec le groupe comme candidats."
+        },
+        {
+          type: "verite",
+          text: "Si tu devais choisir une seule app sur ton téléphone, laquelle garderais-tu ?"
+        }
       ],
       en: [
         {
@@ -133,6 +591,198 @@ const questions = {
           type: "truth",
           text: "What's the last thing you did in secret that no one here would suspect?"
         },
+        {
+          type: "dare",
+          text: "Do a fashion show with random objects in the room for 2 minutes."
+        },
+        {
+          type: "truth",
+          text: "What's the most innocent lie you've told recently?"
+        },
+        {
+          type: "dare",
+          text: "Impersonate your favorite celebrity for 1 minute without saying who it is."
+        },
+        {
+          type: "truth",
+          text: "What's the most embarrassing thing in your search history?"
+        },
+        {
+          type: "dare",
+          text: "Sing the alphabet backwards while doing the macarena."
+        },
+        {
+          type: "truth",
+          text: "If you could read someone's mind here, who would you choose?"
+        },
+        {
+          type: "dare",
+          text: "Give a passionate 30-second speech about the importance of mismatched socks."
+        },
+        {
+          type: "truth",
+          text: "What's the weirdest compliment you've ever received?"
+        },
+        {
+          type: "dare",
+          text: "Draw a portrait of someone in the group using your feet."
+        },
+        {
+          type: "truth",
+          text: "What's the strangest thing you do when you're alone?"
+        },
+        {
+          type: "dare",
+          text: "Tell a 2-minute story speaking only in questions."
+        },
+        {
+          type: "truth",
+          text: "What's your biggest regret from the past 5 years?"
+        },
+        {
+          type: "dare",
+          text: "Lead a yoga session while commentating like a very zen instructor."
+        },
+        {
+          type: "truth",
+          text: "If you had to be locked in a room with someone here, who would you choose?"
+        },
+        {
+          type: "dare",
+          text: "Create and perform a 30-second commercial for an imaginary product."
+        },
+        {
+          type: "truth",
+          text: "What's the most childish thing you still do?"
+        },
+        {
+          type: "dare",
+          text: "Act out your favorite movie while others guess."
+        },
+        {
+          type: "truth",
+          text: "What's the most ridiculous nickname you've been given?"
+        },
+        {
+          type: "dare",
+          text: "Do a fashion show using only toilet paper."
+        },
+        {
+          type: "truth",
+          text: "If you could switch places with someone here for a day, who would it be?"
+        },
+        {
+          type: "dare",
+          text: "Speak in the most ridiculous accent possible for 3 minutes."
+        },
+        {
+          type: "truth",
+          text: "What's the most impulsive thing you've ever done?"
+        },
+        {
+          type: "dare",
+          text: "Choreograph a dance to your favorite song using only your hands."
+        },
+        {
+          type: "truth",
+          text: "What's the most awkward text you've sent by mistake?"
+        },
+        {
+          type: "dare",
+          text: "Tell a joke using different voices for each character."
+        },
+        {
+          type: "truth",
+          text: "If you could eliminate one of your habits, which would it be?"
+        },
+        {
+          type: "dare",
+          text: "Take a group selfie while directing the photo shoot like a professional photographer."
+        },
+        {
+          type: "truth",
+          text: "Which celebrity would you most like to have coffee with?"
+        },
+        {
+          type: "dare",
+          text: "Invent a new dance style and teach it to the group."
+        },
+        {
+          type: "truth",
+          text: "What's your biggest insecurity that you never admit?"
+        },
+        {
+          type: "dare",
+          text: "Do a 2-minute stand-up comedy routine."
+        },
+        {
+          type: "truth",
+          text: "If you had to move to another country tomorrow, which would you choose?"
+        },
+        {
+          type: "dare",
+          text: "Impersonate each person in the group for 10 seconds each."
+        },
+        {
+          type: "truth",
+          text: "What's the most embarrassing thing your parents did in front of your friends?"
+        },
+        {
+          type: "dare",
+          text: "Create an improvised rap about what's happening in the room right now."
+        },
+        {
+          type: "truth",
+          text: "What's the lie you tell most often?"
+        },
+        {
+          type: "dare",
+          text: "Give an imaginary cooking lesson preparing an invisible dish."
+        },
+        {
+          type: "truth",
+          text: "If you could access someone's DMs, who would you choose?"
+        },
+        {
+          type: "dare",
+          text: "Be a sports commentator describing someone eating."
+        },
+        {
+          type: "truth",
+          text: "What social rule do you break most often?"
+        },
+        {
+          type: "dare",
+          text: "Give a 2-minute TED talk on a completely absurd topic."
+        },
+        {
+          type: "truth",
+          text: "What's the secret you've kept the longest?"
+        },
+        {
+          type: "dare",
+          text: "Create a new language and teach us 5 words."
+        },
+        {
+          type: "truth",
+          text: "If you could go back and change one conversation, which would it be?"
+        },
+        {
+          type: "dare",
+          text: "Do silent karaoke: sing a famous song without sound."
+        },
+        {
+          type: "truth",
+          text: "What's the weirdest thing you've found attractive about someone?"
+        },
+        {
+          type: "dare",
+          text: "Host an improvised game show with the group as contestants."
+        },
+        {
+          type: "truth",
+          text: "If you had to choose just one app on your phone, which would you keep?"
+        }
       ],
       es: [
         {
@@ -143,6 +793,198 @@ const questions = {
           type: "verdad",
           text: "¿Cuál es la última cosa que hiciste en secreto y que nadie aquí sospecharía?"
         },
+        {
+          type: "reto",
+          text: "Haz un desfile de moda con objetos aleatorios de la habitación durante 2 minutos."
+        },
+        {
+          type: "verdad",
+          text: "¿Cuál es la mentira más inocente que has dicho recientemente?"
+        },
+        {
+          type: "reto",
+          text: "Imita a tu celebridad favorita durante 1 minuto sin decir quién es."
+        },
+        {
+          type: "verdad",
+          text: "¿Qué es lo más embarazoso en tu historial de búsqueda?"
+        },
+        {
+          type: "reto",
+          text: "Canta el alfabeto al revés mientras haces la macarena."
+        },
+        {
+          type: "verdad",
+          text: "Si pudieras leer la mente de alguien aquí, ¿a quién elegirías?"
+        },
+        {
+          type: "reto",
+          text: "Da un discurso apasionado de 30 segundos sobre la importancia de los calcetines desparejados."
+        },
+        {
+          type: "verdad",
+          text: "¿Cuál es el cumplido más raro que has recibido?"
+        },
+        {
+          type: "reto",
+          text: "Dibuja un retrato de alguien del grupo usando tus pies."
+        },
+        {
+          type: "verdad",
+          text: "¿Qué es lo más extraño que haces cuando estás solo/a?"
+        },
+        {
+          type: "reto",
+          text: "Cuenta una historia de 2 minutos hablando solo con preguntas."
+        },
+        {
+          type: "verdad",
+          text: "¿Cuál es tu mayor arrepentimiento de los últimos 5 años?"
+        },
+        {
+          type: "reto",
+          text: "Dirige una sesión de yoga comentando como un instructor muy zen."
+        },
+        {
+          type: "verdad",
+          text: "Si tuvieras que estar encerrado/a en una habitación con alguien de aquí, ¿a quién elegirías?"
+        },
+        {
+          type: "reto",
+          text: "Crea e interpreta un comercial de 30 segundos para un producto imaginario."
+        },
+        {
+          type: "verdad",
+          text: "¿Qué es lo más infantil que aún haces?"
+        },
+        {
+          type: "reto",
+          text: "Actúa tu película favorita mientras otros adivinan."
+        },
+        {
+          type: "verdad",
+          text: "¿Cuál es el apodo más ridículo que te han puesto?"
+        },
+        {
+          type: "reto",
+          text: "Haz un desfile de moda usando solo papel higiénico."
+        },
+        {
+          type: "verdad",
+          text: "Si pudieras intercambiar lugares con alguien de aquí por un día, ¿quién sería?"
+        },
+        {
+          type: "reto",
+          text: "Habla con el acento más ridículo posible durante 3 minutos."
+        },
+        {
+          type: "verdad",
+          text: "¿Qué es lo más impulsivo que has hecho?"
+        },
+        {
+          type: "reto",
+          text: "Coreografía un baile de tu canción favorita usando solo las manos."
+        },
+        {
+          type: "verdad",
+          text: "¿Cuál es el mensaje más incómodo que has enviado por error?"
+        },
+        {
+          type: "reto",
+          text: "Cuenta un chiste usando diferentes voces para cada personaje."
+        },
+        {
+          type: "verdad",
+          text: "Si pudieras eliminar uno de tus hábitos, ¿cuál sería?"
+        },
+        {
+          type: "reto",
+          text: "Toma una selfie grupal dirigiendo la sesión de fotos como un fotógrafo profesional."
+        },
+        {
+          type: "verdad",
+          text: "¿Con qué celebridad te gustaría más tomar un café?"
+        },
+        {
+          type: "reto",
+          text: "Inventa un nuevo estilo de baile y enséñaselo al grupo."
+        },
+        {
+          type: "verdad",
+          text: "¿Cuál es tu mayor inseguridad que nunca admites?"
+        },
+        {
+          type: "reto",
+          text: "Haz una rutina de comedia stand-up de 2 minutos."
+        },
+        {
+          type: "verdad",
+          text: "Si tuvieras que mudarte a otro país mañana, ¿cuál elegirías?"
+        },
+        {
+          type: "reto",
+          text: "Imita a cada persona del grupo durante 10 segundos cada una."
+        },
+        {
+          type: "verdad",
+          text: "¿Qué es lo más embarazoso que hicieron tus padres frente a tus amigos?"
+        },
+        {
+          type: "reto",
+          text: "Crea un rap improvisado sobre lo que está pasando en la habitación ahora mismo."
+        },
+        {
+          type: "verdad",
+          text: "¿Cuál es la mentira que dices más a menudo?"
+        },
+        {
+          type: "reto",
+          text: "Da una clase de cocina imaginaria preparando un plato invisible."
+        },
+        {
+          type: "verdad",
+          text: "Si pudieras acceder a los mensajes privados de alguien, ¿a quién elegirías?"
+        },
+        {
+          type: "reto",
+          text: "Sé un comentarista deportivo describiendo a alguien comiendo."
+        },
+        {
+          type: "verdad",
+          text: "¿Qué regla social rompes más a menudo?"
+        },
+        {
+          type: "reto",
+          text: "Da una charla TED de 2 minutos sobre un tema completamente absurdo."
+        },
+        {
+          type: "verdad",
+          text: "¿Cuál es el secreto que has guardado por más tiempo?"
+        },
+        {
+          type: "reto",
+          text: "Crea un nuevo idioma y enséñanos 5 palabras."
+        },
+        {
+          type: "verdad",
+          text: "Si pudieras volver atrás y cambiar una conversación, ¿cuál sería?"
+        },
+        {
+          type: "reto",
+          text: "Haz karaoke silencioso: canta una canción famosa sin sonido."
+        },
+        {
+          type: "verdad",
+          text: "¿Qué es lo más raro que has encontrado atractivo de alguien?"
+        },
+        {
+          type: "reto",
+          text: "Organiza un programa de juegos improvisado con el grupo como concursantes."
+        },
+        {
+          type: "verdad",
+          text: "Si tuvieras que elegir solo una app en tu teléfono, ¿cuál conservarías?"
+        }
       ],
       de: [
         {
@@ -153,6 +995,198 @@ const questions = {
           type: "wahrheit",
           text: "Was ist das Letzte, was du heimlich getan hast und von dem niemand hier vermuten würde?"
         },
+        {
+          type: "pflicht",
+          text: "Mache eine Modenschau mit zufälligen Gegenständen im Raum für 2 Minuten."
+        },
+        {
+          type: "wahrheit",
+          text: "Was ist die harmloseste Lüge, die du kürzlich erzählt hast?"
+        },
+        {
+          type: "pflicht",
+          text: "Imitiere deinen Lieblings-Promi für 1 Minute, ohne zu sagen, wer es ist."
+        },
+        {
+          type: "wahrheit",
+          text: "Was ist das Peinlichste in deiner Suchhistorie?"
+        },
+        {
+          type: "pflicht",
+          text: "Singe das Alphabet rückwärts, während du die Macarena tanzt."
+        },
+        {
+          type: "wahrheit",
+          text: "Wenn du die Gedanken von jemandem hier lesen könntest, wen würdest du wählen?"
+        },
+        {
+          type: "pflicht",
+          text: "Halte eine leidenschaftliche 30-Sekunden-Rede über die Wichtigkeit ungleicher Socken."
+        },
+        {
+          type: "wahrheit",
+          text: "Was ist das seltsamste Kompliment, das du je erhalten hast?"
+        },
+        {
+          type: "pflicht",
+          text: "Zeichne ein Porträt von jemandem aus der Gruppe mit deinen Füßen."
+        },
+        {
+          type: "wahrheit",
+          text: "Was ist das Seltsamste, was du tust, wenn du allein bist?"
+        },
+        {
+          type: "pflicht",
+          text: "Erzähle eine 2-minütige Geschichte und sprich nur in Fragen."
+        },
+        {
+          type: "wahrheit",
+          text: "Was ist dein größtes Bedauern der letzten 5 Jahre?"
+        },
+        {
+          type: "pflicht",
+          text: "Leite eine Yoga-Stunde und kommentiere wie ein sehr zen Instruktor."
+        },
+        {
+          type: "wahrheit",
+          text: "Wenn du mit jemandem hier in einem Raum eingesperrt werden müsstest, wen würdest du wählen?"
+        },
+        {
+          type: "pflicht",
+          text: "Erstelle und führe einen 30-Sekunden-Werbespot für ein imaginäres Produkt auf."
+        },
+        {
+          type: "wahrheit",
+          text: "Was ist das Kindischste, was du immer noch tust?"
+        },
+        {
+          type: "pflicht",
+          text: "Spiele deinen Lieblingsfilm nach, während die anderen raten."
+        },
+        {
+          type: "wahrheit",
+          text: "Was ist der lächerlichste Spitzname, den du bekommen hast?"
+        },
+        {
+          type: "pflicht",
+          text: "Mache eine Modenschau nur mit Toilettenpapier."
+        },
+        {
+          type: "wahrheit",
+          text: "Wenn du für einen Tag mit jemandem hier die Plätze tauschen könntest, wer wäre es?"
+        },
+        {
+          type: "pflicht",
+          text: "Sprich 3 Minuten lang mit dem lächerlichsten Akzent möglich."
+        },
+        {
+          type: "wahrheit",
+          text: "Was ist das Impulsivste, was du je getan hast?"
+        },
+        {
+          type: "pflicht",
+          text: "Choreographiere einen Tanz zu deinem Lieblingslied nur mit deinen Händen."
+        },
+        {
+          type: "wahrheit",
+          text: "Was ist die peinlichste Nachricht, die du aus Versehen gesendet hast?"
+        },
+        {
+          type: "pflicht",
+          text: "Erzähle einen Witz mit verschiedenen Stimmen für jeden Charakter."
+        },
+        {
+          type: "wahrheit",
+          text: "Wenn du eine deiner Gewohnheiten eliminieren könntest, welche wäre es?"
+        },
+        {
+          type: "pflicht",
+          text: "Macht ein Gruppen-Selfie und leite das Fotoshooting wie ein professioneller Fotograf."
+        },
+        {
+          type: "wahrheit",
+          text: "Mit welchem Promi würdest du am liebsten einen Kaffee trinken?"
+        },
+        {
+          type: "pflicht",
+          text: "Erfinde einen neuen Tanzstil und bringe ihn der Gruppe bei."
+        },
+        {
+          type: "wahrheit",
+          text: "Was ist deine größte Unsicherheit, die du nie zugibst?"
+        },
+        {
+          type: "pflicht",
+          text: "Mache eine 2-minütige Stand-up-Comedy-Routine."
+        },
+        {
+          type: "wahrheit",
+          text: "Wenn du morgen in ein anderes Land ziehen müsstest, welches würdest du wählen?"
+        },
+        {
+          type: "pflicht",
+          text: "Imitiere jede Person in der Gruppe für jeweils 10 Sekunden."
+        },
+        {
+          type: "wahrheit",
+          text: "Was ist das Peinlichste, was deine Eltern vor deinen Freunden getan haben?"
+        },
+        {
+          type: "pflicht",
+          text: "Erstelle einen improvisierten Rap über das, was gerade im Raum passiert."
+        },
+        {
+          type: "wahrheit",
+          text: "Was ist die Lüge, die du am häufigsten erzählst?"
+        },
+        {
+          type: "pflicht",
+          text: "Gib eine imaginäre Kochstunde und bereite ein unsichtbares Gericht zu."
+        },
+        {
+          type: "wahrheit",
+          text: "Wenn du auf jemandes private Nachrichten zugreifen könntest, wen würdest du wählen?"
+        },
+        {
+          type: "pflicht",
+          text: "Sei ein Sportkommentator, der jemanden beim Essen beschreibt."
+        },
+        {
+          type: "wahrheit",
+          text: "Welche gesellschaftliche Regel brichst du am häufigsten?"
+        },
+        {
+          type: "pflicht",
+          text: "Halte einen 2-minütigen TED-Talk über ein völlig absurdes Thema."
+        },
+        {
+          type: "wahrheit",
+          text: "Was ist das Geheimnis, das du am längsten bewahrt hast?"
+        },
+        {
+          type: "pflicht",
+          text: "Erstelle eine neue Sprache und lehre uns 5 Wörter."
+        },
+        {
+          type: "wahrheit",
+          text: "Wenn du zurückgehen und ein Gespräch ändern könntest, welches wäre es?"
+        },
+        {
+          type: "pflicht",
+          text: "Mache stummes Karaoke: singe ein bekanntes Lied ohne Ton."
+        },
+        {
+          type: "wahrheit",
+          text: "Was ist das Seltsamste, was du an jemandem attraktiv gefunden hast?"
+        },
+        {
+          type: "pflicht",
+          text: "Veranstalte eine improvisierte Gameshow mit der Gruppe als Kandidaten."
+        },
+        {
+          type: "wahrheit",
+          text: "Wenn du nur eine App auf deinem Handy behalten könntest, welche wäre es?"
+        }
       ],
       it: [
         {
@@ -163,6 +1197,198 @@ const questions = {
           type: "verità",
           text: "Qual è l'ultima cosa che hai fatto in segreto e che nessuno qui sospetterebbe?"
         },
+        {
+          type: "sfida",
+          text: "Fai una sfilata di moda con oggetti casuali nella stanza per 2 minuti."
+        },
+        {
+          type: "verità",
+          text: "Qual è la bugia più innocente che hai detto di recente?"
+        },
+        {
+          type: "sfida",
+          text: "Imita la tua celebrità preferita per 1 minuto senza dire chi è."
+        },
+        {
+          type: "verità",
+          text: "Qual è la cosa più imbarazzante nella tua cronologia di ricerca?"
+        },
+        {
+          type: "sfida",
+          text: "Canta l'alfabeto al contrario mentre fai la macarena."
+        },
+        {
+          type: "verità",
+          text: "Se potessi leggere la mente di qualcuno qui, chi sceglieresti?"
+        },
+        {
+          type: "sfida",
+          text: "Fai un discorso appassionato di 30 secondi sull'importanza dei calzini spaiati."
+        },
+        {
+          type: "verità",
+          text: "Qual è il complimento più strano che hai mai ricevuto?"
+        },
+        {
+          type: "sfida",
+          text: "Disegna un ritratto di qualcuno del gruppo usando i piedi."
+        },
+        {
+          type: "verità",
+          text: "Qual è la cosa più strana che fai quando sei da solo/a?"
+        },
+        {
+          type: "sfida",
+          text: "Racconta una storia di 2 minuti parlando solo con domande."
+        },
+        {
+          type: "verità",
+          text: "Qual è il tuo più grande rimpianto degli ultimi 5 anni?"
+        },
+        {
+          type: "sfida",
+          text: "Conduci una sessione di yoga commentando come un istruttore molto zen."
+        },
+        {
+          type: "verità",
+          text: "Se dovessi essere rinchiuso/a in una stanza con qualcuno qui, chi sceglieresti?"
+        },
+        {
+          type: "sfida",
+          text: "Crea e interpreta uno spot pubblicitario di 30 secondi per un prodotto immaginario."
+        },
+        {
+          type: "verità",
+          text: "Qual è la cosa più infantile che fai ancora?"
+        },
+        {
+          type: "sfida",
+          text: "Recita il tuo film preferito mentre gli altri indovinano."
+        },
+        {
+          type: "verità",
+          text: "Qual è il soprannome più ridicolo che ti hanno dato?"
+        },
+        {
+          type: "sfida",
+          text: "Fai una sfilata di moda usando solo carta igienica."
+        },
+        {
+          type: "verità",
+          text: "Se potessi scambiare posto con qualcuno qui per un giorno, chi sarebbe?"
+        },
+        {
+          type: "sfida",
+          text: "Parla con l'accento più ridicolo possibile per 3 minuti."
+        },
+        {
+          type: "verità",
+          text: "Qual è la cosa più impulsiva che hai mai fatto?"
+        },
+        {
+          type: "sfida",
+          text: "Coreografa una danza sulla tua canzone preferita usando solo le mani."
+        },
+        {
+          type: "verità",
+          text: "Qual è il messaggio più imbarazzante che hai inviato per sbaglio?"
+        },
+        {
+          type: "sfida",
+          text: "Racconta una barzelletta usando voci diverse per ogni personaggio."
+        },
+        {
+          type: "verità",
+          text: "Se potessi eliminare una delle tue abitudini, quale sarebbe?"
+        },
+        {
+          type: "sfida",
+          text: "Fai un selfie di gruppo dirigendo il servizio fotografico come un fotografo professionale."
+        },
+        {
+          type: "verità",
+          text: "Con quale celebrità vorresti di più prendere un caffè?"
+        },
+        {
+          type: "sfida",
+          text: "Inventa un nuovo stile di danza e insegnalo al gruppo."
+        },
+        {
+          type: "verità",
+          text: "Qual è la tua più grande insicurezza che non ammetti mai?"
+        },
+        {
+          type: "sfida",
+          text: "Fai una routine di stand-up comedy di 2 minuti."
+        },
+        {
+          type: "verità",
+          text: "Se dovessi trasferirti in un altro paese domani, quale sceglieresti?"
+        },
+        {
+          type: "sfida",
+          text: "Imita ogni persona del gruppo per 10 secondi ciascuna."
+        },
+        {
+          type: "verità",
+          text: "Qual è la cosa più imbarazzante che i tuoi genitori hanno fatto davanti ai tuoi amici?"
+        },
+        {
+          type: "sfida",
+          text: "Crea un rap improvvisato su quello che sta succedendo nella stanza ora."
+        },
+        {
+          type: "verità",
+          text: "Qual è la bugia che dici più spesso?"
+        },
+        {
+          type: "sfida",
+          text: "Fai una lezione di cucina immaginaria preparando un piatto invisibile."
+        },
+        {
+          type: "verità",
+          text: "Se potessi accedere ai messaggi privati di qualcuno, chi sceglieresti?"
+        },
+        {
+          type: "sfida",
+          text: "Fai il commentatore sportivo descrivendo qualcuno che mangia."
+        },
+        {
+          type: "verità",
+          text: "Quale regola sociale infragi più spesso?"
+        },
+        {
+          type: "sfida",
+          text: "Fai un TED talk di 2 minuti su un argomento completamente assurdo."
+        },
+        {
+          type: "verità",
+          text: "Qual è il segreto che hai tenuto più a lungo?"
+        },
+        {
+          type: "sfida",
+          text: "Crea una nuova lingua e insegnaci 5 parole."
+        },
+        {
+          type: "verità",
+          text: "Se potessi tornare indietro e cambiare una conversazione, quale sarebbe?"
+        },
+        {
+          type: "sfida",
+          text: "Fai karaoke silenzioso: canta una canzone famosa senza suono."
+        },
+        {
+          type: "verità",
+          text: "Qual è la cosa più strana che hai trovato attraente in qualcuno?"
+        },
+        {
+          type: "sfida",
+          text: "Organizza un game show improvvisato con il gruppo come concorrenti."
+        },
+        {
+          type: "verità",
+          text: "Se dovessi scegliere solo un'app sul tuo telefono, quale terresti?"
+        }
       ],
       pt: [
         {
@@ -173,6 +1399,198 @@ const questions = {
           type: "verdade",
           text: "Qual foi a última coisa que você fez em segredo e que ninguém aqui suspeitaria?"
         },
+        {
+          type: "desafio",
+          text: "Faça um desfile de moda com objetos aleatórios da sala por 2 minutos."
+        },
+        {
+          type: "verdade",
+          text: "Qual é a mentira mais inocente que você contou recentemente?"
+        },
+        {
+          type: "desafio",
+          text: "Imite sua celebridade favorita por 1 minuto sem dizer quem é."
+        },
+        {
+          type: "verdade",
+          text: "Qual é a coisa mais embaraçosa no seu histórico de pesquisa?"
+        },
+        {
+          type: "desafio",
+          text: "Cante o alfabeto de trás para frente enquanto faz a macarena."
+        },
+        {
+          type: "verdade",
+          text: "Se você pudesse ler a mente de alguém aqui, quem escolheria?"
+        },
+        {
+          type: "desafio",
+          text: "Faça um discurso apaixonado de 30 segundos sobre a importância de meias descombinadas."
+        },
+        {
+          type: "verdade",
+          text: "Qual é o elogio mais estranho que você já recebeu?"
+        },
+        {
+          type: "desafio",
+          text: "Desenhe um retrato de alguém do grupo usando os pés."
+        },
+        {
+          type: "verdade",
+          text: "Qual é a coisa mais estranha que você faz quando está sozinho/a?"
+        },
+        {
+          type: "desafio",
+          text: "Conte uma história de 2 minutos falando apenas em perguntas."
+        },
+        {
+          type: "verdade",
+          text: "Qual é o seu maior arrependimento dos últimos 5 anos?"
+        },
+        {
+          type: "desafio",
+          text: "Conduza uma sessão de yoga comentando como um instrutor muito zen."
+        },
+        {
+          type: "verdade",
+          text: "Se você tivesse que ficar trancado/a numa sala com alguém daqui, quem escolheria?"
+        },
+        {
+          type: "desafio",
+          text: "Crie e apresente um comercial de 30 segundos para um produto imaginário."
+        },
+        {
+          type: "verdade",
+          text: "Qual é a coisa mais infantil que você ainda faz?"
+        },
+        {
+          type: "desafio",
+          text: "Atue seu filme favorito enquanto outros adivinham."
+        },
+        {
+          type: "verdade",
+          text: "Qual é o apelido mais ridículo que te deram?"
+        },
+        {
+          type: "desafio",
+          text: "Faça um desfile de moda usando apenas papel higiênico."
+        },
+        {
+          type: "verdade",
+          text: "Se você pudesse trocar de lugar com alguém aqui por um dia, quem seria?"
+        },
+        {
+          type: "desafio",
+          text: "Fale com o sotaque mais ridículo possível por 3 minutos."
+        },
+        {
+          type: "verdade",
+          text: "Qual é a coisa mais impulsiva que você já fez?"
+        },
+        {
+          type: "desafio",
+          text: "Coreografe uma dança da sua música favorita usando apenas as mãos."
+        },
+        {
+          type: "verdade",
+          text: "Qual é a mensagem mais constrangedora que você enviou por engano?"
+        },
+        {
+          type: "desafio",
+          text: "Conte uma piada usando vozes diferentes para cada personagem."
+        },
+        {
+          type: "verdade",
+          text: "Se você pudesse eliminar um dos seus hábitos, qual seria?"
+        },
+        {
+          type: "desafio",
+          text: "Tirem uma selfie em grupo dirigindo a sessão de fotos como um fotógrafo profissional."
+        },
+        {
+          type: "verdade",
+          text: "Com qual celebridade você mais gostaria de tomar um café?"
+        },
+        {
+          type: "desafio",
+          text: "Invente um novo estilo de dança e ensine ao grupo."
+        },
+        {
+          type: "verdade",
+          text: "Qual é a sua maior insegurança que você nunca admite?"
+        },
+        {
+          type: "desafio",
+          text: "Faça uma rotina de stand-up comedy de 2 minutos."
+        },
+        {
+          type: "verdade",
+          text: "Se você tivesse que se mudar para outro país amanhã, qual escolheria?"
+        },
+        {
+          type: "desafio",
+          text: "Imite cada pessoa do grupo por 10 segundos cada uma."
+        },
+        {
+          type: "verdade",
+          text: "Qual é a coisa mais embaraçosa que seus pais fizeram na frente dos seus amigos?"
+        },
+        {
+          type: "desafio",
+          text: "Crie um rap improvisado sobre o que está acontecendo na sala agora."
+        },
+        {
+          type: "verdade",
+          text: "Qual é a mentira que você conta mais frequentemente?"
+        },
+        {
+          type: "desafio",
+          text: "Dê uma aula de culinária imaginária preparando um prato invisível."
+        },
+        {
+          type: "verdade",
+          text: "Se você pudesse acessar as mensagens privadas de alguém, quem escolheria?"
+        },
+        {
+          type: "desafio",
+          text: "Seja um comentarista esportivo descrevendo alguém comendo."
+        },
+        {
+          type: "verdade",
+          text: "Qual regra social você quebra mais frequentemente?"
+        },
+        {
+          type: "desafio",
+          text: "Faça uma palestra TED de 2 minutos sobre um tópico completamente absurdo."
+        },
+        {
+          type: "verdade",
+          text: "Qual é o segredo que você guardou por mais tempo?"
+        },
+        {
+          type: "desafio",
+          text: "Crie uma nova língua e nos ensine 5 palavras."
+        },
+        {
+          type: "verdade",
+          text: "Se você pudesse voltar atrás e mudar uma conversa, qual seria?"
+        },
+        {
+          type: "desafio",
+          text: "Faça karaokê silencioso: cante uma música famosa sem som."
+        },
+        {
+          type: "verdade",
+          text: "Qual é a coisa mais estranha que você achou atraente em alguém?"
+        },
+        {
+          type: "desafio",
+          text: "Organize um programa de jogos improvisado com o grupo como concorrentes."
+        },
+        {
+          type: "verdade",
+          text: "Se você tivesse que escolher apenas um aplicativo no seu telefone, qual manteria?"
+        }
       ],
       ar: [
         {
@@ -183,52 +1601,806 @@ const questions = {
           type: "حقيقة",
           text: "ما هو آخر شيء فعلته سراً ولا أحد هنا يشك فيه؟"
         },
+        {
+          type: "تحدي",
+          text: "اعمل عرض أزياء بأشياء عشوائية في الغرفة لمدة دقيقتين."
+        },
+        {
+          type: "حقيقة",
+          text: "ما هي أبرأ كذبة قلتها مؤخراً؟"
+        },
+        {
+          type: "تحدي",
+          text: "قلد المشهور المفضل لديك لمدة دقيقة دون أن تقول من هو."
+        },
+        {
+          type: "حقيقة",
+          text: "ما هو أكثر شيء محرج في تاريخ بحثك؟"
+        },
+        {
+          type: "تحدي",
+          text: "اغنِ الأبجدية بالعكس بينما ترقص الماكارينا."
+        },
+        {
+          type: "حقيقة",
+          text: "إذا كان بإمكانك قراءة عقل شخص هنا، من ستختار؟"
+        },
+        {
+          type: "تحدي",
+          text: "ألقِ خطاباً شغوفاً لمدة 30 ثانية عن أهمية الجوارب غير المتطابقة."
+        },
+        {
+          type: "حقيقة",
+          text: "ما هو أغرب مجاملة تلقيتها؟"
+        },
+        {
+          type: "تحدي",
+          text: "ارسم صورة شخصية لأحد أفراد المجموعة باستخدام قدميك."
+        },
+        {
+          type: "حقيقة",
+          text: "ما هو أغرب شيء تفعله عندما تكون وحيداً؟"
+        },
+        {
+          type: "تحدي",
+          text: "احكِ قصة لمدة دقيقتين بالتحدث بالأسئلة فقط."
+        },
+        {
+          type: "حقيقة",
+          text: "ما هو أكبر ندم لديك من السنوات الخمس الماضية؟"
+        },
+        {
+          type: "تحدي",
+          text: "قُد جلسة يوغا مع التعليق كمدرب زين جداً."
+        },
+        {
+          type: "حقيقة",
+          text: "إذا كان عليك أن تُحبس في غرفة مع شخص من هنا، من ستختار؟"
+        },
+        {
+          type: "تحدي",
+          text: "اصنع وقدم إعلاناً تجارياً لمدة 30 ثانية لمنتج خيالي."
+        },
+        {
+          type: "حقيقة",
+          text: "ما هو أكثر شيء طفولي ما زلت تفعله؟"
+        },
+        {
+          type: "تحدي",
+          text: "مثّل فيلمك المفضل بينما يخمن الآخرون."
+        },
+        {
+          type: "حقيقة",
+          text: "ما هو أسخف لقب أطلقوه عليك؟"
+        },
+        {
+          type: "تحدي",
+          text: "اعمل عرض أزياء باستخدام ورق التواليت فقط."
+        },
+        {
+          type: "حقيقة",
+          text: "إذا كان بإمكانك تبديل الأماكن مع شخص هنا ليوم واحد، من سيكون؟"
+        },
+        {
+          type: "تحدي",
+          text: "تحدث بأسخف لهجة ممكنة لمدة 3 دقائق."
+        },
+        {
+          type: "حقيقة",
+          text: "ما هو أكثر شيء اندفاعي فعلته؟"
+        },
+        {
+          type: "تحدي",
+          text: "صمم رقصة لأغنيتك المفضلة باستخدام يديك فقط."
+        },
+        {
+          type: "حقيقة",
+          text: "ما هي أكثر رسالة محرجة أرسلتها بالخطأ؟"
+        },
+        {
+          type: "تحدي",
+          text: "احكِ نكتة باستخدام أصوات مختلفة لكل شخصية."
+        },
+        {
+          type: "حقيقة",
+          text: "إذا كان بإمكانك إلغاء إحدى عاداتك، فأيها ستكون؟"
+        },
+        {
+          type: "تحدي",
+          text: "التقطوا صورة جماعية مع إدارة جلسة التصوير كمصور محترف."
+        },
+        {
+          type: "حقيقة",
+          text: "مع أي مشهور تود أن تشرب القهوة أكثر؟"
+        },
+        {
+          type: "تحدي",
+          text: "اخترع نمط رقص جديد وعلمه للمجموعة."
+        },
+        {
+          type: "حقيقة",
+          text: "ما هو أكبر انعدام أمان لديك والذي لا تعترف به أبداً؟"
+        },
+        {
+          type: "تحدي",
+          text: "قم بعرض كوميدي وقوف لمدة دقيقتين."
+        },
+        {
+          type: "حقيقة",
+          text: "إذا كان عليك الانتقال إلى بلد آخر غداً، أيهما ستختار؟"
+        },
+        {
+          type: "تحدي",
+          text: "قلد كل شخص في المجموعة لمدة 10 ثوان لكل واحد."
+        },
+        {
+          type: "حقيقة",
+          text: "ما هو أكثر شيء محرج فعله والداك أمام أصدقائك؟"
+        },
+        {
+          type: "تحدي",
+          text: "اصنع راب مرتجل عما يحدث في الغرفة الآن."
+        },
+        {
+          type: "حقيقة",
+          text: "ما هي الكذبة التي تقولها أكثر؟"
+        },
+        {
+          type: "تحدي",
+          text: "أعطِ درس طبخ خيالي بتحضير طبق غير مرئي."
+        },
+        {
+          type: "حقيقة",
+          text: "إذا كان بإمكانك الوصول إلى الرسائل الخاصة لشخص ما، من ستختار؟"
+        },
+        {
+          type: "تحدي",
+          text: "كن معلق رياضي يصف شخصاً يأكل."
+        },
+        {
+          type: "حقيقة",
+          text: "ما هي القاعدة الاجتماعية التي تكسرها أكثر؟"
+        },
+        {
+          type: "تحدي",
+          text: "ألقِ محاضرة TED لمدة دقيقتين عن موضوع سخيف تماماً."
+        },
+        {
+          type: "حقيقة",
+          text: "ما هو السر الذي احتفظت به لأطول فترة؟"
+        },
+        {
+          type: "تحدي",
+          text: "اصنع لغة جديدة وعلمنا 5 كلمات."
+        },
+        {
+          type: "حقيقة",
+          text: "إذا كان بإمكانك العودة وتغيير محادثة واحدة، فأيها ستكون؟"
+        },
+        {
+          type: "تحدي",
+          text: "اعمل كاريوكي صامت: اغنِ أغنية مشهورة بدون صوت."
+        },
+        {
+          type: "حقيقة",
+          text: "ما هو أغرب شيء وجدته جذاباً في شخص ما؟"
+        },
+        {
+          type: "تحدي",
+          text: "نظم برنامج ألعاب مرتجل مع المجموعة كمتسابقين."
+        },
+        {
+          type: "حقيقة",
+          text: "إذا كان عليك اختيار تطبيق واحد فقط على هاتفك، أيهما ستحتفظ به؟"
+        }
       ]
     }
   },
   'genius-or-liar': {
     translations: {
       fr: [
-        { type: "cultureG", question: "Quel est le plus long fleuve du monde ?", answer: "Le Nil" },
-        { type: "cultureG", question: "Quelle est la monnaie utilisée au Royaume-Uni ?", answer: "La livre sterling" },
-        { type: "cultureGHard", question: "Quel est le seul pays au monde situé sur deux continents ?", answer: "La Turquie" },
-        { type: "culturePop", question: "Quel film a popularisé la réplique 'Je suis ton père' ?", answer: "Star Wars" },
+        {type: "cultureG", question: "Quel est le plus long fleuve du monde ?", answer: "Le Nil"},
+        {type: "cultureG", question: "Quelle est la monnaie utilisée au Royaume-Uni ?", answer: "La livre sterling"},
+        {
+          type: "cultureGHard",
+          question: "Quel est le seul pays au monde situé sur deux continents ?",
+          answer: "La Turquie"
+        },
+        {type: "culturePop", question: "Quel film a popularisé la réplique 'Je suis ton père' ?", answer: "Star Wars"},
+        {type: "science", question: "Combien d'os a un adulte humain ?", answer: "206"},
+        {type: "geographie", question: "Quelle est la capitale de l'Australie ?", answer: "Canberra"},
+        {type: "histoire", question: "En quelle année a eu lieu la chute du mur de Berlin ?", answer: "1989"},
+        {
+          type: "sport",
+          question: "Combien de joueurs y a-t-il dans une équipe de basket sur le terrain ?",
+          answer: "5"
+        },
+        {type: "cultureG", question: "Quel animal est le symbole de l'Australie ?", answer: "Le kangourou"},
+        {type: "science", question: "Quelle planète est la plus proche du Soleil ?", answer: "Mercure"},
+        {type: "cultureGHard", question: "Dans quel pays a été inventé le sudoku ?", answer: "Le Japon"},
+        {type: "culturePop", question: "Qui a écrit 'Harry Potter' ?", answer: "J.K. Rowling"},
+        {type: "geographie", question: "Quel est le plus petit pays du monde ?", answer: "Vatican"},
+        {type: "histoire", question: "Qui était le premier président des États-Unis ?", answer: "George Washington"},
+        {type: "science", question: "Quel gaz représente environ 78% de l'atmosphère terrestre ?", answer: "L'azote"},
+        {type: "sport", question: "Tous les combien d'années ont lieu les Jeux Olympiques d'été ?", answer: "4 ans"},
+        {type: "cultureG", question: "Combien de continents y a-t-il ?", answer: "7"},
+        {type: "culturePop", question: "Quel réseau social a été créé par Mark Zuckerberg ?", answer: "Facebook"},
+        {
+          type: "cultureGHard",
+          question: "Quel est l'élément chimique le plus abondant dans l'univers ?",
+          answer: "L'hydrogène"
+        },
+        {type: "geographie", question: "Dans quel pays se trouve le Machu Picchu ?", answer: "Le Pérou"},
+        {
+          type: "histoire",
+          question: "En quelle année l'homme a-t-il marché sur la Lune pour la première fois ?",
+          answer: "1969"
+        },
+        {type: "science", question: "Quel organe du corps humain produit l'insuline ?", answer: "Le pancréas"},
+        {type: "sport", question: "Dans quel sport utilise-t-on un volant ?", answer: "Le badminton"},
+        {type: "cultureG", question: "Combien de cordes a une guitare classique ?", answer: "6"},
+        {
+          type: "culturePop",
+          question: "Quel personnage Disney a de très longues oreilles et mange des carottes ?",
+          answer: "Bugs Bunny"
+        },
+        {
+          type: "cultureGHard",
+          question: "Quel est le nom de la galaxie dans laquelle se trouve notre système solaire ?",
+          answer: "La Voie lactée"
+        },
+        {type: "geographie", question: "Quel océan borde la côte ouest de l'Afrique ?", answer: "L'océan Atlantique"},
+        {type: "histoire", question: "Combien d'années a duré la Seconde Guerre mondiale ?", answer: "6 ans"},
+        {type: "science", question: "À quelle température l'eau bout-elle au niveau de la mer ?", answer: "100°C"},
+        {type: "sport", question: "Quel pays a gagné la Coupe du Monde de football en 2018 ?", answer: "La France"},
+        {type: "cultureG", question: "Combien de minutes y a-t-il dans une heure ?", answer: "60"},
+        {type: "culturePop", question: "Quel est le prénom de la sirène dans le film Disney ?", answer: "Ariel"},
+        {
+          type: "cultureGHard",
+          question: "Quel scientifique a développé la théorie de la relativité ?",
+          answer: "Einstein"
+        },
+        {type: "geographie", question: "Quel désert est le plus grand du monde ?", answer: "Le Sahara"},
+        {type: "histoire", question: "Quel empereur français a été exilé à Sainte-Hélène ?", answer: "Napoléon"},
+        {type: "science", question: "Combien de chambres a le cœur humain ?", answer: "4"},
+        {
+          type: "sport",
+          question: "Dans quel sport les joueurs utilisent-ils des raquettes et une balle jaune ?",
+          answer: "Le tennis"
+        },
+        {type: "cultureG", question: "Combien de jours compte une année bissextile ?", answer: "366"},
+        {
+          type: "culturePop",
+          question: "Quel super-héros porte un costume rouge et bleu et peut voler ?",
+          answer: "Superman"
+        },
+        {type: "cultureGHard", question: "Quel est le plus petit os du corps humain ?", answer: "L'étrier"},
+        {type: "geographie", question: "Sur quel continent se trouve l'Égypte ?", answer: "L'Afrique"},
+        {type: "histoire", question: "En quelle année a été construite la Tour Eiffel ?", answer: "1889"},
+        {type: "science", question: "Quel est le symbole chimique de l'or ?", answer: "Au"},
+        {
+          type: "sport",
+          question: "Combien de sets faut-il gagner pour remporter un match de tennis masculin en Grand Chelem ?",
+          answer: "3"
+        },
+        {type: "cultureG", question: "Combien de pattes a une araignée ?", answer: "8"},
+        {type: "culturePop", question: "Quel est le nom du lion dans 'Le Roi Lion' ?", answer: "Simba"},
+        {type: "cultureGHard", question: "Quel pays a inventé les pâtes ?", answer: "La Chine"},
+        {type: "geographie", question: "Quelle mer sépare l'Europe de l'Afrique ?", answer: "La mer Méditerranée"},
+        {type: "histoire", question: "Qui a peint la Chapelle Sixtine ?", answer: "Michel-Ange"},
+        {type: "science", question: "Quelle est la vitesse de la lumière dans le vide ?", answer: "300 000 km/s"}
       ],
       en: [
-        { type: "generalKnowledge", question: "What is the longest river in the world?", answer: "The Nile" },
-        { type: "generalKnowledge", question: "What currency is used in the United Kingdom?", answer: "The pound sterling" },
-        { type: "hardGeneralKnowledge", question: "What is the only country in the world located on two continents?", answer: "Turkey" },
-        { type: "popCulture", question: "Which movie popularized the line 'I am your father'?", answer: "Star Wars" },
+        {type: "generalKnowledge", question: "What is the longest river in the world?", answer: "The Nile"},
+        {
+          type: "generalKnowledge",
+          question: "What currency is used in the United Kingdom?",
+          answer: "The pound sterling"
+        },
+        {
+          type: "hardGeneralKnowledge",
+          question: "What is the only country in the world located on two continents?",
+          answer: "Turkey"
+        },
+        {type: "popCulture", question: "Which movie popularized the line 'I am your father'?", answer: "Star Wars"},
+        {type: "science", question: "How many bones does an adult human have?", answer: "206"},
+        {type: "geography", question: "What is the capital of Australia?", answer: "Canberra"},
+        {type: "history", question: "In what year did the Berlin Wall fall?", answer: "1989"},
+        {type: "sports", question: "How many players are on a basketball team on the court?", answer: "5"},
+        {type: "generalKnowledge", question: "What animal is the symbol of Australia?", answer: "The kangaroo"},
+        {type: "science", question: "Which planet is closest to the Sun?", answer: "Mercury"},
+        {type: "hardGeneralKnowledge", question: "In which country was Sudoku invented?", answer: "Japan"},
+        {type: "popCulture", question: "Who wrote 'Harry Potter'?", answer: "J.K. Rowling"},
+        {type: "geography", question: "What is the smallest country in the world?", answer: "Vatican"},
+        {type: "history", question: "Who was the first President of the United States?", answer: "George Washington"},
+        {type: "science", question: "What gas makes up about 78% of Earth's atmosphere?", answer: "Nitrogen"},
+        {type: "sports", question: "How often do the Summer Olympics take place?", answer: "Every 4 years"},
+        {type: "generalKnowledge", question: "How many continents are there?", answer: "7"},
+        {type: "popCulture", question: "What social network was created by Mark Zuckerberg?", answer: "Facebook"},
+        {
+          type: "hardGeneralKnowledge",
+          question: "What is the most abundant chemical element in the universe?",
+          answer: "Hydrogen"
+        },
+        {type: "geography", question: "In which country is Machu Picchu located?", answer: "Peru"},
+        {type: "history", question: "In what year did man first walk on the Moon?", answer: "1969"},
+        {type: "science", question: "Which organ in the human body produces insulin?", answer: "The pancreas"},
+        {type: "sports", question: "In which sport do you use a shuttlecock?", answer: "Badminton"},
+        {type: "generalKnowledge", question: "How many strings does a classical guitar have?", answer: "6"},
+        {
+          type: "popCulture",
+          question: "Which Disney character has very long ears and eats carrots?",
+          answer: "Bugs Bunny"
+        },
+        {
+          type: "hardGeneralKnowledge",
+          question: "What is the name of the galaxy containing our solar system?",
+          answer: "The Milky Way"
+        },
+        {type: "geography", question: "Which ocean borders the west coast of Africa?", answer: "The Atlantic Ocean"},
+        {type: "history", question: "How many years did World War II last?", answer: "6 years"},
+        {type: "science", question: "At what temperature does water boil at sea level?", answer: "100°C"},
+        {type: "sports", question: "Which country won the 2018 FIFA World Cup?", answer: "France"},
+        {type: "generalKnowledge", question: "How many minutes are in an hour?", answer: "60"},
+        {type: "popCulture", question: "What is the name of the mermaid in the Disney movie?", answer: "Ariel"},
+        {
+          type: "hardGeneralKnowledge",
+          question: "Which scientist developed the theory of relativity?",
+          answer: "Einstein"
+        },
+        {type: "geography", question: "Which is the largest desert in the world?", answer: "The Sahara"},
+        {type: "history", question: "Which French emperor was exiled to Saint Helena?", answer: "Napoleon"},
+        {type: "science", question: "How many chambers does the human heart have?", answer: "4"},
+        {type: "sports", question: "In which sport do players use rackets and a yellow ball?", answer: "Tennis"},
+        {type: "generalKnowledge", question: "How many days are in a leap year?", answer: "366"},
+        {type: "popCulture", question: "Which superhero wears a red and blue costume and can fly?", answer: "Superman"},
+        {type: "hardGeneralKnowledge", question: "What is the smallest bone in the human body?", answer: "The stapes"},
+        {type: "geography", question: "On which continent is Egypt located?", answer: "Africa"},
+        {type: "history", question: "In what year was the Eiffel Tower built?", answer: "1889"},
+        {type: "science", question: "What is the chemical symbol for gold?", answer: "Au"},
+        {type: "sports", question: "How many sets must you win to win a men's Grand Slam tennis match?", answer: "3"},
+        {type: "generalKnowledge", question: "How many legs does a spider have?", answer: "8"},
+        {type: "popCulture", question: "What is the name of the lion in 'The Lion King'?", answer: "Simba"},
+        {type: "hardGeneralKnowledge", question: "Which country invented pasta?", answer: "China"},
+        {type: "geography", question: "Which sea separates Europe from Africa?", answer: "The Mediterranean Sea"},
+        {type: "history", question: "Who painted the Sistine Chapel?", answer: "Michelangelo"},
+        {type: "science", question: "What is the speed of light in a vacuum?", answer: "300,000 km/s"}
       ],
       es: [
-        { type: "culturaGeneral", question: "¿Cuál es el río más largo del mundo?", answer: "El Nilo" },
-        { type: "culturaGeneral", question: "¿Qué moneda se utiliza en el Reino Unido?", answer: "La libra esterlina" },
-        { type: "culturaGeneralDificil", question: "¿Cuál es el único país del mundo situado en dos continentes?", answer: "Turquía" },
-        { type: "culturaPop", question: "¿Qué película popularizó la frase 'Yo soy tu padre'?", answer: "Star Wars" },
+        {type: "culturaGeneral", question: "¿Cuál es el río más largo del mundo?", answer: "El Nilo"},
+        {type: "culturaGeneral", question: "¿Qué moneda se utiliza en el Reino Unido?", answer: "La libra esterlina"},
+        {
+          type: "culturaGeneralDificil",
+          question: "¿Cuál es el único país del mundo situado en dos continentes?",
+          answer: "Turquía"
+        },
+        {type: "culturaPop", question: "¿Qué película popularizó la frase 'Yo soy tu padre'?", answer: "Star Wars"},
+        {type: "ciencia", question: "¿Cuántos huesos tiene un adulto humano?", answer: "206"},
+        {type: "geografía", question: "¿Cuál es la capital de Australia?", answer: "Canberra"},
+        {type: "historia", question: "¿En qué año cayó el Muro de Berlín?", answer: "1989"},
+        {type: "deporte", question: "¿Cuántos jugadores hay en un equipo de baloncesto en la cancha?", answer: "5"},
+        {type: "culturaGeneral", question: "¿Qué animal es el símbolo de Australia?", answer: "El canguro"},
+        {type: "ciencia", question: "¿Qué planeta está más cerca del Sol?", answer: "Mercurio"},
+        {type: "culturaGeneralDificil", question: "¿En qué país se inventó el sudoku?", answer: "Japón"},
+        {type: "culturaPop", question: "¿Quién escribió 'Harry Potter'?", answer: "J.K. Rowling"},
+        {type: "geografía", question: "¿Cuál es el país más pequeño del mundo?", answer: "Vaticano"},
+        {type: "historia", question: "¿Quién fue el primer presidente de Estados Unidos?", answer: "George Washington"},
+        {
+          type: "ciencia",
+          question: "¿Qué gas representa aproximadamente el 78% de la atmósfera terrestre?",
+          answer: "El nitrógeno"
+        },
+        {type: "deporte", question: "¿Cada cuántos años se celebran los Juegos Olímpicos de verano?", answer: "4 años"},
+        {type: "culturaGeneral", question: "¿Cuántos continentes hay?", answer: "7"},
+        {type: "culturaPop", question: "¿Qué red social creó Mark Zuckerberg?", answer: "Facebook"},
+        {
+          type: "culturaGeneralDificil",
+          question: "¿Cuál es el elemento químico más abundante en el universo?",
+          answer: "El hidrógeno"
+        },
+        {type: "geografía", question: "¿En qué país se encuentra Machu Picchu?", answer: "Perú"},
+        {type: "historia", question: "¿En qué año pisó el hombre la Luna por primera vez?", answer: "1969"},
+        {type: "ciencia", question: "¿Qué órgano del cuerpo humano produce la insulina?", answer: "El páncreas"},
+        {type: "deporte", question: "¿En qué deporte se usa un volante?", answer: "El bádminton"},
+        {type: "culturaGeneral", question: "¿Cuántas cuerdas tiene una guitarra clásica?", answer: "6"},
+        {
+          type: "culturaPop",
+          question: "¿Qué personaje Disney tiene orejas muy largas y come zanahorias?",
+          answer: "Bugs Bunny"
+        },
+        {
+          type: "culturaGeneralDificil",
+          question: "¿Cómo se llama la galaxia que contiene nuestro sistema solar?",
+          answer: "La Vía Láctea"
+        },
+        {type: "geografía", question: "¿Qué océano bordea la costa oeste de África?", answer: "El océano Atlántico"},
+        {type: "historia", question: "¿Cuántos años duró la Segunda Guerra Mundial?", answer: "6 años"},
+        {type: "ciencia", question: "¿A qué temperatura hierve el agua al nivel del mar?", answer: "100°C"},
+        {type: "deporte", question: "¿Qué país ganó la Copa Mundial de fútbol de 2018?", answer: "Francia"},
+        {type: "culturaGeneral", question: "¿Cuántos minutos hay en una hora?", answer: "60"},
+        {type: "culturaPop", question: "¿Cómo se llama la sirena en la película de Disney?", answer: "Ariel"},
+        {
+          type: "culturaGeneralDificil",
+          question: "¿Qué científico desarrolló la teoría de la relatividad?",
+          answer: "Einstein"
+        },
+        {type: "geografía", question: "¿Cuál es el desierto más grande del mundo?", answer: "El Sahara"},
+        {type: "historia", question: "¿Qué emperador francés fue exiliado a Santa Elena?", answer: "Napoleón"},
+        {type: "ciencia", question: "¿Cuántas cámaras tiene el corazón humano?", answer: "4"},
+        {
+          type: "deporte",
+          question: "¿En qué deporte los jugadores usan raquetas y una pelota amarilla?",
+          answer: "El tenis"
+        },
+        {type: "culturaGeneral", question: "¿Cuántos días tiene un año bisiesto?", answer: "366"},
+        {type: "culturaPop", question: "¿Qué superhéroe lleva un traje rojo y azul y puede volar?", answer: "Superman"},
+        {
+          type: "culturaGeneralDificil",
+          question: "¿Cuál es el hueso más pequeño del cuerpo humano?",
+          answer: "El estribo"
+        },
+        {type: "geografía", question: "¿En qué continente se encuentra Egipto?", answer: "África"},
+        {type: "historia", question: "¿En qué año se construyó la Torre Eiffel?", answer: "1889"},
+        {type: "ciencia", question: "¿Cuál es el símbolo químico del oro?", answer: "Au"},
+        {
+          type: "deporte",
+          question: "¿Cuántos sets hay que ganar para ganar un partido de tenis masculino de Grand Slam?",
+          answer: "3"
+        },
+        {type: "culturaGeneral", question: "¿Cuántas patas tiene una araña?", answer: "8"},
+        {type: "culturaPop", question: "¿Cómo se llama el león en 'El Rey León'?", answer: "Simba"},
+        {type: "culturaGeneralDificil", question: "¿Qué país inventó la pasta?", answer: "China"},
+        {type: "geografía", question: "¿Qué mar separa Europa de África?", answer: "El mar Mediterráneo"},
+        {type: "historia", question: "¿Quién pintó la Capilla Sixtina?", answer: "Miguel Ángel"},
+        {type: "ciencia", question: "¿Cuál es la velocidad de la luz en el vacío?", answer: "300.000 km/s"}
       ],
       de: [
-        { type: "allgemeinwissen", question: "Welcher ist der längste Fluss der Welt?", answer: "Der Nil" },
-        { type: "allgemeinwissen", question: "Welche Währung wird im Vereinigten Königreich verwendet?", answer: "Das Pfund Sterling" },
-        { type: "schwerAllgemeinwissen", question: "Welches ist das einzige Land der Welt, das auf zwei Kontinenten liegt?", answer: "Die Türkei" },
-        { type: "popkultur", question: "Welcher Film hat die Zeile 'Ich bin dein Vater' populär gemacht?", answer: "Star Wars" },
+        {type: "allgemeinwissen", question: "Welcher ist der längste Fluss der Welt?", answer: "Der Nil"},
+        {
+          type: "allgemeinwissen",
+          question: "Welche Währung wird im Vereinigten Königreich verwendet?",
+          answer: "Das Pfund Sterling"
+        },
+        {
+          type: "schwerAllgemeinwissen",
+          question: "Welches ist das einzige Land der Welt, das auf zwei Kontinenten liegt?",
+          answer: "Die Türkei"
+        },
+        {
+          type: "popkultur",
+          question: "Welcher Film hat die Zeile 'Ich bin dein Vater' populär gemacht?",
+          answer: "Star Wars"
+        },
+        {type: "wissenschaft", question: "Wie viele Knochen hat ein erwachsener Mensch?", answer: "206"},
+        {type: "geographie", question: "Was ist die Hauptstadt von Australien?", answer: "Canberra"},
+        {type: "geschichte", question: "In welchem Jahr fiel die Berliner Mauer?", answer: "1989"},
+        {type: "sport", question: "Wie viele Spieler sind in einem Basketballteam auf dem Feld?", answer: "5"},
+        {type: "allgemeinwissen", question: "Welches Tier ist das Symbol Australiens?", answer: "Das Känguru"},
+        {type: "wissenschaft", question: "Welcher Planet ist der Sonne am nächsten?", answer: "Merkur"},
+        {type: "schwerAllgemeinwissen", question: "In welchem Land wurde Sudoku erfunden?", answer: "Japan"},
+        {type: "popkultur", question: "Wer schrieb 'Harry Potter'?", answer: "J.K. Rowling"},
+        {type: "geographie", question: "Was ist das kleinste Land der Welt?", answer: "Vatikan"},
+        {
+          type: "geschichte",
+          question: "Wer war der erste Präsident der Vereinigten Staaten?",
+          answer: "George Washington"
+        },
+        {type: "wissenschaft", question: "Welches Gas macht etwa 78% der Erdatmosphäre aus?", answer: "Stickstoff"},
+        {type: "sport", question: "Wie oft finden die Olympischen Sommerspiele statt?", answer: "Alle 4 Jahre"},
+        {type: "allgemeinwissen", question: "Wie viele Kontinente gibt es?", answer: "7"},
+        {
+          type: "popkultur",
+          question: "Welches soziale Netzwerk wurde von Mark Zuckerberg erstellt?",
+          answer: "Facebook"
+        },
+        {
+          type: "schwerAllgemeinwissen",
+          question: "Was ist das häufigste chemische Element im Universum?",
+          answer: "Wasserstoff"
+        },
+        {type: "geographie", question: "In welchem Land befindet sich Machu Picchu?", answer: "Peru"},
+        {type: "geschichte", question: "In welchem Jahr betrat der Mensch zum ersten Mal den Mond?", answer: "1969"},
+        {
+          type: "wissenschaft",
+          question: "Welches Organ im menschlichen Körper produziert Insulin?",
+          answer: "Die Bauchspeicheldrüse"
+        },
+        {type: "sport", question: "In welchem Sport verwendet man einen Federball?", answer: "Badminton"},
+        {type: "allgemeinwissen", question: "Wie viele Saiten hat eine klassische Gitarre?", answer: "6"},
+        {
+          type: "popkultur",
+          question: "Welche Disney-Figur hat sehr lange Ohren und isst Karotten?",
+          answer: "Bugs Bunny"
+        },
+        {
+          type: "schwerAllgemeinwissen",
+          question: "Wie heißt die Galaxie, die unser Sonnensystem enthält?",
+          answer: "Die Milchstraße"
+        },
+        {
+          type: "geographie",
+          question: "Welcher Ozean grenzt an die Westküste Afrikas?",
+          answer: "Der Atlantische Ozean"
+        },
+        {type: "geschichte", question: "Wie lange dauerte der Zweite Weltkrieg?", answer: "6 Jahre"},
+        {type: "wissenschaft", question: "Bei welcher Temperatur kocht Wasser auf Meereshöhe?", answer: "100°C"},
+        {type: "sport", question: "Welches Land gewann die Fußball-Weltmeisterschaft 2018?", answer: "Frankreich"},
+        {type: "allgemeinwissen", question: "Wie viele Minuten hat eine Stunde?", answer: "60"},
+        {type: "popkultur", question: "Wie heißt die Meerjungfrau im Disney-Film?", answer: "Ariel"},
+        {
+          type: "schwerAllgemeinwissen",
+          question: "Welcher Wissenschaftler entwickelte die Relativitätstheorie?",
+          answer: "Einstein"
+        },
+        {type: "geographie", question: "Welche ist die größte Wüste der Welt?", answer: "Die Sahara"},
+        {
+          type: "geschichte",
+          question: "Welcher französische Kaiser wurde nach Sankt Helena verbannt?",
+          answer: "Napoleon"
+        },
+        {type: "wissenschaft", question: "Wie viele Kammern hat das menschliche Herz?", answer: "4"},
+        {
+          type: "sport",
+          question: "In welchem Sport verwenden Spieler Schläger und einen gelben Ball?",
+          answer: "Tennis"
+        },
+        {type: "allgemeinwissen", question: "Wie viele Tage hat ein Schaltjahr?", answer: "366"},
+        {
+          type: "popkultur",
+          question: "Welcher Superheld trägt ein rot-blaues Kostüm und kann fliegen?",
+          answer: "Superman"
+        },
+        {
+          type: "schwerAllgemeinwissen",
+          question: "Was ist der kleinste Knochen im menschlichen Körper?",
+          answer: "Der Steigbügel"
+        },
+        {type: "geographie", question: "Auf welchem Kontinent liegt Ägypten?", answer: "Afrika"},
+        {type: "geschichte", question: "In welchem Jahr wurde der Eiffelturm gebaut?", answer: "1889"},
+        {type: "wissenschaft", question: "Was ist das chemische Symbol für Gold?", answer: "Au"},
+        {
+          type: "sport",
+          question: "Wie viele Sätze muss man gewinnen, um ein Herren-Grand-Slam-Tennismatch zu gewinnen?",
+          answer: "3"
+        },
+        {type: "allgemeinwissen", question: "Wie viele Beine hat eine Spinne?", answer: "8"},
+        {type: "popkultur", question: "Wie heißt der Löwe in 'Der König der Löwen'?", answer: "Simba"},
+        {type: "schwerAllgemeinwissen", question: "Welches Land hat die Nudeln erfunden?", answer: "China"},
+        {type: "geographie", question: "Welches Meer trennt Europa von Afrika?", answer: "Das Mittelmeer"},
+        {type: "geschichte", question: "Wer malte die Sixtinische Kapelle?", answer: "Michelangelo"},
+        {type: "wissenschaft", question: "Wie schnell ist das Licht im Vakuum?", answer: "300.000 km/s"}
       ],
       it: [
-        { type: "culturaGenerale", question: "Qual è il fiume più lungo del mondo?", answer: "Il Nilo" },
-        { type: "culturaGenerale", question: "Quale valuta è utilizzata nel Regno Unito?", answer: "La sterlina" },
-        { type: "culturaGeneraleDifficile", question: "Qual è l'unico paese al mondo situato su due continenti?", answer: "La Turchia" },
-        { type: "culturaPop", question: "Quale film ha reso popolare la frase 'Io sono tuo padre'?", answer: "Star Wars" },
+        {type: "culturaGenerale", question: "Qual è il fiume più lungo del mondo?", answer: "Il Nilo"},
+        {type: "culturaGenerale", question: "Quale valuta è utilizzata nel Regno Unito?", answer: "La sterlina"},
+        {
+          type: "culturaGeneraleDifficile",
+          question: "Qual è l'unico paese al mondo situato su due continenti?",
+          answer: "La Turchia"
+        },
+        {
+          type: "culturaPop",
+          question: "Quale film ha reso popolare la frase 'Io sono tuo padre'?",
+          answer: "Star Wars"
+        },
+        {type: "scienza", question: "Quante ossa ha un adulto umano?", answer: "206"},
+        {type: "geografia", question: "Qual è la capitale dell'Australia?", answer: "Canberra"},
+        {type: "storia", question: "In che anno è caduto il Muro di Berlino?", answer: "1989"},
+        {type: "sport", question: "Quanti giocatori ci sono in una squadra di basket in campo?", answer: "5"},
+        {type: "culturaGenerale", question: "Quale animale è il simbolo dell'Australia?", answer: "Il canguro"},
+        {type: "scienza", question: "Quale pianeta è più vicino al Sole?", answer: "Mercurio"},
+        {
+          type: "culturaGeneraleDifficile",
+          question: "In quale paese è stato inventato il sudoku?",
+          answer: "Il Giappone"
+        },
+        {type: "culturaPop", question: "Chi ha scritto 'Harry Potter'?", answer: "J.K. Rowling"},
+        {type: "geografia", question: "Qual è il paese più piccolo del mondo?", answer: "Vaticano"},
+        {type: "storia", question: "Chi è stato il primo presidente degli Stati Uniti?", answer: "George Washington"},
+        {type: "scienza", question: "Quale gas costituisce circa il 78% dell'atmosfera terrestre?", answer: "L'azoto"},
+        {type: "sport", question: "Ogni quanti anni si svolgono le Olimpiadi estive?", answer: "4 anni"},
+        {type: "culturaGenerale", question: "Quanti continenti ci sono?", answer: "7"},
+        {type: "culturaPop", question: "Quale social network è stato creato da Mark Zuckerberg?", answer: "Facebook"},
+        {
+          type: "culturaGeneraleDifficile",
+          question: "Qual è l'elemento chimico più abbondante nell'universo?",
+          answer: "L'idrogeno"
+        },
+        {type: "geografia", question: "In quale paese si trova Machu Picchu?", answer: "Il Perù"},
+        {type: "storia", question: "In che anno l'uomo ha camminato sulla Luna per la prima volta?", answer: "1969"},
+        {type: "scienza", question: "Quale organo del corpo umano produce l'insulina?", answer: "Il pancreas"},
+        {type: "sport", question: "In quale sport si usa un volano?", answer: "Il badminton"},
+        {type: "culturaGenerale", question: "Quante corde ha una chitarra classica?", answer: "6"},
+        {
+          type: "culturaPop",
+          question: "Quale personaggio Disney ha orecchie molto lunghe e mangia carote?",
+          answer: "Bugs Bunny"
+        },
+        {
+          type: "culturaGeneraleDifficile",
+          question: "Come si chiama la galassia che contiene il nostro sistema solare?",
+          answer: "La Via Lattea"
+        },
+        {
+          type: "geografia",
+          question: "Quale oceano confina con la costa occidentale dell'Africa?",
+          answer: "L'oceano Atlantico"
+        },
+        {type: "storia", question: "Quanti anni è durata la Seconda Guerra Mondiale?", answer: "6 anni"},
+        {type: "scienza", question: "A quale temperatura bolle l'acqua a livello del mare?", answer: "100°C"},
+        {type: "sport", question: "Quale paese ha vinto la Coppa del Mondo di calcio del 2018?", answer: "La Francia"},
+        {type: "culturaGenerale", question: "Quanti minuti ci sono in un'ora?", answer: "60"},
+        {type: "culturaPop", question: "Come si chiama la sirena nel film Disney?", answer: "Ariel"},
+        {
+          type: "culturaGeneraleDifficile",
+          question: "Quale scienziato ha sviluppato la teoria della relatività?",
+          answer: "Einstein"
+        },
+        {type: "geografia", question: "Qual è il deserto più grande del mondo?", answer: "Il Sahara"},
+        {type: "storia", question: "Quale imperatore francese fu esiliato a Sant'Elena?", answer: "Napoleone"},
+        {type: "scienza", question: "Quante camere ha il cuore umano?", answer: "4"},
+        {
+          type: "sport",
+          question: "In quale sport i giocatori usano racchette e una palla gialla?",
+          answer: "Il tennis"
+        },
+        {type: "culturaGenerale", question: "Quanti giorni ha un anno bisestile?", answer: "366"},
+        {
+          type: "culturaPop",
+          question: "Quale supereroe indossa un costume rosso e blu e può volare?",
+          answer: "Superman"
+        },
+        {type: "culturaGeneraleDifficile", question: "Qual è l'osso più piccolo del corpo umano?", answer: "La staffa"},
+        {type: "geografia", question: "In quale continente si trova l'Egitto?", answer: "L'Africa"},
+        {type: "storia", question: "In che anno è stata costruita la Torre Eiffel?", answer: "1889"},
+        {type: "scienza", question: "Qual è il simbolo chimico dell'oro?", answer: "Au"},
+        {
+          type: "sport",
+          question: "Quanti set bisogna vincere per vincere una partita di tennis maschile del Grande Slam?",
+          answer: "3"
+        },
+        {type: "culturaGenerale", question: "Quante zampe ha un ragno?", answer: "8"},
+        {type: "culturaPop", question: "Come si chiama il leone ne 'Il Re Leone'?", answer: "Simba"},
+        {type: "culturaGeneraleDifficile", question: "Quale paese ha inventato la pasta?", answer: "La Cina"},
+        {type: "geografia", question: "Quale mare separa l'Europa dall'Africa?", answer: "Il Mar Mediterraneo"},
+        {type: "storia", question: "Chi ha dipinto la Cappella Sistina?", answer: "Michelangelo"},
+        {type: "scienza", question: "Qual è la velocità della luce nel vuoto?", answer: "300.000 km/s"}
       ],
       pt: [
-        { type: "culturGeral", question: "Qual é o rio mais longo do mundo?", answer: "O Nilo" },
-        { type: "culturGeral", question: "Qual é a moeda utilizada no Reino Unido?", answer: "A libra esterlina" },
-        { type: "culturGeralDificil", question: "Qual é o único país do mundo situado em dois continentes?", answer: "A Turquia" },
-        { type: "culturaPop", question: "Que filme popularizou a frase 'Eu sou seu pai'?", answer: "Star Wars" },
+        {type: "culturGeral", question: "Qual é o rio mais longo do mundo?", answer: "O Nilo"},
+        {type: "culturGeral", question: "Qual é a moeda utilizada no Reino Unido?", answer: "A libra esterlina"},
+        {
+          type: "culturGeralDificil",
+          question: "Qual é o único país do mundo situado em dois continentes?",
+          answer: "A Turquia"
+        },
+        {type: "culturaPop", question: "Que filme popularizou a frase 'Eu sou seu pai'?", answer: "Star Wars"},
+        {type: "ciencia", question: "Quantos ossos tem um adulto humano?", answer: "206"},
+        {type: "geografia", question: "Qual é a capital da Austrália?", answer: "Canberra"},
+        {type: "historia", question: "Em que ano caiu o Muro de Berlim?", answer: "1989"},
+        {type: "esporte", question: "Quantos jogadores há numa equipe de basquete em quadra?", answer: "5"},
+        {type: "culturGeral", question: "Que animal é o símbolo da Austrália?", answer: "O canguru"},
+        {type: "ciencia", question: "Qual planeta está mais próximo do Sol?", answer: "Mercúrio"},
+        {type: "culturGeralDificil", question: "Em que país foi inventado o sudoku?", answer: "O Japão"},
+        {type: "culturaPop", question: "Quem escreveu 'Harry Potter'?", answer: "J.K. Rowling"},
+        {type: "geografia", question: "Qual é o menor país do mundo?", answer: "Vaticano"},
+        {type: "historia", question: "Quem foi o primeiro presidente dos Estados Unidos?", answer: "George Washington"},
+        {type: "ciencia", question: "Que gás representa cerca de 78% da atmosfera terrestre?", answer: "O nitrogênio"},
+        {
+          type: "esporte",
+          question: "De quantos em quantos anos acontecem os Jogos Olímpicos de verão?",
+          answer: "4 anos"
+        },
+        {type: "culturGeral", question: "Quantos continentes existem?", answer: "7"},
+        {type: "culturaPop", question: "Que rede social foi criada por Mark Zuckerberg?", answer: "Facebook"},
+        {
+          type: "culturGeralDificil",
+          question: "Qual é o elemento químico mais abundante no universo?",
+          answer: "O hidrogênio"
+        },
+        {type: "geografia", question: "Em que país se encontra Machu Picchu?", answer: "O Peru"},
+        {type: "historia", question: "Em que ano o homem pisou na Lua pela primeira vez?", answer: "1969"},
+        {type: "ciencia", question: "Que órgão do corpo humano produz a insulina?", answer: "O pâncreas"},
+        {type: "esporte", question: "Em que esporte se usa uma peteca?", answer: "O badminton"},
+        {type: "culturGeral", question: "Quantas cordas tem um violão clássico?", answer: "6"},
+        {
+          type: "culturaPop",
+          question: "Que personagem Disney tem orelhas muito compridas e come cenouras?",
+          answer: "Bugs Bunny"
+        },
+        {
+          type: "culturGeralDificil",
+          question: "Como se chama a galáxia que contém o nosso sistema solar?",
+          answer: "A Via Láctea"
+        },
+        {
+          type: "geografia",
+          question: "Que oceano faz fronteira com a costa oeste da África?",
+          answer: "O Oceano Atlântico"
+        },
+        {type: "historia", question: "Quantos anos durou a Segunda Guerra Mundial?", answer: "6 anos"},
+        {type: "ciencia", question: "A que temperatura ferve a água ao nível do mar?", answer: "100°C"},
+        {type: "esporte", question: "Que país ganhou a Copa do Mundo de futebol de 2018?", answer: "A França"},
+        {type: "culturGeral", question: "Quantos minutos há numa hora?", answer: "60"},
+        {type: "culturaPop", question: "Como se chama a sereia no filme da Disney?", answer: "Ariel"},
+        {
+          type: "culturGeralDificil",
+          question: "Que cientista desenvolveu a teoria da relatividade?",
+          answer: "Einstein"
+        },
+        {type: "geografia", question: "Qual é o maior deserto do mundo?", answer: "O Saara"},
+        {type: "historia", question: "Que imperador francês foi exilado para Santa Helena?", answer: "Napoleão"},
+        {type: "ciencia", question: "Quantas câmaras tem o coração humano?", answer: "4"},
+        {type: "esporte", question: "Em que esporte os jogadores usam raquetes e uma bola amarela?", answer: "O tênis"},
+        {type: "culturGeral", question: "Quantos dias tem um ano bissexto?", answer: "366"},
+        {type: "culturaPop", question: "Que super-herói usa um traje vermelho e azul e pode voar?", answer: "Superman"},
+        {type: "culturGeralDificil", question: "Qual é o menor osso do corpo humano?", answer: "O estribo"},
+        {type: "geografia", question: "Em que continente se encontra o Egito?", answer: "A África"},
+        {type: "historia", question: "Em que ano foi construída a Torre Eiffel?", answer: "1889"},
+        {type: "ciencia", question: "Qual é o símbolo químico do ouro?", answer: "Au"},
+        {
+          type: "esporte",
+          question: "Quantos sets é preciso ganhar para vencer uma partida de tênis masculino de Grand Slam?",
+          answer: "3"
+        },
+        {type: "culturGeral", question: "Quantas patas tem uma aranha?", answer: "8"},
+        {type: "culturaPop", question: "Como se chama o leão em 'O Rei Leão'?", answer: "Simba"},
+        {type: "culturGeralDificil", question: "Que país inventou a massa?", answer: "A China"},
+        {type: "geografia", question: "Que mar separa a Europa da África?", answer: "O Mar Mediterrâneo"},
+        {type: "historia", question: "Quem pintou a Capela Sistina?", answer: "Michelangelo"},
+        {type: "ciencia", question: "Qual é a velocidade da luz no vácuo?", answer: "300.000 km/s"}
       ],
       ar: [
-        { type: "ثقافةعامة", question: "ما هو أطول نهر في العالم؟", answer: "النيل" },
-        { type: "ثقافةعامة", question: "ما هي العملة المستخدمة في المملكة المتحدة؟", answer: "الجنيه الإسترليني" },
-        { type: "ثقافةعامةصعبة", question: "ما هي الدولة الوحيدة في العالم التي تقع على قارتين؟", answer: "تركيا" },
-        { type: "ثقافةشعبية", question: "أي فيلم جعل عبارة 'أنا أبوك' شهيرة؟", answer: "حرب النجوم" },
+        {type: "ثقافةعامة", question: "ما هو أطول نهر في العالم؟", answer: "النيل"},
+        {type: "ثقافةعامة", question: "ما هي العملة المستخدمة في المملكة المتحدة؟", answer: "الجنيه الإسترليني"},
+        {type: "ثقافةعامةصعبة", question: "ما هي الدولة الوحيدة في العالم التي تقع على قارتين؟", answer: "تركيا"},
+        {type: "ثقافةشعبية", question: "أي فيلم جعل عبارة 'أنا أبوك' شهيرة؟", answer: "حرب النجوم"},
+        {type: "علم", question: "كم عدد العظام في الإنسان البالغ؟", answer: "206"},
+        {type: "جغرافيا", question: "ما هي عاصمة أستراليا؟", answer: "كانبرا"},
+        {type: "تاريخ", question: "في أي عام سقط جدار برلين؟", answer: "1989"},
+        {type: "رياضة", question: "كم عدد اللاعبين في فريق كرة السلة على الملعب؟", answer: "5"},
+        {type: "ثقافةعامة", question: "ما هو الحيوان الذي يرمز لأستراليا؟", answer: "الكنغر"},
+        {type: "علم", question: "أي كوكب هو الأقرب إلى الشمس؟", answer: "عطارد"},
+        {type: "ثقافةعامةصعبة", question: "في أي بلد اخترع السودوكو؟", answer: "اليابان"},
+        {type: "ثقافةشعبية", question: "من كتب 'هاري بوتر'؟", answer: "ج.ك. رولينغ"},
+        {type: "جغرافيا", question: "ما هي أصغر دولة في العالم؟", answer: "الفاتيكان"},
+        {type: "تاريخ", question: "من كان أول رئيس للولايات المتحدة؟", answer: "جورج واشنطن"},
+        {type: "علم", question: "ما هو الغاز الذي يشكل حوالي 78% من الغلاف الجوي للأرض؟", answer: "النيتروجين"},
+        {type: "رياضة", question: "كل كم سنة تقام الألعاب الأولمبية الصيفية؟", answer: "4 سنوات"},
+        {type: "ثقافةعامة", question: "كم عدد القارات؟", answer: "7"},
+        {type: "ثقافةشعبية", question: "ما هي الشبكة الاجتماعية التي أنشأها مارك زوكربيرغ؟", answer: "فيسبوك"},
+        {type: "ثقافةعامةصعبة", question: "ما هو العنصر الكيميائي الأكثر وفرة في الكون؟", answer: "الهيدروجين"},
+        {type: "جغرافيا", question: "في أي بلد يقع ماتشو بيتشو؟", answer: "بيرو"},
+        {type: "تاريخ", question: "في أي عام مشى الإنسان على القمر لأول مرة؟", answer: "1969"},
+        {type: "علم", question: "أي عضو في جسم الإنسان ينتج الأنسولين؟", answer: "البنكرياس"},
+        {type: "رياضة", question: "في أي رياضة يستخدم الريشة؟", answer: "الريشة الطائرة"},
+        {type: "ثقافةعامة", question: "كم عدد الأوتار في الجيتار الكلاسيكي؟", answer: "6"},
+        {type: "ثقافةشعبية", question: "أي شخصية ديزني لها آذان طويلة جداً وتأكل الجزر؟", answer: "باغز باني"},
+        {type: "ثقافةعامةصعبة", question: "ما اسم المجرة التي تحتوي على نظامنا الشمسي؟", answer: "درب التبانة"},
+        {type: "جغرافيا", question: "أي محيط يحد الساحل الغربي لأفريقيا؟", answer: "المحيط الأطلسي"},
+        {type: "تاريخ", question: "كم سنة استمرت الحرب العالمية الثانية؟", answer: "6 سنوات"},
+        {type: "علم", question: "في أي درجة حرارة يغلي الماء على مستوى سطح البحر؟", answer: "100 درجة مئوية"},
+        {type: "رياضة", question: "أي بلد فاز بكأس العالم لكرة القدم 2018؟", answer: "فرنسا"},
+        {type: "ثقافةعامة", question: "كم دقيقة في الساعة؟", answer: "60"},
+        {type: "ثقافةشعبية", question: "ما اسم حورية البحر في فيلم ديزني؟", answer: "أرييل"},
+        {type: "ثقافةعامةصعبة", question: "أي عالم طور نظرية النسبية؟", answer: "أينشتاين"},
+        {type: "جغرافيا", question: "ما هي أكبر صحراء في العالم؟", answer: "الصحراء الكبرى"},
+        {type: "تاريخ", question: "أي إمبراطور فرنسي نُفي إلى سانت هيلينا؟", answer: "نابليون"},
+        {type: "علم", question: "كم عدد الحجرات في القلب البشري؟", answer: "4"},
+        {type: "رياضة", question: "في أي رياضة يستخدم اللاعبون المضارب والكرة الصفراء؟", answer: "التنس"},
+        {type: "ثقافةعامة", question: "كم يوماً في السنة الكبيسة؟", answer: "366"},
+        {type: "ثقافةشعبية", question: "أي بطل خارق يرتدي زياً أحمر وأزرق ويستطيع الطيران؟", answer: "سوبرمان"},
+        {type: "ثقافةعامةصعبة", question: "ما هو أصغر عظم في جسم الإنسان؟", answer: "الركاب"},
+        {type: "جغرافيا", question: "في أي قارة تقع مصر؟", answer: "أفريقيا"},
+        {type: "تاريخ", question: "في أي عام بُني برج إيفل؟", answer: "1889"},
+        {type: "علم", question: "ما هو الرمز الكيميائي للذهب؟", answer: "Au"},
+        {type: "رياضة", question: "كم مجموعة يجب الفوز بها للفوز في مباراة تنس رجال في البطولات الكبرى؟", answer: "3"},
+        {type: "ثقافةعامة", question: "كم عدد أرجل العنكبوت؟", answer: "8"},
+        {type: "ثقافةشعبية", question: "ما اسم الأسد في 'ملك الأسود'؟", answer: "سيمبا"},
+        {type: "ثقافةعامةصعبة", question: "أي بلد اخترع المعكرونة؟", answer: "الصين"},
+        {type: "جغرافيا", question: "أي بحر يفصل أوروبا عن أفريقيا؟", answer: "البحر الأبيض المتوسط"},
+        {type: "تاريخ", question: "من رسم كنيسة سيستين؟", answer: "مايكل أنجلو"},
+        {type: "علم", question: "ما هي سرعة الضوء في الفراغ؟", answer: "300,000 كم/ث"}
       ]
     }
   },
@@ -236,45 +2408,1417 @@ const questions = {
     translations: {
       fr: [
         {
-          "text": "Je n'ai jamais envoyé de messages coquins à la mauvaise personne",
-          "type": "sage"
+          "text": "Je n'ai jamais envoyé de photos osées à quelqu'un",
+          "type": "brûlant"
         },
+        {
+          "text": "Je n'ai jamais eu une aventure d'un soir",
+          "type": "brûlant"
+        },
+        {
+          "text": "Je n'ai jamais trompé mon partenaire",
+          "type": "brûlant"
+        },
+        {
+          "text": "Je n'ai jamais fait l'amour dans un lieu public",
+          "type": "brûlant"
+        },
+        {
+          "text": "Je n'ai jamais eu un plan à trois",
+          "type": "brûlant"
+        },
+        {
+          "text": "Je n'ai jamais simulé un orgasme",
+          "type": "épicé"
+        },
+        {
+          "text": "Je n'ai jamais eu des relations avec quelqu'un de marié",
+          "type": "brûlant"
+        },
+        {
+          "text": "Je n'ai jamais regardé du contenu pornographique",
+          "type": "épicé"
+        },
+        {
+          "text": "Je n'ai jamais eu des fantasmes sur un collègue",
+          "type": "épicé"
+        },
+        {
+          "text": "Je n'ai jamais eu une expérience avec le même sexe",
+          "type": "brûlant"
+        },
+        {
+          "text": "Je n'ai jamais utilisé de sextoys",
+          "type": "brûlant"
+        },
+        {
+          "text": "Je n'ai jamais eu du sexe sous l'influence d'alcool ou de drogues",
+          "type": "brûlant"
+        },
+        {
+          "text": "Je n'ai jamais eu une relation avec quelqu'un de beaucoup plus âgé",
+          "type": "épicé"
+        },
+        {
+          "text": "Je n'ai jamais eu des relations le premier rendez-vous",
+          "type": "épicé"
+        },
+        {
+          "text": "Je n'ai jamais envoyé de messages coquins pendant le travail",
+          "type": "épicé"
+        },
+        {
+          "text": "Je n'ai jamais eu des relations dans la voiture",
+          "type": "brûlant"
+        },
+        {
+          "text": "Je n'ai jamais participé à un jeu sexuel en groupe",
+          "type": "brûlant"
+        },
+        {
+          "text": "Je n'ai jamais eu des relations avec un ex après la rupture",
+          "type": "épicé"
+        },
+        {
+          "text": "Je n'ai jamais fait du sexting",
+          "type": "épicé"
+        },
+        {
+          "text": "Je n'ai jamais eu une relation secrète",
+          "type": "épicé"
+        },
+        {
+          "text": "Je n'ai jamais eu des relations avec quelqu'un rencontré en soirée",
+          "type": "épicé"
+        },
+        {
+          "text": "Je n'ai jamais menti sur le nombre de mes partenaires",
+          "type": "épicé"
+        },
+        {
+          "text": "Je n'ai jamais eu des pensées coquines sur un ami proche",
+          "type": "épicé"
+        },
+        {
+          "text": "Je n'ai jamais eu des relations dans la maison de mes parents",
+          "type": "épicé"
+        },
+        {
+          "text": "Je n'ai jamais utilisé une application de rencontres pour du sexe",
+          "type": "brûlant"
+        },
+        {
+          "text": "Je n'ai jamais eu des relations avec quelqu'un dont j'ignore le nom",
+          "type": "brûlant"
+        },
+        {
+          "text": "Je n'ai jamais eu des fantasmes sur plusieurs personnes à la fois",
+          "type": "brûlant"
+        },
+        {
+          "text": "Je n'ai jamais eu des relations dans les toilettes publiques",
+          "type": "brûlant"
+        },
+        {
+          "text": "Je n'ai jamais participé à un jeu de strip-poker",
+          "type": "épicé"
+        },
+        {
+          "text": "Je n'ai jamais eu des relations avec le partenaire d'un ami",
+          "type": "brûlant"
+        },
+        {
+          "text": "Je n'ai jamais envoyé de photos nues par erreur",
+          "type": "épicé"
+        },
+        {
+          "text": "Je n'ai jamais eu des relations dans un ascenseur",
+          "type": "brûlant"
+        },
+        {
+          "text": "Je n'ai jamais fantasmé sur un professeur ou un patron",
+          "type": "épicé"
+        },
+        {
+          "text": "Je n'ai jamais eu des relations pendant que d'autres dormaient à côté",
+          "type": "brûlant"
+        },
+        {
+          "text": "Je n'ai jamais utilisé de la nourriture pendant l'acte",
+          "type": "brûlant"
+        },
+        {
+          "text": "Je n'ai jamais eu des relations avec quelqu'un de ma famille par alliance",
+          "type": "brûlant"
+        },
+        {
+          "text": "Je n'ai jamais participé à une orgie",
+          "type": "brûlant"
+        },
+        {
+          "text": "Je n'ai jamais eu des relations dans une piscine ou jacuzzi",
+          "type": "épicé"
+        },
+        {
+          "text": "Je n'ai jamais fait du sexe par téléphone",
+          "type": "épicé"
+        },
+        {
+          "text": "Je n'ai jamais eu des relations avec quelqu'un en couple",
+          "type": "brûlant"
+        },
+        {
+          "text": "Je n'ai jamais utilisé des liens ou des menottes",
+          "type": "brûlant"
+        },
+        {
+          "text": "Je n'ai jamais eu des relations dans un lieu de travail",
+          "type": "brûlant"
+        },
+        {
+          "text": "Je n'ai jamais participé à un échange de partenaires",
+          "type": "brûlant"
+        },
+        {
+          "text": "Je n'ai jamais eu des relations avec quelqu'un de célèbre",
+          "type": "épicé"
+        },
+        {
+          "text": "Je n'ai jamais filmé ou photographié mes ébats",
+          "type": "brûlant"
+        },
+        {
+          "text": "Je n'ai jamais eu des relations dans un avion",
+          "type": "brûlant"
+        },
+        {
+          "text": "Je n'ai jamais payé pour des services sexuels",
+          "type": "brûlant"
+        },
+        {
+          "text": "Je n'ai jamais eu des relations avec plus de 3 personnes en une semaine",
+          "type": "brûlant"
+        },
+        {
+          "text": "Je n'ai jamais participé à un jeu sexuel impliquant de la douleur",
+          "type": "brûlant"
+        },
+        {
+          "text": "Je n'ai jamais eu des relations dans un endroit religieux",
+          "type": "brûlant"
+        }
       ],
       en: [
         {
-          "text": "I've never sent flirty messages to the wrong person",
-          "type": "mild"
+          "text": "I've never sent nude photos to someone",
+          "type": "hot"
         },
+        {
+          "text": "I've never had a one-night stand",
+          "type": "hot"
+        },
+        {
+          "text": "I've never cheated on my partner",
+          "type": "hot"
+        },
+        {
+          "text": "I've never had sex in a public place",
+          "type": "hot"
+        },
+        {
+          "text": "I've never had a threesome",
+          "type": "hot"
+        },
+        {
+          "text": "I've never faked an orgasm",
+          "type": "spicy"
+        },
+        {
+          "text": "I've never slept with someone who was married",
+          "type": "hot"
+        },
+        {
+          "text": "I've never watched pornography",
+          "type": "spicy"
+        },
+        {
+          "text": "I've never fantasized about a coworker",
+          "type": "spicy"
+        },
+        {
+          "text": "I've never had a same-sex experience",
+          "type": "hot"
+        },
+        {
+          "text": "I've never used sex toys",
+          "type": "hot"
+        },
+        {
+          "text": "I've never had sex under the influence of alcohol or drugs",
+          "type": "hot"
+        },
+        {
+          "text": "I've never been with someone much older than me",
+          "type": "spicy"
+        },
+        {
+          "text": "I've never had sex on the first date",
+          "type": "spicy"
+        },
+        {
+          "text": "I've never sent dirty messages during work",
+          "type": "spicy"
+        },
+        {
+          "text": "I've never had sex in a car",
+          "type": "hot"
+        },
+        {
+          "text": "I've never participated in group sexual activity",
+          "type": "hot"
+        },
+        {
+          "text": "I've never slept with an ex after breaking up",
+          "type": "spicy"
+        },
+        {
+          "text": "I've never engaged in sexting",
+          "type": "spicy"
+        },
+        {
+          "text": "I've never had a secret relationship",
+          "type": "spicy"
+        },
+        {
+          "text": "I've never hooked up with someone I met at a party",
+          "type": "spicy"
+        },
+        {
+          "text": "I've never lied about my number of sexual partners",
+          "type": "spicy"
+        },
+        {
+          "text": "I've never had sexual thoughts about a close friend",
+          "type": "spicy"
+        },
+        {
+          "text": "I've never had sex in my parents' house",
+          "type": "spicy"
+        },
+        {
+          "text": "I've never used a dating app for hookups",
+          "type": "hot"
+        },
+        {
+          "text": "I've never slept with someone whose name I didn't know",
+          "type": "hot"
+        },
+        {
+          "text": "I've never fantasized about multiple people at once",
+          "type": "hot"
+        },
+        {
+          "text": "I've never had sex in a public bathroom",
+          "type": "hot"
+        },
+        {
+          "text": "I've never played strip poker",
+          "type": "spicy"
+        },
+        {
+          "text": "I've never slept with a friend's partner",
+          "type": "hot"
+        },
+        {
+          "text": "I've never sent nude photos by mistake",
+          "type": "spicy"
+        },
+        {
+          "text": "I've never had sex in an elevator",
+          "type": "hot"
+        },
+        {
+          "text": "I've never fantasized about a teacher or boss",
+          "type": "spicy"
+        },
+        {
+          "text": "I've never had sex while others were sleeping nearby",
+          "type": "hot"
+        },
+        {
+          "text": "I've never used food during intimacy",
+          "type": "hot"
+        },
+        {
+          "text": "I've never slept with someone from my extended family",
+          "type": "hot"
+        },
+        {
+          "text": "I've never participated in an orgy",
+          "type": "hot"
+        },
+        {
+          "text": "I've never had sex in a pool or hot tub",
+          "type": "spicy"
+        },
+        {
+          "text": "I've never had phone sex",
+          "type": "spicy"
+        },
+        {
+          "text": "I've never slept with someone who was in a relationship",
+          "type": "hot"
+        },
+        {
+          "text": "I've never used restraints or handcuffs",
+          "type": "hot"
+        },
+        {
+          "text": "I've never had sex at work",
+          "type": "hot"
+        },
+        {
+          "text": "I've never participated in partner swapping",
+          "type": "hot"
+        },
+        {
+          "text": "I've never slept with a celebrity",
+          "type": "spicy"
+        },
+        {
+          "text": "I've never recorded or photographed intimate moments",
+          "type": "hot"
+        },
+        {
+          "text": "I've never had sex on an airplane",
+          "type": "hot"
+        },
+        {
+          "text": "I've never paid for sexual services",
+          "type": "hot"
+        },
+        {
+          "text": "I've never slept with more than 3 people in one week",
+          "type": "hot"
+        },
+        {
+          "text": "I've never engaged in sexual activities involving pain",
+          "type": "hot"
+        },
+        {
+          "text": "I've never had sex in a religious place",
+          "type": "hot"
+        }
       ],
       es: [
         {
-          "text": "Nunca he enviado mensajes coquetos a la persona equivocada",
-          "type": "suave"
+          "text": "Nunca he enviado fotos íntimas a alguien",
+          "type": "ardiente"
         },
+        {
+          "text": "Nunca he tenido una aventura de una noche",
+          "type": "ardiente"
+        },
+        {
+          "text": "Nunca he engañado a mi pareja",
+          "type": "ardiente"
+        },
+        {
+          "text": "Nunca he tenido sexo en un lugar público",
+          "type": "ardiente"
+        },
+        {
+          "text": "Nunca he tenido un trío",
+          "type": "ardiente"
+        },
+        {
+          "text": "Nunca he fingido un orgasmo",
+          "type": "picante"
+        },
+        {
+          "text": "Nunca he estado con alguien casado",
+          "type": "ardiente"
+        },
+        {
+          "text": "Nunca he visto pornografía",
+          "type": "picante"
+        },
+        {
+          "text": "Nunca he fantaseado con un compañero de trabajo",
+          "type": "picante"
+        },
+        {
+          "text": "Nunca he tenido una experiencia con el mismo sexo",
+          "type": "ardiente"
+        },
+        {
+          "text": "Nunca he usado juguetes sexuales",
+          "type": "ardiente"
+        },
+        {
+          "text": "Nunca he tenido sexo bajo la influencia del alcohol o drogas",
+          "type": "ardiente"
+        },
+        {
+          "text": "Nunca he estado con alguien mucho mayor que yo",
+          "type": "picante"
+        },
+        {
+          "text": "Nunca he tenido sexo en la primera cita",
+          "type": "picante"
+        },
+        {
+          "text": "Nunca he enviado mensajes sucios durante el trabajo",
+          "type": "picante"
+        },
+        {
+          "text": "Nunca he tenido sexo en un coche",
+          "type": "ardiente"
+        },
+        {
+          "text": "Nunca he participado en actividades sexuales grupales",
+          "type": "ardiente"
+        },
+        {
+          "text": "Nunca he estado con un ex después de romper",
+          "type": "picante"
+        },
+        {
+          "text": "Nunca he hecho sexting",
+          "type": "picante"
+        },
+        {
+          "text": "Nunca he tenido una relación secreta",
+          "type": "picante"
+        },
+        {
+          "text": "Nunca he ligado con alguien que conocí en una fiesta",
+          "type": "picante"
+        },
+        {
+          "text": "Nunca he mentido sobre mi número de parejas sexuales",
+          "type": "picante"
+        },
+        {
+          "text": "Nunca he tenido pensamientos sexuales sobre un amigo cercano",
+          "type": "picante"
+        },
+        {
+          "text": "Nunca he tenido sexo en casa de mis padres",
+          "type": "picante"
+        },
+        {
+          "text": "Nunca he usado una app de citas para encuentros casuales",
+          "type": "ardiente"
+        },
+        {
+          "text": "Nunca he estado con alguien cuyo nombre no sabía",
+          "type": "ardiente"
+        },
+        {
+          "text": "Nunca he fantaseado con múltiples personas a la vez",
+          "type": "ardiente"
+        },
+        {
+          "text": "Nunca he tenido sexo en un baño público",
+          "type": "ardiente"
+        },
+        {
+          "text": "Nunca he jugado al strip poker",
+          "type": "picante"
+        },
+        {
+          "text": "Nunca he estado con la pareja de un amigo",
+          "type": "ardiente"
+        },
+        {
+          "text": "Nunca he enviado fotos desnudo por error",
+          "type": "picante"
+        },
+        {
+          "text": "Nunca he tenido sexo en un ascensor",
+          "type": "ardiente"
+        },
+        {
+          "text": "Nunca he fantaseado con un profesor o jefe",
+          "type": "picante"
+        },
+        {
+          "text": "Nunca he tenido sexo mientras otros dormían cerca",
+          "type": "ardiente"
+        },
+        {
+          "text": "Nunca he usado comida durante la intimidad",
+          "type": "ardiente"
+        },
+        {
+          "text": "Nunca he estado con alguien de mi familia política",
+          "type": "ardiente"
+        },
+        {
+          "text": "Nunca he participado en una orgía",
+          "type": "ardiente"
+        },
+        {
+          "text": "Nunca he tenido sexo en una piscina o jacuzzi",
+          "type": "picante"
+        },
+        {
+          "text": "Nunca he tenido sexo telefónico",
+          "type": "picante"
+        },
+        {
+          "text": "Nunca he estado con alguien que tenía pareja",
+          "type": "ardiente"
+        },
+        {
+          "text": "Nunca he usado ataduras o esposas",
+          "type": "ardiente"
+        },
+        {
+          "text": "Nunca he tenido sexo en el trabajo",
+          "type": "ardiente"
+        },
+        {
+          "text": "Nunca he participado en intercambio de parejas",
+          "type": "ardiente"
+        },
+        {
+          "text": "Nunca he estado con una celebridad",
+          "type": "picante"
+        },
+        {
+          "text": "Nunca he grabado o fotografiado momentos íntimos",
+          "type": "ardiente"
+        },
+        {
+          "text": "Nunca he tenido sexo en un avión",
+          "type": "ardiente"
+        },
+        {
+          "text": "Nunca he pagado por servicios sexuales",
+          "type": "ardiente"
+        },
+        {
+          "text": "Nunca he estado con más de 3 personas en una semana",
+          "type": "ardiente"
+        },
+        {
+          "text": "Nunca he participado en actividades sexuales que involucran dolor",
+          "type": "ardiente"
+        },
+        {
+          "text": "Nunca he tenido sexo en un lugar religioso",
+          "type": "ardiente"
+        }
       ],
       de: [
         {
-          "text": "Ich habe noch nie verführerische Nachrichten an die falsche Person geschickt",
-          "type": "mild"
+          "text": "Ich habe noch nie intime Fotos an jemanden geschickt",
+          "type": "heiß"
         },
+        {
+          "text": "Ich hatte noch nie einen One-Night-Stand",
+          "type": "heiß"
+        },
+        {
+          "text": "Ich habe meinen Partner noch nie betrogen",
+          "type": "heiß"
+        },
+        {
+          "text": "Ich hatte noch nie Sex an einem öffentlichen Ort",
+          "type": "heiß"
+        },
+        {
+          "text": "Ich hatte noch nie einen Dreier",
+          "type": "heiß"
+        },
+        {
+          "text": "Ich habe noch nie einen Orgasmus vorgetäuscht",
+          "type": "scharf"
+        },
+        {
+          "text": "Ich hatte noch nie etwas mit jemandem Verheiratetem",
+          "type": "heiß"
+        },
+        {
+          "text": "Ich habe noch nie Pornografie angeschaut",
+          "type": "scharf"
+        },
+        {
+          "text": "Ich habe noch nie über einen Kollegen fantasiert",
+          "type": "scharf"
+        },
+        {
+          "text": "Ich hatte noch nie eine gleichgeschlechtliche Erfahrung",
+          "type": "heiß"
+        },
+        {
+          "text": "Ich habe noch nie Sexspielzeug benutzt",
+          "type": "heiß"
+        },
+        {
+          "text": "Ich hatte noch nie Sex unter Alkohol- oder Drogeneinfluss",
+          "type": "heiß"
+        },
+        {
+          "text": "Ich war noch nie mit jemandem viel Älterem zusammen",
+          "type": "scharf"
+        },
+        {
+          "text": "Ich hatte noch nie Sex beim ersten Date",
+          "type": "scharf"
+        },
+        {
+          "text": "Ich habe noch nie schmutzige Nachrichten während der Arbeit verschickt",
+          "type": "scharf"
+        },
+        {
+          "text": "Ich hatte noch nie Sex in einem Auto",
+          "type": "heiß"
+        },
+        {
+          "text": "Ich habe noch nie an Gruppensex teilgenommen",
+          "type": "heiß"
+        },
+        {
+          "text": "Ich hatte noch nie Sex mit einem Ex nach der Trennung",
+          "type": "scharf"
+        },
+        {
+          "text": "Ich habe noch nie gesextet",
+          "type": "scharf"
+        },
+        {
+          "text": "Ich hatte noch nie eine geheime Beziehung",
+          "type": "scharf"
+        },
+        {
+          "text": "Ich hatte noch nie Sex mit jemandem, den ich auf einer Party kennengelernt habe",
+          "type": "scharf"
+        },
+        {
+          "text": "Ich habe noch nie über meine Anzahl an Sexualpartnern gelogen",
+          "type": "scharf"
+        },
+        {
+          "text": "Ich hatte noch nie sexuelle Gedanken über einen engen Freund",
+          "type": "scharf"
+        },
+        {
+          "text": "Ich hatte noch nie Sex im Elternhaus",
+          "type": "scharf"
+        },
+        {
+          "text": "Ich habe noch nie eine Dating-App für Gelegenheitssex benutzt",
+          "type": "heiß"
+        },
+        {
+          "text": "Ich hatte noch nie Sex mit jemandem, dessen Namen ich nicht kannte",
+          "type": "heiß"
+        },
+        {
+          "text": "Ich habe noch nie gleichzeitig über mehrere Personen fantasiert",
+          "type": "heiß"
+        },
+        {
+          "text": "Ich hatte noch nie Sex in einer öffentlichen Toilette",
+          "type": "heiß"
+        },
+        {
+          "text": "Ich habe noch nie Strip-Poker gespielt",
+          "type": "scharf"
+        },
+        {
+          "text": "Ich hatte noch nie Sex mit dem Partner eines Freundes",
+          "type": "heiß"
+        },
+        {
+          "text": "Ich habe noch nie versehentlich Nacktfotos verschickt",
+          "type": "scharf"
+        },
+        {
+          "text": "Ich hatte noch nie Sex in einem Aufzug",
+          "type": "heiß"
+        },
+        {
+          "text": "Ich habe noch nie über einen Lehrer oder Chef fantasiert",
+          "type": "scharf"
+        },
+        {
+          "text": "Ich hatte noch nie Sex, während andere in der Nähe geschlafen haben",
+          "type": "heiß"
+        },
+        {
+          "text": "Ich habe noch nie Essen beim Sex verwendet",
+          "type": "heiß"
+        },
+        {
+          "text": "Ich hatte noch nie Sex mit jemandem aus der angeheirateten Familie",
+          "type": "heiß"
+        },
+        {
+          "text": "Ich habe noch nie an einer Orgie teilgenommen",
+          "type": "heiß"
+        },
+        {
+          "text": "Ich hatte noch nie Sex in einem Pool oder Whirlpool",
+          "type": "scharf"
+        },
+        {
+          "text": "Ich hatte noch nie Telefonsex",
+          "type": "scharf"
+        },
+        {
+          "text": "Ich hatte noch nie Sex mit jemandem, der in einer Beziehung war",
+          "type": "heiß"
+        },
+        {
+          "text": "Ich habe noch nie Fesseln oder Handschellen benutzt",
+          "type": "heiß"
+        },
+        {
+          "text": "Ich hatte noch nie Sex am Arbeitsplatz",
+          "type": "heiß"
+        },
+        {
+          "text": "Ich habe noch nie an Partnertausch teilgenommen",
+          "type": "heiß"
+        },
+        {
+          "text": "Ich hatte noch nie Sex mit einer Berühmtheit",
+          "type": "scharf"
+        },
+        {
+          "text": "Ich habe noch nie intime Momente aufgenommen oder fotografiert",
+          "type": "heiß"
+        },
+        {
+          "text": "Ich hatte noch nie Sex in einem Flugzeug",
+          "type": "heiß"
+        },
+        {
+          "text": "Ich habe noch nie für sexuelle Dienstleistungen bezahlt",
+          "type": "heiß"
+        },
+        {
+          "text": "Ich hatte noch nie Sex mit mehr als 3 Personen in einer Woche",
+          "type": "heiß"
+        },
+        {
+          "text": "Ich habe noch nie an sexuellen Aktivitäten mit Schmerzen teilgenommen",
+          "type": "heiß"
+        },
+        {
+          "text": "Ich hatte noch nie Sex an einem religiösen Ort",
+          "type": "heiß"
+        }
       ],
       it: [
         {
-          "text": "Non ho mai inviato messaggi provocanti alla persona sbagliata",
-          "type": "moderato"
+          "text": "Non ho mai inviato foto intime a qualcuno",
+          "type": "bollente"
         },
+        {
+          "text": "Non ho mai avuto un'avventura di una notte",
+          "type": "bollente"
+        },
+        {
+          "text": "Non ho mai tradito il mio partner",
+          "type": "bollente"
+        },
+        {
+          "text": "Non ho mai fatto sesso in un luogo pubblico",
+          "type": "bollente"
+        },
+        {
+          "text": "Non ho mai fatto un menage à trois",
+          "type": "bollente"
+        },
+        {
+          "text": "Non ho mai fingito un orgasmo",
+          "type": "piccante"
+        },
+        {
+          "text": "Non sono mai stato/a con qualcuno sposato",
+          "type": "bollente"
+        },
+        {
+          "text": "Non ho mai guardato pornografia",
+          "type": "piccante"
+        },
+        {
+          "text": "Non ho mai fantasticato su un collega",
+          "type": "piccante"
+        },
+        {
+          "text": "Non ho mai avuto un'esperienza con lo stesso sesso",
+          "type": "bollente"
+        },
+        {
+          "text": "Non ho mai usato giocattoli sessuali",
+          "type": "bollente"
+        },
+        {
+          "text": "Non ho mai fatto sesso sotto l'influenza di alcol o droghe",
+          "type": "bollente"
+        },
+        {
+          "text": "Non sono mai stato/a con qualcuno molto più grande di me",
+          "type": "piccante"
+        },
+        {
+          "text": "Non ho mai fatto sesso al primo appuntamento",
+          "type": "piccante"
+        },
+        {
+          "text": "Non ho mai inviato messaggi sporchi durante il lavoro",
+          "type": "piccante"
+        },
+        {
+          "text": "Non ho mai fatto sesso in macchina",
+          "type": "bollente"
+        },
+        {
+          "text": "Non ho mai partecipato ad attività sessuali di gruppo",
+          "type": "bollente"
+        },
+        {
+          "text": "Non sono mai stato/a con un ex dopo la rottura",
+          "type": "piccante"
+        },
+        {
+          "text": "Non ho mai fatto sexting",
+          "type": "piccante"
+        },
+        {
+          "text": "Non ho mai avuto una relazione segreta",
+          "type": "piccante"
+        },
+        {
+          "text": "Non ho mai rimorchiato qualcuno che ho conosciuto a una festa",
+          "type": "piccante"
+        },
+        {
+          "text": "Non ho mai mentito sul numero dei miei partner sessuali",
+          "type": "piccante"
+        },
+        {
+          "text": "Non ho mai avuto pensieri sessuali su un amico stretto",
+          "type": "piccante"
+        },
+        {
+          "text": "Non ho mai fatto sesso a casa dei miei genitori",
+          "type": "piccante"
+        },
+        {
+          "text": "Non ho mai usato un'app di incontri per avventure casuali",
+          "type": "bollente"
+        },
+        {
+          "text": "Non sono mai stato/a con qualcuno di cui non sapevo il nome",
+          "type": "bollente"
+        },
+        {
+          "text": "Non ho mai fantasticato su più persone contemporaneamente",
+          "type": "bollente"
+        },
+        {
+          "text": "Non ho mai fatto sesso in un bagno pubblico",
+          "type": "bollente"
+        },
+        {
+          "text": "Non ho mai giocato a strip poker",
+          "type": "piccante"
+        },
+        {
+          "text": "Non sono mai stato/a con il partner di un amico",
+          "type": "bollente"
+        },
+        {
+          "text": "Non ho mai inviato foto nude per sbaglio",
+          "type": "piccante"
+        },
+        {
+          "text": "Non ho mai fatto sesso in ascensore",
+          "type": "bollente"
+        },
+        {
+          "text": "Non ho mai fantasticato su un insegnante o capo",
+          "type": "piccante"
+        },
+        {
+          "text": "Non ho mai fatto sesso mentre altri dormivano vicino",
+          "type": "bollente"
+        },
+        {
+          "text": "Non ho mai usato cibo durante l'intimità",
+          "type": "bollente"
+        },
+        {
+          "text": "Non sono mai stato/a con qualcuno della famiglia acquisita",
+          "type": "bollente"
+        },
+        {
+          "text": "Non ho mai partecipato a un'orgia",
+          "type": "bollente"
+        },
+        {
+          "text": "Non ho mai fatto sesso in piscina o jacuzzi",
+          "type": "piccante"
+        },
+        {
+          "text": "Non ho mai fatto sesso telefonico",
+          "type": "piccante"
+        },
+        {
+          "text": "Non sono mai stato/a con qualcuno fidanzato",
+          "type": "bollente"
+        },
+        {
+          "text": "Non ho mai usato legacci o manette",
+          "type": "bollente"
+        },
+        {
+          "text": "Non ho mai fatto sesso sul posto di lavoro",
+          "type": "bollente"
+        },
+        {
+          "text": "Non ho mai partecipato a scambio di coppie",
+          "type": "bollente"
+        },
+        {
+          "text": "Non sono mai stato/a con una celebrità",
+          "type": "piccante"
+        },
+        {
+          "text": "Non ho mai registrato o fotografato momenti intimi",
+          "type": "bollente"
+        },
+        {
+          "text": "Non ho mai fatto sesso in aereo",
+          "type": "bollente"
+        },
+        {
+          "text": "Non ho mai pagato per servizi sessuali",
+          "type": "bollente"
+        },
+        {
+          "text": "Non sono mai stato/a con più di 3 persone in una settimana",
+          "type": "bollente"
+        },
+        {
+          "text": "Non ho mai partecipato ad attività sessuali che coinvolgono dolore",
+          "type": "bollente"
+        },
+        {
+          "text": "Non ho mai fatto sesso in un luogo religioso",
+          "type": "bollente"
+        }
       ],
       pt: [
         {
-          "text": "Eu nunca enviei mensagens provocantes para a pessoa errada",
-          "type": "suave"
+          "text": "Eu nunca enviei fotos íntimas para alguém",
+          "type": "quente"
         },
+        {
+          "text": "Eu nunca tive uma aventura de uma noite",
+          "type": "quente"
+        },
+        {
+          "text": "Eu nunca traí meu parceiro",
+          "type": "quente"
+        },
+        {
+          "text": "Eu nunca fiz sexo em um lugar público",
+          "type": "quente"
+        },
+        {
+          "text": "Eu nunca participei de um ménage à trois",
+          "type": "quente"
+        },
+        {
+          "text": "Eu nunca fingi um orgasmo",
+          "type": "apimentado"
+        },
+        {
+          "text": "Eu nunca fiquei com alguém casado",
+          "type": "quente"
+        },
+        {
+          "text": "Eu nunca assisti pornografia",
+          "type": "apimentado"
+        },
+        {
+          "text": "Eu nunca fantasiei com um colega de trabalho",
+          "type": "apimentado"
+        },
+        {
+          "text": "Eu nunca tive uma experiência com o mesmo sexo",
+          "type": "quente"
+        },
+        {
+          "text": "Eu nunca usei brinquedos sexuais",
+          "type": "quente"
+        },
+        {
+          "text": "Eu nunca fiz sexo sob influência de álcool ou drogas",
+          "type": "quente"
+        },
+        {
+          "text": "Eu nunca fiquei com alguém muito mais velho que eu",
+          "type": "apimentado"
+        },
+        {
+          "text": "Eu nunca fiz sexo no primeiro encontro",
+          "type": "apimentado"
+        },
+        {
+          "text": "Eu nunca enviei mensagens sujas durante o trabalho",
+          "type": "apimentado"
+        },
+        {
+          "text": "Eu nunca fiz sexo no carro",
+          "type": "quente"
+        },
+        {
+          "text": "Eu nunca participei de atividades sexuais em grupo",
+          "type": "quente"
+        },
+        {
+          "text": "Eu nunca fiquei com um ex depois do término",
+          "type": "apimentado"
+        },
+        {
+          "text": "Eu nunca pratiquei sexting",
+          "type": "apimentado"
+        },
+        {
+          "text": "Eu nunca tive um relacionamento secreto",
+          "type": "apimentado"
+        },
+        {
+          "text": "Eu nunca peguei alguém que conheci numa festa",
+          "type": "apimentado"
+        },
+        {
+          "text": "Eu nunca menti sobre meu número de parceiros sexuais",
+          "type": "apimentado"
+        },
+        {
+          "text": "Eu nunca tive pensamentos sexuais sobre um amigo próximo",
+          "type": "apimentado"
+        },
+        {
+          "text": "Eu nunca fiz sexo na casa dos meus pais",
+          "type": "apimentado"
+        },
+        {
+          "text": "Eu nunca usei app de relacionamento para encontros casuais",
+          "type": "quente"
+        },
+        {
+          "text": "Eu nunca fiquei com alguém cujo nome eu não sabia",
+          "type": "quente"
+        },
+        {
+          "text": "Eu nunca fantasiei com múltiplas pessoas ao mesmo tempo",
+          "type": "quente"
+        },
+        {
+          "text": "Eu nunca fiz sexo em banheiro público",
+          "type": "quente"
+        },
+        {
+          "text": "Eu nunca joguei strip poker",
+          "type": "apimentado"
+        },
+        {
+          "text": "Eu nunca fiquei com o parceiro de um amigo",
+          "type": "quente"
+        },
+        {
+          "text": "Eu nunca enviei fotos nuas por engano",
+          "type": "apimentado"
+        },
+        {
+          "text": "Eu nunca fiz sexo no elevador",
+          "type": "quente"
+        },
+        {
+          "text": "Eu nunca fantasiei com um professor ou chefe",
+          "type": "apimentado"
+        },
+        {
+          "text": "Eu nunca fiz sexo enquanto outros dormiam por perto",
+          "type": "quente"
+        },
+        {
+          "text": "Eu nunca usei comida durante a intimidade",
+          "type": "quente"
+        },
+        {
+          "text": "Eu nunca fiquei com alguém da minha família por afinidade",
+          "type": "quente"
+        },
+        {
+          "text": "Eu nunca participei de uma orgia",
+          "type": "quente"
+        },
+        {
+          "text": "Eu nunca fiz sexo na piscina ou jacuzzi",
+          "type": "apimentado"
+        },
+        {
+          "text": "Eu nunca fiz sexo por telefone",
+          "type": "apimentado"
+        },
+        {
+          "text": "Eu nunca fiquei com alguém que estava comprometido",
+          "type": "quente"
+        },
+        {
+          "text": "Eu nunca usei amarras ou algemas",
+          "type": "quente"
+        },
+        {
+          "text": "Eu nunca fiz sexo no trabalho",
+          "type": "quente"
+        },
+        {
+          "text": "Eu nunca participei de troca de casais",
+          "type": "quente"
+        },
+        {
+          "text": "Eu nunca fiquei com uma celebridade",
+          "type": "apimentado"
+        },
+        {
+          "text": "Eu nunca gravei ou fotografei momentos íntimos",
+          "type": "quente"
+        },
+        {
+          "text": "Eu nunca fiz sexo no avião",
+          "type": "quente"
+        },
+        {
+          "text": "Eu nunca paguei por serviços sexuais",
+          "type": "quente"
+        },
+        {
+          "text": "Eu nunca fiquei com mais de 3 pessoas numa semana",
+          "type": "quente"
+        },
+        {
+          "text": "Eu nunca participei de atividades sexuais envolvendo dor",
+          "type": "quente"
+        },
+        {
+          "text": "Eu nunca fiz sexo em um lugar religioso",
+          "type": "quente"
+        }
       ],
       ar: [
         {
-          "text": "لم أرسل أبدًا رسائل مغازلة إلى الشخص الخطأ",
-          "type": "خفيف"
+          "text": "لم أرسل أبدًا صورًا حميمة لأحد",
+          "type": "ساخن"
         },
+        {
+          "text": "لم أقم أبدًا بمغامرة ليلة واحدة",
+          "type": "ساخن"
+        },
+        {
+          "text": "لم أخن شريكي أبدًا",
+          "type": "ساخن"
+        },
+        {
+          "text": "لم أمارس الجنس أبدًا في مكان عام",
+          "type": "ساخن"
+        },
+        {
+          "text": "لم أشارك أبدًا في علاقة ثلاثية",
+          "type": "ساخن"
+        },
+        {
+          "text": "لم أتظاهر أبدًا بالوصول للذروة",
+          "type": "حار"
+        },
+        {
+          "text": "لم أكن أبدًا مع شخص متزوج",
+          "type": "ساخن"
+        },
+        {
+          "text": "لم أشاهد أبدًا مواد إباحية",
+          "type": "حار"
+        },
+        {
+          "text": "لم أحلم أبدًا بزميل في العمل",
+          "type": "حار"
+        },
+        {
+          "text": "لم أخض أبدًا تجربة مع نفس الجنس",
+          "type": "ساخن"
+        },
+        {
+          "text": "لم أستخدم أبدًا ألعابًا جنسية",
+          "type": "ساخن"
+        },
+        {
+          "text": "لم أمارس الجنس أبدًا تحت تأثير الكحول أو المخدرات",
+          "type": "ساخن"
+        },
+        {
+          "text": "لم أكن أبدًا مع شخص أكبر مني بكثير",
+          "type": "حار"
+        },
+        {
+          "text": "لم أمارس الجنس أبدًا في أول موعد",
+          "type": "حار"
+        },
+        {
+          "text": "لم أرسل أبدًا رسائل مثيرة أثناء العمل",
+          "type": "حار"
+        },
+        {
+          "text": "لم أمارس الجنس أبدًا في السيارة",
+          "type": "ساخن"
+        },
+        {
+          "text": "لم أشارك أبدًا في أنشطة جنسية جماعية",
+          "type": "ساخن"
+        },
+        {
+          "text": "لم أكن أبدًا مع حبيب سابق بعد الانفصال",
+          "type": "حار"
+        },
+        {
+          "text": "لم أمارس أبدًا الجنس عبر الرسائل",
+          "type": "حار"
+        },
+        {
+          "text": "لم تكن لي أبدًا علاقة سرية",
+          "type": "حار"
+        },
+        {
+          "text": "لم ألتقِ أبدًا بأحد في حفلة للمغازلة",
+          "type": "حار"
+        },
+        {
+          "text": "لم أكذب أبدًا حول عدد شركائي الجنسيين",
+          "type": "حار"
+        },
+        {
+          "text": "لم تراودني أبدًا أفكار جنسية حول صديق مقرب",
+          "type": "حار"
+        },
+        {
+          "text": "لم أمارس الجنس أبدًا في منزل والدي",
+          "type": "حار"
+        },
+        {
+          "text": "لم أستخدم أبدًا تطبيق مواعدة للقاءات عابرة",
+          "type": "ساخن"
+        },
+        {
+          "text": "لم أكن أبدًا مع شخص لا أعرف اسمه",
+          "type": "ساخن"
+        },
+        {
+          "text": "لم أحلم أبدًا بعدة أشخاص في نفس الوقت",
+          "type": "ساخن"
+        },
+        {
+          "text": "لم أمارس الجنس أبدًا في حمام عام",
+          "type": "ساخن"
+        },
+        {
+          "text": "لم ألعب أبدًا البوكر المتعري",
+          "type": "حار"
+        },
+        {
+          "text": "لم أكن أبدًا مع شريك صديق",
+          "type": "ساخن"
+        },
+        {
+          "text": "لم أرسل أبدًا صورًا عارية بالخطأ",
+          "type": "حار"
+        },
+        {
+          "text": "لم أمارس الجنس أبدًا في المصعد",
+          "type": "ساخن"
+        },
+        {
+          "text": "لم أحلم أبدًا بمعلم أو رئيس",
+          "type": "حار"
+        },
+        {
+          "text": "لم أمارس الجنس أبدًا بينما آخرون ينامون بالقرب",
+          "type": "ساخن"
+        },
+        {
+          "text": "لم أستخدم أبدًا الطعام أثناء الحميمية",
+          "type": "ساخن"
+        },
+        {
+          "text": "لم أكن أبدًا مع أحد من العائلة بالمصاهرة",
+          "type": "ساخن"
+        },
+        {
+          "text": "لم أشارك أبدًا في مجون جماعي",
+          "type": "ساخن"
+        },
+        {
+          "text": "لم أمارس الجنس أبدًا في المسبح أو الجاكوزي",
+          "type": "حار"
+        },
+        {
+          "text": "لم أمارس أبدًا الجنس الهاتفي",
+          "type": "حار"
+        },
+        {
+          "text": "لم أكن أبدًا مع شخص مرتبط",
+          "type": "ساخن"
+        },
+        {
+          "text": "لم أستخدم أبدًا قيودًا أو أصفادًا",
+          "type": "ساخن"
+        },
+        {
+          "text": "لم أمارس الجنس أبدًا في مكان العمل",
+          "type": "ساخن"
+        },
+        {
+          "text": "لم أشارك أبدًا في تبادل الأزواج",
+          "type": "ساخن"
+        },
+        {
+          "text": "لم أكن أبدًا مع مشهور",
+          "type": "حار"
+        },
+        {
+          "text": "لم أسجل أو أصور أبدًا لحظات حميمة",
+          "type": "ساخن"
+        },
+        {
+          "text": "لم أمارس الجنس أبدًا في الطائرة",
+          "type": "ساخن"
+        },
+        {
+          "text": "لم أدفع أبدًا مقابل خدمات جنسية",
+          "type": "ساخن"
+        },
+        {
+          "text": "لم أكن أبدًا مع أكثر من 3 أشخاص في أسبوع واحد",
+          "type": "ساخن"
+        },
+        {
+          "text": "لم أشارك أبدًا في أنشطة جنسية تتضمن الألم",
+          "type": "ساخن"
+        },
+        {
+          "text": "لم أمارس الجنس أبدًا في مكان ديني",
+          "type": "ساخن"
+        }
       ]
     }
   },
@@ -392,7 +3936,7 @@ const questions = {
         {
           type: "nature",
           question: "Quel est l'animal le plus rapide sur terre ?",
-          answer: "Guepard",
+          answer: "Guépard",
           traps: ["Aigle royal", "Lièvre", "Zèbre"]
         },
         {
@@ -402,16 +3946,286 @@ const questions = {
           traps: ["Michel-Ange", "Raphaël", "Botticelli"]
         },
         {
-          type: "geographie",
+          type: "géographie",
           question: "Quelle est la capitale de l'Australie ?",
           answer: "Canberra",
           traps: ["Sydney", "Melbourne", "Brisbane"]
         },
         {
-          type: "geographie",
+          type: "géographie",
           question: "Quel est le plus grand océan du monde ?",
           answer: "Océan Pacifique",
           traps: ["Océan Atlantique", "Océan Indien", "Océan Arctique"]
+        },
+        {
+          type: "histoire",
+          question: "Qui a inventé l'ampoule électrique ?",
+          answer: "Thomas Edison",
+          traps: ["Nikola Tesla", "Benjamin Franklin", "Alexander Bell"]
+        },
+        {
+          type: "science",
+          question: "Combien de cœurs a une pieuvre ?",
+          answer: "3",
+          traps: ["1", "2", "4"]
+        },
+        {
+          type: "culture",
+          question: "Dans quel pays a été inventé le sushi ?",
+          answer: "Chine",
+          traps: ["Japon", "Corée", "Thaïlande"]
+        },
+        {
+          type: "nature",
+          question: "Quel animal ne peut pas marcher à reculons ?",
+          answer: "Kangourou",
+          traps: ["Éléphant", "Girafe", "Pingouin"]
+        },
+        {
+          type: "science",
+          question: "Quelle planète est la plus chaude du système solaire ?",
+          answer: "Vénus",
+          traps: ["Mercure", "Mars", "Jupiter"]
+        },
+        {
+          type: "géographie",
+          question: "Quel pays a le plus de fuseaux horaires ?",
+          answer: "France",
+          traps: ["Russie", "États-Unis", "Chine"]
+        },
+        {
+          type: "histoire",
+          question: "Quel peuple a inventé le papier ?",
+          answer: "Chinois",
+          traps: ["Égyptiens", "Grecs", "Romains"]
+        },
+        {
+          type: "nature",
+          question: "Quel est le plus grand mammifère terrestre ?",
+          answer: "Éléphant d'Afrique",
+          traps: ["Baleine bleue", "Rhinocéros", "Hippopotame"]
+        },
+        {
+          type: "culture",
+          question: "Quelle boisson contient le plus de caféine ?",
+          answer: "Thé matcha",
+          traps: ["Café espresso", "Red Bull", "Coca-Cola"]
+        },
+        {
+          type: "science",
+          question: "Quel organe humain consomme le plus d'énergie ?",
+          answer: "Cerveau",
+          traps: ["Cœur", "Foie", "Muscles"]
+        },
+        {
+          type: "géographie",
+          question: "Quel désert est le plus grand au monde ?",
+          answer: "Antarctique",
+          traps: ["Sahara", "Gobi", "Kalahari"]
+        },
+        {
+          type: "histoire",
+          question: "Quelle civilisation a inventé l'écriture ?",
+          answer: "Sumériens",
+          traps: ["Égyptiens", "Chinois", "Grecs"]
+        },
+        {
+          type: "nature",
+          question: "Quel fruit contient le plus de vitamine C ?",
+          answer: "Acérola",
+          traps: ["Orange", "Citron", "Kiwi"]
+        },
+        {
+          type: "science",
+          question: "Quel métal est liquide à température ambiante ?",
+          answer: "Mercure",
+          traps: ["Plomb", "Étain", "Zinc"]
+        },
+        {
+          type: "culture",
+          question: "Quel pays a inventé la pizza ?",
+          answer: "Grèce antique",
+          traps: ["Italie", "États-Unis", "France"]
+        },
+        {
+          type: "nature",
+          question: "Quel animal a la morsure la plus puissante ?",
+          answer: "Crocodile du Nil",
+          traps: ["Grand requin blanc", "Lion", "Hyène"]
+        },
+        {
+          type: "géographie",
+          question: "Quel pays a la plus longue côte au monde ?",
+          answer: "Canada",
+          traps: ["Norvège", "Australie", "Russie"]
+        },
+        {
+          type: "science",
+          question: "Combien d'os a un requin ?",
+          answer: "0",
+          traps: ["206", "150", "300"]
+        },
+        {
+          type: "histoire",
+          question: "Qui a découvert l'Amérique en premier ?",
+          answer: "Leif Erikson",
+          traps: ["Christophe Colomb", "Amerigo Vespucci", "Magellan"]
+        },
+        {
+          type: "culture",
+          question: "Dans quel pays boit-on le plus de thé par habitant ?",
+          answer: "Turquie",
+          traps: ["Chine", "Inde", "Angleterre"]
+        },
+        {
+          type: "nature",
+          question: "Quel insecte peut soulever 50 fois son poids ?",
+          answer: "Fourmi",
+          traps: ["Scarabée", "Abeille", "Sauterelle"]
+        },
+        {
+          type: "science",
+          question: "Quelle couleur absorbe le plus la chaleur ?",
+          answer: "Noir",
+          traps: ["Rouge", "Bleu foncé", "Violet"]
+        },
+        {
+          type: "géographie",
+          question: "Quelle ville est surnommée la 'Venise du Nord' ?",
+          answer: "Amsterdam",
+          traps: ["Stockholm", "Bruges", "Saint-Pétersbourg"]
+        },
+        {
+          type: "histoire",
+          question: "Quel empire a duré le plus longtemps ?",
+          answer: "Empire byzantin",
+          traps: ["Empire romain", "Empire ottoman", "Empire britannique"]
+        },
+        {
+          type: "culture",
+          question: "Quel fromage est le plus consommé au monde ?",
+          answer: "Mozzarella",
+          traps: ["Cheddar", "Gouda", "Camembert"]
+        },
+        {
+          type: "nature",
+          question: "Quel animal dort le plus par jour ?",
+          answer: "Koala",
+          traps: ["Paresseux", "Chat", "Chauve-souris"]
+        },
+        {
+          type: "science",
+          question: "Quel gaz compose principalement l'atmosphère ?",
+          answer: "Azote",
+          traps: ["Oxygène", "Dioxyde de carbone", "Argon"]
+        },
+        {
+          type: "géographie",
+          question: "Quel pays a le plus de lacs au monde ?",
+          answer: "Finlande",
+          traps: ["Canada", "Suède", "Russie"]
+        },
+        {
+          type: "histoire",
+          question: "Quelle guerre a duré le plus longtemps ?",
+          answer: "Guerre de Cent Ans",
+          traps: ["Guerre de Trente Ans", "Guerre froide", "Reconquista"]
+        },
+        {
+          type: "culture",
+          question: "Quel instrument a le plus de cordes ?",
+          answer: "Piano",
+          traps: ["Harpe", "Guitare", "Violon"]
+        },
+        {
+          type: "nature",
+          question: "Quel oiseau peut voler à reculons ?",
+          answer: "Colibri",
+          traps: ["Aigle", "Faucon", "Moineau"]
+        },
+        {
+          type: "science",
+          question: "Quel est l'élément le plus abondant dans l'univers ?",
+          answer: "Hydrogène",
+          traps: ["Oxygène", "Carbone", "Hélium"]
+        },
+        {
+          type: "géographie",
+          question: "Quelle montagne grandit chaque année ?",
+          answer: "Mont Everest",
+          traps: ["Mont Blanc", "Kilimandjaro", "Mont Fuji"]
+        },
+        {
+          type: "histoire",
+          question: "Qui a inventé l'imprimerie ?",
+          answer: "Bi Sheng",
+          traps: ["Gutenberg", "Caxton", "Plantin"]
+        },
+        {
+          type: "culture",
+          question: "Quel pays produit le plus de café ?",
+          answer: "Brésil",
+          traps: ["Colombie", "Vietnam", "Éthiopie"]
+        },
+        {
+          type: "nature",
+          question: "Quel animal a le plus d'estomacs ?",
+          answer: "Vache",
+          traps: ["Mouton", "Cheval", "Porc"]
+        },
+        {
+          type: "science",
+          question: "À quelle température l'eau est-elle la plus dense ?",
+          answer: "4°C",
+          traps: ["0°C", "20°C", "100°C"]
+        },
+        {
+          type: "géographie",
+          question: "Quel pays a la plus haute espérance de vie ?",
+          answer: "Monaco",
+          traps: ["Japon", "Suisse", "Singapour"]
+        },
+        {
+          type: "histoire",
+          question: "Quelle révolution a eu lieu en premier ?",
+          answer: "Révolution anglaise",
+          traps: ["Révolution française", "Révolution américaine", "Révolution russe"]
+        },
+        {
+          type: "culture",
+          question: "Quel sport a été inventé en premier ?",
+          answer: "Lutte",
+          traps: ["Course à pied", "Natation", "Boxe"]
+        },
+        {
+          type: "nature",
+          question: "Quel animal vit le plus longtemps ?",
+          answer: "Méduse immortelle",
+          traps: ["Tortue", "Baleine", "Requin"]
+        },
+        {
+          type: "science",
+          question: "Combien de dimensions a l'espace-temps selon Einstein ?",
+          answer: "4",
+          traps: ["3", "5", "11"]
+        },
+        {
+          type: "géographie",
+          question: "Quel fleuve traverse le plus de pays ?",
+          answer: "Danube",
+          traps: ["Nil", "Amazone", "Rhin"]
+        },
+        {
+          type: "histoire",
+          question: "Quelle langue était parlée par Jésus ?",
+          answer: "Araméen",
+          traps: ["Hébreu", "Latin", "Grec"]
+        },
+        {
+          type: "culture",
+          question: "Quel pays a inventé les pâtes ?",
+          answer: "Chine",
+          traps: ["Italie", "Grèce", "Perse"]
         }
       ],
       en: [
@@ -444,6 +4258,276 @@ const questions = {
           question: "What is the largest ocean in the world?",
           answer: "Pacific Ocean",
           traps: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean"]
+        },
+        {
+          type: "history",
+          question: "Who invented the light bulb?",
+          answer: "Thomas Edison",
+          traps: ["Nikola Tesla", "Benjamin Franklin", "Alexander Bell"]
+        },
+        {
+          type: "science",
+          question: "How many hearts does an octopus have?",
+          answer: "3",
+          traps: ["1", "2", "4"]
+        },
+        {
+          type: "culture",
+          question: "In which country was sushi invented?",
+          answer: "China",
+          traps: ["Japan", "Korea", "Thailand"]
+        },
+        {
+          type: "nature",
+          question: "Which animal cannot walk backwards?",
+          answer: "Kangaroo",
+          traps: ["Elephant", "Giraffe", "Penguin"]
+        },
+        {
+          type: "science",
+          question: "Which planet is the hottest in our solar system?",
+          answer: "Venus",
+          traps: ["Mercury", "Mars", "Jupiter"]
+        },
+        {
+          type: "geography",
+          question: "Which country has the most time zones?",
+          answer: "France",
+          traps: ["Russia", "United States", "China"]
+        },
+        {
+          type: "history",
+          question: "Which people invented paper?",
+          answer: "Chinese",
+          traps: ["Egyptians", "Greeks", "Romans"]
+        },
+        {
+          type: "nature",
+          question: "What is the largest land mammal?",
+          answer: "African Elephant",
+          traps: ["Blue Whale", "Rhinoceros", "Hippopotamus"]
+        },
+        {
+          type: "culture",
+          question: "Which drink contains the most caffeine?",
+          answer: "Matcha tea",
+          traps: ["Espresso coffee", "Red Bull", "Coca-Cola"]
+        },
+        {
+          type: "science",
+          question: "Which human organ consumes the most energy?",
+          answer: "Brain",
+          traps: ["Heart", "Liver", "Muscles"]
+        },
+        {
+          type: "geography",
+          question: "Which is the largest desert in the world?",
+          answer: "Antarctica",
+          traps: ["Sahara", "Gobi", "Kalahari"]
+        },
+        {
+          type: "history",
+          question: "Which civilization invented writing?",
+          answer: "Sumerians",
+          traps: ["Egyptians", "Chinese", "Greeks"]
+        },
+        {
+          type: "nature",
+          question: "Which fruit contains the most vitamin C?",
+          answer: "Acerola",
+          traps: ["Orange", "Lemon", "Kiwi"]
+        },
+        {
+          type: "science",
+          question: "Which metal is liquid at room temperature?",
+          answer: "Mercury",
+          traps: ["Lead", "Tin", "Zinc"]
+        },
+        {
+          type: "culture",
+          question: "Which country invented pizza?",
+          answer: "Ancient Greece",
+          traps: ["Italy", "United States", "France"]
+        },
+        {
+          type: "nature",
+          question: "Which animal has the strongest bite?",
+          answer: "Nile Crocodile",
+          traps: ["Great White Shark", "Lion", "Hyena"]
+        },
+        {
+          type: "geography",
+          question: "Which country has the longest coastline in the world?",
+          answer: "Canada",
+          traps: ["Norway", "Australia", "Russia"]
+        },
+        {
+          type: "science",
+          question: "How many bones does a shark have?",
+          answer: "0",
+          traps: ["206", "150", "300"]
+        },
+        {
+          type: "history",
+          question: "Who discovered America first?",
+          answer: "Leif Erikson",
+          traps: ["Christopher Columbus", "Amerigo Vespucci", "Magellan"]
+        },
+        {
+          type: "culture",
+          question: "Which country drinks the most tea per capita?",
+          answer: "Turkey",
+          traps: ["China", "India", "England"]
+        },
+        {
+          type: "nature",
+          question: "Which insect can lift 50 times its weight?",
+          answer: "Ant",
+          traps: ["Beetle", "Bee", "Grasshopper"]
+        },
+        {
+          type: "science",
+          question: "Which color absorbs the most heat?",
+          answer: "Black",
+          traps: ["Red", "Dark blue", "Purple"]
+        },
+        {
+          type: "geography",
+          question: "Which city is nicknamed the 'Venice of the North'?",
+          answer: "Amsterdam",
+          traps: ["Stockholm", "Bruges", "St. Petersburg"]
+        },
+        {
+          type: "history",
+          question: "Which empire lasted the longest?",
+          answer: "Byzantine Empire",
+          traps: ["Roman Empire", "Ottoman Empire", "British Empire"]
+        },
+        {
+          type: "culture",
+          question: "Which cheese is most consumed worldwide?",
+          answer: "Mozzarella",
+          traps: ["Cheddar", "Gouda", "Camembert"]
+        },
+        {
+          type: "nature",
+          question: "Which animal sleeps the most per day?",
+          answer: "Koala",
+          traps: ["Sloth", "Cat", "Bat"]
+        },
+        {
+          type: "science",
+          question: "Which gas mainly composes the atmosphere?",
+          answer: "Nitrogen",
+          traps: ["Oxygen", "Carbon dioxide", "Argon"]
+        },
+        {
+          type: "geography",
+          question: "Which country has the most lakes in the world?",
+          answer: "Finland",
+          traps: ["Canada", "Sweden", "Russia"]
+        },
+        {
+          type: "history",
+          question: "Which war lasted the longest?",
+          answer: "Hundred Years' War",
+          traps: ["Thirty Years' War", "Cold War", "Reconquista"]
+        },
+        {
+          type: "culture",
+          question: "Which instrument has the most strings?",
+          answer: "Piano",
+          traps: ["Harp", "Guitar", "Violin"]
+        },
+        {
+          type: "nature",
+          question: "Which bird can fly backwards?",
+          answer: "Hummingbird",
+          traps: ["Eagle", "Falcon", "Sparrow"]
+        },
+        {
+          type: "science",
+          question: "What is the most abundant element in the universe?",
+          answer: "Hydrogen",
+          traps: ["Oxygen", "Carbon", "Helium"]
+        },
+        {
+          type: "geography",
+          question: "Which mountain grows every year?",
+          answer: "Mount Everest",
+          traps: ["Mont Blanc", "Kilimanjaro", "Mount Fuji"]
+        },
+        {
+          type: "history",
+          question: "Who invented the printing press?",
+          answer: "Bi Sheng",
+          traps: ["Gutenberg", "Caxton", "Plantin"]
+        },
+        {
+          type: "culture",
+          question: "Which country produces the most coffee?",
+          answer: "Brazil",
+          traps: ["Colombia", "Vietnam", "Ethiopia"]
+        },
+        {
+          type: "nature",
+          question: "Which animal has the most stomachs?",
+          answer: "Cow",
+          traps: ["Sheep", "Horse", "Pig"]
+        },
+        {
+          type: "science",
+          question: "At what temperature is water most dense?",
+          answer: "4°C",
+          traps: ["0°C", "20°C", "100°C"]
+        },
+        {
+          type: "geography",
+          question: "Which country has the highest life expectancy?",
+          answer: "Monaco",
+          traps: ["Japan", "Switzerland", "Singapore"]
+        },
+        {
+          type: "history",
+          question: "Which revolution happened first?",
+          answer: "English Revolution",
+          traps: ["French Revolution", "American Revolution", "Russian Revolution"]
+        },
+        {
+          type: "culture",
+          question: "Which sport was invented first?",
+          answer: "Wrestling",
+          traps: ["Running", "Swimming", "Boxing"]
+        },
+        {
+          type: "nature",
+          question: "Which animal lives the longest?",
+          answer: "Immortal Jellyfish",
+          traps: ["Turtle", "Whale", "Shark"]
+        },
+        {
+          type: "science",
+          question: "How many dimensions does space-time have according to Einstein?",
+          answer: "4",
+          traps: ["3", "5", "11"]
+        },
+        {
+          type: "geography",
+          question: "Which river crosses the most countries?",
+          answer: "Danube",
+          traps: ["Nile", "Amazon", "Rhine"]
+        },
+        {
+          type: "history",
+          question: "What language did Jesus speak?",
+          answer: "Aramaic",
+          traps: ["Hebrew", "Latin", "Greek"]
+        },
+        {
+          type: "culture",
+          question: "Which country invented pasta?",
+          answer: "China",
+          traps: ["Italy", "Greece", "Persia"]
         }
       ],
       es: [
@@ -476,6 +4560,276 @@ const questions = {
           question: "¿Cuál es el océano más grande del mundo?",
           answer: "Océano Pacífico",
           traps: ["Océano Atlántico", "Océano Índico", "Océano Ártico"]
+        },
+        {
+          type: "historia",
+          question: "¿Quién inventó la bombilla eléctrica?",
+          answer: "Thomas Edison",
+          traps: ["Nikola Tesla", "Benjamin Franklin", "Alexander Bell"]
+        },
+        {
+          type: "ciencia",
+          question: "¿Cuántos corazones tiene un pulpo?",
+          answer: "3",
+          traps: ["1", "2", "4"]
+        },
+        {
+          type: "cultura",
+          question: "¿En qué país se inventó el sushi?",
+          answer: "China",
+          traps: ["Japón", "Corea", "Tailandia"]
+        },
+        {
+          type: "naturaleza",
+          question: "¿Qué animal no puede caminar hacia atrás?",
+          answer: "Canguro",
+          traps: ["Elefante", "Jirafa", "Pingüino"]
+        },
+        {
+          type: "ciencia",
+          question: "¿Qué planeta es el más caliente del sistema solar?",
+          answer: "Venus",
+          traps: ["Mercurio", "Marte", "Júpiter"]
+        },
+        {
+          type: "geografía",
+          question: "¿Qué país tiene más husos horarios?",
+          answer: "Francia",
+          traps: ["Rusia", "Estados Unidos", "China"]
+        },
+        {
+          type: "historia",
+          question: "¿Qué pueblo inventó el papel?",
+          answer: "Chinos",
+          traps: ["Egipcios", "Griegos", "Romanos"]
+        },
+        {
+          type: "naturaleza",
+          question: "¿Cuál es el mamífero terrestre más grande?",
+          answer: "Elefante africano",
+          traps: ["Ballena azul", "Rinoceronte", "Hipopótamo"]
+        },
+        {
+          type: "cultura",
+          question: "¿Qué bebida contiene más cafeína?",
+          answer: "Té matcha",
+          traps: ["Café espresso", "Red Bull", "Coca-Cola"]
+        },
+        {
+          type: "ciencia",
+          question: "¿Qué órgano humano consume más energía?",
+          answer: "Cerebro",
+          traps: ["Corazón", "Hígado", "Músculos"]
+        },
+        {
+          type: "geografía",
+          question: "¿Cuál es el desierto más grande del mundo?",
+          answer: "Antártida",
+          traps: ["Sahara", "Gobi", "Kalahari"]
+        },
+        {
+          type: "historia",
+          question: "¿Qué civilización inventó la escritura?",
+          answer: "Sumerios",
+          traps: ["Egipcios", "Chinos", "Griegos"]
+        },
+        {
+          type: "naturaleza",
+          question: "¿Qué fruta contiene más vitamina C?",
+          answer: "Acerola",
+          traps: ["Naranja", "Limón", "Kiwi"]
+        },
+        {
+          type: "ciencia",
+          question: "¿Qué metal es líquido a temperatura ambiente?",
+          answer: "Mercurio",
+          traps: ["Plomo", "Estaño", "Zinc"]
+        },
+        {
+          type: "cultura",
+          question: "¿Qué país inventó la pizza?",
+          answer: "Grecia antigua",
+          traps: ["Italia", "Estados Unidos", "Francia"]
+        },
+        {
+          type: "naturaleza",
+          question: "¿Qué animal tiene la mordida más fuerte?",
+          answer: "Cocodrilo del Nilo",
+          traps: ["Gran tiburón blanco", "León", "Hiena"]
+        },
+        {
+          type: "geografía",
+          question: "¿Qué país tiene la costa más larga del mundo?",
+          answer: "Canadá",
+          traps: ["Noruega", "Australia", "Rusia"]
+        },
+        {
+          type: "ciencia",
+          question: "¿Cuántos huesos tiene un tiburón?",
+          answer: "0",
+          traps: ["206", "150", "300"]
+        },
+        {
+          type: "historia",
+          question: "¿Quién descubrió América primero?",
+          answer: "Leif Erikson",
+          traps: ["Cristóbal Colón", "Amerigo Vespucci", "Magallanes"]
+        },
+        {
+          type: "cultura",
+          question: "¿Qué país bebe más té per cápita?",
+          answer: "Turquía",
+          traps: ["China", "India", "Inglaterra"]
+        },
+        {
+          type: "naturaleza",
+          question: "¿Qué insecto puede levantar 50 veces su peso?",
+          answer: "Hormiga",
+          traps: ["Escarabajo", "Abeja", "Saltamontes"]
+        },
+        {
+          type: "ciencia",
+          question: "¿Qué color absorbe más calor?",
+          answer: "Negro",
+          traps: ["Rojo", "Azul oscuro", "Morado"]
+        },
+        {
+          type: "geografía",
+          question: "¿Qué ciudad es apodada la 'Venecia del Norte'?",
+          answer: "Ámsterdam",
+          traps: ["Estocolmo", "Brujas", "San Petersburgo"]
+        },
+        {
+          type: "historia",
+          question: "¿Qué imperio duró más tiempo?",
+          answer: "Imperio bizantino",
+          traps: ["Imperio romano", "Imperio otomano", "Imperio británico"]
+        },
+        {
+          type: "cultura",
+          question: "¿Qué queso se consume más en el mundo?",
+          answer: "Mozzarella",
+          traps: ["Cheddar", "Gouda", "Camembert"]
+        },
+        {
+          type: "naturaleza",
+          question: "¿Qué animal duerme más por día?",
+          answer: "Koala",
+          traps: ["Perezoso", "Gato", "Murciélago"]
+        },
+        {
+          type: "ciencia",
+          question: "¿Qué gas compone principalmente la atmósfera?",
+          answer: "Nitrógeno",
+          traps: ["Oxígeno", "Dióxido de carbono", "Argón"]
+        },
+        {
+          type: "geografía",
+          question: "¿Qué país tiene más lagos en el mundo?",
+          answer: "Finlandia",
+          traps: ["Canadá", "Suecia", "Rusia"]
+        },
+        {
+          type: "historia",
+          question: "¿Qué guerra duró más tiempo?",
+          answer: "Guerra de los Cien Años",
+          traps: ["Guerra de los Treinta Años", "Guerra Fría", "Reconquista"]
+        },
+        {
+          type: "cultura",
+          question: "¿Qué instrumento tiene más cuerdas?",
+          answer: "Piano",
+          traps: ["Arpa", "Guitarra", "Violín"]
+        },
+        {
+          type: "naturaleza",
+          question: "¿Qué ave puede volar hacia atrás?",
+          answer: "Colibrí",
+          traps: ["Águila", "Halcón", "Gorrión"]
+        },
+        {
+          type: "ciencia",
+          question: "¿Cuál es el elemento más abundante en el universo?",
+          answer: "Hidrógeno",
+          traps: ["Oxígeno", "Carbono", "Helio"]
+        },
+        {
+          type: "geografía",
+          question: "¿Qué montaña crece cada año?",
+          answer: "Monte Everest",
+          traps: ["Mont Blanc", "Kilimanjaro", "Monte Fuji"]
+        },
+        {
+          type: "historia",
+          question: "¿Quién inventó la imprenta?",
+          answer: "Bi Sheng",
+          traps: ["Gutenberg", "Caxton", "Plantin"]
+        },
+        {
+          type: "cultura",
+          question: "¿Qué país produce más café?",
+          answer: "Brasil",
+          traps: ["Colombia", "Vietnam", "Etiopía"]
+        },
+        {
+          type: "naturaleza",
+          question: "¿Qué animal tiene más estómagos?",
+          answer: "Vaca",
+          traps: ["Oveja", "Caballo", "Cerdo"]
+        },
+        {
+          type: "ciencia",
+          question: "¿A qué temperatura es más densa el agua?",
+          answer: "4°C",
+          traps: ["0°C", "20°C", "100°C"]
+        },
+        {
+          type: "geografía",
+          question: "¿Qué país tiene la mayor esperanza de vida?",
+          answer: "Mónaco",
+          traps: ["Japón", "Suiza", "Singapur"]
+        },
+        {
+          type: "historia",
+          question: "¿Qué revolución ocurrió primero?",
+          answer: "Revolución inglesa",
+          traps: ["Revolución francesa", "Revolución americana", "Revolución rusa"]
+        },
+        {
+          type: "cultura",
+          question: "¿Qué deporte se inventó primero?",
+          answer: "Lucha",
+          traps: ["Carrera", "Natación", "Boxeo"]
+        },
+        {
+          type: "naturaleza",
+          question: "¿Qué animal vive más tiempo?",
+          answer: "Medusa inmortal",
+          traps: ["Tortuga", "Ballena", "Tiburón"]
+        },
+        {
+          type: "ciencia",
+          question: "¿Cuántas dimensiones tiene el espacio-tiempo según Einstein?",
+          answer: "4",
+          traps: ["3", "5", "11"]
+        },
+        {
+          type: "geografía",
+          question: "¿Qué río cruza más países?",
+          answer: "Danubio",
+          traps: ["Nilo", "Amazonas", "Rin"]
+        },
+        {
+          type: "historia",
+          question: "¿Qué idioma hablaba Jesús?",
+          answer: "Arameo",
+          traps: ["Hebreo", "Latín", "Griego"]
+        },
+        {
+          type: "cultura",
+          question: "¿Qué país inventó la pasta?",
+          answer: "China",
+          traps: ["Italia", "Grecia", "Persia"]
         }
       ],
       de: [
@@ -508,6 +4862,276 @@ const questions = {
           question: "Welcher ist der größte Ozean der Welt?",
           answer: "Pazifischer Ozean",
           traps: ["Atlantischer Ozean", "Indischer Ozean", "Arktischer Ozean"]
+        },
+        {
+          type: "geschichte",
+          question: "Wer hat die Glühbirne erfunden?",
+          answer: "Thomas Edison",
+          traps: ["Nikola Tesla", "Benjamin Franklin", "Alexander Bell"]
+        },
+        {
+          type: "wissenschaft",
+          question: "Wie viele Herzen hat ein Oktopus?",
+          answer: "3",
+          traps: ["1", "2", "4"]
+        },
+        {
+          type: "kultur",
+          question: "In welchem Land wurde Sushi erfunden?",
+          answer: "China",
+          traps: ["Japan", "Korea", "Thailand"]
+        },
+        {
+          type: "natur",
+          question: "Welches Tier kann nicht rückwärts gehen?",
+          answer: "Känguru",
+          traps: ["Elefant", "Giraffe", "Pinguin"]
+        },
+        {
+          type: "wissenschaft",
+          question: "Welcher Planet ist der heißeste in unserem Sonnensystem?",
+          answer: "Venus",
+          traps: ["Merkur", "Mars", "Jupiter"]
+        },
+        {
+          type: "geographie",
+          question: "Welches Land hat die meisten Zeitzonen?",
+          answer: "Frankreich",
+          traps: ["Russland", "USA", "China"]
+        },
+        {
+          type: "geschichte",
+          question: "Welches Volk hat das Papier erfunden?",
+          answer: "Chinesen",
+          traps: ["Ägypter", "Griechen", "Römer"]
+        },
+        {
+          type: "natur",
+          question: "Was ist das größte Landtier?",
+          answer: "Afrikanischer Elefant",
+          traps: ["Blauwal", "Nashorn", "Nilpferd"]
+        },
+        {
+          type: "kultur",
+          question: "Welches Getränk enthält am meisten Koffein?",
+          answer: "Matcha-Tee",
+          traps: ["Espresso", "Red Bull", "Coca-Cola"]
+        },
+        {
+          type: "wissenschaft",
+          question: "Welches menschliche Organ verbraucht am meisten Energie?",
+          answer: "Gehirn",
+          traps: ["Herz", "Leber", "Muskeln"]
+        },
+        {
+          type: "geographie",
+          question: "Welche ist die größte Wüste der Welt?",
+          answer: "Antarktis",
+          traps: ["Sahara", "Gobi", "Kalahari"]
+        },
+        {
+          type: "geschichte",
+          question: "Welche Zivilisation hat die Schrift erfunden?",
+          answer: "Sumerer",
+          traps: ["Ägypter", "Chinesen", "Griechen"]
+        },
+        {
+          type: "natur",
+          question: "Welche Frucht enthält am meisten Vitamin C?",
+          answer: "Acerola",
+          traps: ["Orange", "Zitrone", "Kiwi"]
+        },
+        {
+          type: "wissenschaft",
+          question: "Welches Metall ist bei Raumtemperatur flüssig?",
+          answer: "Quecksilber",
+          traps: ["Blei", "Zinn", "Zink"]
+        },
+        {
+          type: "kultur",
+          question: "Welches Land hat die Pizza erfunden?",
+          answer: "Antikes Griechenland",
+          traps: ["Italien", "USA", "Frankreich"]
+        },
+        {
+          type: "natur",
+          question: "Welches Tier hat den stärksten Biss?",
+          answer: "Nilkrokodil",
+          traps: ["Weißer Hai", "Löwe", "Hyäne"]
+        },
+        {
+          type: "geographie",
+          question: "Welches Land hat die längste Küste der Welt?",
+          answer: "Kanada",
+          traps: ["Norwegen", "Australien", "Russland"]
+        },
+        {
+          type: "wissenschaft",
+          question: "Wie viele Knochen hat ein Hai?",
+          answer: "0",
+          traps: ["206", "150", "300"]
+        },
+        {
+          type: "geschichte",
+          question: "Wer entdeckte Amerika zuerst?",
+          answer: "Leif Erikson",
+          traps: ["Christoph Kolumbus", "Amerigo Vespucci", "Magellan"]
+        },
+        {
+          type: "kultur",
+          question: "Welches Land trinkt pro Kopf am meisten Tee?",
+          answer: "Türkei",
+          traps: ["China", "Indien", "England"]
+        },
+        {
+          type: "natur",
+          question: "Welches Insekt kann das 50-fache seines Gewichts heben?",
+          answer: "Ameise",
+          traps: ["Käfer", "Biene", "Heuschrecke"]
+        },
+        {
+          type: "wissenschaft",
+          question: "Welche Farbe absorbiert am meisten Wärme?",
+          answer: "Schwarz",
+          traps: ["Rot", "Dunkelblau", "Lila"]
+        },
+        {
+          type: "geographie",
+          question: "Welche Stadt wird 'Venedig des Nordens' genannt?",
+          answer: "Amsterdam",
+          traps: ["Stockholm", "Brügge", "St. Petersburg"]
+        },
+        {
+          type: "geschichte",
+          question: "Welches Reich bestand am längsten?",
+          answer: "Byzantinisches Reich",
+          traps: ["Römisches Reich", "Osmanisches Reich", "Britisches Reich"]
+        },
+        {
+          type: "kultur",
+          question: "Welcher Käse wird weltweit am meisten konsumiert?",
+          answer: "Mozzarella",
+          traps: ["Cheddar", "Gouda", "Camembert"]
+        },
+        {
+          type: "natur",
+          question: "Welches Tier schläft pro Tag am meisten?",
+          answer: "Koala",
+          traps: ["Faultier", "Katze", "Fledermaus"]
+        },
+        {
+          type: "wissenschaft",
+          question: "Welches Gas macht hauptsächlich die Atmosphäre aus?",
+          answer: "Stickstoff",
+          traps: ["Sauerstoff", "Kohlendioxid", "Argon"]
+        },
+        {
+          type: "geographie",
+          question: "Welches Land hat die meisten Seen der Welt?",
+          answer: "Finnland",
+          traps: ["Kanada", "Schweden", "Russland"]
+        },
+        {
+          type: "geschichte",
+          question: "Welcher Krieg dauerte am längsten?",
+          answer: "Hundertjähriger Krieg",
+          traps: ["Dreißigjähriger Krieg", "Kalter Krieg", "Reconquista"]
+        },
+        {
+          type: "kultur",
+          question: "Welches Instrument hat die meisten Saiten?",
+          answer: "Klavier",
+          traps: ["Harfe", "Gitarre", "Geige"]
+        },
+        {
+          type: "natur",
+          question: "Welcher Vogel kann rückwärts fliegen?",
+          answer: "Kolibri",
+          traps: ["Adler", "Falke", "Spatz"]
+        },
+        {
+          type: "wissenschaft",
+          question: "Was ist das häufigste Element im Universum?",
+          answer: "Wasserstoff",
+          traps: ["Sauerstoff", "Kohlenstoff", "Helium"]
+        },
+        {
+          type: "geographie",
+          question: "Welcher Berg wächst jedes Jahr?",
+          answer: "Mount Everest",
+          traps: ["Mont Blanc", "Kilimandscharo", "Mount Fuji"]
+        },
+        {
+          type: "geschichte",
+          question: "Wer erfand den Buchdruck?",
+          answer: "Bi Sheng",
+          traps: ["Gutenberg", "Caxton", "Plantin"]
+        },
+        {
+          type: "kultur",
+          question: "Welches Land produziert den meisten Kaffee?",
+          answer: "Brasilien",
+          traps: ["Kolumbien", "Vietnam", "Äthiopien"]
+        },
+        {
+          type: "natur",
+          question: "Welches Tier hat die meisten Mägen?",
+          answer: "Kuh",
+          traps: ["Schaf", "Pferd", "Schwein"]
+        },
+        {
+          type: "wissenschaft",
+          question: "Bei welcher Temperatur ist Wasser am dichtesten?",
+          answer: "4°C",
+          traps: ["0°C", "20°C", "100°C"]
+        },
+        {
+          type: "geographie",
+          question: "Welches Land hat die höchste Lebenserwartung?",
+          answer: "Monaco",
+          traps: ["Japan", "Schweiz", "Singapur"]
+        },
+        {
+          type: "geschichte",
+          question: "Welche Revolution geschah zuerst?",
+          answer: "Englische Revolution",
+          traps: ["Französische Revolution", "Amerikanische Revolution", "Russische Revolution"]
+        },
+        {
+          type: "kultur",
+          question: "Welcher Sport wurde zuerst erfunden?",
+          answer: "Ringen",
+          traps: ["Laufen", "Schwimmen", "Boxen"]
+        },
+        {
+          type: "natur",
+          question: "Welches Tier lebt am längsten?",
+          answer: "Unsterbliche Qualle",
+          traps: ["Schildkröte", "Wal", "Hai"]
+        },
+        {
+          type: "wissenschaft",
+          question: "Wie viele Dimensionen hat die Raumzeit nach Einstein?",
+          answer: "4",
+          traps: ["3", "5", "11"]
+        },
+        {
+          type: "geographie",
+          question: "Welcher Fluss durchquert die meisten Länder?",
+          answer: "Donau",
+          traps: ["Nil", "Amazonas", "Rhein"]
+        },
+        {
+          type: "geschichte",
+          question: "Welche Sprache sprach Jesus?",
+          answer: "Aramäisch",
+          traps: ["Hebräisch", "Latein", "Griechisch"]
+        },
+        {
+          type: "kultur",
+          question: "Welches Land erfand die Nudeln?",
+          answer: "China",
+          traps: ["Italien", "Griechenland", "Persien"]
         }
       ],
       it: [
@@ -540,6 +5164,276 @@ const questions = {
           question: "Qual è l'oceano più grande del mondo?",
           answer: "Oceano Pacifico",
           traps: ["Oceano Atlantico", "Oceano Indiano", "Oceano Artico"]
+        },
+        {
+          type: "storia",
+          question: "Chi ha inventato la lampadina elettrica?",
+          answer: "Thomas Edison",
+          traps: ["Nikola Tesla", "Benjamin Franklin", "Alexander Bell"]
+        },
+        {
+          type: "scienza",
+          question: "Quanti cuori ha un polpo?",
+          answer: "3",
+          traps: ["1", "2", "4"]
+        },
+        {
+          type: "cultura",
+          question: "In quale paese è stato inventato il sushi?",
+          answer: "Cina",
+          traps: ["Giappone", "Corea", "Tailandia"]
+        },
+        {
+          type: "natura",
+          question: "Quale animale non può camminare all'indietro?",
+          answer: "Canguro",
+          traps: ["Elefante", "Giraffa", "Pinguino"]
+        },
+        {
+          type: "scienza",
+          question: "Quale pianeta è il più caldo del sistema solare?",
+          answer: "Venere",
+          traps: ["Mercurio", "Marte", "Giove"]
+        },
+        {
+          type: "geografia",
+          question: "Quale paese ha più fusi orari?",
+          answer: "Francia",
+          traps: ["Russia", "Stati Uniti", "Cina"]
+        },
+        {
+          type: "storia",
+          question: "Quale popolo ha inventato la carta?",
+          answer: "Cinesi",
+          traps: ["Egizi", "Greci", "Romani"]
+        },
+        {
+          type: "natura",
+          question: "Qual è il mammifero terrestre più grande?",
+          answer: "Elefante africano",
+          traps: ["Balenottera azzurra", "Rinoceronte", "Ippopotamo"]
+        },
+        {
+          type: "cultura",
+          question: "Quale bevanda contiene più caffeina?",
+          answer: "Tè matcha",
+          traps: ["Caffè espresso", "Red Bull", "Coca-Cola"]
+        },
+        {
+          type: "scienza",
+          question: "Quale organo umano consume più energia?",
+          answer: "Cervello",
+          traps: ["Cuore", "Fegato", "Muscoli"]
+        },
+        {
+          type: "geografia",
+          question: "Qual è il deserto più grande del mondo?",
+          answer: "Antartide",
+          traps: ["Sahara", "Gobi", "Kalahari"]
+        },
+        {
+          type: "storia",
+          question: "Quale civiltà ha inventato la scrittura?",
+          answer: "Sumeri",
+          traps: ["Egizi", "Cinesi", "Greci"]
+        },
+        {
+          type: "natura",
+          question: "Quale frutto contiene più vitamina C?",
+          answer: "Acerola",
+          traps: ["Arancia", "Limone", "Kiwi"]
+        },
+        {
+          type: "scienza",
+          question: "Quale metallo è liquido a temperatura ambiente?",
+          answer: "Mercurio",
+          traps: ["Piombo", "Stagno", "Zinco"]
+        },
+        {
+          type: "cultura",
+          question: "Quale paese ha inventato la pizza?",
+          answer: "Grecia antica",
+          traps: ["Italia", "Stati Uniti", "Francia"]
+        },
+        {
+          type: "natura",
+          question: "Quale animale ha il morso più forte?",
+          answer: "Coccodrillo del Nilo",
+          traps: ["Grande squalo bianco", "Leone", "Iena"]
+        },
+        {
+          type: "geografia",
+          question: "Quale paese ha la costa più lunga del mondo?",
+          answer: "Canada",
+          traps: ["Norvegia", "Australia", "Russia"]
+        },
+        {
+          type: "scienza",
+          question: "Quante ossa ha uno squalo?",
+          answer: "0",
+          traps: ["206", "150", "300"]
+        },
+        {
+          type: "storia",
+          question: "Chi ha scoperto l'America per primo?",
+          answer: "Leif Erikson",
+          traps: ["Cristoforo Colombo", "Amerigo Vespucci", "Magellano"]
+        },
+        {
+          type: "cultura",
+          question: "Quale paese beve più tè pro capite?",
+          answer: "Turchia",
+          traps: ["Cina", "India", "Inghilterra"]
+        },
+        {
+          type: "natura",
+          question: "Quale insetto può sollevare 50 volte il suo peso?",
+          answer: "Formica",
+          traps: ["Scarabeo", "Ape", "Cavalletta"]
+        },
+        {
+          type: "scienza",
+          question: "Quale colore assorbe più calore?",
+          answer: "Nero",
+          traps: ["Rosso", "Blu scuro", "Viola"]
+        },
+        {
+          type: "geografia",
+          question: "Quale città è soprannominata la 'Venezia del Nord'?",
+          answer: "Amsterdam",
+          traps: ["Stoccolma", "Bruges", "San Pietroburgo"]
+        },
+        {
+          type: "storia",
+          question: "Quale impero è durato più a lungo?",
+          answer: "Impero bizantino",
+          traps: ["Impero romano", "Impero ottomano", "Impero britannico"]
+        },
+        {
+          type: "cultura",
+          question: "Quale formaggio è più consumato al mondo?",
+          answer: "Mozzarella",
+          traps: ["Cheddar", "Gouda", "Camembert"]
+        },
+        {
+          type: "natura",
+          question: "Quale animale dorme di più al giorno?",
+          answer: "Koala",
+          traps: ["Bradipo", "Gatto", "Pipistrello"]
+        },
+        {
+          type: "scienza",
+          question: "Quale gas compone principalmente l'atmosfera?",
+          answer: "Azoto",
+          traps: ["Ossigeno", "Anidride carbonica", "Argon"]
+        },
+        {
+          type: "geografia",
+          question: "Quale paese ha più laghi al mondo?",
+          answer: "Finlandia",
+          traps: ["Canada", "Svezia", "Russia"]
+        },
+        {
+          type: "storia",
+          question: "Quale guerra è durata più a lungo?",
+          answer: "Guerra dei Cent'anni",
+          traps: ["Guerra dei Trent'anni", "Guerra fredda", "Reconquista"]
+        },
+        {
+          type: "cultura",
+          question: "Quale strumento ha più corde?",
+          answer: "Pianoforte",
+          traps: ["Arpa", "Chitarra", "Violino"]
+        },
+        {
+          type: "natura",
+          question: "Quale uccello può volare all'indietro?",
+          answer: "Colibrì",
+          traps: ["Aquila", "Falco", "Passero"]
+        },
+        {
+          type: "scienza",
+          question: "Qual è l'elemento più abbondante nell'universo?",
+          answer: "Idrogeno",
+          traps: ["Ossigeno", "Carbonio", "Elio"]
+        },
+        {
+          type: "geografia",
+          question: "Quale montagna cresce ogni anno?",
+          answer: "Monte Everest",
+          traps: ["Monte Bianco", "Kilimanjaro", "Monte Fuji"]
+        },
+        {
+          type: "storia",
+          question: "Chi ha inventato la stampa?",
+          answer: "Bi Sheng",
+          traps: ["Gutenberg", "Caxton", "Plantin"]
+        },
+        {
+          type: "cultura",
+          question: "Quale paese produce più caffè?",
+          answer: "Brasile",
+          traps: ["Colombia", "Vietnam", "Etiopia"]
+        },
+        {
+          type: "natura",
+          question: "Quale animale ha più stomaci?",
+          answer: "Mucca",
+          traps: ["Pecora", "Cavallo", "Maiale"]
+        },
+        {
+          type: "scienza",
+          question: "A che temperatura l'acqua è più densa?",
+          answer: "4°C",
+          traps: ["0°C", "20°C", "100°C"]
+        },
+        {
+          type: "geografia",
+          question: "Quale paese ha la più alta aspettativa di vita?",
+          answer: "Monaco",
+          traps: ["Giappone", "Svizzera", "Singapore"]
+        },
+        {
+          type: "storia",
+          question: "Quale rivoluzione è avvenuta per prima?",
+          answer: "Rivoluzione inglese",
+          traps: ["Rivoluzione francese", "Rivoluzione americana", "Rivoluzione russa"]
+        },
+        {
+          type: "cultura",
+          question: "Quale sport è stato inventato per primo?",
+          answer: "Lotta",
+          traps: ["Corsa", "Nuoto", "Boxe"]
+        },
+        {
+          type: "natura",
+          question: "Quale animale vive più a lungo?",
+          answer: "Medusa immortale",
+          traps: ["Tartaruga", "Balena", "Squalo"]
+        },
+        {
+          type: "scienza",
+          question: "Quante dimensioni ha lo spazio-tempo secondo Einstein?",
+          answer: "4",
+          traps: ["3", "5", "11"]
+        },
+        {
+          type: "geografia",
+          question: "Quale fiume attraversa più paesi?",
+          answer: "Danubio",
+          traps: ["Nilo", "Rio delle Amazzoni", "Reno"]
+        },
+        {
+          type: "storia",
+          question: "Che lingua parlava Gesù?",
+          answer: "Aramaico",
+          traps: ["Ebraico", "Latino", "Greco"]
+        },
+        {
+          type: "cultura",
+          question: "Quale paese ha inventato la pasta?",
+          answer: "Cina",
+          traps: ["Italia", "Grecia", "Persia"]
         }
       ],
       pt: [
@@ -572,6 +5466,276 @@ const questions = {
           question: "Qual é o maior oceano do mundo?",
           answer: "Oceano Pacífico",
           traps: ["Oceano Atlântico", "Oceano Índico", "Oceano Ártico"]
+        },
+        {
+          type: "história",
+          question: "Quem inventou a lâmpada elétrica?",
+          answer: "Thomas Edison",
+          traps: ["Nikola Tesla", "Benjamin Franklin", "Alexander Bell"]
+        },
+        {
+          type: "ciência",
+          question: "Quantos corações tem um polvo?",
+          answer: "3",
+          traps: ["1", "2", "4"]
+        },
+        {
+          type: "cultura",
+          question: "Em que país foi inventado o sushi?",
+          answer: "China",
+          traps: ["Japão", "Coreia", "Tailândia"]
+        },
+        {
+          type: "natureza",
+          question: "Que animal não consegue andar para trás?",
+          answer: "Canguru",
+          traps: ["Elefante", "Girafa", "Pinguim"]
+        },
+        {
+          type: "ciência",
+          question: "Que planeta é o mais quente do sistema solar?",
+          answer: "Vênus",
+          traps: ["Mercúrio", "Marte", "Júpiter"]
+        },
+        {
+          type: "geografia",
+          question: "Que país tem mais fusos horários?",
+          answer: "França",
+          traps: ["Rússia", "Estados Unidos", "China"]
+        },
+        {
+          type: "história",
+          question: "Que povo inventou o papel?",
+          answer: "Chineses",
+          traps: ["Egípcios", "Gregos", "Romanos"]
+        },
+        {
+          type: "natureza",
+          question: "Qual é o maior mamífero terrestre?",
+          answer: "Elefante africano",
+          traps: ["Baleia azul", "Rinoceronte", "Hipopótamo"]
+        },
+        {
+          type: "cultura",
+          question: "Que bebida contém mais cafeína?",
+          answer: "Chá matcha",
+          traps: ["Café expresso", "Red Bull", "Coca-Cola"]
+        },
+        {
+          type: "ciência",
+          question: "Que órgão humano consome mais energia?",
+          answer: "Cérebro",
+          traps: ["Coração", "Fígado", "Músculos"]
+        },
+        {
+          type: "geografia",
+          question: "Qual é o maior deserto do mundo?",
+          answer: "Antártica",
+          traps: ["Saara", "Gobi", "Kalahari"]
+        },
+        {
+          type: "história",
+          question: "Que civilização inventou a escrita?",
+          answer: "Sumérios",
+          traps: ["Egípcios", "Chineses", "Gregos"]
+        },
+        {
+          type: "natureza",
+          question: "Que fruta contém mais vitamina C?",
+          answer: "Acerola",
+          traps: ["Laranja", "Limão", "Kiwi"]
+        },
+        {
+          type: "ciência",
+          question: "Que metal é líquido à temperatura ambiente?",
+          answer: "Mercúrio",
+          traps: ["Chumbo", "Estanho", "Zinco"]
+        },
+        {
+          type: "cultura",
+          question: "Que país inventou a pizza?",
+          answer: "Grécia antiga",
+          traps: ["Itália", "Estados Unidos", "França"]
+        },
+        {
+          type: "natureza",
+          question: "Que animal tem a mordida mais forte?",
+          answer: "Crocodilo do Nilo",
+          traps: ["Grande tubarão branco", "Leão", "Hiena"]
+        },
+        {
+          type: "geografia",
+          question: "Que país tem a costa mais longa do mundo?",
+          answer: "Canadá",
+          traps: ["Noruega", "Austrália", "Rússia"]
+        },
+        {
+          type: "ciência",
+          question: "Quantos ossos tem um tubarão?",
+          answer: "0",
+          traps: ["206", "150", "300"]
+        },
+        {
+          type: "história",
+          question: "Quem descobriu a América primeiro?",
+          answer: "Leif Erikson",
+          traps: ["Cristóvão Colombo", "Américo Vespúcio", "Magalhães"]
+        },
+        {
+          type: "cultura",
+          question: "Que país bebe mais chá per capita?",
+          answer: "Turquia",
+          traps: ["China", "Índia", "Inglaterra"]
+        },
+        {
+          type: "natureza",
+          question: "Que inseto pode levantar 50 vezes o seu peso?",
+          answer: "Formiga",
+          traps: ["Besouro", "Abelha", "Gafanhoto"]
+        },
+        {
+          type: "ciência",
+          question: "Que cor absorve mais calor?",
+          answer: "Preto",
+          traps: ["Vermelho", "Azul escuro", "Roxo"]
+        },
+        {
+          type: "geografia",
+          question: "Que cidade é apelidada de 'Veneza do Norte'?",
+          answer: "Amesterdão",
+          traps: ["Estocolmo", "Bruges", "São Petersburgo"]
+        },
+        {
+          type: "história",
+          question: "Que império durou mais tempo?",
+          answer: "Império bizantino",
+          traps: ["Império romano", "Império otomano", "Império britânico"]
+        },
+        {
+          type: "cultura",
+          question: "Que queijo é mais consumido no mundo?",
+          answer: "Mozzarella",
+          traps: ["Cheddar", "Gouda", "Camembert"]
+        },
+        {
+          type: "natureza",
+          question: "Que animal dorme mais por dia?",
+          answer: "Coala",
+          traps: ["Preguiça", "Gato", "Morcego"]
+        },
+        {
+          type: "ciência",
+          question: "Que gás compõe principalmente a atmosfera?",
+          answer: "Nitrogênio",
+          traps: ["Oxigênio", "Dióxido de carbono", "Argônio"]
+        },
+        {
+          type: "geografia",
+          question: "Que país tem mais lagos no mundo?",
+          answer: "Finlândia",
+          traps: ["Canadá", "Suécia", "Rússia"]
+        },
+        {
+          type: "história",
+          question: "Que guerra durou mais tempo?",
+          answer: "Guerra dos Cem Anos",
+          traps: ["Guerra dos Trinta Anos", "Guerra Fria", "Reconquista"]
+        },
+        {
+          type: "cultura",
+          question: "Que instrumento tem mais cordas?",
+          answer: "Piano",
+          traps: ["Harpa", "Guitarra", "Violino"]
+        },
+        {
+          type: "natureza",
+          question: "Que ave pode voar para trás?",
+          answer: "Beija-flor",
+          traps: ["Águia", "Falcão", "Pardal"]
+        },
+        {
+          type: "ciência",
+          question: "Qual é o elemento mais abundante no universo?",
+          answer: "Hidrogênio",
+          traps: ["Oxigênio", "Carbono", "Hélio"]
+        },
+        {
+          type: "geografia",
+          question: "Que montanha cresce todos os anos?",
+          answer: "Monte Everest",
+          traps: ["Mont Blanc", "Kilimanjaro", "Monte Fuji"]
+        },
+        {
+          type: "história",
+          question: "Quem inventou a imprensa?",
+          answer: "Bi Sheng",
+          traps: ["Gutenberg", "Caxton", "Plantin"]
+        },
+        {
+          type: "cultura",
+          question: "Que país produz mais café?",
+          answer: "Brasil",
+          traps: ["Colômbia", "Vietnã", "Etiópia"]
+        },
+        {
+          type: "natureza",
+          question: "Que animal tem mais estômagos?",
+          answer: "Vaca",
+          traps: ["Ovelha", "Cavalo", "Porco"]
+        },
+        {
+          type: "ciência",
+          question: "A que temperatura a água é mais densa?",
+          answer: "4°C",
+          traps: ["0°C", "20°C", "100°C"]
+        },
+        {
+          type: "geografia",
+          question: "Que país tem a maior expectativa de vida?",
+          answer: "Mônaco",
+          traps: ["Japão", "Suíça", "Singapura"]
+        },
+        {
+          type: "história",
+          question: "Que revolução aconteceu primeiro?",
+          answer: "Revolução inglesa",
+          traps: ["Revolução francesa", "Revolução americana", "Revolução russa"]
+        },
+        {
+          type: "cultura",
+          question: "Que esporte foi inventado primeiro?",
+          answer: "Luta",
+          traps: ["Corrida", "Natação", "Boxe"]
+        },
+        {
+          type: "natureza",
+          question: "Que animal vive mais tempo?",
+          answer: "Água-viva imortal",
+          traps: ["Tartaruga", "Baleia", "Tubarão"]
+        },
+        {
+          type: "ciência",
+          question: "Quantas dimensões tem o espaço-tempo segundo Einstein?",
+          answer: "4",
+          traps: ["3", "5", "11"]
+        },
+        {
+          type: "geografia",
+          question: "Que rio atravessa mais países?",
+          answer: "Danúbio",
+          traps: ["Nilo", "Amazonas", "Reno"]
+        },
+        {
+          type: "história",
+          question: "Que língua Jesus falava?",
+          answer: "Aramaico",
+          traps: ["Hebraico", "Latim", "Grego"]
+        },
+        {
+          type: "cultura",
+          question: "Que país inventou a massa?",
+          answer: "China",
+          traps: ["Itália", "Grécia", "Pérsia"]
         }
       ],
       ar: [
@@ -604,6 +5768,276 @@ const questions = {
           question: "ما هو أكبر محيط في العالم؟",
           answer: "المحيط الهادئ",
           traps: ["المحيط الأطلسي", "المحيط الهندي", "المحيط المتجمد الشمالي"]
+        },
+        {
+          type: "تاريخ",
+          question: "من اخترع المصباح الكهربائي؟",
+          answer: "توماس إديسون",
+          traps: ["نيكولا تيسلا", "بنجامين فرانكلين", "ألكسندر بيل"]
+        },
+        {
+          type: "علم",
+          question: "كم عدد القلوب في الأخطبوط؟",
+          answer: "3",
+          traps: ["1", "2", "4"]
+        },
+        {
+          type: "ثقافة",
+          question: "في أي بلد تم اختراع السوشي؟",
+          answer: "الصين",
+          traps: ["اليابان", "كوريا", "تايلاند"]
+        },
+        {
+          type: "طبيعة",
+          question: "أي حيوان لا يستطيع المشي للخلف؟",
+          answer: "الكنغر",
+          traps: ["الفيل", "الزرافة", "البطريق"]
+        },
+        {
+          type: "علم",
+          question: "أي كوكب هو الأسخن في النظام الشمسي؟",
+          answer: "الزهرة",
+          traps: ["عطارد", "المريخ", "المشتري"]
+        },
+        {
+          type: "جغرافيا",
+          question: "أي دولة لديها أكثر المناطق الزمنية؟",
+          answer: "فرنسا",
+          traps: ["روسيا", "الولايات المتحدة", "الصين"]
+        },
+        {
+          type: "تاريخ",
+          question: "أي شعب اخترع الورق؟",
+          answer: "الصينيون",
+          traps: ["المصريون", "اليونانيون", "الرومان"]
+        },
+        {
+          type: "طبيعة",
+          question: "ما هو أكبر حيوان ثديي على الأرض؟",
+          answer: "الفيل الأفريقي",
+          traps: ["الحوت الأزرق", "وحيد القرن", "فرس النهر"]
+        },
+        {
+          type: "ثقافة",
+          question: "أي مشروب يحتوي على أكثر كافيين؟",
+          answer: "شاي الماتشا",
+          traps: ["قهوة إسبريسو", "ريد بول", "كوكا كولا"]
+        },
+        {
+          type: "علم",
+          question: "أي عضو بشري يستهلك أكثر طاقة؟",
+          answer: "الدماغ",
+          traps: ["القلب", "الكبد", "العضلات"]
+        },
+        {
+          type: "جغرافيا",
+          question: "ما هي أكبر صحراء في العالم؟",
+          answer: "القارة القطبية الجنوبية",
+          traps: ["الصحراء الكبرى", "جوبي", "كالاهاري"]
+        },
+        {
+          type: "تاريخ",
+          question: "أي حضارة اخترعت الكتابة؟",
+          answer: "السومريون",
+          traps: ["المصريون", "الصينيون", "اليونانيون"]
+        },
+        {
+          type: "طبيعة",
+          question: "أي فاكهة تحتوي على أكثر فيتامين سي؟",
+          answer: "الأسيرولا",
+          traps: ["البرتقال", "الليمون", "الكيوي"]
+        },
+        {
+          type: "علم",
+          question: "أي معدن سائل في درجة حرارة الغرفة؟",
+          answer: "الزئبق",
+          traps: ["الرصاص", "القصدير", "الزنك"]
+        },
+        {
+          type: "ثقافة",
+          question: "أي دولة اخترعت البيتزا؟",
+          answer: "اليونان القديمة",
+          traps: ["إيطاليا", "الولايات المتحدة", "فرنسا"]
+        },
+        {
+          type: "طبيعة",
+          question: "أي حيوان له أقوى عضة؟",
+          answer: "تمساح النيل",
+          traps: ["القرش الأبيض الكبير", "الأسد", "الضبع"]
+        },
+        {
+          type: "جغرافيا",
+          question: "أي دولة لديها أطول ساحل في العالم؟",
+          answer: "كندا",
+          traps: ["النرويج", "أستراليا", "روسيا"]
+        },
+        {
+          type: "علم",
+          question: "كم عدد العظام في القرش؟",
+          answer: "0",
+          traps: ["206", "150", "300"]
+        },
+        {
+          type: "تاريخ",
+          question: "من اكتشف أمريكا أولاً؟",
+          answer: "ليف إريكسون",
+          traps: ["كريستوفر كولومبوس", "أمريكو فيسبوتشي", "ماجلان"]
+        },
+        {
+          type: "ثقافة",
+          question: "أي دولة تشرب أكثر شاي للفرد؟",
+          answer: "تركيا",
+          traps: ["الصين", "الهند", "إنجلترا"]
+        },
+        {
+          type: "طبيعة",
+          question: "أي حشرة يمكنها رفع 50 ضعف وزنها؟",
+          answer: "النملة",
+          traps: ["الخنفساء", "النحلة", "الجندب"]
+        },
+        {
+          type: "علم",
+          question: "أي لون يمتص أكثر حرارة؟",
+          answer: "الأسود",
+          traps: ["الأحمر", "الأزرق الداكن", "البنفسجي"]
+        },
+        {
+          type: "جغرافيا",
+          question: "أي مدينة تُلقب بـ'البندقية الشمالية'؟",
+          answer: "أمستردام",
+          traps: ["ستوكهولم", "بروج", "سان بطرسبرغ"]
+        },
+        {
+          type: "تاريخ",
+          question: "أي إمبراطورية استمرت أطول فترة؟",
+          answer: "الإمبراطورية البيزنطية",
+          traps: ["الإمبراطورية الرومانية", "الإمبراطورية العثمانية", "الإمبراطورية البريطانية"]
+        },
+        {
+          type: "ثقافة",
+          question: "أي جبن يُستهلك أكثر في العالم؟",
+          answer: "الموزاريلا",
+          traps: ["التشيدار", "الجودا", "الكامامبير"]
+        },
+        {
+          type: "طبيعة",
+          question: "أي حيوان ينام أكثر في اليوم؟",
+          answer: "الكوالا",
+          traps: ["الكسلان", "القط", "الخفاش"]
+        },
+        {
+          type: "علم",
+          question: "أي غاز يشكل الغلاف الجوي بشكل أساسي؟",
+          answer: "النيتروجين",
+          traps: ["الأكسجين", "ثاني أكسيد الكربون", "الأرجون"]
+        },
+        {
+          type: "جغرافيا",
+          question: "أي دولة لديها أكثر بحيرات في العالم؟",
+          answer: "فنلندا",
+          traps: ["كندا", "السويد", "روسيا"]
+        },
+        {
+          type: "تاريخ",
+          question: "أي حرب استمرت أطول فترة؟",
+          answer: "حرب المائة عام",
+          traps: ["حرب الثلاثين عاماً", "الحرب الباردة", "الاسترداد"]
+        },
+        {
+          type: "ثقافة",
+          question: "أي آلة موسيقية لديها أكثر أوتار؟",
+          answer: "البيانو",
+          traps: ["القيثارة", "الجيتار", "الكمان"]
+        },
+        {
+          type: "طبيعة",
+          question: "أي طائر يمكنه الطيران للخلف؟",
+          answer: "الطائر الطنان",
+          traps: ["النسر", "الصقر", "العصفور"]
+        },
+        {
+          type: "علم",
+          question: "ما هو أكثر عنصر وفرة في الكون؟",
+          answer: "الهيدروجين",
+          traps: ["الأكسجين", "الكربون", "الهيليوم"]
+        },
+        {
+          type: "جغرافيا",
+          question: "أي جبل ينمو كل عام؟",
+          answer: "جبل إيفرست",
+          traps: ["مون بلان", "كليمنجارو", "جبل فوجي"]
+        },
+        {
+          type: "تاريخ",
+          question: "من اخترع المطبعة؟",
+          answer: "بي شينغ",
+          traps: ["جوتنبرغ", "كاكستون", "بلانتين"]
+        },
+        {
+          type: "ثقافة",
+          question: "أي دولة تنتج أكثر قهوة؟",
+          answer: "البرازيل",
+          traps: ["كولومبيا", "فيتنام", "إثيوبيا"]
+        },
+        {
+          type: "طبيعة",
+          question: "أي حيوان لديه أكثر معدات؟",
+          answer: "البقرة",
+          traps: ["الخروف", "الحصان", "الخنزير"]
+        },
+        {
+          type: "علم",
+          question: "في أي درجة حرارة يكون الماء أكثر كثافة؟",
+          answer: "4 درجات مئوية",
+          traps: ["0 درجة مئوية", "20 درجة مئوية", "100 درجة مئوية"]
+        },
+        {
+          type: "جغرافيا",
+          question: "أي دولة لديها أعلى متوسط عمر متوقع؟",
+          answer: "موناكو",
+          traps: ["اليابان", "سويسرا", "سنغافورة"]
+        },
+        {
+          type: "تاريخ",
+          question: "أي ثورة حدثت أولاً؟",
+          answer: "الثورة الإنجليزية",
+          traps: ["الثورة الفرنسية", "الثورة الأمريكية", "الثورة الروسية"]
+        },
+        {
+          type: "ثقافة",
+          question: "أي رياضة تم اختراعها أولاً؟",
+          answer: "المصارعة",
+          traps: ["الجري", "السباحة", "الملاكمة"]
+        },
+        {
+          type: "طبيعة",
+          question: "أي حيوان يعيش أطول فترة؟",
+          answer: "قنديل البحر الخالد",
+          traps: ["السلحفاة", "الحوت", "القرش"]
+        },
+        {
+          type: "علم",
+          question: "كم عدد أبعاد المكان-الزمن حسب أينشتاين؟",
+          answer: "4",
+          traps: ["3", "5", "11"]
+        },
+        {
+          type: "جغرافيا",
+          question: "أي نهر يعبر أكثر دول؟",
+          answer: "الدانوب",
+          traps: ["النيل", "الأمازون", "الراين"]
+        },
+        {
+          type: "تاريخ",
+          question: "أي لغة كان يتكلم بها المسيح؟",
+          answer: "الآرامية",
+          traps: ["العبرية", "اللاتينية", "اليونانية"]
+        },
+        {
+          type: "ثقافة",
+          question: "أي دولة اخترعت المعكرونة؟",
+          answer: "الصين",
+          traps: ["إيطاليا", "اليونان", "فارس"]
         }
       ]
     }

@@ -12,18 +12,19 @@ const transformQuestion = (question: any, index: number): TrapQuestion => ({
   question: question.question,
   answers: [
     { text: question.answer, isCorrect: true, isTrap: false },
-    ...question.traps.map((trap: string) => ({ 
-      text: trap, 
-      isCorrect: false, 
-      isTrap: true 
+    ...question.traps.map((trap: string) => ({
+      text: trap,
+      isCorrect: false,
+      isTrap: true
     }))
-  ]
+  ].sort(() => Math.random() - 0.5) // Mélanger les réponses ici
 });
 
 // Hook personnalisé pour les questions de Trap Answer
 export function useTrapAnswerQuestions() {
   const [questions, setQuestions] = useState<TrapQuestion[]>([]);
   const [askedQuestions, setAskedQuestions] = useState<string[]>([]);
+  const [availableQuestions, setAvailableQuestions] = useState<TrapQuestion[]>([]);
   const { isRTL, language } = useLanguage();
 
   // Charger les questions depuis Firebase
@@ -39,9 +40,10 @@ export function useTrapAnswerQuestions() {
           const currentLanguage = isRTL ? 'ar' : (language || 'fr');
           const rawQuestions = questionsData?.translations?.[currentLanguage] || [];
           
-          // Transformer les questions au format TrapQuestion
+          // Transformer les questions au format TrapQuestion (les réponses sont mélangées dans transformQuestion)
           const transformedQuestions = rawQuestions.map(transformQuestion);
           setQuestions(transformedQuestions);
+          setAvailableQuestions(transformedQuestions);
         }
       } catch (error) {
         console.error('Erreur lors du chargement des questions:', error);
@@ -53,23 +55,30 @@ export function useTrapAnswerQuestions() {
 
   // Obtenir une question aléatoire qui n'a pas encore été posée
   const getRandomQuestion = (): TrapQuestion | null => {
-    if (questions.length === 0) return null;
-
-    // Si toutes les questions ont été posées, réinitialiser
-    if (askedQuestions.length >= questions.length) {
+    if (availableQuestions.length === 0) {
+      // Si toutes les questions ont été posées, réinitialiser avec toutes les questions mélangées
+      const shuffledQuestions = [...questions].sort(() => Math.random() - 0.5);
+      setAvailableQuestions(shuffledQuestions);
       setAskedQuestions([]);
+      // Tenter de prendre une question de la liste nouvellement mélangée
+      const randomIndex = Math.floor(Math.random() * shuffledQuestions.length);
+      const selectedQuestion = shuffledQuestions[randomIndex];
+       if (!selectedQuestion) return null; // Safety check
+
+      // Ajouter la question à la liste des questions posées
+      setAskedQuestions((prev: string[]) => [...prev, selectedQuestion.id]);
+      return selectedQuestion;
     }
 
-    // Filtrer les questions non posées
-    const availableQuestions = questions.filter((q: TrapQuestion) => !askedQuestions.includes(q.id));
-    
-    if (availableQuestions.length === 0) return null;
-
-    // Sélectionner une question aléatoire
+    // Sélectionner une question aléatoire parmi les questions disponibles
     const randomIndex = Math.floor(Math.random() * availableQuestions.length);
     const selectedQuestion = availableQuestions[randomIndex];
 
     if (!selectedQuestion) return null;
+
+    // Retirer la question sélectionnée des questions disponibles
+    const newAvailableQuestions = availableQuestions.filter((_, index) => index !== randomIndex);
+    setAvailableQuestions(newAvailableQuestions);
 
     // Ajouter la question à la liste des questions posées
     setAskedQuestions((prev: string[]) => [...prev, selectedQuestion.id]);
@@ -77,9 +86,11 @@ export function useTrapAnswerQuestions() {
     return selectedQuestion;
   };
 
-  // Réinitialiser l'historique des questions posées
+  // Réinitialiser l'historique des questions posées et mélanger à nouveau
   const resetAskedQuestions = () => {
     setAskedQuestions([]);
+    const shuffledQuestions = [...questions].sort(() => Math.random() - 0.5);
+    setAvailableQuestions(shuffledQuestions);
   };
 
   return {
