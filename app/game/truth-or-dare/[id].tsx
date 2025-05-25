@@ -159,7 +159,7 @@ export default function TruthOrDareGameScreen() {
   const gameStartTime = useRef(Date.now());
   const { t } = useTranslation();
   const { getGameContent } = useLanguage();
-  const { getRandomQuestion, resetAskedQuestions } = useTruthOrDareQuestions();
+  const { getRandomQuestion, resetAskedQuestions, isLoadingQuestions } = useTruthOrDareQuestions();
 
   const handleNextRound = async () => {
     if (!game || !user) return;
@@ -173,20 +173,10 @@ export default function TruthOrDareGameScreen() {
         game.totalRounds
       );
 
-      const nextQuestion = getRandomQuestion();
-      
-      if (!nextQuestion) {
-        Alert.alert(
-          t('game.error'),
-          t('game.truthOrDare.noQuestions')
-        );
-        return;
-      }
-
       await updateDoc(gameRef, {
         currentRound: game.currentRound + 1,
-        phase: 'question',
-        currentQuestion: nextQuestion,
+        phase: 'choix',
+        currentQuestion: null,
         answers: [],
         votes: {},
         winningAnswerId: null,
@@ -425,7 +415,7 @@ export default function TruthOrDareGameScreen() {
     }
   }, [game, voteHandled, game?.votes, game?.phase, user, id]);
 
-  if (loading || !game || !user) {
+  if (loading || !game || !user || isLoadingQuestions) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#6c5ce7" />
@@ -510,13 +500,15 @@ export default function TruthOrDareGameScreen() {
   if (game.phase === 'question' || game.phase === 'action') {
     const player = game.players?.find((p: any) => String(p.id) === String(game.currentPlayerId));
     const playerName = player?.name || 'Le joueur';
-    let questionText = '';
-    if (game.currentQuestion && typeof (game.currentQuestion as any).text === 'string') {
-      questionText = (game.currentQuestion as any).text;
-    } else if (game.currentQuestion && typeof (game.currentQuestion as any).text === 'object' && (game.currentQuestion as any).text && 'text' in (game.currentQuestion as any).text) {
-      questionText = (game.currentQuestion as any).text.text;
-    } else {
-      questionText = "Aucune question disponible pour ce choix.";
+    const currentQuestion = game.currentQuestion as any;
+    let questionText = "Aucune question disponible pour ce choix.";
+
+    if (currentQuestion && currentQuestion.text) {
+      if (typeof currentQuestion.text === 'string') {
+        questionText = currentQuestion.text;
+      } else if (typeof currentQuestion.text === 'object' && currentQuestion.text !== null && 'text' in currentQuestion.text && typeof currentQuestion.text.text === 'string') {
+        questionText = currentQuestion.text.text;
+      }
     }
     return (
       <View style={styles.container}>
@@ -708,14 +700,28 @@ export default function TruthOrDareGameScreen() {
   // --- Handlers synchronisés ---
   async function handleChoice(choice: 'verite' | 'action') {
     if (!game || !user || !id) return;
-    
+
     try {
       const db = getFirestore();
+
+      // Sélectionner la prochaine question ICI
+      const nextQuestion = getRandomQuestion();
+
+      if (!nextQuestion) {
+        Alert.alert(
+          t('game.error'),
+          t('game.truthOrDare.noQuestionsAvailable')
+        );
+        console.error('Aucune question disponible après le choix.');
+        return; // Ne pas continuer si aucune question n'est disponible
+      }
+
       await updateDoc(doc(db, 'games', String(id)), {
         currentChoice: choice,
-        phase: 'question'
+        phase: 'question',
+        currentQuestion: nextQuestion, // Stocker la question sélectionnée
       });
-      
+
       // Track le choix
       await gameAnalytics.trackChoice(String(id), choice);
     } catch (error) {

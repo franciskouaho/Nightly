@@ -16,33 +16,50 @@ export function useTruthOrDareQuestions() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [askedQuestions, setAskedQuestions] = useState<string[]>([]);
   const [availableQuestions, setAvailableQuestions] = useState<Question[]>([]);
+  const [isLoadingQuestions, setIsLoadingQuestions] = useState(true);
   const { isRTL, language } = useLanguage();
 
   // Charger les questions depuis Firebase
   useEffect(() => {
+    // Ajouter une condition pour s'assurer que la langue est prête.
+    // Ici, on vérifie simplement si 'language' a une valeur non nulle ou non vide.
+    // Si useLanguage a un état 'isLoadingLanguage', il serait préférable de l'utiliser.
+    const currentLanguageCode = isRTL ? 'ar' : (language || 'fr');
+    if (!currentLanguageCode) {
+      setIsLoadingQuestions(false); // Ne pas charger et indiquer non chargé si langue indéfinie
+      return;
+    }
+
     const fetchQuestions = async () => {
       try {
+        setIsLoadingQuestions(true);
         const db = getFirestore();
         const questionsRef = doc(db, 'gameQuestions', 'truth-or-dare');
         const questionsDoc = await getDoc(questionsRef);
-        
+
         if (questionsDoc.exists()) {
           const questionsData = questionsDoc.data();
-          const currentLanguage = isRTL ? 'ar' : (language || 'fr');
-          const rawQuestions = questionsData?.translations?.[currentLanguage] || [];
-          
-          // Transformer les questions au format Question
+          // Utiliser le currentLanguageCode déjà déterminé
+          const rawQuestions = questionsData?.translations?.[currentLanguageCode] || [];
+
           const transformedQuestions = rawQuestions.map(transformQuestion);
           setQuestions(transformedQuestions);
           setAvailableQuestions(transformedQuestions);
+        } else {
+           console.warn('No questions document found for truth-or-dare in Firebase.');
+           setQuestions([]);
+           setAvailableQuestions([]);
         }
       } catch (error) {
         console.error('Erreur lors du chargement des questions:', error);
+      } finally {
+        setIsLoadingQuestions(false);
       }
     };
 
     fetchQuestions();
-  }, [isRTL, language]);
+    // Ajouter currentLanguageCode aux dépendances si la logique de langue le justifie
+  }, [isRTL, language]); // Maintenir les dépendances actuelles pour réagir aux changements
 
   // Obtenir une question aléatoire qui n'a pas encore été posée
   const getRandomQuestion = (): Question | null => {
@@ -88,7 +105,8 @@ export function useTruthOrDareQuestions() {
     questions,
     getRandomQuestion,
     resetAskedQuestions,
-    askedQuestions
+    askedQuestions,
+    isLoadingQuestions,
   };
 }
 
