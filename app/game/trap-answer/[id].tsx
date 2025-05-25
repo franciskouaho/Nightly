@@ -68,22 +68,16 @@ export default function TrapAnswerGame() {
   useEffect(() => {
     if (!gameState || gameState.currentQuestion || questions.length === 0) return;
 
-    // Mélanger les questions disponibles explicitement pour la première question
-    const shuffledAvailableQuestions = [...questions].sort(() => Math.random() - 0.5);
-    const firstQuestion = shuffledAvailableQuestions[0];
+    // Utiliser getRandomQuestion pour obtenir la première question
+    const firstQuestion = getRandomQuestion();
 
     if (firstQuestion) {
-      // Mettre à jour l'état des questions disponibles dans le hook via une fonction de réinitialisation ou similaire si possible
-      // Alternativement, si le hook gère l'état interne de manière robuste, cela devrait suffire.
-      // Pour l'instant, basons-nous sur le hook qui gère les 'askedQuestions'.
-
       // S'assurer que les réponses de la première question sont bien mélangées
       const shuffledAnswers = [...firstQuestion.answers].sort(() => Math.random() - 0.5);
       const firstQuestionWithShuffledAnswers = {
           ...firstQuestion,
           answers: shuffledAnswers
       };
-
 
       const initialPlayersHistory: { [playerId: string]: number[] } = (gameState.players || []).reduce((acc: { [playerId: string]: number[] }, player) => {
         acc[player.id] = Array(gameState.totalRounds || 5).fill(0);
@@ -102,7 +96,7 @@ export default function TrapAnswerGame() {
     } else {
       updateGameState({ phase: GamePhase.END });
     }
-  }, [gameState?.currentQuestion, questions, gameState?.players, gameState?.totalRounds]); // Ajout de dépendances manquantes
+  }, [gameState?.currentQuestion, questions, gameState?.players, gameState?.totalRounds]);
 
   useEffect(() => {
     if (gameState?.phase === GamePhase.QUESTION) {

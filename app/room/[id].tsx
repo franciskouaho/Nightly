@@ -334,6 +334,9 @@ export default function RoomScreen() {
         questions = translations[currentLanguage] || translations.fr || [];
       }
       
+      // Mélanger la liste des questions pour garantir l'aléatoire dès la création de la partie
+      questions = [...questions].sort(() => Math.random() - 0.5);
+      
       console.log('[DEBUG] Nombre de questions:', questions.length);
       if (!questions || questions.length === 0) {
         console.error('Structure de données:', data);

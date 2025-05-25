@@ -43,7 +43,7 @@ export function useTrapAnswerQuestions() {
           // Transformer les questions au format TrapQuestion (les réponses sont mélangées dans transformQuestion)
           const transformedQuestions = rawQuestions.map(transformQuestion);
           setQuestions(transformedQuestions);
-          setAvailableQuestions(transformedQuestions);
+          setAvailableQuestions([...transformedQuestions].sort(() => Math.random() - 0.5));
         }
       } catch (error) {
         console.error('Erreur lors du chargement des questions:', error);
