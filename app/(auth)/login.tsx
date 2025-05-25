@@ -10,9 +10,9 @@ import { useAuthAnalytics } from '@/hooks/useAuthAnalytics';
 import { useTranslation } from 'react-i18next';
 
 const profils = [
-  require('../../../../workspace/Nightly/assets/profils/chat.png'),
-  require('../../../../workspace/Nightly/assets/profils/renard.png'),
-  require('../../../../workspace/Nightly/assets/profils/grenouille.png'),
+  require('@/assets/profils/chat.png'),
+  require('@/assets/profils/renard.png'),
+  require('@/assets/profils/grenouille.png'),
 ];
 
 function chunkArray<T>(array: T[], size: number): T[][] {
@@ -97,6 +97,9 @@ export default function LoginScreen() {
                 />
               </View>
 
+              <Text style={styles.profileSelectionTitle}>{t('auth.login.selectCharacter')}</Text>
+              <Text style={styles.profileSelectionSubtitle}>{t('auth.login.characterDescription')}</Text>
+
               {chunkArray(profils, 4).map((row: any[], rowIdx: number) => (
                   <View style={styles.profilesRow} key={rowIdx}>
                     {row.map((img: any, idx: number) => (
@@ -161,6 +164,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'rgba(255, 255, 255, 0.7)',
     marginTop: 5,
+  },
+  profileSelectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginTop: 20,
+    marginBottom: 8,
+  },
+  profileSelectionSubtitle: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.7)',
+    marginBottom: 15,
   },
   form: {
     width: '100%',

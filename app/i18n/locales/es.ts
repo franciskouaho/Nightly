@@ -43,9 +43,11 @@ export default {
       username: 'Tu nombre de usuario',
       usernameRequired: 'Por favor, introduce tu nombre de usuario',
       usernameLength: 'El nombre de usuario debe tener al menos 3 caracteres',
-      enterUsername: 'Introduce tu nombre de usuario para jugar',
+      enterUsername: 'Ingresa tu nombre de usuario para jugar',
       connecting: 'Conectando...',
       play: 'Jugar',
+      selectCharacter: 'Elige tu personaje',
+      characterDescription: 'Selecciona un personaje que te represente para la partida',
     },
     register: {
       title: 'Registro',

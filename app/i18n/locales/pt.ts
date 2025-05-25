@@ -46,6 +46,8 @@ export default {
       enterUsername: 'Digite seu nome de usuário para jogar',
       connecting: 'Conectando...',
       play: 'Jogar',
+      selectCharacter: 'Escolha seu personagem',
+      characterDescription: 'Selecione um personagem que te represente para a partida',
     },
     register: {
       title: 'Cadastro',

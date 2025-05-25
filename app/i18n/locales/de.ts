@@ -42,10 +42,12 @@ export default {
       signUp: 'Registrieren',
       username: 'Dein Benutzername',
       usernameRequired: 'Bitte gib deinen Benutzernamen ein',
-      usernameLength: 'Benutzername muss mindestens 3 Zeichen lang sein',
+      usernameLength: 'Der Benutzername muss mindestens 3 Zeichen lang sein',
       enterUsername: 'Gib deinen Benutzernamen ein, um zu spielen',
       connecting: 'Verbinde...',
       play: 'Spielen',
+      selectCharacter: 'Wähle deinen Charakter',
+      characterDescription: 'Wähle einen Charakter, der dich im Spiel repräsentiert',
     },
     register: {
       title: 'Registrieren',

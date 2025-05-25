@@ -42,10 +42,12 @@ export default {
       signUp: 'إنشاء حساب',
       username: 'اسم المستخدم الخاص بك',
       usernameRequired: 'يرجى إدخال اسم المستخدم',
-      usernameLength: 'يجب أن يكون اسم المستخدم 3 أحرف على الأقل',
+      usernameLength: 'يجب أن يحتوي اسم المستخدم على 3 أحرف على الأقل',
       enterUsername: 'أدخل اسم المستخدم للعب',
       connecting: 'جاري الاتصال...',
       play: 'العب',
+      selectCharacter: 'اختر شخصيتك',
+      characterDescription: 'اختر شخصية تمثلك في اللعبة',
     },
     register: {
       title: 'إنشاء حساب',
