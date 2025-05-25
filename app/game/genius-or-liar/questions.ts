@@ -8,6 +8,7 @@ const transformQuestion = (question: any, index: number): Question => ({
   id: (index + 1).toString(),
   text: question.question,
   theme: question.type,
+  answer: question.answer,
   roundNumber: index + 1
 });
 

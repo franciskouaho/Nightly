@@ -190,6 +190,44 @@ export default {
       'avatar-phoenix': {
         name: 'Phönix',
       },
+    },
+    geniusOrLiar: {
+      roundResults: 'Rundenergebnisse',
+      correctAnswerLabel: 'Richtige Antwort: {{answer}}',
+      givenAnswerLabel: 'Gegebene Antwort: {{answer}}',
+      playerStatus: {
+        dontKnow: 'Wusste es nicht',
+        correctAnswer: 'Fand die richtige Antwort',
+        correctButAccused: 'Fand die richtige Antwort, wurde aber beschuldigt',
+        liarNotAccused: 'Log, ohne beschuldigt zu werden',
+        liarAccused: 'Log und wurde beschuldigt',
+        wrongAnswer: 'Falsche Antwort'
+      },
+      accuserStatus: {
+        correctAccusation: 'Berechtigte Beschuldigung!',
+        wrongAccusation: 'Falsche Beschuldigung!'
+      },
+      wasAccused: 'Wurde beschuldigt',
+      nextRound: 'Nächste Runde',
+      endGame: 'Spiel beenden',
+      drinks: 'Strafen',
+      chooseGameMode: 'Spielmodus wählen',
+      pointsMode: 'Punkte-Modus',
+      gagesMode: 'Strafen-Modus',
+      modeSelectError: 'Spielmodus konnte nicht ausgewählt werden.',
+      noQuestionAvailable: 'Keine Frage verfügbar.',
+      incorrectQuestionFormat: 'Falsches Fragenformat für ID: {{id}}.',
+      noQuestions: 'Keine Fragen geladen.',
+      accuseTitle: 'Beschuldige einen Lügner',
+      pretendKnows: 'Behauptet zu wissen',
+      accusedBy: 'Beschuldigt von {{count}} Spieler(n)',
+      accuseNoOne: 'Niemanden beschuldigen',
+      waitingForPlayers: 'Warte auf andere Spieler...',
+      answerPlaceholder: 'Gib deine Antwort hier ein...',
+      validate: 'Bestätigen',
+      know: 'Ich weiß',
+      dontKnow: 'Ich weiß nicht',
+      errorSubmit: 'Fehler beim Senden deiner Antwort oder deines Votes.'
     }
   },
 
@@ -277,45 +315,6 @@ export default {
       errorNext: "Fehler beim Wechsel zur nächsten Runde",
       endTitle: "Spiel beendet!",
       endSubtitle: "Danke fürs Spielen von Wahrheit oder Pflicht!"
-    },
-    geniusOrLiar: {
-      know: "Ich weiß es!",
-      dontKnow: "Ich weiß es nicht",
-      accuse: "Beschuldigen",
-      skip: "Überspringen",
-      submit: "Absenden",
-      next: "Nächste Runde",
-      validate: "Bestätigen",
-      answerPlaceholder: "Schreibe deine Antwort hier...",
-      errorSubmit: "Antwort konnte nicht gesendet werden",
-      errorVote: "Anklage konnte nicht gesendet werden",
-      errorNext: "Beim Wechsel zur nächsten Runde ist ein Fehler aufgetreten",
-      endTitle: "Spiel beendet!",
-      endSubtitle: "Danke fürs Spielen von Genie oder Lügner!",
-      continue: 'Weiter',
-      noQuestions: "Keine Fragen verfügbar",
-      allQuestionsUsed: "Alle Fragen wurden bereits verwendet",
-      waitingForPlayers: "Warten auf andere Spieler...",
-      chooseGameMode: "Wähle deinen Spielmodus",
-      pointsMode: "PUNKTE-MODUS",
-      gagesMode: "PFAND-MODUS",
-      accuseTitle: "Beschuldige jemanden zu lügen!",
-      accuseNoOne: "Ich will niemanden beschuldigen",
-      pretendKnows: "Behauptet es zu wissen",
-      accusedBy: "Beschuldigt von {{count}} Spieler(n)",
-      correctAnswer: "Richtige Antwort: {{answer}}",
-      playerStatus: {
-        dontKnow: "Wusste es nicht",
-        correctAnswer: "Richtige Antwort",
-        correctButAccused: "Richtige Antwort aber beschuldigt",
-        liarNotAccused: "Hat gelogen ohne beschuldigt zu werden",
-        liarAccused: "Hat gelogen und wurde beschuldigt"
-      },
-      accuserStatus: {
-        correctAccusation: "Richtige Anklage",
-        wrongAccusation: "Falsche Anklage",
-        against: "gegen {{name}}"
-      }
     },
     neverHaveIEverHot: {
       never: "Ich habe noch nie",

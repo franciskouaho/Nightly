@@ -12,6 +12,7 @@ export interface Question {
   theme: string;
   roundNumber: number;
   type?: 'coquin' | 'sage';
+  answer?: string;
 }
 
 export interface Answer {

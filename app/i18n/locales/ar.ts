@@ -184,6 +184,44 @@ export default {
       'avatar-phoenix': {
         name: 'طائر الفينيق',
       },
+    },
+    geniusOrLiar: {
+      roundResults: 'نتائج الجولة',
+      correctAnswerLabel: 'الإجابة الصحيحة: {{answer}}',
+      givenAnswerLabel: 'الإجابة المعطاة: {{answer}}',
+      playerStatus: {
+        dontKnow: 'لم يعرف',
+        correctAnswer: 'وجد الإجابة الصحيحة',
+        correctButAccused: 'وجد الإجابة الصحيحة لكن تم اتهامه',
+        liarNotAccused: 'كذب دون أن يتم اتهامه',
+        liarAccused: 'كذب وتم اتهامه',
+        wrongAnswer: 'إجابة خاطئة'
+      },
+      accuserStatus: {
+        correctAccusation: 'اتهام مبرر!',
+        wrongAccusation: 'اتهام خاطئ!'
+      },
+      wasAccused: 'تم اتهامه',
+      nextRound: 'الجولة التالية',
+      endGame: 'إنهاء اللعبة',
+      drinks: 'عقوبات',
+      chooseGameMode: 'اختر وضع اللعب',
+      pointsMode: 'وضع النقاط',
+      gagesMode: 'وضع العقوبات',
+      modeSelectError: 'تعذر تحديد وضع اللعب.',
+      noQuestionAvailable: 'لا توجد أسئلة متاحة.',
+      incorrectQuestionFormat: 'صيغة السؤال غير صحيحة للمعّرف: {{id}}.',
+      noQuestions: 'لم يتم تحميل أي أسئلة.',
+      accuseTitle: 'اتهام كاذب',
+      pretendKnows: 'يدّعي المعرفة',
+      accusedBy: 'اتهم بواسطة {{count}} لاعب(ين)',
+      accuseNoOne: 'عدم اتهام أحد',
+      waitingForPlayers: 'في انتظار اللاعبين الآخرين...',
+      answerPlaceholder: 'أدخل إجابتك هنا...',
+      validate: 'تحقق',
+      know: 'أنا أعرف',
+      dontKnow: 'أنا لا أعرف',
+      errorSubmit: 'خطأ في إرسال إجابتك أو تصويتك.'
     }
   },
 
