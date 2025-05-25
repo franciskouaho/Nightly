@@ -9,7 +9,7 @@ import { useInAppReview } from '@/hooks/useInAppReview';
 import { useGeniusOrLiarAnalytics } from '@/hooks/useGeniusOrLiarAnalytics';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useRandomQuestions } from '@/hooks/useRandomQuestions';
+import { useGeniusOrLiarQuestions } from './questions';
 import GameResults from '@/components/game/GameResults';
 
 interface FirebaseQuestion {
@@ -79,7 +79,7 @@ export default function KnowOrDrinkGame() {
   const gameStartTime = useRef(Date.now());
   const { t, i18n } = useTranslation();
   const { isRTL } = useLanguage();
-  const { getRandomQuestion } = useRandomQuestions('genius-or-liar');
+  const { getRandomQuestion, resetAskedQuestions } = useGeniusOrLiarQuestions();
 
   useEffect(() => {
     if (!id || !user) return;

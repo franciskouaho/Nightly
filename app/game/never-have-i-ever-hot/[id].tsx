@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/contexts/LanguageContext';
 import GameResults from '@/components/game/GameResults';
 import { usePoints } from '@/hooks/usePoints';
+import { useNeverHaveIEverHotQuestions } from './questions';
 
 interface NeverHaveIEverHotGameState {
   phase: GamePhase;
@@ -90,6 +91,7 @@ export default function NeverHaveIEverHotGame() {
   const { requestReview } = useInAppReview();
   const gameAnalytics = useNeverHaveIEverHotAnalytics();
   const { awardGamePoints } = usePoints();
+  const { getRandomQuestion, resetAskedQuestions } = useNeverHaveIEverHotQuestions();
   
   // State hooks - Garder un ordre constant
   const [currentQuestion, setCurrentQuestion] = useState<GameQuestion | null>(null);

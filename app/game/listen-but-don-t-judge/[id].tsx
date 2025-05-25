@@ -11,9 +11,9 @@ import { useInAppReview } from '@/hooks/useInAppReview';
 import { useListenButDontJudgeAnalytics } from '@/hooks/useListenButDontJudgeAnalytics';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useRandomQuestions } from '@/hooks/useRandomQuestions';
-import { GamePhase } from '@/types/gameTypes';
+import { GamePhase, Question } from '@/types/gameTypes';
 import ResultsPhase from '@/components/game/ResultsPhase';
+import { useListenButDontJudgeQuestions } from './questions';
 
 // Define interfaces outside the component
 interface Player {
@@ -21,13 +21,6 @@ interface Player {
   name: string;
   avatar: string;
   username?: string;
-}
-
-interface Question {
-  id: string;
-  text: string;
-  theme?: string;
-  roundNumber?: number;
 }
 
 interface GameState {
@@ -60,12 +53,12 @@ export default function ListenButDontJudgeScreen() {
   const gameAnalytics = useListenButDontJudgeAnalytics();
   const { t } = useTranslation();
   const { getGameContent } = useLanguage();
+  const { getRandomQuestion, resetAskedQuestions } = useListenButDontJudgeQuestions();
   const [game, setGame] = useState<GameState | null>(null);
   const [loading, setLoading] = useState(true);
   const [answer, setAnswer] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const gameStartTime = useRef(Date.now());
-  const { getRandomQuestion, resetAskedQuestions } = useRandomQuestions('listen-but-don-t-judge');
 
   // Use useCallback to memoize safeTranslate
   const safeTranslate = useCallback((key: string, defaultValue: string = '') => {
@@ -254,13 +247,43 @@ export default function ListenButDontJudgeScreen() {
         return;
       }
 
+      // Assurer que l'objet nextQuestion a la structure correcte et ne contient pas de undefined
+      const questionForFirestore: Question = {
+        id: nextQuestion.id || '',
+        text: nextQuestion.text || safeTranslate('game.listenButDontJudge.noQuestions', 'Aucun texte disponible'), // Assurer que le texte est toujours présent
+        theme: nextQuestion.theme || '',
+        roundNumber: nextQuestion.roundNumber !== undefined ? nextQuestion.roundNumber : game.currentRound + 1
+      };
+
+      // Nettoyer les objets Player pour supprimer les undefined avant la mise à jour
+      const updatedTargetPlayer = game.targetPlayer ? { ...game.targetPlayer } : null;
+      if (updatedTargetPlayer) {
+        (Object.keys(updatedTargetPlayer) as Array<keyof Player>).forEach(key => {
+          if (updatedTargetPlayer[key] === undefined) {
+            delete updatedTargetPlayer[key];
+          }
+        });
+      }
+
+      const updatedPlayers = game.players ? game.players.map(player => {
+        const cleanedPlayer = { ...player };
+        (Object.keys(cleanedPlayer) as Array<keyof Player>).forEach(key => {
+          if (cleanedPlayer[key] === undefined) {
+            delete cleanedPlayer[key];
+          }
+        });
+        return cleanedPlayer;
+      }) : [];
+
       await updateDoc(gameRef, {
         currentRound: game.currentRound + 1,
         phase: 'question',
-        currentQuestion: nextQuestion,
+        currentQuestion: questionForFirestore,
         answers: [],
         votes: {},
-        winningAnswerId: null
+        winningAnswerId: null,
+        targetPlayer: updatedTargetPlayer,
+        players: updatedPlayers
       });
     } catch (error) {
       console.error('Error moving to next round:', error);
@@ -295,83 +318,82 @@ export default function ListenButDontJudgeScreen() {
     // Handle null or undefined input
     if (!question) {
       console.error('Input question is null or undefined');
-      return { id: 'default-id', text: safeTranslate('game.listenButDontJudge.noQuestions', 'Aucune question disponible') };
+      return { id: 'default-id', text: safeTranslate('game.listenButDontJudge.noQuestions', 'Aucune question disponible'), theme: '', roundNumber: 0 };
     }
 
     // If it's already a Question object with an ID
     if (typeof question === 'object' && question !== null && 'id' in question && typeof question.id === 'string') {
         // Ensure it has a text property, or use a default
-        if(!('text' in question) || typeof question.text !== 'string') {
+        if(question.text === undefined || question.text === null || typeof question.text !== 'string') {
              console.warn('Question object missing text property, using default.', question);
-             return { ...question, text: safeTranslate('game.listenButDontJudge.noQuestions', 'Aucune question disponible') };
+             return { ...question, text: safeTranslate('game.listenButDontJudge.noQuestions', 'Aucune question disponible'), theme: question.theme || '', roundNumber: question.roundNumber || 0 };
         }
        return question as Question;
     }
 
     // If it's a string
     if (typeof question === 'string') {
-      return { id: Date.now().toString(), text: question }; // Generate ID for string questions
+      // Use the string as text, generate ID, and add default theme/roundNumber
+      return { id: Date.now().toString(), text: question, theme: '', roundNumber: 0 };
     }
 
     // If it's an object with a text property but no id
     if (typeof question === 'object' && question !== null && 'text' in question && typeof question.text === 'string') {
          // Check if it has an id that is not a string (e.g. null or undefined) and generate one if needed.
-        if (!('id' in question) || typeof question.id !== 'string') {
+        if (!('id' in question) || typeof question.id !== 'string' || question.id === undefined || question.id === null) {
              console.warn('Object question missing valid id, generating one.', question);
-             return { ...question, id: Date.now().toString() }; // Generate ID
+             return { ...question, id: Date.now().toString(), theme: question.theme || '', roundNumber: question.roundNumber || 0 }; // Generate ID and add default theme/roundNumber
         }
         return question as Question; // Should not happen if previous check passed, but good fallback
     }
 
     // If none of the above, use a default text and generate ID
     console.error('Question not normalizable to expected format:', question);
-    return { id: 'default-id', text: safeTranslate('game.listenButDontJudge.noQuestions', 'Aucune question disponible') };
+    return { id: 'default-id', text: safeTranslate('game.listenButDontJudge.noQuestions', 'Aucune question disponible'), theme: '', roundNumber: 0 };
   };
 
   // Memoize the formatted question text for display in question/vote phases
   const memoizedQuestionText = useMemo(() => {
     console.log('[DEBUG useMemo] Recalculating memoizedQuestionText'); // Debug log
-    if (!game || !game.currentQuestion) return safeTranslate('game.listenButDontJudge.noQuestions', 'Aucune question disponible');
+    // Utiliser normalizeQuestion pour obtenir un objet Question valide
+    const normalizedQuestion = normalizeQuestion(game?.currentQuestion);
 
-    const normalizedQuestion = normalizeQuestion(game.currentQuestion);
-    // Ensure normalizeQuestion returns a valid Question object before passing to formatQuestionText
-    if (!normalizedQuestion || typeof normalizedQuestion.text !== 'string') {
-         console.error('[DEBUG useMemo] Normalization failed or returned invalid object', normalizedQuestion);
-         return safeTranslate('game.listenButDontJudge.noQuestions', 'Aucune question disponible');
+    if (!normalizedQuestion || !normalizedQuestion.text) { // Vérifier si le texte est présent après normalisation
+       console.error('[DEBUG useMemo] Normalization failed or returned invalid object/text', normalizedQuestion);
+       return safeTranslate('game.listenButDontJudge.noQuestions', 'Aucune question disponible');
     }
 
     return formatQuestionText(
       normalizedQuestion,
-      game.targetPlayer?.name || game.targetPlayer?.username || safeTranslate('game.player', 'the player')
+      game?.targetPlayer?.name || game?.targetPlayer?.username || safeTranslate('game.player', 'the player')
     );
-  }, [game?.currentQuestion, game?.targetPlayer, game?.players, safeTranslate]); // Depend on relevant game state and safeTranslate
+  }, [game?.currentQuestion, game?.targetPlayer, game?.players, safeTranslate, normalizeQuestion]); // Depend on relevant game state and safeTranslate
 
   // Memoize the formatted question for ResultsPhase
   const memoizedFormattedQuestion = useMemo(() => {
     console.log('[DEBUG useMemo] Recalculating memoizedFormattedQuestion'); // Debug log
-    if (!game || !game.currentQuestion) return null; // Return null if game or question is not ready
+    // Utiliser normalizeQuestion pour obtenir un objet Question valide
+    const normalizedQuestion = normalizeQuestion(game?.currentQuestion);
 
-    const normalizedQuestion = normalizeQuestion(game.currentQuestion);
-
-    // Ensure normalization result is valid
-    if (!normalizedQuestion || typeof normalizedQuestion.text !== 'string') {
-        console.error('[DEBUG useMemo] Normalization failed for ResultsPhase or returned invalid object', normalizedQuestion);
-        return null;
+    // Ensure normalization result is valid and has text
+    if (!normalizedQuestion || typeof normalizedQuestion.text !== 'string' || !normalizedQuestion.text) {
+        console.error('[DEBUG useMemo] Normalization failed for ResultsPhase or returned invalid object/text', normalizedQuestion);
+        return null; // Return null if game or question is not ready or normalized incorrectly
     }
 
     const formattedText = formatQuestionText(
       normalizedQuestion,
-      game.targetPlayer?.name || game.targetPlayer?.username || safeTranslate('game.player', 'the player')
+      game?.targetPlayer?.name || game?.targetPlayer?.username || safeTranslate('game.player', 'the player')
     );
 
     // Ensure the returned object matches the expected Question interface structure for ResultsPhase
     return {
       id: normalizedQuestion.id || 'generated-id', // Provide a fallback ID if needed
       text: formattedText,
-      theme: typeof game.theme === 'string' ? game.theme : '',
-      roundNumber: game.currentRound || 1
+      theme: normalizedQuestion.theme || '',
+      roundNumber: normalizedQuestion.roundNumber || (game?.currentRound || 1)
     };
-  }, [game?.currentQuestion, game?.targetPlayer, game?.theme, game?.currentRound, safeTranslate]); // Depend on relevant game state and safeTranslate
+  }, [game?.currentQuestion, game?.targetPlayer, game?.theme, game?.currentRound, safeTranslate, normalizeQuestion]); // Depend on relevant game state and safeTranslate
 
   if (loading) {
     return (
@@ -431,12 +453,12 @@ export default function ListenButDontJudgeScreen() {
                 <View
                   style={[
                     styles.progressBarFill,
-                    { width: `${(game.currentRound / game.totalRounds) * 100}%` }
+                    { width: `${((game?.currentRound || 0) / (game?.totalRounds || 1)) * 100}%` }
                   ]}
                 />
               </View>
               <Text style={styles.progressText}>
-                {game.currentRound}/{game.totalRounds}
+                {game?.currentRound || 0}/{game?.totalRounds || 0}
               </Text>
             </View>
             {game.phase === 'question' && (
@@ -507,17 +529,17 @@ export default function ListenButDontJudgeScreen() {
             {game.phase === 'results' && memoizedFormattedQuestion && game?.currentRound < game?.totalRounds && (
               <View style={styles.container}>
                 <ResultsPhase
-                  answers={game.answers}
-                  scores={game.scores}
-                  players={game.players}
+                  answers={game.answers || []}
+                  scores={game.scores || {}}
+                  players={game.players || []}
                   question={memoizedFormattedQuestion}
-                  targetPlayer={game.targetPlayer}
+                  targetPlayer={game.targetPlayer || null}
                   onNextRound={handleNextRound}
                   isLastRound={game.currentRound === game.totalRounds}
-                  timer={game.timer}
+                  timer={game.timer || null}
                   gameId={String(id ?? "")}
-                  totalRounds={game.totalRounds}
-                  winningAnswerId={game.winningAnswerId}
+                  totalRounds={game.totalRounds || 0}
+                  winningAnswerId={game.winningAnswerId || null}
                 />
                 <View style={styles.nextRoundButtonContainer}>
                   <RoundedButton

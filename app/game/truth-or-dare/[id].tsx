@@ -12,7 +12,7 @@ import { useInAppReview } from '@/hooks/useInAppReview';
 import { useTruthOrDareAnalytics } from '@/hooks/useTruthOrDareAnalytics';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useRandomQuestions } from '@/hooks/useRandomQuestions';
+import { useTruthOrDareQuestions } from './questions';
 import { usePoints } from '@/hooks/usePoints';
 import GameResults from '@/components/game/GameResults';
 
@@ -159,7 +159,7 @@ export default function TruthOrDareGameScreen() {
   const gameStartTime = useRef(Date.now());
   const { t } = useTranslation();
   const { getGameContent } = useLanguage();
-  const { getRandomQuestion, resetAskedQuestions } = useRandomQuestions('truth-or-dare');
+  const { getRandomQuestion, resetAskedQuestions } = useTruthOrDareQuestions();
 
   const handleNextRound = async () => {
     if (!game || !user) return;

@@ -7,6 +7,7 @@ import RoundedButton from '@/components/RoundedButton';
 import { useAuth } from '@/contexts/AuthContext';
 import { getFirestore, doc, onSnapshot, updateDoc } from '@react-native-firebase/firestore';
 import { usePoints } from '@/hooks/usePoints';
+import { useTheHiddenVillageQuestions } from './questions';
 
 interface Role {
   id: string;
@@ -86,6 +87,7 @@ export default function TheHiddenVillageGame() {
   const { awardGamePoints } = usePoints();
   const [game, setGame] = useState<TheHiddenVillageGameState | null>(null);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+  const { getRandomQuestion, resetAskedQuestions } = useTheHiddenVillageQuestions();
 
   useEffect(() => {
     if (!id) return;
