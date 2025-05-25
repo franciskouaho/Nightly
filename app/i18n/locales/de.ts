@@ -177,6 +177,17 @@ export default {
         tag: "KOSTENLOS",
         description: "Ein Quiz, bei dem du bei jeder falschen Antwort Punkte verlierst... Kannst du die Fallen vermeiden?"
       },
+      'avatar-dragon': {
+        name: 'Drache',
+        description: 'Ein majestätischer, feuerspeiender Drache'
+      },
+      'avatar-ourse': {
+        name: 'Bär',
+        description: 'Ein majestätischer Bär'
+      },
+      'avatar-phoenix': {
+        name: 'Phönix',
+      },
     }
   },
 

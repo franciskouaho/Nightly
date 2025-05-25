@@ -568,6 +568,10 @@ export default {
         name: 'Dragon',
         description: 'A majestic fire-breathing dragon'
       },
+      'avatar-ourse': {
+        name: 'Bear',
+        description: 'A majestic bear'
+      },
       'avatar-phoenix': {
         name: 'Phoenix',
         description: 'A legendary phoenix that rises from its ashes'

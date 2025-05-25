@@ -11,7 +11,7 @@ import { Asset } from '@/hooks/useUnlockedAssets';
 export const AVAILABLE_ASSETS: Asset[] = [
   {
     id: 'avatar-panda',
-    name: 'Panda',
+    name: 'avatar-panda',
     cost: 100,
     image: require('@/assets/profils/panda.png'),
     type: 'avatar',
@@ -20,7 +20,7 @@ export const AVAILABLE_ASSETS: Asset[] = [
   },
   {
     id: 'avatar-chat',
-    name: 'Chat',
+    name: 'avatar-chat',
     cost: 150,
     image: require('@/assets/profils/chat.png'),
     type: 'avatar',
@@ -29,7 +29,7 @@ export const AVAILABLE_ASSETS: Asset[] = [
   },
   {
     id: 'avatar-chat-rare',
-    name: 'Chat Rare',
+    name: 'avatar-chat-rare',
     cost: 200,
     image: require('@/assets/profils/chatRare.png'),
     type: 'avatar',
@@ -38,7 +38,7 @@ export const AVAILABLE_ASSETS: Asset[] = [
   },
   {
     id: 'avatar-chat-rare-2',
-    name: 'Chat Rare 2',
+    name: 'avatar-chat-rare-2',
     cost: 250,
     image: require('@/assets/profils/chatRare2.png'),
     type: 'avatar',
@@ -47,7 +47,7 @@ export const AVAILABLE_ASSETS: Asset[] = [
   },
   {
     id: 'avatar-crocodile',
-    name: 'Crocodile',
+    name: 'avatar-crocodile',
     cost: 300,
     image: require('@/assets/profils/crocodile.png'),
     type: 'avatar',
@@ -56,7 +56,7 @@ export const AVAILABLE_ASSETS: Asset[] = [
   },
   {
     id: 'avatar-hibou',
-    name: 'Hibou',
+    name: 'avatar-hibou',
     cost: 350,
     image: require('@/assets/profils/hibou.png'),
     type: 'avatar',
@@ -65,7 +65,7 @@ export const AVAILABLE_ASSETS: Asset[] = [
   },
   {
     id: 'avatar-grenouille',
-    name: 'Grenouille',
+    name: 'avatar-grenouille',
     cost: 400,
     image: require('@/assets/profils/grenouille.png'),
     type: 'avatar',
@@ -74,7 +74,7 @@ export const AVAILABLE_ASSETS: Asset[] = [
   },
   {
     id: 'avatar-oiseau',
-    name: 'Oiseau',
+    name: 'avatar-oiseau',
     cost: 450,
     image: require('@/assets/profils/oiseau.png'),
     type: 'avatar',
@@ -83,7 +83,7 @@ export const AVAILABLE_ASSETS: Asset[] = [
   },
   {
     id: 'avatar-renard',
-    name: 'Renard',
+    name: 'avatar-renard',
     cost: 500,
     image: require('@/assets/profils/renard.png'),
     type: 'avatar',
@@ -92,17 +92,26 @@ export const AVAILABLE_ASSETS: Asset[] = [
   },
   {
     id: 'avatar-dragon',
-    name: 'Dragon',
-    cost: 750,
+    name: 'avatar-dragon',
+    cost: 3000,
     image: require('@/assets/profils/dragon.png'),
     type: 'avatar',
     rarity: 'epic',
     description: 'Un dragon majestueux cracheur de feu'
   },
   {
+    id: 'avatar-ourse',
+    name: 'avatar-ourse',
+    cost: 4000,
+    image: require('@/assets/profils/ourse.png'),
+    type: 'avatar',
+    rarity: 'epic',
+    description: 'Un ourse majestueux cracheur de feu'
+  },
+  {
     id: 'avatar-phoenix',
-    name: 'Phénix',
-    cost: 1000,
+    name: 'avatar-phoenix',
+    cost: 5000,
     image: require('@/assets/profils/phoenix.png'),
     type: 'avatar',
     rarity: 'legendary',
@@ -132,7 +141,7 @@ export default function BuyAssetsScreen() {
       await addPointsToUser(user.uid, -asset.cost);
       Alert.alert(
         t('profile.success'),
-        t('profile.assetUnlocked', { asset: asset.name })
+        t('profile.assetUnlocked', { asset: t(`assets.avatars.${asset.name}.name`) })
       );
       // Rafraîchir les données utilisateur ou naviguer si nécessaire
     } catch (error) {
@@ -163,15 +172,15 @@ export default function BuyAssetsScreen() {
         </View>
       </View>
       <ScrollView style={styles.content}>
-        <Text style={styles.marketplaceTitle}>{t('profile.availableAssetsTitle').toUpperCase()}</Text>
+        <Text style={styles.marketplaceTitle}>{t('settings.buyAssets.availableAssetsTitle').toUpperCase()}</Text>
         {/* Future liste des assets à acheter ici */}
         <View style={styles.assetListContainer}>
           {AVAILABLE_ASSETS.map((asset) => (
             <View key={asset.id} style={styles.assetCard}>
               <Image source={asset.image} style={styles.assetCardImage} />
               <View style={styles.assetCardInfo}>
-                <Text style={styles.assetCardName}>{asset.name}</Text>
-                <Text style={styles.assetCardCost}>{asset.cost} {t('profile.pointsLabel')}</Text>
+                <Text style={styles.assetCardName}>{t(`assets.avatars.${asset.name}.name`)}</Text>
+                <Text style={styles.assetCardCost}>{asset.cost} <MaterialCommunityIcons name="currency-btc" size={12} color="#FFD700" /></Text>
               </View>
               <TouchableOpacity
                 style={[
@@ -182,7 +191,7 @@ export default function BuyAssetsScreen() {
                 disabled={(user?.points ?? 0) < asset.cost}
               >
                 <Text style={styles.buyButtonText}>
-                  {(user?.points ?? 0) < asset.cost ? 'Non dispo' : 'Acheter'}
+                  {(user?.points ?? 0) < asset.cost ? t('settings.buyAssets.notAvailable') : t('settings.buyAssets.buy')}
                 </Text>
               </TouchableOpacity>
             </View>

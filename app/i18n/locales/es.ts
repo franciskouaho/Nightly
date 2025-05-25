@@ -498,7 +498,11 @@ export default {
       },
       'avatar-dragon': {
         name: 'Dragón',
-        description: 'Un majestuoso dragón escupefuego'
+        description: 'Un dragón majestuoso que escupe fuego'
+      },
+      'avatar-ourse': {
+        name: 'Osa',
+        description: 'Una osa majestuosa'
       },
       'avatar-phoenix': {
         name: 'Fénix',

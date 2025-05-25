@@ -177,6 +177,17 @@ export default {
         tag: "GRÁTIS",
         description: "Um quiz onde uma resposta errada te faz perder pontos... Consegues evitar as armadilhas?"
       },
+      'avatar-dragon': {
+        name: 'Dragão',
+        description: 'Um majestoso dragão que cospe fogo'
+      },
+      'avatar-ourse': {
+        name: 'Urso',
+        description: 'Um urso majestoso'
+      },
+      'avatar-phoenix': {
+        name: 'Fênix',
+      },
     }
   },
 

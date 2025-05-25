@@ -177,6 +177,17 @@ export default {
         tag: "GRATIS",
         description: "Un quiz in cui una risposta sbagliata ti fa perdere punti... Riuscirai a evitare le trappole?"
       },
+      'avatar-dragon': {
+        name: 'Drago',
+        description: 'Un maestoso drago sputafuoco'
+      },
+      'avatar-ourse': {
+        name: 'Orso',
+        description: 'Un orso maestoso'
+      },
+      'avatar-phoenix': {
+        name: 'Fenice',
+      },
     }
   },
 

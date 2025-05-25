@@ -204,6 +204,9 @@ export default {
       success: 'Asset acheté avec succès !',
       error: 'Erreur lors de l\'achat',
       insufficientPoints: 'Points insuffisants',
+      availableAssetsTitle: 'Assets disponibles',
+      pointsLabel: 'points',
+      notAvailable: 'Non dispo',
     },
   },
 
@@ -571,6 +574,10 @@ export default {
       'avatar-dragon': {
         name: 'Dragon',
         description: 'Un dragon majestueux cracheur de feu'
+      },
+      'avatar-ourse': {
+        name: 'Ourse',
+        description: 'Un ourse majestueux'
       },
       'avatar-phoenix': {
         name: 'Phénix',

@@ -171,6 +171,17 @@ export default {
         tag: 'مجاني',
         description: "اختبار حيث تخسر نقاطًا إذا كانت إجابتك خاطئة... هل يمكنك تجنب الفخاخ؟"
       },
+      'avatar-dragon': {
+        name: 'التنين',
+        description: 'تنين مهيب ينفث النار'
+      },
+      'avatar-ourse': {
+        name: 'الدب',
+        description: 'دب مهيب'
+      },
+      'avatar-phoenix': {
+        name: 'طائر الفينيق',
+      },
     }
   },
 
