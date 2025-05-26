@@ -18,7 +18,6 @@ export default function ProfileScreen() {
   const [showPaywall, setShowPaywall] = useState(false);
   const { t } = useTranslation();
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-  const { addPointsToUser } = usePoints();
 
   useEffect(() => {
     NotificationService.getToken().then(token => {
@@ -47,39 +46,6 @@ export default function ProfileScreen() {
     }
   };
 
-  // Définition des assets à débloquer (exemple)
-  const unlockableAssets = [
-    { id: 'avatar-panda', name: 'Panda', cost: 100, image: require('@/assets/profils/panda.png') },
-    { id: 'avatar-chat-rare', name: 'Chat Rare', cost: 200, image: require('@/assets/profils/chatRare.png') },
-    // Ajoutez d'autres assets ici
-  ];
-
-  const handleUnlockAsset = async (asset: typeof unlockableAssets[0]) => {
-    if (!user) return;
-
-    if (user.points < asset.cost) {
-      Alert.alert(
-          t('profile.insufficientPoints'),
-          t('profile.insufficientPointsMessage')
-      );
-      return;
-    }
-
-    try {
-      // Ajouter la logique de déblocage ici
-      // Par exemple, mettre à jour un tableau d'assets débloqués dans Firestore
-      await addPointsToUser(user.uid, -asset.cost);
-      Alert.alert(
-          t('profile.success'),
-          t('profile.assetUnlocked', { asset: asset.name })
-      );
-    } catch (error) {
-      Alert.alert(
-          t('errors.general'),
-          t('profile.unlockError')
-      );
-    }
-  };
 
   return (
       <View style={styles.container}>

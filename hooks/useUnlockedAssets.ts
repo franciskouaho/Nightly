@@ -1,4 +1,4 @@
-import { useAuth } from "../../../Downloads/Nightly-main/contexts/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { 
   getFirestore, 
   doc, 

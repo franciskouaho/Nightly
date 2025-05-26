@@ -13,25 +13,16 @@ export const AVAILABLE_ASSETS: Asset[] = [
     id: 'avatar-panda',
     name: 'avatar-panda',
     cost: 100,
-    image: require('@/assets/profils/panda.png'),
+    image: 'https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/buy-assets%2Fpanda.png?alt=media&token=413b4355-0af6-4dc5-a48f-fe0dd60667b7',
     type: 'avatar',
     rarity: 'common',
     description: 'Un adorable panda pour votre profil'
   },
   {
-    id: 'avatar-chat',
-    name: 'avatar-chat',
-    cost: 150,
-    image: require('@/assets/profils/chat.png'),
-    type: 'avatar',
-    rarity: 'common',
-    description: 'Un chat mignon et joueur'
-  },
-  {
     id: 'avatar-chat-rare',
     name: 'avatar-chat-rare',
     cost: 200,
-    image: require('@/assets/profils/chatRare.png'),
+    image: 'https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/buy-assets%2FchatRare.png?alt=media&token=7316bd1e-2765-4286-8930-7adb30d09956',
     type: 'avatar',
     rarity: 'rare',
     description: 'Un chat mystérieux aux yeux brillants'
@@ -40,7 +31,7 @@ export const AVAILABLE_ASSETS: Asset[] = [
     id: 'avatar-chat-rare-2',
     name: 'avatar-chat-rare-2',
     cost: 250,
-    image: require('@/assets/profils/chatRare2.png'),
+    image: 'https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/buy-assets%2FchatRare2.png?alt=media&token=842eb6fe-ebc0-43e5-b7f2-f54ac5c9474d',
     type: 'avatar',
     rarity: 'rare',
     description: 'Un chat rare avec un design unique'
@@ -49,7 +40,7 @@ export const AVAILABLE_ASSETS: Asset[] = [
     id: 'avatar-crocodile',
     name: 'avatar-crocodile',
     cost: 300,
-    image: require('@/assets/profils/crocodile.png'),
+    image: 'https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/buy-assets%2Fcrocodile.png?alt=media&token=b3044538-ecb2-44cf-b220-2822f8c6b9a2',
     type: 'avatar',
     rarity: 'rare',
     description: 'Un crocodile impressionnant'
@@ -58,43 +49,16 @@ export const AVAILABLE_ASSETS: Asset[] = [
     id: 'avatar-hibou',
     name: 'avatar-hibou',
     cost: 350,
-    image: require('@/assets/profils/hibou.png'),
+    image: 'https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/buy-assets%2Fhibou.png?alt=media&token=794f00af-ec0c-451c-92a3-a3c1b56f42bf',
     type: 'avatar',
     rarity: 'rare',
     description: 'Un hibou sage et mystérieux'
   },
   {
-    id: 'avatar-grenouille',
-    name: 'avatar-grenouille',
-    cost: 400,
-    image: require('@/assets/profils/grenouille.png'),
-    type: 'avatar',
-    rarity: 'epic',
-    description: 'Une grenouille magique et colorée'
-  },
-  {
-    id: 'avatar-oiseau',
-    name: 'avatar-oiseau',
-    cost: 450,
-    image: require('@/assets/profils/oiseau.png'),
-    type: 'avatar',
-    rarity: 'epic',
-    description: 'Un oiseau aux couleurs vives'
-  },
-  {
-    id: 'avatar-renard',
-    name: 'avatar-renard',
-    cost: 500,
-    image: require('@/assets/profils/renard.png'),
-    type: 'avatar',
-    rarity: 'epic',
-    description: 'Un renard rusé et élégant'
-  },
-  {
     id: 'avatar-dragon',
     name: 'avatar-dragon',
     cost: 3000,
-    image: require('@/assets/profils/dragon.png'),
+    image: 'https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/buy-assets%2Fdragon.png?alt=media&token=6f57e3c9-6046-46c2-918b-7b241441326a',
     type: 'avatar',
     rarity: 'epic',
     description: 'Un dragon majestueux cracheur de feu'
@@ -103,7 +67,7 @@ export const AVAILABLE_ASSETS: Asset[] = [
     id: 'avatar-ourse',
     name: 'avatar-ourse',
     cost: 4000,
-    image: require('@/assets/profils/ourse.png'),
+    image: 'https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/buy-assets%2Fourse.png?alt=media&token=af60bf59-e7e3-4726-b64a-978371512a89',
     type: 'avatar',
     rarity: 'epic',
     description: 'Un ourse majestueux cracheur de feu'
@@ -112,7 +76,7 @@ export const AVAILABLE_ASSETS: Asset[] = [
     id: 'avatar-phoenix',
     name: 'avatar-phoenix',
     cost: 5000,
-    image: require('@/assets/profils/phoenix.png'),
+    image: 'https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/buy-assets%2Fphoenix.png?alt=media&token=ff365cce-d73c-4a41-9f56-dbed53d64e3f',
     type: 'avatar',
     rarity: 'legendary',
     description: 'Un phénix légendaire qui renaît de ses cendres'
@@ -177,7 +141,7 @@ export default function BuyAssetsScreen() {
         <View style={styles.assetListContainer}>
           {AVAILABLE_ASSETS.map((asset) => (
             <View key={asset.id} style={styles.assetCard}>
-              <Image source={asset.image} style={styles.assetCardImage} />
+              <Image source={{ uri: asset.image }} style={styles.assetCardImage} />
               <View style={styles.assetCardInfo}>
                 <Text style={styles.assetCardName}>{t(`assets.avatars.${asset.name}.name`)}</Text>
                 <Text style={styles.assetCardCost}>{asset.cost} <MaterialCommunityIcons name="currency-btc" size={12} color="#FFD700" /></Text>

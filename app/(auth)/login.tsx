@@ -9,10 +9,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuthAnalytics } from '@/hooks/useAuthAnalytics';
 import { useTranslation } from 'react-i18next';
 
-const profils = [
-  require('@/assets/profils/chat.png'),
-  require('@/assets/profils/renard.png'),
-  require('@/assets/profils/grenouille.png'),
+const profils: string[] = [
+  'https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/profils%2Frenard.png?alt=media&token=139ed01b-46f2-4f3e-9305-459841f2a893',
+  'https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/profils%2Fchat.png?alt=media&token=0c852d5b-1a14-4b8a-8926-78a7c88c0695',
+  'https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/profils%2Fgrenouille.png?alt=media&token=8257acb0-bcf7-4e30-a7cf-5ddf44e6da01',
+  'https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/profils%2Foiseau.png?alt=media&token=5a9a9e36-1651-4461-8702-d7bc8d516423'
 ];
 
 function chunkArray<T>(array: T[], size: number): T[][] {
@@ -26,7 +27,7 @@ function chunkArray<T>(array: T[], size: number): T[][] {
 export default function LoginScreen() {
   const [username, setUsername] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedProfile, setSelectedProfile] = useState(profils[0]);
+  const [selectedProfile, setSelectedProfile] = useState(profils[0] as string);
   const { signIn } = useAuth();
   const router = useRouter();
   const authAnalytics = useAuthAnalytics();
@@ -44,9 +45,10 @@ export default function LoginScreen() {
     }
 
     setIsLoading(true);
+
     try {
-      const avatarUri = Image.resolveAssetSource(selectedProfile).uri;
-      await signIn(username, avatarUri);
+      if (!selectedProfile) return;
+      await signIn(username, selectedProfile);
 
       await authAnalytics.trackLogin('username', true);
 
@@ -76,7 +78,7 @@ export default function LoginScreen() {
           <View style={styles.content}>
             <View style={styles.header}>
               <Image
-                  source={selectedProfile}
+                  source={{ uri: selectedProfile }}
                   style={styles.selectedProfileImage}
               />
               <Text style={styles.title}>{t('app.name')}</Text>
@@ -104,12 +106,12 @@ export default function LoginScreen() {
                   <View style={styles.profilesRow} key={rowIdx}>
                     {row.map((img: any, idx: number) => (
                         <TouchableOpacity key={idx} onPress={() => setSelectedProfile(img)}>
-                          <Image
-                              source={img}
-                              style={[
-                                styles.profileImg,
-                                selectedProfile === img && styles.profileImgSelected,
-                              ]}
+                         <Image
+                            source={{ uri: img }}
+                            style={[
+                              styles.profileImg,
+                              selectedProfile === img && styles.profileImgSelected,
+                            ]}
                           />
                         </TouchableOpacity>
                     ))}
