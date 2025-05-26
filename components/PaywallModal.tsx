@@ -21,7 +21,7 @@ export default function PaywallModal({ isVisible, onClose }: PaywallModalProps) 
   const [loading, setLoading] = useState(false);
   const [showCloseButton, setShowCloseButton] = useState(true);
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
 
   const packageToUse = currentOffering?.availablePackages?.find((pkg: any) =>
     selectedPlan === 'weekly'
@@ -50,6 +50,7 @@ export default function PaywallModal({ isVisible, onClose }: PaywallModalProps) 
             subscriptionType: selectedPlan,
             subscriptionUpdatedAt: new Date().toISOString(),
           });
+          setUser(user ? { ...user, hasActiveSubscription: true } : null);
         }
         Alert.alert(
           t('paywall.alerts.success.title'),

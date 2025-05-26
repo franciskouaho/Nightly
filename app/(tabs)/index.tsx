@@ -13,7 +13,6 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React from 'react';
 import { collection, query, where, getDocs, getFirestore, doc, updateDoc } from '@react-native-firebase/firestore';
 import { useTranslation } from 'react-i18next';
-import useRevenueCat from '@/hooks/useRevenueCat';
 import PaywallModal from '@/components/PaywallModal';
 
 interface Room {
@@ -46,14 +45,13 @@ const generateRoomCode = (length = 6) => {
 };
 
 export default function HomeScreen() {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const router = useRouter();
   const { add: createRoom, loading: isCreatingRoom } = useFirestore<Room>('rooms');
   const [partyCode, setPartyCode] = React.useState('');
   const [loading, setLoading] = React.useState(false);
   const { t } = useTranslation();
   const [error, setError] = React.useState('');
-  const { isProMember } = useRevenueCat();
   const [paywallVisible, setPaywallVisible] = React.useState(false);
 
   useEffect(() => {
@@ -61,12 +59,14 @@ export default function HomeScreen() {
   }, [isCreatingRoom]);
 
   useEffect(() => {
-    if (!isProMember) {
-      setPaywallVisible(true);
-    } else {
+    // Ne jamais afficher le modal si l'utilisateur a déjà un abonnement actif
+    if (user?.hasActiveSubscription) {
       setPaywallVisible(false);
+      return;
     }
-  }, [isProMember]);
+    // Afficher le modal uniquement si l'utilisateur n'a pas d'abonnement actif
+    setPaywallVisible(true);
+  }, [user?.hasActiveSubscription]);
 
   const getUserDisplayName = (user: any) => {
     if (!user) return "Joueur";
@@ -281,7 +281,7 @@ export default function HomeScreen() {
   
   const renderGameModeCard = (game: GameMode, isGridItem = false) => {
     const handlePress = async () => {
-      if (game.premium && !isProMember) {
+      if (game.premium && !user?.hasActiveSubscription) {
         setPaywallVisible(true);
         return;
       }
