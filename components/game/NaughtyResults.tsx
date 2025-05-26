@@ -5,6 +5,9 @@ import { Player } from '@/types/gameTypes';
 import { useTranslation } from 'react-i18next';
 import { usePoints } from '@/hooks/usePoints';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import RoundedButton from '@/components/RoundedButton';
 
 interface NaughtyResultsProps {
   players: Player[];
@@ -28,6 +31,7 @@ export default function NaughtyResults({
   }
 }: NaughtyResultsProps) {
   const { t } = useTranslation();
+  const router = useRouter();
   const { addPointsToUser, getUserPoints } = usePoints();
   const [pointsGained, setPointsGained] = useState<number | null>(null);
 
@@ -122,6 +126,17 @@ export default function NaughtyResults({
           ))}
         </View>
       )}
+
+      {/* Bouton Accueil */}
+      <View style={styles.homeButtonContainer}>
+        <RoundedButton
+          title={t('navigation.home')}
+          onPress={() => router.replace("/(tabs)")}
+          icon={<Ionicons name="home" size={22} color="#fff" />}
+          gradientColors={["#7B2CBF", "#661A59"]}
+          style={{ width: '100%' }}
+        />
+      </View>
     </View>
   );
 }
@@ -177,4 +192,10 @@ const styles = StyleSheet.create({
   avatarSmall: { width: 32, height: 32, borderRadius: 16, marginHorizontal: 8 },
   nameSmall: { color: '#fff', flex: 1 },
   countSmall: { color: '#FFD700', fontWeight: 'bold', marginLeft: 8 },
+  homeButtonContainer: {
+    width: '100%',
+    alignItems: 'center',
+    marginTop: 'auto',
+    marginBottom: 20,
+  },
 }); 
