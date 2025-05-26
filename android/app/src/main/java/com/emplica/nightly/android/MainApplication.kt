@@ -1,4 +1,4 @@
-package com.emplica.nightly
+package com.emplica.nightly.android
 
 import android.app.Application
 import android.content.res.Configuration

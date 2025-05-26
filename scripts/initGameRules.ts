@@ -2,9 +2,9 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore, setDoc, doc } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyCaXTVinkd4OIMqhGAXENme4tVvDUG4CzA',
-  authDomain: 'drink-dare.firebaseapp.com',
-  projectId: 'drink-dare',
+  apiKey: "AIzaSyCpkwiOl19wTGqD4YO0HEcTuqWyqaXnU5w",
+  authDomain: "nightly-efa29.firebaseapp.com",
+  projectId: "nightly-efa29",
 };
 
 const supportedLanguages = [

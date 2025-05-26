@@ -1,4 +1,4 @@
-package com.emplica.nightly
+package com.emplica.nightly.android
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

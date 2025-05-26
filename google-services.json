@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "464468295776",
-    "project_id": "drink-dare",
-    "storage_bucket": "drink-dare.firebasestorage.app"
+    "project_number": "939461087699",
+    "project_id": "nightly-efa29",
+    "storage_bucket": "nightly-efa29.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:464468295776:android:32a6fbce161986e8434305",
+        "mobilesdk_app_id": "1:939461087699:android:b749445385eef32f315f26",
         "android_client_info": {
-          "package_name": "com.emplica.nightly"
+          "package_name": "com.emplica.nightly.android"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBMVjHiBBi0RWQsrr8JerRKAUccgJbasmY"
+          "current_key": "AIzaSyBf9NggQku7axLGr2EwWXGqV3d3_87w5UE"
         }
       ],
       "services": {
