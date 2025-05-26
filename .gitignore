@@ -45,3 +45,6 @@ yarn-error.*
 app-example
 /.idea/
 /.idea/*
+
+# Android
+android/app/release/app-release.aab
