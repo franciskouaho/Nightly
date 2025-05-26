@@ -51,9 +51,23 @@ export default function TrapAnswerGame() {
   const { questions, getRandomQuestion, askedQuestions } = useTrapAnswerQuestions();
 
   // Timer pour la barre de temps (UI only)
-  const TIMER_DURATION = 25; // secondes
+  const TIMER_DURATION = 20; // secondes
   const [timeLeft, setTimeLeft] = useState(TIMER_DURATION);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Passage automatique au tour suivant après 3 secondes si tous les joueurs ont répondu
+  useEffect(() => {
+    if (
+      gameState?.phase === GamePhase.QUESTION &&
+      gameState?.players?.length > 0 &&
+      Object.keys(gameState?.playerAnswers || {}).length === gameState?.players?.length
+    ) {
+      const timeout = setTimeout(() => {
+        nextQuestion();
+      }, 2500);
+      return () => clearTimeout(timeout);
+    }
+  }, [gameState?.phase, gameState?.playerAnswers, gameState?.players]);
 
   // Log pour inspecter gameState dès qu'il change
   useEffect(() => {
@@ -99,7 +113,7 @@ export default function TrapAnswerGame() {
   }, [gameState?.currentQuestion, questions, gameState?.players, gameState?.totalRounds]);
 
   useEffect(() => {
-    if (gameState?.phase === GamePhase.QUESTION) {
+    if (gameState?.phase === GamePhase.QUESTION && gameState?.currentQuestion?.id) {
       setTimeLeft(TIMER_DURATION);
       if (timerRef.current) clearInterval(timerRef.current);
       timerRef.current = setInterval(() => {
@@ -115,7 +129,14 @@ export default function TrapAnswerGame() {
       if (timerRef.current) clearInterval(timerRef.current);
     }
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [gameState?.phase, gameState?.currentQuestion]);
+  }, [gameState?.phase, gameState?.currentQuestion?.id]);
+
+  // Passer à la question suivante quand le timer arrive à zéro
+  useEffect(() => {
+    if (gameState?.phase === GamePhase.QUESTION && timeLeft === 0) {
+      nextQuestion();
+    }
+  }, [gameState?.phase, timeLeft]);
 
   const calculateScore = (answer: TrapAnswer): number => {
     if (answer.isCorrect) return 1;
@@ -213,6 +234,8 @@ export default function TrapAnswerGame() {
   // Pour la démo, on prend les deux premiers joueurs
   const leftPlayer = (gameState?.players || [])[0];
   const rightPlayer = (gameState?.players || [])[1];
+  const thirdPlayer = (gameState?.players || [])[2];
+  const fourthPlayer = (gameState?.players || [])[3];
 
   if (!gameState) return null;
 
@@ -244,70 +267,191 @@ export default function TrapAnswerGame() {
   return (
     <LinearGradient colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]} style={styles.bgGradient}>
       {/* DUEL HEADER */}
-      <View style={styles.duelHeader}>
-        {/* Avatar gauche */}
-        <View style={styles.duelPlayerCol}>
-          <View style={styles.duelAvatar}>
-            {leftPlayer?.avatar ? (
-              <Image
-                source={{ uri: leftPlayer.avatar }}
-                style={styles.duelAvatarImage}
-              />
-            ) : (
-              <MaterialCommunityIcons name="account" size={32} color="#661A59" />
-            )}
-          </View>
-          <Text style={styles.duelPlayerName}>{leftPlayer?.name || 'En attente...'}</Text>
-          <View style={styles.duelWinsRow}>
-            {[...Array(Math.ceil((gameState.totalRounds || 5) / 5))].map((_, rowIndex) => (
-              <View key={rowIndex} style={styles.dotRow}>
-                {[...Array(Math.min(5, (gameState.totalRounds || 5) - rowIndex * 5))].map((__, dotIndex) => {
-                  const globalIndex = rowIndex * 5 + dotIndex;
-                  const roundArr = leftPlayer?.id && (gameState as any)?.history ? (gameState as any).history[leftPlayer.id] || [] : [];
-                  const round = typeof roundArr[globalIndex] === 'number' ? roundArr[globalIndex] : 0;
-                  let dotStyle = styles.duelLoseDot;
-                  if (round === 1) dotStyle = styles.duelWinDot;
-                  if (round === -1) dotStyle = styles.duelTrapDot;
-                  return <View key={globalIndex} style={dotStyle} />;
-                })}
+      <View style={styles.duelHeaderCircle}>
+        {/* Avatars et icône DUEL positionnés selon le nombre de joueurs */}
+        {(() => {
+          const players = (gameState?.players || []).slice(0, 4);
+          if (players.length === 2) {
+            // 2 joueurs : gauche, centre (DUEL), droite
+            const positions = [
+              { left: 20, top: 85 }, // gauche
+              { left: 200 - 20 - 64, top: 85 }, // droite
+            ];
+            return <>
+              <View style={[styles.duelPlayerCircle, positions[0]]}>
+                <View style={styles.duelAvatar}>
+                  {players[0].avatar ? (
+                    <Image source={{ uri: players[0].avatar }} style={styles.duelAvatarImage} />
+                  ) : (
+                    <MaterialCommunityIcons name="account" size={32} color="#661A59" />
+                  )}
+                </View>
+                <Text style={styles.duelPlayerName}>{players[0].name || 'En attente...'}</Text>
+                <View style={styles.duelWinsRow}>
+                  {[...Array(Math.ceil((gameState.totalRounds || 5) / 5))].map((_, rowIndex) => (
+                    <View key={rowIndex} style={styles.dotRow}>
+                      {[...Array(Math.min(5, (gameState.totalRounds || 5) - rowIndex * 5))].map((__, dotIndex) => {
+                        const globalIndex = rowIndex * 5 + dotIndex;
+                        const roundArr = players[0].id && (gameState as any)?.history ? (gameState as any).history[players[0].id] || [] : [];
+                        const round = typeof roundArr[globalIndex] === 'number' ? roundArr[globalIndex] : 0;
+                        let dotStyle = styles.duelLoseDot;
+                        if (round === 1) dotStyle = styles.duelWinDot;
+                        if (round === -1) dotStyle = styles.duelTrapDot;
+                        return <View key={globalIndex} style={dotStyle} />;
+                      })}
+                    </View>
+                  ))}
+                </View>
               </View>
-            ))}
-          </View>
-        </View>
-        {/* Icône duel au centre */}
-        <View style={styles.duelCenter}>
-          <MaterialCommunityIcons name="sword-cross" size={38} color="#661A59" />
-          <Text style={styles.duelLabel}>DUEL</Text>
-        </View>
-        {/* Avatar droite */}
-        <View style={styles.duelPlayerCol}>
-          <View style={styles.duelAvatar}>
-            {rightPlayer?.avatar ? (
-              <Image
-                source={{ uri: rightPlayer.avatar }}
-                style={styles.duelAvatarImage}
-              />
-            ) : (
-              <MaterialCommunityIcons name="account" size={32} color="#661A59" />
-            )}
-          </View>
-          <Text style={styles.duelPlayerName}>{rightPlayer?.name || 'En attente...'}</Text>
-          <View style={styles.duelWinsRow}>
-            {[...Array(Math.ceil((gameState.totalRounds || 5) / 5))].map((_, rowIndex) => (
-              <View key={rowIndex} style={styles.dotRow}>
-                {[...Array(Math.min(5, (gameState.totalRounds || 5) - rowIndex * 5))].map((__, dotIndex) => {
-                  const globalIndex = rowIndex * 5 + dotIndex;
-                  const roundArr = rightPlayer?.id && (gameState as any)?.history ? (gameState as any).history[rightPlayer.id] || [] : [];
-                  const round = typeof roundArr[globalIndex] === 'number' ? roundArr[globalIndex] : 0;
-                  let dotStyle = styles.duelLoseDot;
-                  if (round === 1) dotStyle = styles.duelWinDot;
-                  if (round === -1) dotStyle = styles.duelTrapDot;
-                  return <View key={globalIndex} style={dotStyle} />;
-                })}
+              <View style={styles.duelCenterCircle}>
+                <MaterialCommunityIcons name="sword-cross" size={38} color="#661A59" />
+                <Text style={styles.duelLabel}>DUEL</Text>
               </View>
-            ))}
-          </View>
-        </View>
+              <View style={[styles.duelPlayerCircle, positions[1]]}>
+                <View style={styles.duelAvatar}>
+                  {players[1].avatar ? (
+                    <Image source={{ uri: players[1].avatar }} style={styles.duelAvatarImage} />
+                  ) : (
+                    <MaterialCommunityIcons name="account" size={32} color="#661A59" />
+                  )}
+                </View>
+                <Text style={styles.duelPlayerName}>{players[1].name || 'En attente...'}</Text>
+                <View style={styles.duelWinsRow}>
+                  {[...Array(Math.ceil((gameState.totalRounds || 5) / 5))].map((_, rowIndex) => (
+                    <View key={rowIndex} style={styles.dotRow}>
+                      {[...Array(Math.min(5, (gameState.totalRounds || 5) - rowIndex * 5))].map((__, dotIndex) => {
+                        const globalIndex = rowIndex * 5 + dotIndex;
+                        const roundArr = players[1].id && (gameState as any)?.history ? (gameState as any).history[players[1].id] || [] : [];
+                        const round = typeof roundArr[globalIndex] === 'number' ? roundArr[globalIndex] : 0;
+                        let dotStyle = styles.duelLoseDot;
+                        if (round === 1) dotStyle = styles.duelWinDot;
+                        if (round === -1) dotStyle = styles.duelTrapDot;
+                        return <View key={globalIndex} style={dotStyle} />;
+                      })}
+                    </View>
+                  ))}
+                </View>
+              </View>
+            </>;
+          } else if (players.length === 3) {
+            // 3 joueurs : triangle pointe en haut
+            const positions = [
+              { left: 100 - 32, top: 10 }, // haut centre
+              { left: -45, top: 110 },      // bas gauche (encore plus à gauche)
+              { left: 250 + 10 - 64, top: 110 }, // bas droite (encore plus à droite)
+            ];
+            return <>
+              {players.map((player, idx) => (
+                <View key={player.id} style={[styles.duelPlayerCircle, positions[idx]]}>
+                  <View style={styles.duelAvatar}>
+                    {player.avatar ? (
+                      <Image source={{ uri: player.avatar }} style={styles.duelAvatarImage} />
+                    ) : (
+                      <MaterialCommunityIcons name="account" size={32} color="#661A59" />
+                    )}
+                  </View>
+                  <Text style={styles.duelPlayerName}>{player.name || 'En attente...'}</Text>
+                  <View style={styles.duelWinsRow}>
+                    {[...Array(Math.ceil((gameState.totalRounds || 5) / 5))].map((_, rowIndex) => (
+                      <View key={rowIndex} style={styles.dotRow}>
+                        {[...Array(Math.min(5, (gameState.totalRounds || 5) - rowIndex * 5))].map((__, dotIndex) => {
+                          const globalIndex = rowIndex * 5 + dotIndex;
+                          const roundArr = player.id && (gameState as any)?.history ? (gameState as any).history[player.id] || [] : [];
+                          const round = typeof roundArr[globalIndex] === 'number' ? roundArr[globalIndex] : 0;
+                          let dotStyle = styles.duelLoseDot;
+                          if (round === 1) dotStyle = styles.duelWinDot;
+                          if (round === -1) dotStyle = styles.duelTrapDot;
+                          return <View key={globalIndex} style={dotStyle} />;
+                        })}
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              ))}
+              <View style={[styles.duelCenterCircle, { left: 100 - 25, top: 150 }]}> {/* centre du triangle */}
+                <MaterialCommunityIcons name="sword-cross" size={38} color="#661A59" />
+                <Text style={styles.duelLabel}>DUEL</Text>
+              </View>
+            </>;
+          } else if (players.length === 4) {
+            // 4 joueurs : carré
+            const positions = [
+              { left: -50, top: 30 }, // haut gauche
+              { left: 200, top: 30 }, // haut droite
+              { left: -50, top: 180 }, // bas gauche
+              { left: 200, top: 180 }, // bas droite
+            ];
+            return <>
+              {players.map((player, idx) => (
+                <View key={player.id} style={[styles.duelPlayerCircle, positions[idx]]}>
+                  <View style={styles.duelAvatar}>
+                    {player.avatar ? (
+                      <Image source={{ uri: player.avatar }} style={styles.duelAvatarImage} />
+                    ) : (
+                      <MaterialCommunityIcons name="account" size={32} color="#661A59" />
+                    )}
+                  </View>
+                  <Text style={styles.duelPlayerName}>{player.name || 'En attente...'}</Text>
+                  <View style={styles.duelWinsRow}>
+                    {[...Array(Math.ceil((gameState.totalRounds || 5) / 5))].map((_, rowIndex) => (
+                      <View key={rowIndex} style={styles.dotRow}>
+                        {[...Array(Math.min(5, (gameState.totalRounds || 5) - rowIndex * 5))].map((__, dotIndex) => {
+                          const globalIndex = rowIndex * 5 + dotIndex;
+                          const roundArr = player.id && (gameState as any)?.history ? (gameState as any).history[player.id] || [] : [];
+                          const round = typeof roundArr[globalIndex] === 'number' ? roundArr[globalIndex] : 0;
+                          let dotStyle = styles.duelLoseDot;
+                          if (round === 1) dotStyle = styles.duelWinDot;
+                          if (round === -1) dotStyle = styles.duelTrapDot;
+                          return <View key={globalIndex} style={dotStyle} />;
+                        })}
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              ))}
+              <View style={[styles.duelCenterCircle, { left: 75, top: 150 }]}> {/* centre du carré */}
+                <MaterialCommunityIcons name="sword-cross" size={38} color="#661A59" />
+                <Text style={styles.duelLabel}>DUEL</Text>
+              </View>
+            </>;
+          } else {
+            // fallback cercle (1 joueur ou plus de 4)
+            const radius = 80;
+            const center = 100;
+            return players.map((player, idx, arr) => {
+              const angle = (2 * Math.PI * idx) / arr.length - Math.PI / 2;
+              const x = center + radius * Math.cos(angle) - 32;
+              const y = center + radius * Math.sin(angle) - 32;
+              return (
+                <View key={player.id} style={[styles.duelPlayerCircle, { left: x, top: y }]}> 
+                  <View style={styles.duelAvatar}>
+                    {player.avatar ? (
+                      <Image source={{ uri: player.avatar }} style={styles.duelAvatarImage} />
+                    ) : (
+                      <MaterialCommunityIcons name="account" size={32} color="#661A59" />
+                    )}
+                  </View>
+                  <Text style={styles.duelPlayerName}>{player.name || 'En attente...'}</Text>
+                  <View style={styles.duelWinsRow}>
+                    {[...Array(Math.ceil((gameState.totalRounds || 5) / 5))].map((_, rowIndex) => (
+                      <View key={rowIndex} style={styles.dotRow}>
+                        {[...Array(Math.min(5, (gameState.totalRounds || 5) - rowIndex * 5))].map((__, dotIndex) => {
+                          const globalIndex = rowIndex * 5 + dotIndex;
+                          const roundArr = player.id && (gameState as any)?.history ? (gameState as any).history[player.id] || [] : [];
+                          const round = typeof roundArr[globalIndex] === 'number' ? roundArr[globalIndex] : 0;
+                          let dotStyle = styles.duelLoseDot;
+                          if (round === 1) dotStyle = styles.duelWinDot;
+                          if (round === -1) dotStyle = styles.duelTrapDot;
+                          return <View key={globalIndex} style={dotStyle} />;
+                        })}
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              );
+            });
+          }
+        })()}
       </View>
 
       {/* Carte question */}
@@ -371,16 +515,7 @@ export default function TrapAnswerGame() {
 
       {gameState.phase === GamePhase.QUESTION &&
         Object.keys(gameState.playerAnswers || {}).length === gameState.players?.length && (
-        <View style={styles.continueButtonWrapper}>
-          <RoundedButton
-            title={t('game.continue')}
-            onPress={nextQuestion}
-            icon={<Ionicons name="arrow-forward" size={22} color="#fff" />}
-            gradientColors={isContinueButtonEnabled ? ["#00C853", "#00E676"] : ["#BDBDBD", "#BDBDBD"]}
-            disabled={!isContinueButtonEnabled}
-            style={{ width: '100%' }}
-          />
-        </View>
+        null
       )}
     </LinearGradient>
   );
@@ -448,6 +583,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 12,
     elevation: 8,
+    marginTop: 100,
   },
   categoryBadge: {
     backgroundColor: '#7B2CBF',
@@ -610,17 +746,32 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
   },
-  duelHeader: {
-    width: '100%',
-    flexDirection: 'row',
+  duelHeaderCircle: {
+    width: 200,
+    height: 200,
+    alignSelf: 'center',
+    marginBottom: 10,
+    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  duelCenterCircle: {
+    position: 'absolute',
+    left: 100 - 25,
+    top: 100 - 25,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: 'rgba(14, 17, 23, 0.9)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 10,
-    marginTop: 80,
+    zIndex: 2,
   },
-  duelPlayerCol: {
+  duelPlayerCircle: {
+    position: 'absolute',
+    width: 64,
     alignItems: 'center',
-    flex: 1,
+    zIndex: 3,
   },
   duelAvatar: {
     width: 64,
@@ -698,21 +849,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 2,
     borderWidth: 1,
     borderColor: 'rgba(123, 44, 191, 0.3)',
-  },
-  duelCenter: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginHorizontal: 10,
-  },
-  duelLabel: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 13,
-    marginTop: 2,
-    letterSpacing: 1,
-    textShadowColor: 'rgba(0,0,0,0.25)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
   },
   bg: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: 40 },
   roundNumber: { fontSize: 28, color: '#fff', marginTop: 10, marginBottom: 10, fontWeight: 'bold' },
@@ -893,5 +1029,15 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#fff',
     zIndex: 1,
+  },
+  duelLabel: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 13,
+    marginTop: 2,
+    letterSpacing: 1,
+    textShadowColor: 'rgba(0,0,0,0.25)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
 });

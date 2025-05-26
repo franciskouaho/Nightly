@@ -87,7 +87,7 @@ export const useInAppReview = () => {
           `https://apps.apple.com/app/apple-store/id${itunesItemId}?action=write-review`
         );
       } else if (Platform.OS === 'android') {
-        const androidPackageName = 'com.emplica.nightly';
+        const androidPackageName = 'com.emplica.nightly.android';
         await Linking.openURL(
           `https://play.google.com/store/apps/details?id=${androidPackageName}&showAllReviews=true`
         );
