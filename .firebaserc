@@ -1,5 +1,7 @@
 {
   "projects": {
-    "default": "drink-dare"
-  }
+    "default": "nightly-efa29"
+  },
+  "targets": {},
+  "etags": {}
 }
