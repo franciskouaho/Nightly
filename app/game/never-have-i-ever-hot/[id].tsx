@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { View, Text, StyleSheet, Pressable, ActivityIndicator, Alert, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, Pressable, ActivityIndicator, Alert} from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
-import {  Question as GameQuestion, GamePhase, Player } from '@/types/gameTypes';
-import RoundedButton from '@/components/RoundedButton';
-import { router } from 'expo-router';
+import {  Question as GameQuestion, GamePhase, Player, GameMode } from '@/types/gameTypes';
 import { useGame } from '@/hooks/useGame';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/contexts/AuthContext';
@@ -14,6 +12,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import GameResults from '@/components/game/GameResults';
 import { usePoints } from '@/hooks/usePoints';
 import { useNeverHaveIEverHotQuestions } from './questions';
+import NaughtyResults from '@/components/game/NaughtyResults';
 
 interface NeverHaveIEverHotGameState {
   phase: GamePhase;
@@ -32,6 +31,7 @@ interface NeverHaveIEverHotGameState {
   theme: string;
   timer: number | null;
   gameMode: 'never-have-i-ever-hot';
+  naughtyAnswers: Record<string, number>;
 }
 
 function ModeSelector({ onSelect, isTarget }: { onSelect: (mode: 'never' | 'ever' | null) => void, isTarget: boolean }) {
@@ -173,47 +173,19 @@ export default function NeverHaveIEverHotGame() {
   const handleAnswer = useCallback((playerId: string, value: boolean) => {
     setAnswers(prev => ({ ...prev, [playerId]: value }));
     gameAnalytics.trackPlayerResponse(String(gameId), playerId, value ? 'yes' : 'no');
-  }, [gameId, gameAnalytics]);
-
-  // Mettre à jour l'état du jeu avec une nouvelle question
-  const updateGameStateWithNewQuestion = useCallback((nextQuestion: GameQuestion) => {
-    if (!gameState) {
-      console.log('[DEBUG] updateGameStateWithNewQuestion: gameState est null');
-      return;
+    
+    // Mettre à jour le compteur de réponses cochonnes
+    // Si mode 'ever', on compte les réponses positives
+    // Si mode 'never', on compte les réponses négatives
+    if ((mode === 'ever' && value) || (mode === 'never' && !value)) {
+      updateGameState({
+        naughtyAnswers: {
+          ...(gameState?.naughtyAnswers || {}),
+          [playerId]: (gameState?.naughtyAnswers?.[playerId] || 0) + 1
+        }
+      });
     }
-    
-    // Éviter les mises à jour multiples
-    if (questionUpdateInProgress.current) {
-      console.log('[DEBUG] updateGameStateWithNewQuestion: verrou actif, mise à jour ignorée');
-      return;
-    }
-    
-    console.log('[DEBUG] updateGameStateWithNewQuestion: Changement de joueur et de question');
-    
-    const nextPlayerIndex = (gameState.players.findIndex(p => p.id === gameState.targetPlayer?.id) + 1) % gameState.players.length;
-    const nextPlayer = gameState.players[nextPlayerIndex];
-    
-    if (nextPlayer) {
-      setMode(null);
-      setIsQuestionTracked(false);
-      previousQuestionId.current = null;
-      
-      // Créer un nouvel objet gameState pour éviter les références partagées
-      const newGameState = {
-        ...gameState,
-        currentQuestion: {...nextQuestion},
-        targetPlayer: {...nextPlayer},
-        currentRound: gameState.currentRound + 1,
-        phase: GamePhase.QUESTION,
-        gameMode: 'never-have-i-ever-hot'
-      };
-      
-      console.log('[DEBUG] Mise à jour avec nouvelle question:', nextQuestion.id);
-      updateGameState(newGameState);
-    } else {
-      console.log('[DEBUG] Joueur suivant non trouvé');
-    }
-  }, [gameState, updateGameState]);
+  }, [gameId, gameAnalytics, mode, gameState, updateGameState]);
 
   // Passer au round suivant
   const handleNextRound = useCallback(async () => {
@@ -393,6 +365,15 @@ export default function NeverHaveIEverHotGame() {
     }
   }, [gameState, updateGameState, gameAnalytics, gameId, getGameContent, t, askedQuestions, answers, TOTAL_ROUNDS]);
 
+  // Nouvelle fonction pour répondre et passer au tour suivant (doit être après handleNextRound)
+  const handleAnswerAndNext = useCallback(async (playerId: string, value: boolean) => {
+    handleAnswer(playerId, value);
+    // Petit délai pour feedback visuel
+    setTimeout(() => {
+      handleNextRound();
+    }, 300);
+  }, [handleAnswer, handleNextRound]);
+
   // Gestion du changement de question - avec protection contre les mises à jour cycliques
   useEffect(() => {
     if (!gameState?.currentQuestion || questionUpdateInProgress.current) {
@@ -459,23 +440,45 @@ export default function NeverHaveIEverHotGame() {
     if (gameState.gameMode) {
       awardGamePoints(
         gameId,
-        gameState.gameMode,
+        'never-have-i-ever-hot' as GameMode,
         gameState.players,
         gameState.scores
       );
     }
 
     return (
-      <GameResults
-        players={gameState.players || []}
-        scores={gameState.scores || {}}
-        userId={user?.uid || ''}
-        pointsConfig={{
-          firstPlace: 30,
-          secondPlace: 20,
-          thirdPlace: 10
-        }}
-      />
+      <LinearGradient colors={["#0E1117", "#661A59"]} style={styles.container}>
+        <View style={styles.resultsContainer}>
+          <Text style={styles.resultsTitle}>{t('game.results.title')}</Text>
+          
+          {/* Classement des scores */}
+          <View style={styles.scoresSection}>
+            <Text style={styles.sectionTitle}>{t('game.results.podium.title')}</Text>
+            <GameResults
+              players={gameState.players || []}
+              scores={gameState.scores || {}}
+              userId={user?.uid || ''}
+              pointsConfig={{
+                firstPlace: 30,
+                secondPlace: 20,
+                thirdPlace: 10
+              }}
+            />
+          </View>
+
+          {/* Nouveau classement des plus cochons */}
+          <NaughtyResults 
+            players={gameState.players || []} 
+            naughtyAnswers={gameState.naughtyAnswers || {}} 
+            userId={user?.uid || ''}
+            pointsConfig={{
+              firstPlace: 30,
+              secondPlace: 20,
+              thirdPlace: 10
+            }}
+          />
+        </View>
+      </LinearGradient>
     );
   }
 
@@ -511,13 +514,31 @@ export default function NeverHaveIEverHotGame() {
         </LinearGradient>
       </View>
 
-      {isTarget && (
-        <RoundedButton
-          title={gameState.currentRound === TOTAL_ROUNDS ? t('game.neverHaveIEverHot.endGame') : t('game.neverHaveIEverHot.next')}
-          onPress={handleNextRound}
-          style={styles.nextButton}
-          textStyle={styles.nextButtonText}
-        />
+      {userId && (
+        <View style={styles.answerButtonsContainer}>
+          <Pressable
+            style={({ pressed }) => [
+              styles.answerButton,
+              styles.neverButton,
+              pressed && styles.buttonPressed,
+              { shadowColor: '#8e0038' }
+            ]}
+            onPress={() => handleAnswerAndNext(userId, false)}
+          >
+            <Text style={styles.answerButtonText}>🙅‍♂️ {t('game.neverHaveIEverHot.never')}</Text>
+          </Pressable>
+          <Pressable
+            style={({ pressed }) => [
+              styles.answerButton,
+              styles.everButton,
+              pressed && styles.buttonPressed,
+              { shadowColor: '#D81B60' }
+            ]}
+            onPress={() => handleAnswerAndNext(userId, true)}
+          >
+            <Text style={styles.answerButtonText}>🔥 {t('game.neverHaveIEverHot.ever')}</Text>
+          </Pressable>
+        </View>
       )}
     </LinearGradient>
   );
@@ -620,21 +641,22 @@ const styles = StyleSheet.create({
     flex: 1,
     fontWeight: '500',
   },
-  answerButtons: {
+  answerButtonsContainer: {
     flexDirection: 'row',
-    gap: 10,
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingHorizontal: 20,
+    marginTop: 20,
   },
   answerButton: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    padding: 12,
-    borderRadius: 25,
-    minWidth: 70,
+    flex: 1,
+    marginHorizontal: 10,
+    paddingVertical: 18,
+    paddingHorizontal: 18,
+    borderRadius: 12,
     alignItems: 'center',
-    marginHorizontal: 5,
-  },
-  selectedButton: {
-    backgroundColor: '#D81B60',
-    shadowColor: '#D81B60',
+    justifyContent: 'center',
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 4,
@@ -643,14 +665,21 @@ const styles = StyleSheet.create({
     shadowRadius: 4.65,
     elevation: 8,
   },
-  buttonText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: '600',
+  neverButton: {
+    backgroundColor: '#8e0038',
   },
-  answerResult: {
-    fontSize: 20,
-    marginLeft: 10,
+  everButton: {
+    backgroundColor: '#D81B60',
+  },
+  buttonPressed: {
+    transform: [{ scale: 0.95 }],
+    opacity: 0.9,
+  },
+  answerButtonText: {
+    color: '#ffffff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
   },
   waitingCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
@@ -823,5 +852,50 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textTransform: 'uppercase',
     letterSpacing: 1,
+  },
+  resultsContainer: {
+    flex: 1,
+    padding: 20,
+  },
+  resultsTitle: {
+    fontSize: 32,
+    color: '#ffffff',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 30,
+    marginTop: 50,
+  },
+  scoresSection: {
+    marginBottom: 30,
+  },
+  naughtySection: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 15,
+    padding: 20,
+  },
+  sectionTitle: {
+    fontSize: 24,
+    color: '#ffffff',
+    fontWeight: 'bold',
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  naughtyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.1)',
+  },
+  rankText: {
+    fontSize: 18,
+    color: '#D81B60',
+    fontWeight: 'bold',
+    width: 40,
+  },
+  naughtyCount: {
+    fontSize: 18,
+    color: '#D81B60',
+    fontWeight: 'bold',
   },
 }); 

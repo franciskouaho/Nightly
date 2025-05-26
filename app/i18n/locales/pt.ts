@@ -248,6 +248,7 @@ export default {
         second: "2º lugar",
         third: "3º lugar",
         others: "Outros jogadores",
+        title: "Classificação do pódio",
       },
       rank: "Posição",
       score: "Pontuação",
@@ -317,8 +318,8 @@ export default {
       errorSubmit: 'Erro ao enviar sua resposta ou voto.'
     },
     neverHaveIEverHot: {
-      never: "Eu nunca",
-      ever: "Eu já",
+      never: "Eu nunca...",
+      ever: "Eu já...",
       waiting: "Aguardando a escolha do jogador alvo...",
       prepare: "Prepare-se para responder!",
       submit: "Enviar",
@@ -326,12 +327,16 @@ export default {
       endGame: "Terminar jogo",
       errorSubmit: "Não foi possível enviar a resposta",
       endTitle: "Parabéns a todos!",
-      endSubtitle: "Vocês terminaram o jogo Eu Nunca 🔞",
-      home: "Voltar para o início",
+      endSubtitle: "Você terminou o jogo Eu nunca... 🔞",
+      home: "Voltar ao início",
       readAloud: "Leia a pergunta em voz alta",
       targetReads: "{{name}} lê a pergunta",
       noQuestions: "Nenhuma pergunta disponível",
-      errorNext: "Ocorreu um erro ao passar para a próxima rodada"
+      errorNext: "Ocorreu um erro ao passar para a próxima rodada",
+      naughtyRanking: "Ranking mais safado",
+      naughtyAnswers: "respostas safadas",
+      neverButton: "🙅‍♂️ Eu nunca...",
+      everButton: "�� Eu já...",
     },
     continue: 'Continuar',
     theHiddenVillage: {

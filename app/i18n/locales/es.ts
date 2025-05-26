@@ -237,6 +237,7 @@ export default {
         second: "2ª posición",
         third: "3ª posición",
         others: "Otros jugadores",
+        title: "Clasificación del podio",
       },
       rank: "Puesto",
       score: "Puntuación",
@@ -306,22 +307,25 @@ export default {
       errorSubmit: 'Error al enviar tu respuesta o voto.'
     },
     neverHaveIEverHot: {
-      never: "Nunca he",
-      ever: "Sí he",
+      never: "Nunca he...",
+      ever: "Ya lo he hecho",
       waiting: "Esperando la elección del jugador objetivo...",
       prepare: "¡Prepárate para responder!",
       submit: "Enviar",
       next: "Siguiente ronda",
       endGame: "Terminar juego",
       errorSubmit: "No se pudo enviar la respuesta",
-      endTitle: "¡Felicitaciones a todos!",
-      endSubtitle: "¡Han terminado la partida de Nunca Nunca 🔞!",
+      endTitle: "¡Felicidades a todos!",
+      endSubtitle: "Has terminado la partida de Nunca he... 🔞",
       home: "Volver al inicio",
       readAloud: "Lee la pregunta en voz alta",
       targetReads: "{{name}} lee la pregunta",
       noQuestions: "No hay preguntas disponibles",
       errorNext: "Ocurrió un error al pasar a la siguiente ronda",
-      continue: 'Continuar'
+      naughtyRanking: "Ranking más travieso",
+      naughtyAnswers: "respuestas traviesas",
+      neverButton: "🙅‍♂️ Nunca he...",
+      everButton: "🔥 Ya lo he hecho",
     }
   },
 

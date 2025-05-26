@@ -34,6 +34,14 @@ export enum GamePhase {
   END = 'end'
 }
 
+export type GameMode = 
+  | 'never-have-i-ever-hot'
+  | 'truth-or-dare'
+  | 'genius-or-liar'
+  | 'the-hidden-village'
+  | 'trap-answer'
+  | 'listen-but-don-t-judge';
+
 export interface GameState {
   phase: GamePhase;
   currentRound: number;
@@ -61,4 +69,5 @@ export interface GameState {
   allPlayersVoted?: boolean;
   currentPlayerId?: string;
   gameMode?: string;
+  naughtyAnswers?: Record<string, number>;
 } 

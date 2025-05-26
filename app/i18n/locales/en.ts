@@ -237,6 +237,7 @@ export default {
         second: "2nd place",
         third: "3rd place",
         others: "Other players",
+        title: "Podium ranking",
       },
       rank: "Rank",
       score: "Score",
@@ -343,7 +344,8 @@ export default {
       readAloud: "Read the question aloud",
       targetReads: "{{name}} reads the question",
       noQuestions: "No questions available",
-      errorNext: "An error occurred when moving to the next round"
+      errorNext: "An error occurred when moving to the next round",
+      naughtyRanking: "Naughtiest ranking"
     },
     theHiddenVillage: {
       title: 'THE HIDDEN VILLAGE',

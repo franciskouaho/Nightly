@@ -240,6 +240,7 @@ export default {
         second: "2ème place",
         third: "3ème place",
         others: "Autres joueurs",
+        title: "Classement du podium",
       },
       rank: "Rang",
       score: "Score",
@@ -348,7 +349,11 @@ export default {
       readAloud: "Lis la question à haute voix",
       targetReads: "{{name}} lit la question",
       noQuestions: "Aucune question disponible",
-      errorNext: "Une erreur est survenue lors du passage au tour suivant"
+      errorNext: "Une erreur est survenue lors du passage au tour suivant",
+      naughtyRanking: "Classement des plus cochons",
+      naughtyAnswers: "réponses cochonnes",
+      neverButton: "🙅‍♂️ Je n'ai jamais",
+      everButton: "🔥 J'ai déjà",
     },
     theHiddenVillage: {
       title: 'LE VILLAGE CACHÉ',
