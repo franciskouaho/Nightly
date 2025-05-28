@@ -8,8 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTrapAnswerQuestions } from './questions';
 import { TrapAnswer, TrapPlayerAnswer, TrapQuestion } from "@/types/types";
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import RoundedButton from '@/components/RoundedButton';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import GameResults from '@/components/game/GameResults';
 import { usePoints } from '@/hooks/usePoints';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -66,6 +65,10 @@ export default function TrapAnswerGame() {
         nextQuestion();
       }, 2500);
       return () => clearTimeout(timeout);
+    }
+
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
     }
   }, [gameState?.phase, gameState?.playerAnswers, gameState?.players]);
 
