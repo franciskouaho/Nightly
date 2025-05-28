@@ -274,8 +274,8 @@ export default function TrapAnswerGame() {
           if (players.length === 2) {
             // 2 joueurs : gauche, centre (DUEL), droite
             const positions = [
-              { left: 20, top: 85 }, // gauche
-              { left: 200 - 20 - 64, top: 85 }, // droite
+              { left: -60, top: 70 }, // gauche
+              { left: 200, top: 70 }, // droite
             ];
             return <>
               <View style={[styles.duelPlayerCircle, positions[0]]}>
@@ -797,7 +797,7 @@ const styles = StyleSheet.create({
   duelPlayerName: {
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: 15,
+    fontSize: 13,
     marginBottom: 2,
     textShadowColor: 'rgba(0,0,0,0.25)',
     textShadowOffset: { width: 0, height: 1 },
