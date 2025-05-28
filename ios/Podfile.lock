@@ -3752,9 +3752,9 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   abseil: a05cc83bf02079535e17169a73c5be5ba47f714b
   AppsFlyerFramework: fe5303bffcdfd941d5f570c2d21eaaea982e7bdc
-  boost: 1dca942403ed9342f98334bf4c3621f011aa7946
+  boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
   BoringSSL-GRPC: dded2a44897e45f28f08ae87a55ee4bcd19bc508
-  DoubleConversion: f16ae600a246532c4020132d54af21d0ddb2a385
+  DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   EXApplication: 4c72f6017a14a65e338c5e74fca418f35141e819
   EXConstants: fcfc75800824ac2d5c592b5bc74130bad17b146b
   EXNotifications: 9d3d17e52c95f377750d4a2ae553a716313dd4aa
@@ -3791,8 +3791,8 @@ SPEC CHECKSUMS:
   FirebaseMessaging: 3a5de79d8dce82b70815123c05dfb8825111f15d
   FirebaseSharedSwift: d2475748a2d2a36242ed13baa34b2acda846c925
   FirebaseStorage: 2fb852c0ffe18c2af9661b25c41f814b2e8c4b05
-  fmt: 01b82d4ca6470831d1cc0852a1af644be019e8f6
-  glog: 08b301085f15bcbb6ff8632a8ebaf239aae04e6a
+  fmt: a40bb5bd0294ea969aaaba240a927bd33d878cdd
+  glog: 5683914934d5b6e4240e497e0f4a3b42d1854183
   GoogleAppMeasurement: 6ee0ee888bb1db802c49049001adb4013d7fe41b
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
