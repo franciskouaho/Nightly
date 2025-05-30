@@ -93,7 +93,7 @@ export default function PaywallModal({ isVisible, onClose }: PaywallModalProps) 
   };
 
   const handleTermsPress = async () => {
-    const termsUrl = 'https://emplica.fr/terms-of-use';
+    const termsUrl = 'https://emplica.fr/privacy-policy';
     try {
       const canOpen = await Linking.canOpenURL(termsUrl);
       if (canOpen) {
