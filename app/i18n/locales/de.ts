@@ -83,6 +83,11 @@ export default {
     success: 'Erfolg',
     assetUnlocked: '{{asset}} wurde erfolgreich freigeschaltet!',
     unlockError: 'Beim Freischalten des Assets ist ein Fehler aufgetreten.',
+    restorePurchases: 'Käufe wiederherstellen',
+    restoring: 'Wiederherstellung...',
+    restoreSuccess: 'Erfolg',
+    restoreSuccessMessage: 'Ihre Käufe wurden erfolgreich wiederhergestellt',
+    restoreError: 'Beim Wiederherstellen der Käufe ist ein Fehler aufgetreten',
     premium: {
       title: 'Premium-Pass',
       try: 'Premium testen',

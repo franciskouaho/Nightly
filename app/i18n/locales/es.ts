@@ -83,6 +83,11 @@ export default {
     success: 'Éxito',
     assetUnlocked: '¡{{asset}} ha sido desbloqueado con éxito!',
     unlockError: 'Ocurrió un error al desbloquear el asset.',
+    restorePurchases: 'Restaurar compras',
+    restoring: 'Restaurando...',
+    restoreSuccess: 'Éxito',
+    restoreSuccessMessage: 'Tus compras han sido restauradas con éxito',
+    restoreError: 'Ocurrió un error al restaurar las compras',
     premium: {
       title: 'Pase Premium',
       try: 'Probar Premium',

@@ -83,6 +83,11 @@ export default {
     success: 'Succès',
     assetUnlocked: '{{asset}} a été débloqué avec succès !',
     unlockError: 'Une erreur est survenue lors du déblocage de l\'asset.',
+    restorePurchases: 'Restaurer les achats',
+    restoring: 'Restauration...',
+    restoreSuccess: 'Succès',
+    restoreSuccessMessage: 'Vos achats ont été restaurés avec succès',
+    restoreError: 'Une erreur est survenue lors de la restauration des achats',
     premium: {
       title: 'Passe Premium',
       try: 'Essayer le premium',

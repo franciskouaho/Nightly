@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Image, Switch } from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Image, Switch, Linking} from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -10,7 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import PaywallModal from '@/components/PaywallModal';
 import { useTranslation } from 'react-i18next';
 import NotificationService from '@/services/notifications';
-import { usePoints } from '@/hooks/usePoints';
+import Purchases from 'react-native-purchases';
 
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
@@ -46,6 +46,20 @@ export default function ProfileScreen() {
     }
   };
 
+  const handleRestorePurchases = async () => {
+    try {
+      await Purchases.restorePurchases();
+      Alert.alert(
+        t('profile.restoreSuccess'),
+        t('profile.restoreSuccessMessage')
+      );
+    } catch (error) {
+      Alert.alert(
+        t('errors.general'),
+        t('profile.restoreError')
+      );
+    }
+  };
 
   return (
       <View style={styles.container}>
@@ -108,7 +122,10 @@ export default function ProfileScreen() {
               <MaterialCommunityIcons name="chevron-right" size={24} color="rgba(255,255,255,0.7)" />
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.settingItem} onPress={() => router.push('../settings/privacy')}>
+            <TouchableOpacity
+              style={styles.settingItem}
+              onPress={() => Linking.openURL('https://emplica.fr/privacy-policy')}
+            >
               <MaterialCommunityIcons name="shield-account" size={24} color="rgba(255,255,255,0.9)" />
               <Text style={styles.settingText}>{t('settings.privacy')}</Text>
               <MaterialCommunityIcons name="chevron-right" size={24} color="rgba(255,255,255,0.7)" />
@@ -119,6 +136,11 @@ export default function ProfileScreen() {
               <MaterialCommunityIcons name="shopping" size={24} color="rgba(255,255,255,0.9)" />
               <Text style={styles.settingText}>{t('profile.buyAssetsTitle')}</Text>
               <MaterialCommunityIcons name="chevron-right" size={24} color="rgba(255,255,255,0.7)" />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.settingItem} onPress={handleRestorePurchases}>
+              <MaterialCommunityIcons name="restore" size={24} color="rgba(255,255,255,0.9)" />
+              <Text style={styles.settingText}>{t('profile.restorePurchases')}</Text>
             </TouchableOpacity>
 
             {/* Switch pour activer/désactiver les notifications */}

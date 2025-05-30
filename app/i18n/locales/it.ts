@@ -83,6 +83,11 @@ export default {
     success: 'Successo',
     assetUnlocked: '{{asset}} è stato sbloccato con successo!',
     unlockError: 'Si è verificato un errore durante lo sblocco dell\'asset.',
+    restorePurchases: 'Ripristina acquisti',
+    restoring: 'Ripristino in corso...',
+    restoreSuccess: 'Successo',
+    restoreSuccessMessage: 'I tuoi acquisti sono stati ripristinati con successo',
+    restoreError: 'Si è verificato un errore durante il ripristino degli acquisti',
     premium: {
       title: 'Pass Premium',
       try: 'Prova Premium',

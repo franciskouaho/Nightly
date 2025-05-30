@@ -83,6 +83,11 @@ export default {
     success: 'Success',
     assetUnlocked: '{{asset}} has been successfully unlocked!',
     unlockError: 'An error occurred while unlocking the asset.',
+    restorePurchases: 'Restore Purchases',
+    restoring: 'Restoring...',
+    restoreSuccess: 'Success',
+    restoreSuccessMessage: 'Your purchases have been successfully restored',
+    restoreError: 'An error occurred while restoring purchases',
     premium: {
       title: 'Premium Pass',
       try: 'Try Premium',
