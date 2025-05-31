@@ -198,7 +198,17 @@ export default {
       "two-letters-one-word": {
         name: "2 Lettere 1 Parola",
         description: "Trova una parola che inizia con le due lettere date e corrisponde al tema.",
-        tag: "GRATIS"
+        tag: "GRATUITO",
+        score: "Punteggio: {{score}}",
+        theme: "Tema: {{theme}}",
+        inputPlaceholder: "Inserisci la tua parola...",
+        verifyButton: "Verifica",
+        verifyingButton: "Verifica in corso...",
+        validWord: "Bravo!",
+        validWordMessage: "La tua parola è valida!",
+        invalidWord: "Peccato!",
+        invalidWordMessage: "La tua parola non corrisponde ai criteri.",
+        noWordError: "Inserisci una parola"
       },
     }
   },
@@ -265,6 +275,17 @@ export default {
       rank: "Posizione",
       score: "Punteggio",
       player: "Giocatore",
+      "two-letters-one-word": {
+        title: "Fine della partita!",
+        subtitle: "Grazie per aver giocato a 2 Lettere 1 Parola!",
+        totalWords: "Parole trovate",
+        bestWord: "Migliore parola",
+        averageScore: "Punteggio medio",
+        timePlayed: "Tempo di gioco",
+        newHighScore: "Nuovo record!",
+        shareResults: "Condividi risultati",
+        playAgain: "Gioca di nuovo"
+      }
     },
     listenButDontJudge: {
       waiting: "In attesa degli altri giocatori...",

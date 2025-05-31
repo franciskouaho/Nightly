@@ -197,8 +197,18 @@ export default {
       },
       "two-letters-one-word": {
         name: "حرفان كلمة واحدة",
-        description: "ابحث عن كلمة تبدأ بالحرفين المحددين وتتناسب مع الموضوع.",
-        tag: "مجاني"
+        description: "ابحث عن كلمة تبدأ بالحرفين المعطيين وتتناسب مع الموضوع.",
+        tag: "مجاني",
+        score: "النتيجة: {{score}}",
+        theme: "الموضوع: {{theme}}",
+        inputPlaceholder: "أدخل كلمتك...",
+        verifyButton: "تحقق",
+        verifyingButton: "جاري التحقق...",
+        validWord: "أحسنت!",
+        validWordMessage: "كلمتك صحيحة!",
+        invalidWord: "للأسف!",
+        invalidWordMessage: "كلمتك لا تتوافق مع المعايير.",
+        noWordError: "الرجاء إدخال كلمة"
       },
     },
     geniusOrLiar: {
@@ -282,12 +292,23 @@ export default {
         first: "المركز الأول",
         second: "المركز الثاني",
         third: "المركز الثالث",
-        others: "لاعبون آخرون",
+        others: "اللاعبون الآخرون",
         title: "تصنيف المنصة",
       },
-      rank: "الترتيب",
-      score: "النقاط",
+      rank: "المرتبة",
+      score: "النتيجة",
       player: "اللاعب",
+      "two-letters-one-word": {
+        title: "انتهت اللعبة!",
+        subtitle: "شكراً للعب حرفين كلمة واحدة!",
+        totalWords: "الكلمات المكتشفة",
+        bestWord: "أفضل كلمة",
+        averageScore: "متوسط النتيجة",
+        timePlayed: "وقت اللعب",
+        newHighScore: "رقم قياسي جديد!",
+        shareResults: "مشاركة النتائج",
+        playAgain: "العب مرة أخرى"
+      }
     },
     listenButDontJudge: {
       waiting: "في انتظار اللاعبين الآخرين...",

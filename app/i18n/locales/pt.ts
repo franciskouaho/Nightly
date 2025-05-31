@@ -198,7 +198,17 @@ export default {
       "two-letters-one-word": {
         name: "2 Letras 1 Palavra",
         description: "Encontre uma palavra que começa com as duas letras dadas e corresponde ao tema.",
-        tag: "GRÁTIS"
+        tag: "GRÁTIS",
+        score: "Pontuação: {{score}}",
+        theme: "Tema: {{theme}}",
+        inputPlaceholder: "Digite sua palavra...",
+        verifyButton: "Verificar",
+        verifyingButton: "Verificando...",
+        validWord: "Parabéns!",
+        validWordMessage: "Sua palavra é válida!",
+        invalidWord: "Que pena!",
+        invalidWordMessage: "Sua palavra não corresponde aos critérios.",
+        noWordError: "Por favor, digite uma palavra"
       },
     }
   },
@@ -265,6 +275,17 @@ export default {
       rank: "Posição",
       score: "Pontuação",
       player: "Jogador",
+      "two-letters-one-word": {
+        title: "Fim de jogo!",
+        subtitle: "Obrigado por jogar 2 Letras 1 Palavra!",
+        totalWords: "Palavras encontradas",
+        bestWord: "Melhor palavra",
+        averageScore: "Pontuação média",
+        timePlayed: "Tempo de jogo",
+        newHighScore: "Novo recorde!",
+        shareResults: "Compartilhar resultados",
+        playAgain: "Jogar novamente"
+      }
     },
     listenButDontJudge: {
       waiting: "Aguardando outros jogadores...",

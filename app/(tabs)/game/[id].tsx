@@ -37,7 +37,7 @@ export default function GameRouter() {
           
           // Suivre le début du jeu
           if (typeof mode === 'string') {
-            await gameAnalytics.trackGameStart(gameRoomId, mode);
+            await gameAnalytics.trackGameStart(gameRoomId as string, mode);
           }
         } else {
           console.log("[DEBUG GameRouter] Game document not found for ID:", gameRoomId);

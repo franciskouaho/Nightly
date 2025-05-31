@@ -186,8 +186,18 @@ export default {
       },
       "two-letters-one-word": {
         name: "2 Letras 1 Palabra",
-        description: "Encuentra una palabra que comience con las dos letras dadas y coincida con el tema.",
-        tag: "GRATIS"
+        description: "Encuentra una palabra que comienza con las dos letras dadas y corresponde al tema.",
+        tag: "GRATIS",
+        score: "Puntuación: {{score}}",
+        theme: "Tema: {{theme}}",
+        inputPlaceholder: "Ingresa tu palabra...",
+        verifyButton: "Verificar",
+        verifyingButton: "Verificando...",
+        validWord: "¡Bravo!",
+        validWordMessage: "¡Tu palabra es válida!",
+        invalidWord: "¡Qué pena!",
+        invalidWordMessage: "Tu palabra no corresponde a los criterios.",
+        noWordError: "Por favor, ingresa una palabra"
       },
     }
   },
@@ -240,20 +250,31 @@ export default {
     results: {
       title: "Resultados finales",
       subtitle: "¡Felicitaciones a todos!",
-      bravo: "¡Felicidades {{name}}!",
+      bravo: "¡Felicitaciones {{name}}!",
       points: "puntos",
       home: "Inicio",
       calculating: "Calculando resultados...",
       podium: {
-        first: "1ª posición",
-        second: "2ª posición",
-        third: "3ª posición",
+        first: "1er lugar",
+        second: "2do lugar",
+        third: "3er lugar",
         others: "Otros jugadores",
         title: "Clasificación del podio",
       },
-      rank: "Puesto",
+      rank: "Posición",
       score: "Puntuación",
       player: "Jugador",
+      "two-letters-one-word": {
+        title: "¡Fin del juego!",
+        subtitle: "¡Gracias por jugar 2 Letras 1 Palabra!",
+        totalWords: "Palabras encontradas",
+        bestWord: "Mejor palabra",
+        averageScore: "Puntuación media",
+        timePlayed: "Tiempo de juego",
+        newHighScore: "¡Nuevo récord!",
+        shareResults: "Compartir resultados",
+        playAgain: "Jugar de nuevo"
+      }
     },
     listenButDontJudge: {
       waiting: "Esperando a otros jugadores...",

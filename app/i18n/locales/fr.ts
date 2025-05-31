@@ -189,7 +189,17 @@ export default {
       "two-letters-one-word": {
         name: "2 Lettres 1 Mot",
         description: "Trouvez un mot qui commence par les deux lettres données et correspond au thème.",
-        tag: "GRATUIT"
+        tag: "GRATUIT",
+        score: "Score : {{score}}",
+        theme: "Thème : {{theme}}",
+        inputPlaceholder: "Entrez votre mot...",
+        verifyButton: "Vérifier",
+        verifyingButton: "Vérification...",
+        validWord: "Bravo !",
+        validWordMessage: "Votre mot est valide !",
+        invalidWord: "Dommage !",
+        invalidWordMessage: "Votre mot ne correspond pas aux critères.",
+        noWordError: "Veuillez entrer un mot"
       }
     }
   },
@@ -258,6 +268,17 @@ export default {
       rank: "Rang",
       score: "Score",
       player: "Joueur",
+      "two-letters-one-word": {
+        title: "Fin de la partie !",
+        subtitle: "Merci d'avoir joué à 2 Lettres 1 Mot !",
+        totalWords: "Mots trouvés",
+        bestWord: "Meilleur mot",
+        averageScore: "Score moyen",
+        timePlayed: "Temps de jeu",
+        newHighScore: "Nouveau meilleur score !",
+        shareResults: "Partager les résultats",
+        playAgain: "Rejouer"
+      }
     },
     player: 'le joueur',
     listenButDontJudge: {

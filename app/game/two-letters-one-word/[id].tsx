@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { verifyWord } from './utils/wordVerification';
+import { doc, getFirestore, onSnapshot, updateDoc } from '@react-native-firebase/firestore';
+import { useLocalSearchParams } from 'expo-router';
+import { useTranslation } from 'react-i18next';
+import GameResults from '@/components/game/GameResults';
 
 // Liste des thèmes possibles
 const THEMES = [
@@ -34,21 +38,47 @@ export default function TwoLettersOneWord() {
   const [word, setWord] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [score, setScore] = useState(0);
+  const [players, setPlayers] = useState<any[]>([]);
+  const { t } = useTranslation();
+  const [gamePhase, setGamePhase] = useState<'playing' | 'results'>('playing');
 
-  // Initialisation du jeu
+  const { id } = useLocalSearchParams();
+  const gameDocId = typeof id === 'string' ? id : Array.isArray(id) ? id[id.length - 1] : '';
+
   useEffect(() => {
-    startNewRound();
-  }, []);
+    if (!gameDocId) return;
 
-  const startNewRound = () => {
-    setLetters(generateRandomLetters());
-    setTheme(THEMES[Math.floor(Math.random() * THEMES.length)] as string);
-    setWord('');
-  };
+    const db = getFirestore();
+    const gameRef = doc(db, 'games', gameDocId);
+
+    const unsubscribe = onSnapshot(gameRef, (doc) => {
+      if (doc.exists()) {
+        const gameData = doc.data() as any;
+        setLetters(gameData.currentLetters || ['A', 'B']);
+        setTheme(gameData.currentTheme || THEMES[0]);
+        const updatedPlayers = Object.entries(gameData.scores || {}).map(([playerId, score]) => ({
+          id: playerId,
+          score: score as number,
+        }));
+        setPlayers(updatedPlayers);
+        const currentUserScore = updatedPlayers.find(p => p.id === 'some-user-id')?.score || 0;
+        setScore(currentUserScore);
+
+        if (gameData.status === 'finished') {
+           setGamePhase('results');
+        }
+
+      } else {
+        Alert.alert('Erreur', 'Partie introuvable ou terminée');
+      }
+    });
+
+    return () => unsubscribe();
+  }, [gameDocId]);
 
   const handleSubmit = async () => {
     if (!word.trim()) {
-      Alert.alert('Erreur', 'Veuillez entrer un mot');
+      Alert.alert(t('game.error'), t('home.games.two-letters-one-word.noWordError'));
       return;
     }
 
@@ -62,14 +92,23 @@ export default function TwoLettersOneWord() {
       });
 
       if (isValid) {
-        setScore(prev => prev + 1);
-        Alert.alert('Bravo !', 'Votre mot est valide !');
-        startNewRound();
+        const db = getFirestore();
+        const gameRef = doc(db, 'games', gameDocId as string);
+        const currentUserId = 'some-user-id';
+        const currentScore = players.find(p => p.id === currentUserId)?.score || 0;
+        await updateDoc(gameRef, {
+          [`scores.${currentUserId}`]: currentScore + 1,
+          currentWord: word.trim(),
+        });
+
+        Alert.alert(t('home.games.two-letters-one-word.validWord'), t('home.games.two-letters-one-word.validWordMessage'));
+        setWord('');
       } else {
-        Alert.alert('Dommage !', 'Votre mot ne correspond pas aux critères.');
+        Alert.alert(t('home.games.two-letters-one-word.invalidWord'), t('home.games.two-letters-one-word.invalidWordMessage'));
       }
     } catch (error) {
-      Alert.alert('Erreur', 'Une erreur est survenue lors de la vérification.');
+      console.error('Erreur lors de la vérification ou de la mise à jour du mot:', error);
+      Alert.alert(t('game.error'), t('game.error'));
     } finally {
       setIsLoading(false);
     }
@@ -80,36 +119,44 @@ export default function TwoLettersOneWord() {
       colors={['#1a1a2e', '#16213e', '#0f3460']}
       style={styles.container}
     >
-      <View style={styles.content}>
-        <Text style={styles.score}>Score: {score}</Text>
-        
-        <View style={styles.lettersContainer}>
-          <Text style={styles.letters}>{letters.join(' - ')}</Text>
+      {gamePhase === 'playing' ? (
+        <View style={styles.content}>
+          <Text style={styles.score}>{t('home.games.two-letters-one-word.score', { score })}</Text>
+          
+          <View style={styles.lettersContainer}>
+            <Text style={styles.letters}>{letters.join(' - ')}</Text>
+          </View>
+
+          <Text style={styles.theme}>{t('home.games.two-letters-one-word.theme', { theme })}</Text>
+
+          <TextInput
+            style={styles.input}
+            value={word}
+            onChangeText={setWord}
+            placeholder={t('home.games.two-letters-one-word.inputPlaceholder')}
+            placeholderTextColor="#666"
+            autoCapitalize="none"
+            autoCorrect={false}
+            editable={!isLoading}
+          />
+
+          <TouchableOpacity
+            style={[styles.button, isLoading && styles.buttonDisabled]}
+            onPress={handleSubmit}
+            disabled={isLoading}
+          >
+            <Text style={styles.buttonText}>
+              {isLoading ? t('home.games.two-letters-one-word.verifyingButton') : t('home.games.two-letters-one-word.verifyButton')}
+            </Text>
+          </TouchableOpacity>
         </View>
-
-        <Text style={styles.theme}>Thème: {theme}</Text>
-
-        <TextInput
-          style={styles.input}
-          value={word}
-          onChangeText={setWord}
-          placeholder="Entrez votre mot..."
-          placeholderTextColor="#666"
-          autoCapitalize="none"
-          autoCorrect={false}
-          editable={!isLoading}
+      ) : (
+        <GameResults
+           players={players}
+           scores={players.reduce((acc, player) => ({ ...acc, [player.id]: player.score }), {})}
+           userId={'some-user-id'}
         />
-
-        <TouchableOpacity
-          style={[styles.button, isLoading && styles.buttonDisabled]}
-          onPress={handleSubmit}
-          disabled={isLoading}
-        >
-          <Text style={styles.buttonText}>
-            {isLoading ? 'Vérification...' : 'Vérifier'}
-          </Text>
-        </TouchableOpacity>
-      </View>
+      )}
     </LinearGradient>
   );
 }

@@ -17,6 +17,31 @@ import { getQuestions } from '../game/trap-answer/questions';
 import { TrapGameState } from '@/types/types';
 import { useLanguage } from '@/contexts/LanguageContext';
 
+// Liste des thèmes possibles pour 2 Lettres 1 Mot
+const TWO_LETTERS_ONE_WORD_THEMES = [
+  'une marque',
+  'une ville',
+  'un prénom',
+  'un pays',
+  'un animal',
+  'un métier',
+  'un sport',
+  'un fruit',
+  'un légume',
+  'un objet'
+] as const;
+
+// Génère deux lettres aléatoires pour 2 Lettres 1 Mot
+const generateTwoLettersOneWordRandomLetters = (): [string, string] => {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  let firstLetter = alphabet[Math.floor(Math.random() * alphabet.length)] as string;
+  let secondLetter: string;
+  do {
+    secondLetter = alphabet[Math.floor(Math.random() * alphabet.length)] as string;
+  } while (secondLetter === firstLetter);
+  return [firstLetter, secondLetter];
+};
+
 // Configuration des jeux avec le nombre minimum de joueurs requis
 const GAME_CONFIG = {
   'truth-or-dare': { minPlayers: 2 },
@@ -227,8 +252,10 @@ export default function RoomScreen() {
             router.replace(`/game/trap-answer/${roomData.gameDocId}`);
           } else if (roomData.gameMode === 'never-have-i-ever-hot') {
             router.replace(`/game/never-have-i-ever-hot/${roomData.gameDocId}`);
-          }else if (roomData.gameMode === 'genius-or-liar') {
+          } else if (roomData.gameMode === 'genius-or-liar') {
             router.replace(`/game/genius-or-liar/${roomData.gameDocId}`);
+          } else if (roomData.gameMode === 'two-letters-one-word') {
+            router.replace(`/game/two-letters-one-word/${roomData.gameDocId}`);
           }
           return;
         }

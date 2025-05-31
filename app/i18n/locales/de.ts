@@ -197,8 +197,18 @@ export default {
       },
       "two-letters-one-word": {
         name: "2 Buchstaben 1 Wort",
-        description: "Finde ein Wort, das mit den beiden angegebenen Buchstaben beginnt und zum Thema passt.",
-        tag: "KOSTENLOS"
+        description: "Finde ein Wort, das mit den beiden gegebenen Buchstaben beginnt und zum Thema passt.",
+        tag: "KOSTENLOS",
+        score: "Punktzahl: {{score}}",
+        theme: "Thema: {{theme}}",
+        inputPlaceholder: "Gib dein Wort ein...",
+        verifyButton: "Überprüfen",
+        verifyingButton: "Überprüfe...",
+        validWord: "Bravo!",
+        validWordMessage: "Dein Wort ist gültig!",
+        invalidWord: "Schade!",
+        invalidWordMessage: "Dein Wort entspricht nicht den Kriterien.",
+        noWordError: "Bitte gib ein Wort ein"
       },
     },
     geniusOrLiar: {
@@ -312,18 +322,29 @@ export default {
       subtitle: "Glückwunsch an alle!",
       bravo: "Glückwunsch {{name}}!",
       points: "Punkte",
-      home: "Start",
+      home: "Startseite",
       calculating: "Berechne Ergebnisse...",
       podium: {
         first: "1. Platz",
         second: "2. Platz",
         third: "3. Platz",
-        others: "Weitere Spieler",
-        title: "Podium-Rangliste",
+        others: "Andere Spieler",
+        title: "Podiumsplatzierung",
       },
       rank: "Rang",
-      score: "Punkte",
+      score: "Punktzahl",
       player: "Spieler",
+      "two-letters-one-word": {
+        title: "Spielende!",
+        subtitle: "Danke fürs Spielen von 2 Buchstaben 1 Wort!",
+        totalWords: "Gefundene Wörter",
+        bestWord: "Bestes Wort",
+        averageScore: "Durchschnittspunktzahl",
+        timePlayed: "Spielzeit",
+        newHighScore: "Neuer Rekord!",
+        shareResults: "Ergebnisse teilen",
+        playAgain: "Nochmal spielen"
+      }
     },
     listenButDontJudge: {
       waiting: "Warten auf andere Spieler...",

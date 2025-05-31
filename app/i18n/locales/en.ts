@@ -187,7 +187,17 @@ export default {
       "two-letters-one-word": {
         name: "2 Letters 1 Word",
         description: "Find a word that starts with the two given letters and matches the theme.",
-        tag: "FREE"
+        tag: "FREE",
+        score: "Score: {{score}}",
+        theme: "Theme: {{theme}}",
+        inputPlaceholder: "Enter your word...",
+        verifyButton: "Verify",
+        verifyingButton: "Verifying...",
+        validWord: "Bravo!",
+        validWordMessage: "Your word is valid!",
+        invalidWord: "Too bad!",
+        invalidWordMessage: "Your word does not match the criteria.",
+        noWordError: "Please enter a word"
       },
     }
   },
@@ -238,9 +248,9 @@ export default {
     noMode: "No game mode found in the games document.",
     loading: "Loading...",
     results: {
-      title: "Final results",
-      subtitle: "Congratulations everyone!",
-      bravo: "Congrats {{name}}!",
+      title: "Final Results",
+      subtitle: "Congratulations to all!",
+      bravo: "Congratulations {{name}}!",
       points: "points",
       home: "Home",
       calculating: "Calculating results...",
@@ -249,11 +259,22 @@ export default {
         second: "2nd place",
         third: "3rd place",
         others: "Other players",
-        title: "Podium ranking",
+        title: "Podium Ranking",
       },
       rank: "Rank",
       score: "Score",
       player: "Player",
+      "two-letters-one-word": {
+        title: "Game Over!",
+        subtitle: "Thanks for playing 2 Letters 1 Word!",
+        totalWords: "Words found",
+        bestWord: "Best word",
+        averageScore: "Average score",
+        timePlayed: "Time played",
+        newHighScore: "New high score!",
+        shareResults: "Share results",
+        playAgain: "Play again"
+      }
     },
     player: 'the player',
     listenButDontJudge: {
