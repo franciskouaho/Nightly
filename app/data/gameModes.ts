@@ -7,8 +7,10 @@ export interface GameMode {
     colors: string[];
     borderColor: string;
     shadowColor: string;
-    tag: string;
-    tagColor: string;
+    tags: Array<{
+        text: string;
+        color: string;
+    }>;
     premium: boolean;
     interactive?: 'write' | 'choice' | 'action';
 }
@@ -35,8 +37,10 @@ export const gameCategories: GameCategory[] = [
                 colors: ["#1A2A5B", "#7B24B1"],
                 borderColor: "#2C2C2C",
                 shadowColor: "#2C2C2C",
-                tag: 'GRATUIT',
-                tagColor: "#8E24AA",
+                tags: [{
+                    text: 'home.games.trap-answer.tags.free',
+                    color: "#8E24AA"
+                }],
                 premium: false,
                 interactive: 'choice'
             },
@@ -48,8 +52,10 @@ export const gameCategories: GameCategory[] = [
                 colors: ["rgba(17, 34, 78, 0.8)", "rgba(38, 56, 120, 0.9)"],
                 borderColor: "#3B5FD9",
                 shadowColor: "#3B5FD9",
-                tag: 'PREMIUM',
-                tagColor: "#D81B60",
+                tags: [{
+                    text: 'home.games.listen-but-don-t-judge.tags.free',
+                    color: "#8E24AA"
+                }],
                 premium: false,
                 interactive: 'write'
             },
@@ -61,9 +67,14 @@ export const gameCategories: GameCategory[] = [
                 colors: ["rgba(26,26,46,0.8)", "rgba(15,52,96,0.9)"],
                 borderColor: "#1a1a2e",
                 shadowColor: "#0f3460",
-                tag: 'GRATUIT',
-                tagColor: "#4CAF50",
-                premium: false,
+                tags: [{
+                    text: 'home.games.two-letters-one-word.tags.new',
+                    color: '#2196F3'
+                }, {
+                    text: 'home.games.two-letters-one-word.tags.premium',
+                    color: '#D81B60'
+                }],
+                premium: true,
                 interactive: 'write'
             }
         ]
@@ -81,8 +92,10 @@ export const gameCategories: GameCategory[] = [
                 colors: ["rgba(50, 90, 150, 0.8)", "rgba(80, 120, 200, 0.9)"],
                 borderColor: "#3F51B5",
                 shadowColor: "#3F51B5",
-                tag: 'PREMIUM',
-                tagColor: '#D81B60',
+                tags: [{
+                    text: 'home.games.truth-or-dare.tags.premium',
+                    color: '#D81B60'
+                }],
                 premium: true,
                 interactive: 'action'
             },
@@ -94,8 +107,10 @@ export const gameCategories: GameCategory[] = [
                 colors: ["rgba(90, 10, 50, 0.8)", "rgba(130, 20, 80, 0.9)"],
                 borderColor: "#D81B60",
                 shadowColor: "#D81B60",
-                tag: 'PREMIUM',
-                tagColor: "#D81B60",
+                tags: [{
+                    text: 'home.games.never-have-i-ever-hot.tags.premium',
+                    color: "#D81B60"
+                }],
                 premium: true,
                 interactive: 'write'
             }
@@ -114,8 +129,10 @@ export const gameCategories: GameCategory[] = [
                 colors: ["rgba(20, 20, 40, 0.8)", "rgba(40, 40, 80, 0.9)"],
                 borderColor: "#212121",
                 shadowColor: "#212121",
-                tag: 'PREMIUM',
-                tagColor: "#D81B60",
+                tags: [{
+                    text: 'home.games.genius-or-liar.tags.premium',
+                    color: "#D81B60"
+                }],
                 premium: true,
                 interactive: 'write'
             },
@@ -127,8 +144,10 @@ export const gameCategories: GameCategory[] = [
                 colors: ["rgba(147, 51, 234, 0.8)", "rgba(192, 38, 211, 0.9)"],
                 borderColor: "#A855F7",
                 shadowColor: "#A855F7",
-                tag: 'PREMIUM',
-                tagColor: "#D81B60",
+                tags: [{
+                    text: 'home.games.the-hidden-village.tags.premium',
+                    color: "#D81B60"
+                }],
                 premium: true,
                 interactive: 'choice'
             },

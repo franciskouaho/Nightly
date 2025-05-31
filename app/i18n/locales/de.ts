@@ -156,33 +156,45 @@ export default {
     games: {
       "listen-but-don-t-judge": {
         name: "ZUHÖREN ABER NICHT URTEILEN",
-        description: "Ein kostenloser Modus zum Spaß mit Freunden.",
-        tag: "KOSTENLOS"
+        description: "Ein kostenloser Modus zum Spaß haben mit Freunden.",
+        tags: {
+          free: "KOSTENLOS"
+        }
       },
       "truth-or-dare": {
         name: "WAHRHEIT ODER PFICHT",
         description: "Der Klassiker neu interpretiert mit exklusiven Herausforderungen.",
-        tag: "PREMIUM"
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "never-have-i-ever-hot": {
-        name: "NOCH NIE 🔞",
-        description: "Freche und pikante Fragen... Bereit zu gestehen?",
-        tag: "PREMIUM"
+        name: "ICH HABE NOCH NIE 🔞",
+        description: "Freche und unangemessene Fragen... Bereit zu gestehen?",
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "genius-or-liar": {
         name: "GENIE ODER LÜGNER",
-        description: "Ein unterhaltsamer Modus, in dem du dein Wissen beweisen oder Herausforderungen meistern musst.",
-        tag: "PREMIUM"
+        description: "Ein unterhaltsamer Modus, in dem du dein Wissen beweisen oder die Konsequenzen tragen musst.",
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "the-hidden-village": {
         name: "DAS VERSTECKTE DORF",
-        description: "Ein Bluff-, Strategie- und Diskussionsspiel... für alle, die es lieben, ihre Freunde zu beschuldigen 😈",
-        tag: "PREMIUM"
+        description: "Ein Spiel aus Bluff, Strategie und Diskussionen... für diejenigen, die gerne ihre Freunde beschuldigen 😈",
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "trap-answer": {
         name: "Fallen-Antwort",
-        tag: "KOSTENLOS",
-        description: "Ein Quiz, bei dem du bei jeder falschen Antwort Punkte verlierst... Kannst du die Fallen vermeiden?"
+        description: "Ein Quiz, bei dem eine falsche Antwort Punkte kostet... Kannst du den Fallen entgehen?",
+        tags: {
+          free: "KOSTENLOS"
+        }
       },
       'avatar-dragon': {
         name: 'Drache',
@@ -197,13 +209,16 @@ export default {
       },
       "two-letters-one-word": {
         name: "2 Buchstaben 1 Wort",
-        description: "Finde ein Wort, das mit den beiden gegebenen Buchstaben beginnt und zum Thema passt.",
-        tag: "KOSTENLOS",
+        description: "Finde ein Wort, das mit den zwei gegebenen Buchstaben beginnt und zum Thema passt.",
+        tags: {
+          new: "NEU",
+          premium: "PREMIUM"
+        },
         score: "Punktzahl: {{score}}",
         theme: "Thema: {{theme}}",
         inputPlaceholder: "Gib dein Wort ein...",
         verifyButton: "Überprüfen",
-        verifyingButton: "Überprüfe...",
+        verifyingButton: "Überprüfung...",
         validWord: "Bravo!",
         validWordMessage: "Dein Wort ist gültig!",
         invalidWord: "Schade!",

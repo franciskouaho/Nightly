@@ -157,32 +157,44 @@ export default {
       "listen-but-don-t-judge": {
         name: "ASCOLTA MA NON GIUDICARE",
         description: "Una modalità gratuita per divertirsi con gli amici.",
-        tag: "GRATIS"
+        tags: {
+          free: "GRATIS"
+        }
       },
       "truth-or-dare": {
         name: "VERITÀ O SFOIDA",
         description: "Il classico rivisitato con sfide esclusive.",
-        tag: "PREMIUM"
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "never-have-i-ever-hot": {
-        name: "MAI MAI 🔞",
-        description: "Domande piccanti e audaci... Pronto a confessare?",
-        tag: "PREMIUM"
+        name: "NON HO MAI 🔞",
+        description: "Domande piccanti e inappropriate... Pronto a confessare?",
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "genius-or-liar": {
         name: "GENIO O BUGIARDO",
-        description: "Una modalità divertente in cui devi dimostrare le tue conoscenze o affrontare sfide.",
-        tag: "PREMIUM"
+        description: "Una modalità divertente dove devi dimostrare le tue conoscenze o affrontare le conseguenze.",
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "the-hidden-village": {
         name: "IL VILLAGGIO NASCOSTO",
         description: "Un gioco di bluff, strategia e discussioni... per chi ama accusare gli amici 😈",
-        tag: "PREMIUM"
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "trap-answer": {
         name: "Risposta Trappola",
-        tag: "GRATIS",
-        description: "Un quiz in cui una risposta sbagliata ti fa perdere punti... Riuscirai a evitare le trappole?"
+        description: "Un quiz dove una risposta sbagliata ti fa perdere punti... Riuscirai a evitare le trappole?",
+        tags: {
+          free: "GRATIS"
+        }
       },
       'avatar-dragon': {
         name: 'Drago',
@@ -198,7 +210,10 @@ export default {
       "two-letters-one-word": {
         name: "2 Lettere 1 Parola",
         description: "Trova una parola che inizia con le due lettere date e corrisponde al tema.",
-        tag: "GRATUITO",
+        tags: {
+          new: "NUOVO",
+          premium: "PREMIUM"
+        },
         score: "Punteggio: {{score}}",
         theme: "Tema: {{theme}}",
         inputPlaceholder: "Inserisci la tua parola...",

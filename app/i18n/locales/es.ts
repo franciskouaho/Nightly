@@ -156,48 +156,53 @@ export default {
     games: {
       "listen-but-don-t-judge": {
         name: "ESCUCHA PERO NO JUZGUES",
-        description: "Un modo gratuito para divertirse con amigos.",
-        tag: "GRATIS"
+        description: "Un modo gratuito para reírte con amigos.",
+        tags: {
+          free: "GRATIS"
+        }
       },
       "truth-or-dare": {
         name: "VERDAD O RETO",
         description: "El clásico revisado con desafíos exclusivos.",
-        tag: "PREMIUM"
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "never-have-i-ever-hot": {
         name: "NUNCA NUNCA 🔞",
-        description: "Preguntas picantes y atrevidas... ¿Listo para confesar?",
-        tag: "PREMIUM"
+        description: "Preguntas picantes e inapropiadas... ¿Listo para confesar?",
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "genius-or-liar": {
         name: "GENIO O MENTIROSO",
-        description: "Un modo divertido donde debes demostrar tus conocimientos o enfrentar retos.",
-        tag: "PREMIUM"
+        description: "Un modo divertido donde debes demostrar tus conocimientos o enfrentar las consecuencias.",
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "the-hidden-village": {
-        name: "EL PUEBLO ESCONDIDO",
-        description: "Un juego de farol, estrategia y discusiones... para los que disfrutan acusando a sus amigos 😈",
-        tag: "PREMIUM"
+        name: "EL PUEBLO OCULTO",
+        description: "Un juego de engaño, estrategia y discusiones... para los que aman acusar a sus amigos 😈",
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "trap-answer": {
         name: "Respuesta Trampa",
-        tag: "GRATIS",
-        description: "Un quiz donde una respuesta incorrecta te hace perder puntos... ¿Podrás evitar las trampas?"
+        description: "Un quiz donde una respuesta incorrecta te hace perder puntos... ¿Podrás evitar las trampas?",
+        tags: {
+          free: "GRATIS"
+        }
       },
       "two-letters-one-word": {
         name: "2 Letras 1 Palabra",
-        description: "Encuentra una palabra que comienza con las dos letras dadas y corresponde al tema.",
-        tag: "GRATIS",
-        score: "Puntuación: {{score}}",
-        theme: "Tema: {{theme}}",
-        inputPlaceholder: "Ingresa tu palabra...",
-        verifyButton: "Verificar",
-        verifyingButton: "Verificando...",
-        validWord: "¡Bravo!",
-        validWordMessage: "¡Tu palabra es válida!",
-        invalidWord: "¡Qué pena!",
-        invalidWordMessage: "Tu palabra no corresponde a los criterios.",
-        noWordError: "Por favor, ingresa una palabra"
+        description: "Encuentra una palabra que comience con las dos letras dadas y coincida con el tema.",
+        tags: {
+          new: "NUEVO",
+          premium: "PREMIUM"
+        }
       },
     }
   },

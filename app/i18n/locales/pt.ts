@@ -157,32 +157,44 @@ export default {
       "listen-but-don-t-judge": {
         name: "OUÇA MAS NÃO JULGUE",
         description: "Um modo gratuito para se divertir com amigos.",
-        tag: "GRÁTIS"
+        tags: {
+          free: "GRÁTIS"
+        }
       },
       "truth-or-dare": {
         name: "VERDADE OU DESAFIO",
-        description: "O clássico revisado com desafios exclusivos.",
-        tag: "PREMIUM"
+        description: "O clássico revisitado com desafios exclusivos.",
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "never-have-i-ever-hot": {
         name: "NUNCA NUNCA 🔞",
-        description: "Perguntas picantes e ousadas... Pronto para confessar?",
-        tag: "PREMIUM"
+        description: "Perguntas picantes e inapropriadas... Pronto para confessar?",
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "genius-or-liar": {
         name: "GÊNIO OU MENTIROSO",
-        description: "Um modo divertido onde você deve provar seus conhecimentos ou enfrentar desafios.",
-        tag: "PREMIUM"
+        description: "Um modo divertido onde você deve provar seus conhecimentos ou enfrentar as consequências.",
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "the-hidden-village": {
         name: "A VILA OCULTA",
-        description: "Um jogo de blefe, estratégia e discussões... para quem gosta de acusar os amigos 😈",
-        tag: "PREMIUM"
+        description: "Um jogo de blefe, estratégia e discussões... para quem ama acusar os amigos 😈",
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "trap-answer": {
         name: "Resposta Armadilha",
-        tag: "GRÁTIS",
-        description: "Um quiz onde uma resposta errada te faz perder pontos... Consegues evitar as armadilhas?"
+        description: "Um quiz onde uma resposta errada faz você perder pontos... Você conseguirá evitar as armadilhas?",
+        tags: {
+          free: "GRÁTIS"
+        }
       },
       'avatar-dragon': {
         name: 'Dragão',
@@ -198,7 +210,10 @@ export default {
       "two-letters-one-word": {
         name: "2 Letras 1 Palavra",
         description: "Encontre uma palavra que começa com as duas letras dadas e corresponde ao tema.",
-        tag: "GRÁTIS",
+        tags: {
+          new: "NOVO",
+          premium: "PREMIUM"
+        },
         score: "Pontuação: {{score}}",
         theme: "Tema: {{theme}}",
         inputPlaceholder: "Digite sua palavra...",

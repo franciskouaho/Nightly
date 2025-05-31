@@ -157,47 +157,52 @@ export default {
       "listen-but-don-t-judge": {
         name: "LISTEN BUT DON'T JUDGE",
         description: "A free mode to have fun with friends.",
-        tag: "FREE"
+        tags: {
+          free: "FREE"
+        }
       },
       "truth-or-dare": {
         name: "TRUTH OR DARE",
-        description: "The classic game revisited with exclusive challenges.",
-        tag: "PREMIUM"
+        description: "The classic revisited with exclusive challenges.",
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "never-have-i-ever-hot": {
         name: "NEVER HAVE I EVER 🔞",
-        description: "Naughty and cheeky questions... Ready to confess?",
-        tag: "PREMIUM"
+        description: "Naughty and inappropriate questions... Ready to own up?",
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "genius-or-liar": {
         name: "GENIUS OR LIAR",
-        description: "A fun mode where you must prove your knowledge or face dares.",
-        tag: "PREMIUM"
+        description: "A fun mode where you must prove your knowledge or face the consequences.",
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "the-hidden-village": {
         name: "THE HIDDEN VILLAGE",
         description: "A game of bluff, strategy and discussions... for those who love accusing their friends 😈",
-        tag: "PREMIUM"
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "trap-answer": {
         name: "Trap Answer",
-        tag: "FREE",
-        description: "A quiz where one wrong answer makes you lose points... Can you avoid the traps?"
+        description: "A quiz where a wrong answer makes you lose points... Can you avoid the traps?",
+        tags: {
+          free: "FREE"
+        }
       },
       "two-letters-one-word": {
         name: "2 Letters 1 Word",
         description: "Find a word that starts with the two given letters and matches the theme.",
-        tag: "FREE",
-        score: "Score: {{score}}",
-        theme: "Theme: {{theme}}",
-        inputPlaceholder: "Enter your word...",
-        verifyButton: "Verify",
-        verifyingButton: "Verifying...",
-        validWord: "Bravo!",
-        validWordMessage: "Your word is valid!",
-        invalidWord: "Too bad!",
-        invalidWordMessage: "Your word does not match the criteria.",
-        noWordError: "Please enter a word"
+        tags: {
+          new: "NEW",
+          premium: "PREMIUM"
+        }
       },
     }
   },

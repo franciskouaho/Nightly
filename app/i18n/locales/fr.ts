@@ -159,47 +159,52 @@ export default {
       "listen-but-don-t-judge": {
         name: "ON ÉCOUTE MAIS ON NE JUGE PAS",
         description: "Un mode gratuit pour rigoler tranquillement entre potes.",
-        tag: "GRATUIT"
+        tags: {
+          free: "GRATUIT"
+        }
       },
       "truth-or-dare": {
         name: "ACTION OU VÉRITÉ",
         description: "Le classique revisité avec des défis exclusifs.",
-        tag: "PREMIUM"
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "never-have-i-ever-hot": {
         name: "JE N'AI JAMAIS 🔞",
         description: "Questions coquines et déplacées... Prêts à assumer ?",
-        tag: "PREMIUM"
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "genius-or-liar": {
         name: "GENIE OU MENTEUR",
         description: "Un mode ludique où vous devez prouver vos connaissances ou assumer vos gages.",
-        tag: "PREMIUM"
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "the-hidden-village": {
         name: "LE VILLAGE CACHÉ",
         description: "Un jeu de bluff, de stratégie et de discussions... pour ceux qui aiment accuser leurs potes 😈",
-        tag: "PREMIUM"
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "trap-answer": {
         name: "Question Piège",
-        tag: "GRATUIT",
-        description: "Un quiz où une mauvaise réponse te fait perdre des points... Pourras-tu éviter les pièges ?"
+        description: "Un quiz où une mauvaise réponse te fait perdre des points... Pourras-tu éviter les pièges ?",
+        tags: {
+          free: "GRATUIT"
+        }
       },
       "two-letters-one-word": {
         name: "2 Lettres 1 Mot",
         description: "Trouvez un mot qui commence par les deux lettres données et correspond au thème.",
-        tag: "GRATUIT",
-        score: "Score : {{score}}",
-        theme: "Thème : {{theme}}",
-        inputPlaceholder: "Entrez votre mot...",
-        verifyButton: "Vérifier",
-        verifyingButton: "Vérification...",
-        validWord: "Bravo !",
-        validWordMessage: "Votre mot est valide !",
-        invalidWord: "Dommage !",
-        invalidWordMessage: "Votre mot ne correspond pas aux critères.",
-        noWordError: "Veuillez entrer un mot"
+        tags: {
+          new: "NOUVEAU",
+          premium: "PREMIUM"
+        }
       }
     }
   },
