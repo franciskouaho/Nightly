@@ -185,6 +185,11 @@ export default {
         name: "Question Piège",
         tag: "GRATUIT",
         description: "Un quiz où une mauvaise réponse te fait perdre des points... Pourras-tu éviter les pièges ?"
+      },
+      "two-letters-one-word": {
+        name: "2 Lettres 1 Mot",
+        description: "Trouvez un mot qui commence par les deux lettres données et correspond au thème.",
+        tag: "GRATUIT"
       }
     }
   },
@@ -402,6 +407,21 @@ export default {
         title: '🎯 OBJECTIFS',
         traitor: 'Traître : éliminer tous les autres sans se faire démasquer.',
         village: 'Village : découvrir le traître avant qu\'il ne gagne.'
+      }
+    },
+    twoLettersOneWord: {
+      enterWord: "Entrez votre mot...",
+      verify: "Vérifier",
+      verifying: "Vérification...",
+      score: "Score",
+      theme: "Thème",
+      error: {
+        emptyWord: "Veuillez entrer un mot",
+        verificationFailed: "Une erreur est survenue lors de la vérification"
+      },
+      success: {
+        validWord: "Bravo ! Votre mot est valide !",
+        invalidWord: "Dommage ! Votre mot ne correspond pas aux critères."
       }
     }
   },

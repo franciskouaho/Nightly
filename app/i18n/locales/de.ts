@@ -195,6 +195,11 @@ export default {
       'avatar-phoenix': {
         name: 'Phönix',
       },
+      "two-letters-one-word": {
+        name: "2 Buchstaben 1 Wort",
+        description: "Finde ein Wort, das mit den beiden angegebenen Buchstaben beginnt und zum Thema passt.",
+        tag: "KOSTENLOS"
+      },
     },
     geniusOrLiar: {
       roundResults: 'Rundenergebnisse',
@@ -365,6 +370,21 @@ export default {
       naughtyAnswers: "versauten Antworten",
       neverButton: "🙅‍♂️ Ich habe noch nie",
       everButton: "🔥 Ich habe schon",
+    },
+    twoLettersOneWord: {
+      enterWord: "Gib dein Wort ein...",
+      verify: "Überprüfen",
+      verifying: "Überprüfung...",
+      score: "Punktzahl",
+      theme: "Thema",
+      error: {
+        emptyWord: "Bitte gib ein Wort ein",
+        verificationFailed: "Bei der Überprüfung ist ein Fehler aufgetreten"
+      },
+      success: {
+        validWord: "Glückwunsch! Dein Wort ist gültig!",
+        invalidWord: "Schade! Dein Wort entspricht nicht den Kriterien."
+      }
     }
   },
 

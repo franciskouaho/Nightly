@@ -195,6 +195,11 @@ export default {
       'avatar-phoenix': {
         name: 'Fênix',
       },
+      "two-letters-one-word": {
+        name: "2 Letras 1 Palavra",
+        description: "Encontre uma palavra que começa com as duas letras dadas e corresponde ao tema.",
+        tag: "GRÁTIS"
+      },
     }
   },
 
@@ -350,6 +355,21 @@ export default {
       name: "A VILA OCULTA",
       description: "Um jogo de blefe, estratégia e discussões... para quem gosta de acusar os amigos 😈",
       tag: "PREMIUM"
+    },
+    "two-letters-one-word": {
+      enterWord: "Digite sua palavra...",
+      verify: "Verificar",
+      verifying: "Verificando...",
+      score: "Pontuação",
+      theme: "Tema",
+      error: {
+        emptyWord: "Por favor, digite uma palavra",
+        verificationFailed: "Ocorreu um erro durante a verificação"
+      },
+      success: {
+        validWord: "Parabéns! Sua palavra é válida!",
+        invalidWord: "Que pena! Sua palavra não corresponde aos critérios."
+      }
     }
   },
 

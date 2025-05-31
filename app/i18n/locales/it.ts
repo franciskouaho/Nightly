@@ -195,6 +195,11 @@ export default {
       'avatar-phoenix': {
         name: 'Fenice',
       },
+      "two-letters-one-word": {
+        name: "2 Lettere 1 Parola",
+        description: "Trova una parola che inizia con le due lettere date e corrisponde al tema.",
+        tag: "GRATIS"
+      },
     }
   },
 
@@ -344,6 +349,21 @@ export default {
       naughtyAnswers: "risposte birichine",
       neverButton: "🙅‍♂️ Non ho mai...",
       everButton: "🔥 L'ho già fatto",
+    },
+    "two-letters-one-word": {
+      enterWord: "Inserisci la tua parola...",
+      verify: "Verifica",
+      verifying: "Verifica in corso...",
+      score: "Punteggio",
+      theme: "Tema",
+      error: {
+        emptyWord: "Inserisci una parola",
+        verificationFailed: "Si è verificato un errore durante la verifica"
+      },
+      success: {
+        validWord: "Congratulazioni! La tua parola è valida!",
+        invalidWord: "Peccato! La tua parola non corrisponde ai criteri."
+      }
     }
   },
 

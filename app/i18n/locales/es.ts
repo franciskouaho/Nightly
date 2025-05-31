@@ -184,6 +184,11 @@ export default {
         tag: "GRATIS",
         description: "Un quiz donde una respuesta incorrecta te hace perder puntos... ¿Podrás evitar las trampas?"
       },
+      "two-letters-one-word": {
+        name: "2 Letras 1 Palabra",
+        description: "Encuentra una palabra que comience con las dos letras dadas y coincida con el tema.",
+        tag: "GRATIS"
+      },
     }
   },
 
@@ -333,6 +338,21 @@ export default {
       naughtyAnswers: "respuestas traviesas",
       neverButton: "🙅‍♂️ Nunca he...",
       everButton: "🔥 Ya lo he hecho",
+    },
+    "two-letters-one-word": {
+      enterWord: "Ingresa tu palabra...",
+      verify: "Verificar",
+      verifying: "Verificando...",
+      score: "Puntuación",
+      theme: "Tema",
+      error: {
+        emptyWord: "Por favor ingresa una palabra",
+        verificationFailed: "Ocurrió un error durante la verificación"
+      },
+      success: {
+        validWord: "¡Felicitaciones! ¡Tu palabra es válida!",
+        invalidWord: "¡Qué pena! Tu palabra no coincide con los criterios."
+      }
     }
   },
 

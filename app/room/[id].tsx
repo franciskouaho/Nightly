@@ -24,7 +24,8 @@ const GAME_CONFIG = {
   'the-hidden-village': { minPlayers: 5 },
   'trap-answer': { minPlayers: 2 },
   'never-have-i-ever-hot': { minPlayers: 2 },
-  'genius-or-liar': { minPlayers: 2 }
+  'genius-or-liar': { minPlayers: 2 },
+  'two-letters-one-word': { minPlayers: 2 }
 };
 
 // Type pour l'utilisateur
@@ -216,24 +217,19 @@ export default function RoomScreen() {
 
         // Redirection automatique pour tous les joueurs quand la partie commence
         if (roomData.status === 'playing' && roomData.gameDocId) {
-          console.log('[DEBUG] Redirection vers le jeu:', roomData.gameMode, roomData.gameDocId);
-          
-          // Attendre un court instant pour s'assurer que le document de jeu est créé
-          setTimeout(() => {
-            if (roomData.gameMode === 'never-have-i-ever-hot') {
-              router.replace(`/game/never-have-i-ever-hot/${roomData.gameDocId}`);
-            } else if (roomData.gameMode === 'truth-or-dare') {
-              router.replace(`/game/truth-or-dare/${roomData.gameDocId}`);
-            } else if (roomData.gameMode === 'listen-but-don-t-judge') {
-              router.replace(`/game/listen-but-don-t-judge/${roomData.gameDocId}`);
-            } else if (roomData.gameMode === 'the-hidden-village') {
-              router.replace(`/game/the-hidden-village/${roomData.gameDocId}`);
-            } else if (roomData.gameMode === 'trap-answer') {
-              router.replace(`/game/trap-answer/${roomData.gameDocId}`);
-            } else if (roomData.gameMode === 'genius-or-liar') {
-              router.replace(`/game/genius-or-liar/${roomData.gameDocId}`);
-            }
-          }, 500);
+          if (roomData.gameMode === 'truth-or-dare') {
+            router.replace(`/game/truth-or-dare/${roomData.gameDocId}`);
+          } else if (roomData.gameMode === 'listen-but-don-t-judge') {
+            router.replace(`/game/listen-but-don-t-judge/${roomData.gameDocId}`);
+          } else if (roomData.gameMode === 'the-hidden-village') {
+            router.replace(`/game/the-hidden-village/${roomData.gameDocId}`);
+          } else if (roomData.gameMode === 'trap-answer') {
+            router.replace(`/game/trap-answer/${roomData.gameDocId}`);
+          } else if (roomData.gameMode === 'never-have-i-ever-hot') {
+            router.replace(`/game/never-have-i-ever-hot/${roomData.gameDocId}`);
+          }else if (roomData.gameMode === 'genius-or-liar') {
+            router.replace(`/game/genius-or-liar/${roomData.gameDocId}`);
+          }
           return;
         }
       } else {
@@ -307,7 +303,6 @@ export default function RoomScreen() {
   };
 
   const startGame = async () => {
-    setIsStartingGame(true);
     if (!room || !user) return;
 
     try {
@@ -381,7 +376,7 @@ export default function RoomScreen() {
 
       // Rediriger vers le jeu
       console.log('[DEBUG] Redirection vers le jeu:', room.gameId, gameDocRef.id);
-      
+
       switch (room.gameId) {
         case 'never-have-i-ever-hot':
           router.replace(`/game/never-have-i-ever-hot/${gameDocRef.id}`);

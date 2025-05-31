@@ -184,6 +184,11 @@ export default {
         tag: "FREE",
         description: "A quiz where one wrong answer makes you lose points... Can you avoid the traps?"
       },
+      "two-letters-one-word": {
+        name: "2 Letters 1 Word",
+        description: "Find a word that starts with the two given letters and matches the theme.",
+        tag: "FREE"
+      },
     }
   },
 
@@ -393,6 +398,21 @@ export default {
         title: '🎯 OBJECTIVES',
         traitor: 'Traitor: eliminate everyone else without being caught.',
         village: 'Village: discover the traitor before they win.'
+      }
+    },
+    twoLettersOneWord: {
+      enterWord: "Enter your word...",
+      verify: "Verify",
+      verifying: "Verifying...",
+      score: "Score",
+      theme: "Theme",
+      error: {
+        emptyWord: "Please enter a word",
+        verificationFailed: "An error occurred during verification"
+      },
+      success: {
+        validWord: "Congratulations! Your word is valid!",
+        invalidWord: "Too bad! Your word doesn't match the criteria."
       }
     }
   },

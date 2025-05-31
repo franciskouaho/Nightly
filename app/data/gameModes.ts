@@ -52,6 +52,19 @@ export const gameCategories: GameCategory[] = [
                 tagColor: "#D81B60",
                 premium: false,
                 interactive: 'write'
+            },
+            {
+                id: 'two-letters-one-word',
+                name: '2 Lettres 1 Mot',
+                description: 'Trouvez un mot qui commence par les deux lettres données et correspond au thème.',
+                image: require('@/assets/jeux/two-letters-one-word.png'),
+                colors: ["rgba(26,26,46,0.8)", "rgba(15,52,96,0.9)"],
+                borderColor: "#1a1a2e",
+                shadowColor: "#0f3460",
+                tag: 'GRATUIT',
+                tagColor: "#4CAF50",
+                premium: false,
+                interactive: 'write'
             }
         ]
     },
