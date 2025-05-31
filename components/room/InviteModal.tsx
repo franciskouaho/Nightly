@@ -44,7 +44,7 @@ const InviteModal = ({ visible, roomId, onClose, onCopyCode, onShareCode }: Invi
 
           <View style={styles.qrContainer}>
             <QRCode
-              value={`cosmic-quest://room/${roomId}`}
+              value={`nightly://room/${roomId}`}
               size={150}
               color="#fff"
               backgroundColor="transparent"
