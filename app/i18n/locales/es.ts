@@ -198,13 +198,36 @@ export default {
       },
       "two-letters-one-word": {
         name: "2 Letras 1 Palabra",
-        description: "Encuentra una palabra que comience con la primera letra y contenga la segunda letra, según el tema dado.",
+        description: "Encuentra una palabra que empiece con las dos letras dadas y coincida con el tema.",
         tags: {
           free: "GRATIS",
           "new": "NUEVO",
           "premium": "PREMIUM"
-        }
+        },
+        score: "Puntuación: {{score}}",
+        theme: "Tema: {{theme}}",
+        inputPlaceholder: "Introduce tu palabra...",
+        verifyButton: "Verificar",
+        verifyingButton: "Verificando...",
+        validWord: "¡Palabra válida!",
+        validWordMessage: "¡Has encontrado una palabra válida!",
+        invalidWord: "Palabra inválida",
+        invalidWordMessage: "Esta palabra no coincide con los criterios solicitados.",
+        noWordError: "Por favor, introduce una palabra",
+        error: "Ha ocurrido un error",
+        howToPlay: "Encuentra una palabra que empiece con las dos letras dadas y coincida con el tema elegido."
       },
+      // Traducciones de temas
+      "theme.marque": "una marca",
+      "theme.ville": "una ciudad",
+      "theme.prenom": "un nombre",
+      "theme.pays": "un país",
+      "theme.animal": "un animal",
+      "theme.metier": "un trabajo",
+      "theme.sport": "un deporte",
+      "theme.fruit": "una fruta",
+      "theme.legume": "una verdura",
+      "theme.objet": "un objeto",
     }
   },
 

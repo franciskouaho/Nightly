@@ -198,12 +198,35 @@ export default {
       },
       "two-letters-one-word": {
         name: "2 Letters 1 Word",
-        description: "Find a word that starts with the first letter and contains the second letter, according to the given theme.",
+        description: "Find a word that starts with the two given letters and matches the theme.",
         tags: {
           free: "FREE",
           "new": "NEW",
           "premium": "PREMIUM"
-        }
+        },
+        score: "Score: {{score}}",
+        theme: "Theme: {{theme}}",
+        inputPlaceholder: "Enter your word...",
+        verifyButton: "Verify",
+        verifyingButton: "Verifying...",
+        validWord: "Valid word!",
+        validWordMessage: "You found a valid word!",
+        invalidWord: "Invalid word",
+        invalidWordMessage: "This word does not match the requested criteria.",
+        noWordError: "Please enter a word",
+        error: "An error occurred",
+        howToPlay: "Find a word that starts with the two given letters and matches the chosen theme.",
+        // Theme translations
+        "theme.marque": "a brand",
+        "theme.ville": "a city",
+        "theme.prenom": "a first name",
+        "theme.pays": "a country",
+        "theme.animal": "an animal",
+        "theme.metier": "a job",
+        "theme.sport": "a sport",
+        "theme.fruit": "a fruit",
+        "theme.legume": "a vegetable",
+        "theme.objet": "an object",
       },
     }
   },

@@ -208,14 +208,37 @@ export default {
         name: 'Fênix',
       },
       "two-letters-one-word": {
-        name: "2 Letters 1 Word",
-        description: "Find a word that starts with the first letter and contains the second letter, according to the given theme.",
+        name: "2 Letras 1 Palavra",
+        description: "Encontre uma palavra que comece com as duas letras dadas e corresponda ao tema.",
         tags: {
           free: "GRÁTIS",
           "new": "NOVO",
           "premium": "PREMIUM"
-        }
+        },
+        score: "Pontuação: {{score}}",
+        theme: "Tema: {{theme}}",
+        inputPlaceholder: "Digite sua palavra...",
+        verifyButton: "Verificar",
+        verifyingButton: "Verificando...",
+        validWord: "Palavra válida!",
+        validWordMessage: "Você encontrou uma palavra válida!",
+        invalidWord: "Palavra inválida",
+        invalidWordMessage: "Esta palavra não corresponde aos critérios solicitados.",
+        noWordError: "Por favor, digite uma palavra",
+        error: "Ocorreu um erro",
+        howToPlay: "Encontre uma palavra que comece com as duas letras dadas e corresponda ao tema escolhido."
       },
+      // Traduções de temas
+      "theme.marque": "uma marca",
+      "theme.ville": "uma cidade",
+      "theme.prenom": "um nome",
+      "theme.pays": "um país",
+      "theme.animal": "um animal",
+      "theme.metier": "um emprego",
+      "theme.sport": "um esporte",
+      "theme.fruit": "uma fruta",
+      "theme.legume": "um vegetal",
+      "theme.objet": "um objeto",
     }
   },
 
@@ -395,9 +418,10 @@ export default {
       validWord: "Palavra válida!",
       validWordMessage: "Você encontrou uma palavra válida!",
       invalidWord: "Palavra inválida",
-      invalidWordMessage: "Esta palavra não atende aos critérios necessários.",
+      invalidWordMessage: "Esta palavra não corresponde aos critérios solicitados.",
       noWordError: "Por favor, digite uma palavra",
-      error: "Ocorreu um erro"
+      error: "Ocorreu um erro",
+      howToPlay: "Encontre uma palavra que comece com as duas letras dadas e corresponda ao tema escolhido."
     }
   },
 

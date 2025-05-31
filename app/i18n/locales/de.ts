@@ -208,8 +208,8 @@ export default {
         name: 'Phönix',
       },
       "two-letters-one-word": {
-        name: "2 Letters 1 Word",
-        description: "Find a word that starts with the first letter and contains the second letter, according to the given theme.",
+        name: "2 Buchstaben 1 Wort",
+        description: "Finden Sie ein Wort, das mit den beiden vorgegebenen Buchstaben beginnt und zum Thema passt.",
         tags: {
           free: "KOSTENLOS",
           "new": "NEU",
@@ -219,13 +219,14 @@ export default {
         theme: "Thema: {{theme}}",
         inputPlaceholder: "Geben Sie Ihr Wort ein...",
         verifyButton: "Überprüfen",
-        verifyingButton: "Überprüfung...",
+        verifyingButton: "Überprüfe...",
         validWord: "Gültiges Wort!",
-        validWordMessage: "Sie haben ein gültiges Wort gefunden!",
+        validWordMessage: "Du hast ein gültiges Wort gefunden!",
         invalidWord: "Ungültiges Wort",
-        invalidWordMessage: "Dieses Wort entspricht nicht den erforderlichen Kriterien.",
+        invalidWordMessage: "Dieses Wort entspricht nicht den angeforderten Kriterien.",
         noWordError: "Bitte geben Sie ein Wort ein",
-        error: "Ein Fehler ist aufgetreten"
+        error: "Ein Fehler ist aufgetreten",
+        howToPlay: "Finden Sie ein Wort, das mit den beiden vorgegebenen Buchstaben beginnt und zum gewählten Thema passt."
       },
     },
     geniusOrLiar: {
@@ -559,6 +560,18 @@ export default {
     }
   },
 
+  // Theme translations
+  "theme.marque": "eine Marke",
+  "theme.ville": "eine Stadt",
+  "theme.prenom": "ein Vorname",
+  "theme.pays": "ein Land",
+  "theme.animal": "ein Tier",
+  "theme.metier": "ein Beruf",
+  "theme.sport": "eine Sportart",
+  "theme.fruit": "eine Frucht",
+  "theme.legume": "ein Gemüse",
+  "theme.objet": "ein Gegenstand",
+
   inviteModal: {
     title: "Freunde einladen",
     roomCode: "Raumcode",
@@ -615,4 +628,4 @@ export default {
       }
     }
   },
-}; 
+};

@@ -30,7 +30,7 @@ export async function verifyWord({
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+        'Authorization': `Bearer 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`
       },
       body: JSON.stringify({
         model: 'gpt-3.5-turbo',

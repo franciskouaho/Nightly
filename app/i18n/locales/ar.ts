@@ -209,23 +209,24 @@ export default {
       },
       "two-letters-one-word": {
         name: "حرفان كلمة واحدة",
-        description: "ابحث عن كلمة تبدأ بالحرف الأول وتحتوي على الحرف الثاني، وفقًا للفئة المحددة.",
+        description: "ابحث عن كلمة تبدأ بالحرفين المعطيين وتناسب الموضوع.",
         tags: {
           free: "مجاني",
           "new": "جديد",
           "premium": "مميز"
         },
         score: "النتيجة: {{score}}",
-        theme: "الفئة: {{theme}}",
+        theme: "الموضوع: {{theme}}",
         inputPlaceholder: "أدخل كلمتك...",
         verifyButton: "تحقق",
-        verifyingButton: "جاري التحقق...",
+        verifyingButton: "جار التحقق...",
         validWord: "كلمة صحيحة!",
         validWordMessage: "لقد وجدت كلمة صحيحة!",
-        invalidWord: "كلمة غير صحيحة",
-        invalidWordMessage: "هذه الكلمة لا تتوافق مع المعايير المطلوبة.",
+        invalidWord: "كلمة خاطئة",
+        invalidWordMessage: "هذه الكلمة لا تتطابق مع المعايير المطلوبة.",
         noWordError: "الرجاء إدخال كلمة",
-        error: "حدث خطأ"
+        error: "حدث خطأ",
+        howToPlay: "ابحث عن كلمة تبدأ بالحرفين المعطيين وتناسب الموضوع المختار."
       },
     },
     geniusOrLiar: {
@@ -564,6 +565,18 @@ export default {
     }
   },
 
+  // ترجمات الموضوعات
+  "theme.marque": "علامة تجارية",
+  "theme.ville": "مدينة",
+  "theme.prenom": "اسم شخصي",
+  "theme.pays": "بلد",
+  "theme.animal": "حيوان",
+  "theme.metier": "مهنة",
+  "theme.sport": "رياضة",
+  "theme.fruit": "فاكهة",
+  "theme.legume": "خضروات",
+  "theme.objet": "شيء",
+
   buyAssets: {
     title: 'شراء الأصول',
     available: 'الأصول المتاحة',
@@ -636,4 +649,4 @@ export default {
       }
     }
   },
-}; 
+};

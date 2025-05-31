@@ -216,8 +216,20 @@ export default {
         invalidWord: "Mot invalide",
         invalidWordMessage: "Ce mot ne correspond pas aux critères demandés.",
         noWordError: "Veuillez entrer un mot",
-        error: "Une erreur est survenue"
-      }
+        error: "Une erreur est survenue",
+        howToPlay: "Trouvez un mot qui commence par les deux lettres données et correspond au thème choisi."
+      },
+      // Traductions des thèmes
+      "theme.marque": "une marque",
+      "theme.ville": "une ville",
+      "theme.prenom": "un prénom",
+      "theme.pays": "un pays",
+      "theme.animal": "un animal",
+      "theme.metier": "un métier",
+      "theme.sport": "un sport",
+      "theme.fruit": "un fruit",
+      "theme.legume": "un légume",
+      "theme.objet": "un objet",
     }
   },
 

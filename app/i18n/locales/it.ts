@@ -208,14 +208,37 @@ export default {
         name: 'Fenice',
       },
       "two-letters-one-word": {
-        name: "2 Letters 1 Word",
-        description: "Find a word that starts with the first letter and contains the second letter, according to the given theme.",
+        name: "2 Lettere 1 Parola",
+        description: "Trova una parola che inizia con le due lettere date e corrisponde al tema.",
         tags: {
           free: "GRATIS",
           "new": "NUOVO",
           "premium": "PREMIUM"
-        }
+        },
+        score: "Punteggio: {{score}}",
+        theme: "Tema: {{theme}}",
+        inputPlaceholder: "Inserisci la tua parola...",
+        verifyButton: "Verifica",
+        verifyingButton: "Verifica...",
+        validWord: "Parola valida!",
+        validWordMessage: "Hai trovato una parola valida!",
+        invalidWord: "Parola non valida",
+        invalidWordMessage: "Questa parola non corrisponde ai criteri richiesti.",
+        noWordError: "Si prega di inserire una parola",
+        error: "Si è verificato un errore",
+        howToPlay: "Trova una parola che inizia con le due lettere date e corrisponde al tema scelto."
       },
+      // Traduzioni dei temi
+      "theme.marque": "un marchio",
+      "theme.ville": "una città",
+      "theme.prenom": "un nome",
+      "theme.pays": "un paese",
+      "theme.animal": "un animale",
+      "theme.metier": "un lavoro",
+      "theme.sport": "uno sport",
+      "theme.fruit": "un frutto",
+      "theme.legume": "una verdura",
+      "theme.objet": "un oggetto",
     }
   },
 

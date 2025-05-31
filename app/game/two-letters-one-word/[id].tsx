@@ -11,16 +11,16 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 // Liste des thèmes possibles
 const THEMES = [
-  'une marque',
-  'une ville',
-  'un prénom',
-  'un pays',
-  'un animal',
-  'un métier',
-  'un sport',
-  'un fruit',
-  'un légume',
-  'un objet'
+  'theme.marque',
+  'theme.ville',
+  'theme.prenom',
+  'theme.pays',
+  'theme.animal',
+  'theme.metier',
+  'theme.sport',
+  'theme.fruit',
+  'theme.legume',
+  'theme.objet'
 ] as const;
 
 // Génère deux lettres aléatoires
@@ -59,7 +59,9 @@ export default function TwoLettersOneWord() {
       if (docSnap.exists()) {
         const gameData = docSnap.data() as any;
         setLetters(gameData.currentLetters || ['A', 'B']);
-        setTheme(gameData.currentTheme || THEMES[0]);
+        const loadedTheme = gameData.currentTheme;
+        const themeKeyToSet = THEMES.includes(loadedTheme) ? loadedTheme : THEMES[0];
+        setTheme(themeKeyToSet);
 
         const scoresData = gameData.scores || {};
         const playerIds = Object.keys(scoresData);
@@ -138,7 +140,7 @@ export default function TwoLettersOneWord() {
         word: word.trim(),
         firstLetter: letters[0],
         secondLetter: letters[1],
-        theme
+        theme: theme
       });
 
       // Ensure user and user.uid are available before proceeding
@@ -324,14 +326,19 @@ export default function TwoLettersOneWord() {
 
             {/* Theme display with neumorphic style */}
             <View style={styles.themeContainer}>
-              <Text style={styles.themeText}>{theme}</Text>
+              <Text style={styles.themeText}>{t('home.games.two-letters-one-word.theme', { theme })}</Text>
             </View>
+
+            {/* Game Explanation */}
+            <Text style={styles.howToPlayText}>
+              {t('home.games.two-letters-one-word.howToPlay')}
+            </Text>
 
             <TextInput
               style={styles.input}
               value={word}
               onChangeText={setWord}
-              placeholder="Tape un mot..."
+              placeholder={t('home.games.two-letters-one-word.inputPlaceholder')}
               placeholderTextColor="rgba(255, 255, 255, 0.6)"
               autoCapitalize="none"
               autoCorrect={false}
@@ -351,7 +358,7 @@ export default function TwoLettersOneWord() {
               style={styles.buttonGradient}
             >
               <Text style={styles.buttonText}>
-                {isLoading ? t('home.games.two-letters-one-word.verifyingButton') : 'VÉRIFIER'}
+                {isLoading ? t('home.games.two-letters-one-word.verifyingButton') : t('home.games.two-letters-one-word.verifyButton')}
               </Text>
             </LinearGradient>
           </TouchableOpacity>
@@ -503,6 +510,14 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontFamily: 'System',
     fontWeight: '500',
+  },
+  // New style for game explanation text
+  howToPlayText: {
+    fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.8)', // Slightly transparent white
+    textAlign: 'center',
+    marginHorizontal: 20,
+    marginBottom: 30, // Space below explanation
   },
   input: {
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
