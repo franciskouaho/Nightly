@@ -202,9 +202,21 @@ export default {
         name: "2 Lettres 1 Mot",
         description: "Trouvez un mot qui commence par les deux lettres données et correspond au thème.",
         tags: {
-          new: "NOUVEAU",
-          premium: "PREMIUM"
-        }
+          free: "GRATUIT",
+          "new": "NOUVEAU",
+          "premium": "PREMIUM"
+        },
+        score: "Score : {{score}}",
+        theme: "Thème : {{theme}}",
+        inputPlaceholder: "Entrez votre mot...",
+        verifyButton: "Vérifier",
+        verifyingButton: "Vérification...",
+        validWord: "Mot valide !",
+        validWordMessage: "Vous avez trouvé un mot valide !",
+        invalidWord: "Mot invalide",
+        invalidWordMessage: "Ce mot ne correspond pas aux critères demandés.",
+        noWordError: "Veuillez entrer un mot",
+        error: "Une erreur est survenue"
       }
     }
   },

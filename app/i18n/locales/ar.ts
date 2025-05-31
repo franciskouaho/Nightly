@@ -209,21 +209,23 @@ export default {
       },
       "two-letters-one-word": {
         name: "حرفان كلمة واحدة",
-        description: "ابحث عن كلمة تبدأ بالحرفين المعطيين وتتناسب مع الموضوع.",
+        description: "ابحث عن كلمة تبدأ بالحرف الأول وتحتوي على الحرف الثاني، وفقًا للفئة المحددة.",
         tags: {
-          new: "جديد",
-          premium: "بريميوم"
+          free: "مجاني",
+          "new": "جديد",
+          "premium": "مميز"
         },
         score: "النتيجة: {{score}}",
-        theme: "الموضوع: {{theme}}",
+        theme: "الفئة: {{theme}}",
         inputPlaceholder: "أدخل كلمتك...",
         verifyButton: "تحقق",
         verifyingButton: "جاري التحقق...",
-        validWord: "أحسنت!",
-        validWordMessage: "كلمتك صحيحة!",
-        invalidWord: "للأسف!",
-        invalidWordMessage: "كلمتك لا تتوافق مع المعايير.",
-        noWordError: "الرجاء إدخال كلمة"
+        validWord: "كلمة صحيحة!",
+        validWordMessage: "لقد وجدت كلمة صحيحة!",
+        invalidWord: "كلمة غير صحيحة",
+        invalidWordMessage: "هذه الكلمة لا تتوافق مع المعايير المطلوبة.",
+        noWordError: "الرجاء إدخال كلمة",
+        error: "حدث خطأ"
       },
     },
     geniusOrLiar: {

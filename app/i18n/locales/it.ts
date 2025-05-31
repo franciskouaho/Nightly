@@ -208,22 +208,13 @@ export default {
         name: 'Fenice',
       },
       "two-letters-one-word": {
-        name: "2 Lettere 1 Parola",
-        description: "Trova una parola che inizia con le due lettere date e corrisponde al tema.",
+        name: "2 Letters 1 Word",
+        description: "Find a word that starts with the first letter and contains the second letter, according to the given theme.",
         tags: {
-          new: "NUOVO",
-          premium: "PREMIUM"
-        },
-        score: "Punteggio: {{score}}",
-        theme: "Tema: {{theme}}",
-        inputPlaceholder: "Inserisci la tua parola...",
-        verifyButton: "Verifica",
-        verifyingButton: "Verifica in corso...",
-        validWord: "Bravo!",
-        validWordMessage: "La tua parola è valida!",
-        invalidWord: "Peccato!",
-        invalidWordMessage: "La tua parola non corrisponde ai criteri.",
-        noWordError: "Inserisci una parola"
+          free: "GRATIS",
+          "new": "NUOVO",
+          "premium": "PREMIUM"
+        }
       },
     }
   },
@@ -292,7 +283,7 @@ export default {
       player: "Giocatore",
       "two-letters-one-word": {
         title: "Fine della partita!",
-        subtitle: "Grazie per aver giocato a 2 Lettere 1 Parola!",
+        subtitle: "Grazie per aver giocato a 2 Letters 1 Word!",
         totalWords: "Parole trovate",
         bestWord: "Migliore parola",
         averageScore: "Punteggio medio",
@@ -390,8 +381,8 @@ export default {
       enterWord: "Inserisci la tua parola...",
       verify: "Verifica",
       verifying: "Verifica in corso...",
-      score: "Punteggio",
-      theme: "Tema",
+      score: "Punteggio: {{score}}",
+      theme: "Tema: {{theme}}",
       error: {
         emptyWord: "Inserisci una parola",
         verificationFailed: "Si è verificato un errore durante la verifica"

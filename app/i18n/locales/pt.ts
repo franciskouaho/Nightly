@@ -208,22 +208,13 @@ export default {
         name: 'Fênix',
       },
       "two-letters-one-word": {
-        name: "2 Letras 1 Palavra",
-        description: "Encontre uma palavra que começa com as duas letras dadas e corresponde ao tema.",
+        name: "2 Letters 1 Word",
+        description: "Find a word that starts with the first letter and contains the second letter, according to the given theme.",
         tags: {
-          new: "NOVO",
-          premium: "PREMIUM"
-        },
-        score: "Pontuação: {{score}}",
-        theme: "Tema: {{theme}}",
-        inputPlaceholder: "Digite sua palavra...",
-        verifyButton: "Verificar",
-        verifyingButton: "Verificando...",
-        validWord: "Parabéns!",
-        validWordMessage: "Sua palavra é válida!",
-        invalidWord: "Que pena!",
-        invalidWordMessage: "Sua palavra não corresponde aos critérios.",
-        noWordError: "Por favor, digite uma palavra"
+          free: "GRÁTIS",
+          "new": "NOVO",
+          "premium": "PREMIUM"
+        }
       },
     }
   },
@@ -292,7 +283,7 @@ export default {
       player: "Jogador",
       "two-letters-one-word": {
         title: "Fim de jogo!",
-        subtitle: "Obrigado por jogar 2 Letras 1 Palavra!",
+        subtitle: "Obrigado por jogar 2 Letters 1 Word!",
         totalWords: "Palavras encontradas",
         bestWord: "Melhor palavra",
         averageScore: "Pontuação média",
@@ -396,16 +387,17 @@ export default {
       enterWord: "Digite sua palavra...",
       verify: "Verificar",
       verifying: "Verificando...",
-      score: "Pontuação",
-      theme: "Tema",
-      error: {
-        emptyWord: "Por favor, digite uma palavra",
-        verificationFailed: "Ocorreu um erro durante a verificação"
-      },
-      success: {
-        validWord: "Parabéns! Sua palavra é válida!",
-        invalidWord: "Que pena! Sua palavra não corresponde aos critérios."
-      }
+      score: "Pontuação: {{score}}",
+      theme: "Tema: {{theme}}",
+      inputPlaceholder: "Digite sua palavra...",
+      verifyButton: "Verificar",
+      verifyingButton: "Verificando...",
+      validWord: "Palavra válida!",
+      validWordMessage: "Você encontrou uma palavra válida!",
+      invalidWord: "Palavra inválida",
+      invalidWordMessage: "Esta palavra não atende aos critérios necessários.",
+      noWordError: "Por favor, digite uma palavra",
+      error: "Ocorreu um erro"
     }
   },
 

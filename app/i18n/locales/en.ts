@@ -198,10 +198,11 @@ export default {
       },
       "two-letters-one-word": {
         name: "2 Letters 1 Word",
-        description: "Find a word that starts with the two given letters and matches the theme.",
+        description: "Find a word that starts with the first letter and contains the second letter, according to the given theme.",
         tags: {
-          new: "NEW",
-          premium: "PREMIUM"
+          free: "FREE",
+          "new": "NEW",
+          "premium": "PREMIUM"
         }
       },
     }
@@ -427,19 +428,17 @@ export default {
       }
     },
     twoLettersOneWord: {
-      enterWord: "Enter your word...",
-      verify: "Verify",
-      verifying: "Verifying...",
-      score: "Score",
-      theme: "Theme",
-      error: {
-        emptyWord: "Please enter a word",
-        verificationFailed: "An error occurred during verification"
-      },
-      success: {
-        validWord: "Congratulations! Your word is valid!",
-        invalidWord: "Too bad! Your word doesn't match the criteria."
-      }
+      score: "Score: {{score}}",
+      theme: "Theme: {{theme}}",
+      inputPlaceholder: "Enter your word...",
+      verifyButton: "Verify",
+      verifyingButton: "Verifying...",
+      validWord: "Valid word!",
+      validWordMessage: "You found a valid word!",
+      invalidWord: "Invalid word",
+      invalidWordMessage: "This word doesn't match the required criteria.",
+      noWordError: "Please enter a word",
+      error: "An error occurred"
     }
   },
 

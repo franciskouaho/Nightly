@@ -198,10 +198,11 @@ export default {
       },
       "two-letters-one-word": {
         name: "2 Letras 1 Palabra",
-        description: "Encuentra una palabra que comience con las dos letras dadas y coincida con el tema.",
+        description: "Encuentra una palabra que comience con la primera letra y contenga la segunda letra, según el tema dado.",
         tags: {
-          new: "NUEVO",
-          premium: "PREMIUM"
+          free: "GRATIS",
+          "new": "NUEVO",
+          "premium": "PREMIUM"
         }
       },
     }
@@ -366,19 +367,17 @@ export default {
       everButton: "🔥 Ya lo he hecho",
     },
     "two-letters-one-word": {
-      enterWord: "Ingresa tu palabra...",
-      verify: "Verificar",
-      verifying: "Verificando...",
-      score: "Puntuación",
-      theme: "Tema",
-      error: {
-        emptyWord: "Por favor ingresa una palabra",
-        verificationFailed: "Ocurrió un error durante la verificación"
-      },
-      success: {
-        validWord: "¡Felicitaciones! ¡Tu palabra es válida!",
-        invalidWord: "¡Qué pena! Tu palabra no coincide con los criterios."
-      }
+      score: "Puntuación: {{score}}",
+      theme: "Tema: {{theme}}",
+      inputPlaceholder: "Ingresa tu palabra...",
+      verifyButton: "Verificar",
+      verifyingButton: "Verificando...",
+      validWord: "¡Palabra válida!",
+      validWordMessage: "¡Has encontrado una palabra válida!",
+      invalidWord: "Palabra inválida",
+      invalidWordMessage: "Esta palabra no cumple con los criterios requeridos.",
+      noWordError: "Por favor ingresa una palabra",
+      error: "Ha ocurrido un error"
     }
   },
 

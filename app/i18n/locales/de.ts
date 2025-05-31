@@ -208,22 +208,24 @@ export default {
         name: 'Phönix',
       },
       "two-letters-one-word": {
-        name: "2 Buchstaben 1 Wort",
-        description: "Finde ein Wort, das mit den zwei gegebenen Buchstaben beginnt und zum Thema passt.",
+        name: "2 Letters 1 Word",
+        description: "Find a word that starts with the first letter and contains the second letter, according to the given theme.",
         tags: {
-          new: "NEU",
-          premium: "PREMIUM"
+          free: "KOSTENLOS",
+          "new": "NEU",
+          "premium": "PREMIUM"
         },
         score: "Punktzahl: {{score}}",
         theme: "Thema: {{theme}}",
-        inputPlaceholder: "Gib dein Wort ein...",
+        inputPlaceholder: "Geben Sie Ihr Wort ein...",
         verifyButton: "Überprüfen",
         verifyingButton: "Überprüfung...",
-        validWord: "Bravo!",
-        validWordMessage: "Dein Wort ist gültig!",
-        invalidWord: "Schade!",
-        invalidWordMessage: "Dein Wort entspricht nicht den Kriterien.",
-        noWordError: "Bitte gib ein Wort ein"
+        validWord: "Gültiges Wort!",
+        validWordMessage: "Sie haben ein gültiges Wort gefunden!",
+        invalidWord: "Ungültiges Wort",
+        invalidWordMessage: "Dieses Wort entspricht nicht den erforderlichen Kriterien.",
+        noWordError: "Bitte geben Sie ein Wort ein",
+        error: "Ein Fehler ist aufgetreten"
       },
     },
     geniusOrLiar: {
