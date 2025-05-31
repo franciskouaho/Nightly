@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, Dimensions, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { verifyWord } from './utils/wordVerification';
-import { doc, getFirestore, onSnapshot, updateDoc } from '@react-native-firebase/firestore';
+import { doc, getFirestore, onSnapshot, updateDoc, getDoc } from '@react-native-firebase/firestore';
 import { useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import GameResults from '@/components/game/GameResults';
+import { useAuth } from '@/contexts/AuthContext';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 // Liste des thèmes possibles
 const THEMES = [
@@ -41,9 +43,11 @@ export default function TwoLettersOneWord() {
   const [players, setPlayers] = useState<any[]>([]);
   const { t } = useTranslation();
   const [gamePhase, setGamePhase] = useState<'playing' | 'results'>('playing');
+  const [gameHistory, setGameHistory] = useState<{[playerId: string]: number[]}>({});
 
   const { id } = useLocalSearchParams();
   const gameDocId = typeof id === 'string' ? id : Array.isArray(id) ? id[id.length - 1] : '';
+  const { user } = useAuth();
 
   useEffect(() => {
     if (!gameDocId) return;
@@ -51,18 +55,64 @@ export default function TwoLettersOneWord() {
     const db = getFirestore();
     const gameRef = doc(db, 'games', gameDocId);
 
-    const unsubscribe = onSnapshot(gameRef, (doc) => {
-      if (doc.exists()) {
-        const gameData = doc.data() as any;
+    const unsubscribe = onSnapshot(gameRef, async (docSnap) => {
+      if (docSnap.exists()) {
+        const gameData = docSnap.data() as any;
         setLetters(gameData.currentLetters || ['A', 'B']);
         setTheme(gameData.currentTheme || THEMES[0]);
-        const updatedPlayers = Object.entries(gameData.scores || {}).map(([playerId, score]) => ({
-          id: playerId,
-          score: score as number,
-        }));
-        setPlayers(updatedPlayers);
-        const currentUserScore = updatedPlayers.find(p => p.id === 'some-user-id')?.score || 0;
-        setScore(currentUserScore);
+
+        const scoresData = gameData.scores || {};
+        const playerIds = Object.keys(scoresData);
+
+        // Initialize or update game history for all players based on scores data
+        const currentHistory = gameData.history || {};
+        const initializedHistory: {[playerId: string]: number[]} = {};
+        playerIds.forEach(id => {
+          // Ensure each player has a history array, initialize if not present
+          initializedHistory[id] = currentHistory[id] || [];
+        });
+        // Add any players from currentHistory not in scoresData (edge case) - though less likely in a game context
+         Object.keys(currentHistory).forEach(id => {
+             if (!initializedHistory[id]) {
+                 initializedHistory[id] = currentHistory[id];
+             }
+         });
+
+        setGameHistory(initializedHistory);
+
+        // Fetch player details for all players in the game
+        if (playerIds.length > 0) {
+          const db = getFirestore();
+          const playerDetailsPromises = playerIds.map(async (id) => {
+            const userDoc = await getDoc(doc(db, 'users', id));
+            if (userDoc.exists()) {
+              const userData = userDoc.data() as any;
+              return { id: id, pseudo: userData.pseudo, avatar: userData.avatar };
+            } else {
+              return { id: id, pseudo: 'Joueur Inconnu', avatar: undefined };
+            }
+          });
+
+          const fetchedDetails = await Promise.all(playerDetailsPromises);
+          const detailsMap = fetchedDetails.reduce((acc, detail) => {
+            acc[detail.id] = { pseudo: detail.pseudo, avatar: detail.avatar };
+            return acc;
+          }, {} as { [key: string]: { pseudo: string, avatar?: string } });
+
+          // Combine scores with fetched pseudos and avatars
+          const updatedPlayers = playerIds.map(playerId => ({
+            id: playerId,
+            score: scoresData[playerId] as number,
+            pseudo: detailsMap[playerId]?.pseudo || 'Joueur Inconnu',
+            avatar: detailsMap[playerId]?.avatar,
+          }));
+
+          setPlayers(updatedPlayers);
+
+          // Find current user's score using actual user ID
+          const currentUserScore = updatedPlayers.find(p => p.id === user?.uid)?.score || 0;
+          setScore(currentUserScore);
+        }
 
         if (gameData.status === 'finished') {
            setGamePhase('results');
@@ -74,7 +124,7 @@ export default function TwoLettersOneWord() {
     });
 
     return () => unsubscribe();
-  }, [gameDocId]);
+  }, [gameDocId, user?.uid]);
 
   const handleSubmit = async () => {
     if (!word.trim()) {
@@ -91,21 +141,65 @@ export default function TwoLettersOneWord() {
         theme
       });
 
-      if (isValid) {
-        const db = getFirestore();
-        const gameRef = doc(db, 'games', gameDocId as string);
-        const currentUserId = 'some-user-id';
-        const currentScore = players.find(p => p.id === currentUserId)?.score || 0;
-        await updateDoc(gameRef, {
-          [`scores.${currentUserId}`]: currentScore + 1,
-          currentWord: word.trim(),
-        });
-
-        Alert.alert(t('home.games.two-letters-one-word.validWord'), t('home.games.two-letters-one-word.validWordMessage'));
-        setWord('');
-      } else {
-        Alert.alert(t('home.games.two-letters-one-word.invalidWord'), t('home.games.two-letters-one-word.invalidWordMessage'));
+      // Ensure user and user.uid are available before proceeding
+      if (!user?.uid) {
+          console.error("User or user ID is not available.");
+          setIsLoading(false);
+          // Optionally show an alert to the user
+          // Alert.alert('Erreur', 'Votre session utilisateur n\'est pas valide.');
+          return;
       }
+
+      const db = getFirestore();
+      const gameRef = doc(db, 'games', gameDocId as string);
+      const currentUserId = user.uid; // user.uid is guaranteed to be defined here
+
+      const currentScore = players.find(p => p.id === currentUserId)?.score || 0;
+
+      // Update history: add result for the current user
+      const updatedHistory = { ...gameHistory };
+      if (!updatedHistory[currentUserId]) updatedHistory[currentUserId] = [];
+
+      // Find the opponent's ID
+      const opponentId = players.find(p => p.id !== currentUserId)?.id;
+
+      // Determine the number of rounds played so far (based on current user's history length)
+      const roundsPlayed = updatedHistory[currentUserId].length;
+
+      // Add result for the current user for the next round
+      updatedHistory[currentUserId].push(isValid ? 1 : 0); // 1 for correct, 0 for incorrect
+
+      // Ensure opponent's history also has an entry for this round
+      if (opponentId) {
+           if (!updatedHistory[opponentId]) updatedHistory[opponentId] = [];
+           // Add a placeholder (-1) if the opponent hasn't played this round yet
+           // This ensures history arrays are the same length for display mapping
+           while(updatedHistory[opponentId].length <= roundsPlayed) { // Use <= roundsPlayed to match the just added entry
+               updatedHistory[opponentId].push(-1); // -1 for not played/placeholder
+           }
+      }
+
+      // Prepare data to update in Firestore
+      const updateData: any = {
+          history: updatedHistory, // Always update history
+      };
+
+      // Only update score if the answer was correct
+      if (isValid) {
+          updateData[`scores.${currentUserId}`] = currentScore + 1;
+          updateData.currentWord = word.trim(); // Update current word only on correct answer
+      }
+
+      await updateDoc(gameRef, updateData);
+
+      // Show alerts and clear word based on validity
+      if (isValid) {
+          Alert.alert(t('home.games.two-letters-one-word.validWord'), t('home.games.two-letters-one-word.validWordMessage'));
+          setWord('');
+      } else {
+           Alert.alert(t('home.games.two-letters-one-word.invalidWord'), t('home.games.two-letters-one-word.invalidWordMessage'));
+      }
+
     } catch (error) {
       console.error('Erreur lors de la vérification ou de la mise à jour du mot:', error);
       Alert.alert(t('game.error'), t('game.error'));
@@ -116,104 +210,376 @@ export default function TwoLettersOneWord() {
 
   return (
     <LinearGradient
-      colors={['#1a1a2e', '#16213e', '#0f3460']}
+      colors={['#1a1a2e', '#0f3460']}
       style={styles.container}
     >
       {gamePhase === 'playing' ? (
         <View style={styles.content}>
-          <Text style={styles.score}>{t('home.games.two-letters-one-word.score', { score })}</Text>
-          
-          <View style={styles.lettersContainer}>
-            <Text style={styles.letters}>{letters.join(' - ')}</Text>
+
+          {/* Duel Header */}
+          <View style={styles.duelHeader}>
+            {/* Current User */}
+            {user && players.find(p => p.id === user.uid) ? (
+              <View style={styles.playerDuelContainer}>
+                {players.find(p => p.id === user.uid)?.avatar ? (
+                  <Image source={{ uri: players.find(p => p.id === user.uid)?.avatar }} style={styles.duelAvatar} />
+                ) : (
+                  <View style={styles.defaultDuelAvatar}>
+                    <Text style={styles.defaultDuelAvatarText}>{players.find(p => p.id === user.uid)?.pseudo?.charAt(0) || '?'}</Text>
+                  </View>
+                )}
+                <Text style={styles.playerDuelName}>{players.find(p => p.id === user.uid)?.pseudo || 'Moi'}</Text>
+                 {/* Add dots for rounds played based on history */}
+                 <View style={styles.roundDots}>
+                    {(gameHistory[user.uid] || []).map((result, i) => (
+                      <View
+                         key={i}
+                         style={[styles.dot,
+                            result === 1 ? styles.correctDot :
+                            result === 0 ? styles.incorrectDot :
+                            styles.notPlayedDot // Style for not played rounds (-1)
+                         ]}
+                      />
+                    ))}
+                 </View>
+              </View>
+            ) : (
+                <View style={styles.playerDuelContainer}> {/* Placeholder */}
+                    <View style={styles.duelAvatarPlaceholder} />
+                    <Text style={styles.playerDuelName}>Moi</Text>
+                    <View style={styles.roundDots}>
+                         {[...Array(5)].map((_, i) => (
+                           <View key={i} style={styles.dot} />
+                         ))}
+                    </View>
+                </View>
+            )}
+
+            {/* DUEL text */}
+            <View style={styles.duelTextContainer}>
+               <MaterialCommunityIcons name="sword-cross" size={30} color="#A0B0C0" style={styles.duelIcon} />
+               <Text style={styles.duelText}>DUEL</Text>
+            </View>
+
+            {/* Opponent User */}
+            {user && players.find(p => p.id !== user.uid) ? (
+                 <View style={styles.playerDuelContainer}>
+                 {players.find(p => p.id !== user.uid)?.avatar ? (
+                   <Image source={{ uri: players.find(p => p.id !== user.uid)?.avatar }} style={styles.duelAvatar} />
+                 ) : (
+                   <View style={styles.defaultDuelAvatar}>
+                     <Text style={styles.defaultDuelAvatarText}>{players.find(p => p.id !== user.uid)?.pseudo?.charAt(0) || '?'}</Text>
+                   </View>
+                 )}
+                 <Text style={styles.playerDuelName}>{players.find(p => p.id !== user.uid)?.pseudo || 'Adversaire'}</Text>
+                  {/* Add dots for rounds played based on history */}
+                  <View style={styles.roundDots}>
+                     {/* Use opponent's history (if opponent exists) */}
+                     {players.find(p => p.id !== user?.uid) ? (
+                         // If opponent exists, map their history
+                         (gameHistory[players.find(p => p.id !== user?.uid)?.id || ''] || []).map((result, i) => (
+                           <View
+                             key={i}
+                             style={[styles.dot,
+                                result === 1 ? styles.correctDot :
+                                result === 0 ? styles.incorrectDot :
+                                styles.notPlayedDot // Style for not played rounds (-1)
+                             ]}
+                           />
+                         ))
+                     ) : ( /* If no opponent, show placeholder dots */
+                         [...Array(5)].map((_, i) => ( // Corrected syntax here
+                             <View key={i} style={styles.notPlayedDot} /> // Use notPlayedDot style for placeholders
+                          ))
+                     )}
+                  </View>
+               </View>
+            ) : ( /* Placeholder if no opponent user found */
+                 <View style={styles.playerDuelContainer}> {/* Placeholder container */}
+                     <View style={styles.duelAvatarPlaceholder} />
+                     <Text style={styles.playerDuelName}>Adversaire</Text>
+                      <View style={styles.roundDots}>
+                         {/* Use current user's history */}
+                         {(gameHistory[user?.uid || ''] || []).map((result, i) => (
+                           <View
+                             key={i}
+                             style={[styles.dot,
+                                result === 1 ? styles.correctDot :
+                                result === 0 ? styles.incorrectDot :
+                                styles.notPlayedDot // Style for not played rounds (-1)
+                             ]}
+                           />
+                         ))}
+                      </View>
+                 </View>
+            )}
           </View>
 
-          <Text style={styles.theme}>{t('home.games.two-letters-one-word.theme', { theme })}</Text>
+          {/* Main content area - centered */}
+          <View style={styles.mainContentArea}>
+            
+            <View style={styles.lettersCard}>
+              <Text style={styles.letters}>{letters.join(' - ')}</Text>
+            </View>
 
-          <TextInput
-            style={styles.input}
-            value={word}
-            onChangeText={setWord}
-            placeholder={t('home.games.two-letters-one-word.inputPlaceholder')}
-            placeholderTextColor="#666"
-            autoCapitalize="none"
-            autoCorrect={false}
-            editable={!isLoading}
-          />
+            {/* Theme display with neumorphic style */}
+            <View style={styles.themeContainer}>
+              <Text style={styles.themeText}>{theme}</Text>
+            </View>
 
+            <TextInput
+              style={styles.input}
+              value={word}
+              onChangeText={setWord}
+              placeholder="Tape un mot..."
+              placeholderTextColor="rgba(255, 255, 255, 0.6)"
+              autoCapitalize="none"
+              autoCorrect={false}
+              editable={!isLoading}
+            />
+          </View>
+
+          {/* Button at the bottom */}
           <TouchableOpacity
             style={[styles.button, isLoading && styles.buttonDisabled]}
             onPress={handleSubmit}
             disabled={isLoading}
+            activeOpacity={0.8}
           >
-            <Text style={styles.buttonText}>
-              {isLoading ? t('home.games.two-letters-one-word.verifyingButton') : t('home.games.two-letters-one-word.verifyButton')}
-            </Text>
+            <LinearGradient
+              colors={['rgba(60, 80, 100, 0.9)', 'rgba(80, 100, 120, 1)']}
+              style={styles.buttonGradient}
+            >
+              <Text style={styles.buttonText}>
+                {isLoading ? t('home.games.two-letters-one-word.verifyingButton') : 'VÉRIFIER'}
+              </Text>
+            </LinearGradient>
           </TouchableOpacity>
         </View>
       ) : (
         <GameResults
-           players={players}
-           scores={players.reduce((acc, player) => ({ ...acc, [player.id]: player.score }), {})}
-           userId={'some-user-id'}
+          players={players}
+          scores={players.reduce((acc, player) => ({ ...acc, [player.id]: player.score }), {})}
+          userId={'some-user-id'}
         />
       )}
     </LinearGradient>
   );
 }
 
+const { width } = Dimensions.get('window');
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingTop: 60,
+    paddingHorizontal: 20,
   },
   content: {
     flex: 1,
-    padding: 20,
+    justifyContent: 'space-between',
     alignItems: 'center',
-    justifyContent: 'center',
   },
-  score: {
-    fontSize: 24,
-    color: '#fff',
+  duelHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
     marginBottom: 40,
   },
-  lettersContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    padding: 20,
-    borderRadius: 15,
+  playerDuelContainer: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  duelAvatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#ccc',
+    marginBottom: 5,
+    borderWidth: 2,
+    borderColor: '#A0B0C0',
+  },
+  defaultDuelAvatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#7B24B1',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 5,
+    borderWidth: 2,
+    borderColor: '#A0B0C0',
+  },
+  defaultDuelAvatarText: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  playerDuelName: {
+    fontSize: 16,
+    color: '#fff',
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  duelTextContainer: {
+    alignItems: 'center',
+  },
+  duelIcon: {
+    marginBottom: 5,
+    color: '#A0B0C0',
+  },
+  duelText: {
+    fontSize: 24,
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  roundDots: {
+     flexDirection: 'row',
+  },
+  dot: {
+      width: 10,
+      height: 10,
+      borderRadius: 5,
+      backgroundColor: 'rgba(255, 255, 255, 0.3)',
+      marginHorizontal: 3,
+  },
+  filledDot: {
+      backgroundColor: '#7B24B1',
+  },
+  correctDot: {
+    backgroundColor: '#4CAF50',
+  },
+  incorrectDot: {
+    backgroundColor: '#F44336',
+  },
+  // Style for dots representing rounds not yet played
+  notPlayedDot: {
+    backgroundColor: 'rgba(255, 255, 255, 0.3)', // Semi-transparent white/grey
+  },
+  mainContentArea: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
+  lettersCard: {
+    backgroundColor: 'rgba(60, 80, 100, 0.8)',
+    paddingVertical: 45,
+    paddingHorizontal: 70,
+    borderRadius: 20,
     marginBottom: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+    elevation: 8,
   },
   letters: {
     fontSize: 48,
     color: '#fff',
     fontWeight: 'bold',
+    letterSpacing: 2,
   },
-  theme: {
-    fontSize: 20,
+  themeContainer: {
+    backgroundColor: '#162f54',
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 30,
+    marginBottom: 40,
+    shadowColor: '#0d2b4b',
+    shadowOffset: { width: 6, height: 6 },
+    shadowOpacity: 1,
+    shadowRadius: 8,
+    elevation: 12,
+  },
+  themeText: {
+    fontSize: 24,
     color: '#fff',
-    marginBottom: 30,
+    fontFamily: 'System',
+    fontWeight: '500',
   },
   input: {
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    width: '100%',
-    padding: 15,
-    borderRadius: 10,
+    width: width * 0.8,
+    padding: 20,
+    borderRadius: 15,
     color: '#fff',
     fontSize: 18,
-    marginBottom: 20,
+    marginBottom: 30,
+    textAlign: 'center',
   },
   button: {
-    backgroundColor: '#4CAF50',
-    padding: 15,
-    borderRadius: 10,
-    width: '100%',
+    width: width * 0.8,
+    borderRadius: 15,
+    overflow: 'hidden',
+    marginBottom: 20,
+  },
+  buttonGradient: {
+    padding: 20,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   buttonDisabled: {
     opacity: 0.5,
   },
   buttonText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
+    letterSpacing: 1,
+  },
+  playersContainer: {
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  playersTitle: {
+    fontSize: 18,
+    color: '#fff',
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  playerEntry: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  playerAvatar: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    marginRight: 10,
+    backgroundColor: '#ccc',
+  },
+  defaultAvatar: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    marginRight: 10,
+    backgroundColor: '#7B24B1',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  defaultAvatarText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  playerText: {
+    fontSize: 16,
+    color: '#fff',
+  },
+  duelAvatarPlaceholder: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#ccc',
+    marginBottom: 5,
   },
 }); 
