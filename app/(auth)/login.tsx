@@ -38,7 +38,13 @@ export default function LoginScreen() {
       try {
         await restoreSession();
         router.replace('/(tabs)');
-      } catch (error) {
+      } catch (error: any) {
+        if (error.message === 'Compte introuvable') {
+          Alert.alert(
+            t('errors.general'),
+            t('auth.login.accountNotFound')
+          );
+        }
         console.log('Aucune session précédente trouvée');
       }
     };

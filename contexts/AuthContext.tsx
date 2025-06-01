@@ -58,10 +58,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             pseudo: userData.pseudo,
             createdAt: userData.createdAt
           });
+        } else {
+          // Si l'utilisateur n'existe plus dans la base de données
+          await AsyncStorage.removeItem(STORAGE_KEY);
+          await auth.signOut();
+          setUser(null);
+          resetUser();
+          throw new Error('Compte introuvable');
         }
       }
     } catch (err) {
       console.error('Erreur lors de la restauration de la session:', err);
+      // En cas d'erreur, on nettoie les données locales
+      await AsyncStorage.removeItem(STORAGE_KEY);
+      setUser(null);
+      resetUser();
+      throw err;
     }
   };
 
