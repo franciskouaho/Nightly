@@ -600,4 +600,11 @@ export default {
       }
     }
   },
+
+  inviteModal: {
+    title: "Inviter des amis",
+    roomCode: "Code de la salle",
+    instruction: "Scanne le QR code ou partage ce code pour inviter tes amis dans la salle.",
+    shareButton: "Partager"
+  },
 }; 

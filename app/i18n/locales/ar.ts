@@ -520,4 +520,11 @@ export default {
     insufficientPoints: 'نقاط غير كافية',
     equip: 'تجهيز',
   },
+
+  inviteModal: {
+    title: "دعوة الأصدقاء",
+    roomCode: "رمز الغرفة",
+    instruction: "امسح رمز QR أو شارك هذا الرمز لدعوة أصدقائك إلى الغرفة.",
+    shareButton: "مشاركة"
+  },
 }; 

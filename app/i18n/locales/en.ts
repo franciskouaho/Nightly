@@ -587,4 +587,11 @@ export default {
       }
     }
   },
+
+  inviteModal: {
+    title: "Invite Friends",
+    roomCode: "Room Code",
+    instruction: "Scan the QR code or share this code to invite your friends to the room.",
+    shareButton: "Share"
+  },
 }; 

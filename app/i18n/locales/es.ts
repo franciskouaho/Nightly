@@ -521,4 +521,11 @@ export default {
       }
     }
   },
+
+  inviteModal: {
+    title: "Invitar amigos",
+    roomCode: "Código de la sala",
+    instruction: "Escanea el código QR o comparte este código para invitar a tus amigos a la sala.",
+    shareButton: "Compartir"
+  },
 }; 

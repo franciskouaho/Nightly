@@ -485,4 +485,11 @@ export default {
     },
     freeTrial: 'Grátis 3 dias',
   },
+
+  inviteModal: {
+    title: "Convidar amigos",
+    roomCode: "Código da sala",
+    instruction: "Escaneie o código QR ou compartilhe este código para convidar seus amigos para a sala.",
+    shareButton: "Compartilhar"
+  },
 }; 

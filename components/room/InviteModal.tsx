@@ -3,6 +3,7 @@ import { View, Text, Modal, TouchableOpacity, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import QRCode from 'react-native-qrcode-svg';
 import RoundedButton from '@/components/RoundedButton';
+import { useTranslation } from 'react-i18next';
 
 type InviteModalProps = {
   visible: boolean;
@@ -13,6 +14,8 @@ type InviteModalProps = {
 };
 
 const InviteModal = ({ visible, roomId, onClose, onCopyCode, onShareCode }: InviteModalProps) => {
+  const { t } = useTranslation();
+
   return (
     <Modal
       animationType="fade"
@@ -23,13 +26,13 @@ const InviteModal = ({ visible, roomId, onClose, onCopyCode, onShareCode }: Invi
       <View style={styles.overlay}>
         <View style={styles.modal}>
           <View style={styles.header}>
-            <Text style={styles.title}>Inviter des amis</Text>
+            <Text style={styles.title}>{t('inviteModal.title')}</Text>
             <TouchableOpacity onPress={onClose}>
               <Ionicons name="close" size={26} color="#fff" />
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.label}>Code de la salle</Text>
+          <Text style={styles.label}>{t('inviteModal.roomCode')}</Text>
           <View style={styles.codeBox}>
             <Text style={styles.code} selectable>
               {roomId.toUpperCase()}
@@ -49,11 +52,11 @@ const InviteModal = ({ visible, roomId, onClose, onCopyCode, onShareCode }: Invi
           </View>
 
           <Text style={styles.instruction}>
-            Scanne le QR code ou partage ce code pour inviter tes amis dans la salle.
+            {t('inviteModal.instruction')}
           </Text>
 
           <RoundedButton
-            title="Partager"
+            title={t('inviteModal.shareButton')}
             onPress={onShareCode}
             style={styles.shareBtn}
             textStyle={styles.shareBtnText}

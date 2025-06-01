@@ -499,4 +499,11 @@ export default {
       description: 'Punkte werden nach den spezifischen Regeln des Spiels vergeben.'
     }
   },
+
+  inviteModal: {
+    title: "Freunde einladen",
+    roomCode: "Raumcode",
+    instruction: "Scanne den QR-Code oder teile diesen Code, um deine Freunde in den Raum einzuladen.",
+    shareButton: "Teilen"
+  },
 }; 

@@ -475,4 +475,11 @@ export default {
     },
     freeTrial: 'Gratis 3 giorni',
   },
+
+  inviteModal: {
+    title: "Invita amici",
+    roomCode: "Codice della stanza",
+    instruction: "Scansiona il codice QR o condividi questo codice per invitare i tuoi amici nella stanza.",
+    shareButton: "Condividi"
+  },
 }; 

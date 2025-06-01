@@ -143,7 +143,7 @@ export default function HomeScreen() {
         }],
         createdAt: new Date().toISOString(),
         status: "waiting",
-        maxPlayers: 20,
+        maxPlayers: game.id === 'trap-answer' ? 4 : 20,
         code: shortCode,
       };
 
