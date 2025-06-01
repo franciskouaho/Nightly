@@ -28,29 +28,16 @@ export default function LoginScreen() {
   const [username, setUsername] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState(profils[0] as string);
-  const { signIn, restoreSession } = useAuth();
+  const { signIn, restoreSession, user } = useAuth();
   const router = useRouter();
   const authAnalytics = useAuthAnalytics();
   const { t } = useTranslation();
 
   useEffect(() => {
-    const tryRestoreSession = async () => {
-      try {
-        await restoreSession();
-        router.replace('/(tabs)');
-      } catch (error: any) {
-        if (error.message === 'Compte introuvable') {
-          Alert.alert(
-            t('errors.general'),
-            t('auth.login.accountNotFound')
-          );
-        }
-        console.log('Aucune session précédente trouvée');
-      }
-    };
-
-    tryRestoreSession();
-  }, []);
+    if (user) {
+      router.replace('/(tabs)');
+    }
+  }, [user]);
 
   const handleLogin = async () => {
     if (!username) {
