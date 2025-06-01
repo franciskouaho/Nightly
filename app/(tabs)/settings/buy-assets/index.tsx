@@ -14,7 +14,7 @@ export const AVAILABLE_ASSETS: Asset[] = [
   {
     id: 'avatar-panda',
     name: 'avatar-panda',
-    cost: 100,
+    cost: 300,
     image: 'https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/buy-assets%2Fpanda.png?alt=media&token=413b4355-0af6-4dc5-a48f-fe0dd60667b7',
     type: 'avatar',
     rarity: 'common',
@@ -23,7 +23,7 @@ export const AVAILABLE_ASSETS: Asset[] = [
   {
     id: 'avatar-chat-rare',
     name: 'avatar-chat-rare',
-    cost: 200,
+    cost: 1000,
     image: 'https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/buy-assets%2FchatRare.png?alt=media&token=7316bd1e-2765-4286-8930-7adb30d09956',
     type: 'avatar',
     rarity: 'rare',
@@ -41,7 +41,7 @@ export const AVAILABLE_ASSETS: Asset[] = [
   {
     id: 'avatar-crocodile',
     name: 'avatar-crocodile',
-    cost: 300,
+    cost: 500,
     image: 'https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/buy-assets%2Fcrocodile.png?alt=media&token=b3044538-ecb2-44cf-b220-2822f8c6b9a2',
     type: 'avatar',
     rarity: 'rare',
@@ -50,7 +50,7 @@ export const AVAILABLE_ASSETS: Asset[] = [
   {
     id: 'avatar-hibou',
     name: 'avatar-hibou',
-    cost: 350,
+    cost: 800,
     image: 'https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/buy-assets%2Fhibou.png?alt=media&token=794f00af-ec0c-451c-92a3-a3c1b56f42bf',
     type: 'avatar',
     rarity: 'rare',
@@ -59,7 +59,7 @@ export const AVAILABLE_ASSETS: Asset[] = [
   {
     id: 'avatar-dragon',
     name: 'avatar-dragon',
-    cost: 3000,
+    cost: 5000,
     image: 'https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/buy-assets%2Fdragon.png?alt=media&token=6f57e3c9-6046-46c2-918b-7b241441326a',
     type: 'avatar',
     rarity: 'epic',
@@ -68,16 +68,43 @@ export const AVAILABLE_ASSETS: Asset[] = [
   {
     id: 'avatar-ourse',
     name: 'avatar-ourse',
-    cost: 4000,
+    cost: 10000,
     image: 'https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/buy-assets%2Fourse.png?alt=media&token=af60bf59-e7e3-4726-b64a-978371512a89',
     type: 'avatar',
     rarity: 'epic',
     description: 'Un ourse majestueux cracheur de feu'
   },
   {
+    id: 'avatar-loup-rare',
+    name: 'avatar-loup-rare',
+    cost: 10000,
+    image: 'https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/buy-assets%2Floup-rare.png?alt=media&token=88385a11-5e45-4533-84cd-082be53252e6',
+    type: 'avatar',
+    rarity: 'epic',
+    description: 'Un ourse majestueux cracheur de feu'
+  },
+  {
+    id: 'avatar-dragon-rare',
+    name: 'avatar-dragon-rare',
+    cost: 50000,
+    image: 'https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/buy-assets%2Favart-dragon-rare.png?alt=media&token=26ba978b-5057-448d-a0fe-854d91ae54f1',
+    type: 'avatar',
+    rarity: 'legendary',
+    description: 'Un dragon majestueux cracheur de feu'
+  },
+  {
+    id: 'avatar-licorne',
+    name: 'avatar-licorne',
+    cost: 50000,
+    image: 'https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/buy-assets%2Flicorne.png?alt=media&token=a2158a1b-b49b-44e3-a3cd-35835663a2dd',
+    type: 'avatar',
+    rarity: 'legendary',
+    description: 'Un dragon majestueux cracheur de feu'
+  },
+  {
     id: 'avatar-phoenix',
     name: 'avatar-phoenix',
-    cost: 5000,
+    cost: 50000,
     image: 'https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/buy-assets%2Fphoenix.png?alt=media&token=ff365cce-d73c-4a41-9f56-dbed53d64e3f',
     type: 'avatar',
     rarity: 'legendary',
