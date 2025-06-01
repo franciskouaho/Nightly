@@ -202,6 +202,7 @@ export default {
     buyAssets: {
       title: 'Buy Assets',
       available: 'Available Assets',
+      availableAssetsTitle: 'Available Assets',
       owned: 'Owned',
       cost: 'Cost',
       points: 'points',

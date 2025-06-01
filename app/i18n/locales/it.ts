@@ -213,6 +213,7 @@ export default {
     buyAssets: {
       title: 'Acquista assets',
       available: 'Assets disponibili',
+      availableAssetsTitle: 'Assets disponibili',
       owned: 'Posseduto',
       cost: 'Costo',
       points: 'punti',

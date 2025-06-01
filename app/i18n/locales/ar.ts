@@ -509,6 +509,7 @@ export default {
   buyAssets: {
     title: 'شراء الأصول',
     available: 'الأصول المتاحة',
+    availableAssetsTitle: 'الأصول المتاحة',
     owned: 'مملوك',
     cost: 'التكلفة',
     points: 'نقطة',

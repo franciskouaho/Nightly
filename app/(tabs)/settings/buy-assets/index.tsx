@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePoints } from '@/hooks/usePoints';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Asset, useUnlockedAssets } from '@/hooks/useUnlockedAssets';
-import { getFirestore, doc, updateDoc, arrayUnion } from '@react-native-firebase/firestore';
+import { getFirestore, doc, updateDoc } from '@react-native-firebase/firestore';
 import PointsDisplay from '@/components/PointsDisplay';
 
 export const AVAILABLE_ASSETS: Asset[] = [
@@ -214,7 +214,7 @@ export default function BuyAssetsScreen() {
         </View>
       </View>
       <ScrollView style={styles.content}>
-        <Text style={styles.marketplaceTitle}>{t('settings.buyAssets.availableAssetsTitle').toUpperCase()}</Text>
+        <Text style={styles.marketplaceTitle}>{t('settings.buyAssets.availableAssetsTitle')}</Text>
         <View style={styles.assetListContainer}>
           {AVAILABLE_ASSETS.map((asset) => {
             // Check against local state instead of async hook call in render
