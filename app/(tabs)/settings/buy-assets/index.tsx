@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Alert } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -6,7 +6,9 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePoints } from '@/hooks/usePoints';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Asset } from '@/hooks/useUnlockedAssets';
+import { Asset, useUnlockedAssets } from '@/hooks/useUnlockedAssets';
+import { getFirestore, doc, updateDoc, arrayUnion } from '@react-native-firebase/firestore';
+import PointsDisplay from '@/components/PointsDisplay';
 
 export const AVAILABLE_ASSETS: Asset[] = [
   {
@@ -86,8 +88,22 @@ export const AVAILABLE_ASSETS: Asset[] = [
 export default function BuyAssetsScreen() {
   const router = useRouter();
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const { addPointsToUser } = usePoints();
+  const { unlockAsset, getUnlockedAssets } = useUnlockedAssets();
+
+  const [unlockedAssetIds, setUnlockedAssetIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchUnlockedAssets = async () => {
+      if (user?.uid) {
+        const assets = await getUnlockedAssets(user.uid);
+        setUnlockedAssetIds(assets);
+      }
+    };
+
+    fetchUnlockedAssets();
+  }, [user?.uid, getUnlockedAssets]);
 
   const handleUnlockAsset = async (asset: Asset) => {
     if (!user || typeof user.points !== 'number') return;
@@ -101,17 +117,55 @@ export default function BuyAssetsScreen() {
     }
 
     try {
-      // Ajouter la logique de déblocage ici (à compléter, ex: mettre à jour un tableau d'assets débloqués)
-      await addPointsToUser(user.uid, -asset.cost);
-      Alert.alert(
-        t('profile.success'),
-        t('profile.assetUnlocked', { asset: t(`assets.avatars.${asset.name}.name`) })
-      );
-      // Rafraîchir les données utilisateur ou naviguer si nécessaire
+      const success = await unlockAsset(user.uid, asset.id);
+      if (success) {
+        // Update local state immediately after successful unlock
+        setUnlockedAssetIds(prevIds => [...prevIds, asset.id]);
+
+        // Deduct points - addPointsToUser already updates user object in AuthContext
+        await addPointsToUser(user.uid, -asset.cost);
+
+        Alert.alert(
+          t('profile.success'),
+          t('profile.assetUnlocked', { asset: t(`assets.avatars.${asset.name}.name`) })
+        );
+      } else {
+         Alert.alert(
+          t('errors.general'),
+          t('profile.unlockError')
+        );
+      }
     } catch (error) {
       Alert.alert(
         t('errors.general'),
         t('profile.unlockError')
+      );
+    }
+  };
+
+  const handleEquipAvatar = async (asset: Asset) => {
+    if (!user) return;
+
+    try {
+      const db = getFirestore();
+      const userRef = doc(db, "users", user.uid);
+      
+      // Mettre à jour l'avatar de l'utilisateur
+      await updateDoc(userRef, {
+        avatar: asset.image
+      });
+      
+      // Mettre à jour l'état local
+      setUser({ ...user, avatar: asset.image });
+      
+      Alert.alert(
+        t('profile.success'),
+        t('profile.avatarChanged')
+      );
+    } catch (error) {
+      Alert.alert(
+        t('errors.general'),
+        t('profile.avatarChangeError')
       );
     }
   };
@@ -128,38 +182,58 @@ export default function BuyAssetsScreen() {
           <MaterialCommunityIcons name="arrow-left" size={24} color="white" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t('profile.buyAssetsTitle')}</Text>
-         <View style={styles.headerRight}>
-          <View style={styles.headerPointsContainer}>
-            <MaterialCommunityIcons name="currency-btc" size={20} color="#FFD700" />
-            <Text style={styles.headerPointsText}>{user?.points ?? 0}</Text>
-          </View>
+        <View style={styles.headerRight}>
+          <PointsDisplay size="medium" />
         </View>
       </View>
       <ScrollView style={styles.content}>
         <Text style={styles.marketplaceTitle}>{t('settings.buyAssets.availableAssetsTitle').toUpperCase()}</Text>
-        {/* Future liste des assets à acheter ici */}
         <View style={styles.assetListContainer}>
-          {AVAILABLE_ASSETS.map((asset) => (
-            <View key={asset.id} style={styles.assetCard}>
-              <Image source={{ uri: asset.image }} style={styles.assetCardImage} />
-              <View style={styles.assetCardInfo}>
-                <Text style={styles.assetCardName}>{t(`assets.avatars.${asset.name}.name`)}</Text>
-                <Text style={styles.assetCardCost}>{asset.cost} <MaterialCommunityIcons name="currency-btc" size={12} color="#FFD700" /></Text>
+          {AVAILABLE_ASSETS.map((asset) => {
+            // Check against local state instead of async hook call in render
+            const unlocked = unlockedAssetIds.includes(asset.id);
+            const isAvatar = asset.type === 'avatar';
+
+            return (
+              <View key={asset.id} style={styles.assetCard}>
+                <Image source={{ uri: asset.image }} style={styles.assetCardImage} />
+                <View style={styles.assetCardInfo}>
+                  <Text style={styles.assetCardName}>{t(`assets.avatars.${asset.name}.name`)}</Text>
+                  {!unlocked ? (
+                    <Text style={styles.assetCardCost}>{asset.cost} <MaterialCommunityIcons name="currency-btc" size={12} color="#FFD700" /></Text>
+                  ) : (
+                    <Text style={styles.assetCardOwned}>{t('settings.buyAssets.owned')}</Text>
+                  )}
+                </View>
+
+                {!unlocked ? (
+                  <TouchableOpacity
+                    style={[
+                      styles.buyButton,
+                      (user?.points ?? 0) < asset.cost && styles.buyButtonDisabled,
+                    ]}
+                    onPress={() => handleUnlockAsset(asset)}
+                    disabled={(user?.points ?? 0) < asset.cost}
+                  >
+                    <Text style={styles.buyButtonText}>
+                      {(user?.points ?? 0) < asset.cost
+                        ? t('settings.buyAssets.notAvailable')
+                        : t('settings.buyAssets.buy')}
+                    </Text>
+                  </TouchableOpacity>
+                ) : isAvatar ? (
+                  <TouchableOpacity
+                    style={styles.equipButton}
+                    onPress={() => handleEquipAvatar(asset)}
+                  >
+                    <Text style={styles.equipButtonText}>{t('settings.buyAssets.equip')}</Text>
+                  </TouchableOpacity>
+                ) : (
+                   <View style={styles.ownedButtonPlaceholder}></View>
+                )}
               </View>
-              <TouchableOpacity
-                style={[
-                  styles.buyButton,
-                  (user?.points ?? 0) < asset.cost && styles.buyButtonDisabled
-                ]}
-                onPress={() => handleUnlockAsset(asset)}
-                disabled={(user?.points ?? 0) < asset.cost}
-              >
-                <Text style={styles.buyButtonText}>
-                  {(user?.points ?? 0) < asset.cost ? t('settings.buyAssets.notAvailable') : t('settings.buyAssets.buy')}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          ))}
+            );
+          })}
         </View>
       </ScrollView>
     </View>
@@ -201,23 +275,8 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   headerRight: {
-    width: 80, 
     alignItems: 'flex-end',
     justifyContent: 'center',
-  },
-   headerPointsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#2D283B',
-    borderRadius: 20,
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-  },
-  headerPointsText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginLeft: 6,
   },
   content: {
     flex: 1,
@@ -268,6 +327,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 2,
   },
+  assetCardOwned: {
+    color: '#A0EEB5',
+    fontSize: 12,
+    marginTop: 2,
+    fontWeight: 'bold',
+  },
   buyButton: {
     backgroundColor: '#694ED6',
     borderRadius: 8,
@@ -285,4 +350,21 @@ const styles = StyleSheet.create({
     backgroundColor: '#2D283B',
     opacity: 0.7,
   },
+  equipButton: {
+    backgroundColor: '#A0EEB5',
+    borderRadius: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    width: '100%',
+    alignItems: 'center',
+  },
+  equipButtonText: {
+    color: '#0E1117',
+    fontWeight: 'bold',
+    fontSize: 12,
+  },
+  ownedButtonPlaceholder: {
+    height: 30, // Adjust height to match button height
+    width: '100%', // Adjust width to match button width
+  }
 }); 

@@ -11,6 +11,7 @@ import PaywallModal from '@/components/PaywallModal';
 import { useTranslation } from 'react-i18next';
 import NotificationService from '@/services/notifications';
 import Purchases from 'react-native-purchases';
+import PointsDisplay from '@/components/PointsDisplay';
 
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
@@ -82,10 +83,7 @@ export default function ProfileScreen() {
           <Text style={styles.headerTitle}>{t('profile.title')}</Text>
           <View style={styles.headerRight}>
             {/* Affichage des points dans l'en-tête */}
-            <View style={styles.headerPointsContainer}>
-              <MaterialCommunityIcons name="currency-btc" size={20} color="#FFD700" />
-              <Text style={styles.headerPointsText}>{user?.points ?? 0}</Text>
-            </View>
+            <PointsDisplay size="medium" />
           </View>
         </View>
 
@@ -234,20 +232,6 @@ const styles = StyleSheet.create({
     width: 80, // Ajuster la largeur si nécessaire
     alignItems: 'flex-end', // Aligner à droite
     justifyContent: 'center',
-  },
-  headerPointsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#2D283B',
-    borderRadius: 20,
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-  },
-  headerPointsText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginLeft: 6,
   },
   background: {
     position: 'absolute',

@@ -22,15 +22,48 @@ interface AuthContextType {
   signIn: (pseudo: string, avatar: string) => Promise<void>;
   signOut: () => Promise<void>;
   setUser: (user: User | null) => void;
+  restoreSession: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const STORAGE_KEY = '@nightly_user_uid';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const { identifyUser, resetUser, trackEvent } = useAnalytics();
+
+  const saveUserUid = async (uid: string) => {
+    try {
+      await AsyncStorage.setItem(STORAGE_KEY, uid);
+    } catch (err) {
+      console.error('Erreur lors de la sauvegarde de l\'UID:', err);
+    }
+  };
+
+  const restoreSession = async () => {
+    try {
+      const savedUid = await AsyncStorage.getItem(STORAGE_KEY);
+      if (savedUid) {
+        const auth = getAuth();
+        const db = getFirestore();
+        const userDoc = await getDoc(doc(db, 'users', savedUid));
+        
+        if (userDoc.exists()) {
+          const userData = userDoc.data() as User;
+          setUser(userData);
+          identifyUser(userData.uid, {
+            pseudo: userData.pseudo,
+            createdAt: userData.createdAt
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Erreur lors de la restauration de la session:', err);
+    }
+  };
 
   useEffect(() => {
     const auth = getAuth();
@@ -42,6 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (userDoc.exists()) {
             const userData = userDoc.data() as User;
             setUser(userData);
+            await saveUserUid(firebaseUser.uid);
             identifyUser(userData.uid, {
               pseudo: userData.pseudo,
               createdAt: userData.createdAt
@@ -92,6 +126,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         points: 0,
       };
       await setDoc(doc(db, 'users', uid), userData);
+      await saveUserUid(uid);
       setUser(userData);
 
       // Track sign in event
@@ -113,8 +148,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const auth = getAuth();
       await auth.signOut();
       
-      // Effacer toutes les données locales
-      await AsyncStorage.clear();
+      // Ne pas effacer l'UID sauvegardé
+      // await AsyncStorage.clear();
       
       // Réinitialiser l'état
       setUser(null);
@@ -127,7 +162,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, error, signIn, signOut, setUser }}>
+    <AuthContext.Provider value={{ user, loading, error, signIn, signOut, setUser, restoreSession }}>
       {children}
     </AuthContext.Provider>
   );

@@ -271,8 +271,8 @@ export default {
     system: 'System',
     buyAssets: {
       title: 'Assets kaufen',
-      available: 'Verfügbare Assets',
-      owned: 'Erworbene Assets',
+      available: 'Assets verfügbar',
+      owned: 'Besitzt',
       cost: 'Kosten',
       points: 'Punkte',
       buy: 'Kaufen',
@@ -281,6 +281,7 @@ export default {
       success: 'Asset erfolgreich gekauft!',
       error: 'Fehler beim Kauf',
       insufficientPoints: 'Nicht genügend Punkte',
+      equip: 'Ausrüsten',
     },
   },
 

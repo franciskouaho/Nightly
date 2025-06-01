@@ -505,4 +505,19 @@ export default {
       description: 'يتم منح النقاط وفقاً للقواعد المحددة للعبة.'
     }
   },
+
+  buyAssets: {
+    title: 'شراء الأصول',
+    available: 'الأصول المتاحة',
+    owned: 'مملوك',
+    cost: 'التكلفة',
+    points: 'نقطة',
+    buy: 'شراء',
+    confirm: 'تأكيد الشراء',
+    cancel: 'إلغاء',
+    success: 'تم شراء الأصل بنجاح!',
+    error: 'حدث خطأ أثناء الشراء',
+    insufficientPoints: 'نقاط غير كافية',
+    equip: 'تجهيز',
+  },
 }; 

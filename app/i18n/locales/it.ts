@@ -213,7 +213,7 @@ export default {
     buyAssets: {
       title: 'Acquista assets',
       available: 'Assets disponibili',
-      owned: 'Assets posseduti',
+      owned: 'Posseduto',
       cost: 'Costo',
       points: 'punti',
       buy: 'Acquista',
@@ -222,6 +222,7 @@ export default {
       success: 'Asset acquistato con successo!',
       error: 'Errore durante l\'acquisto',
       insufficientPoints: 'Punti insufficienti',
+      equip: 'Equipaggia',
     },
   },
 

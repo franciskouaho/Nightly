@@ -202,7 +202,7 @@ export default {
     buyAssets: {
       title: 'Buy Assets',
       available: 'Available Assets',
-      owned: 'Owned Assets',
+      owned: 'Owned',
       cost: 'Cost',
       points: 'points',
       buy: 'Buy',
@@ -211,6 +211,7 @@ export default {
       success: 'Asset purchased successfully!',
       error: 'Error during purchase',
       insufficientPoints: 'Insufficient points',
+      equip: 'Equip',
     },
   },
 

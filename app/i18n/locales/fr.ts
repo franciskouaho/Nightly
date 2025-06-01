@@ -88,6 +88,8 @@ export default {
     restoreSuccess: 'Succès',
     restoreSuccessMessage: 'Vos achats ont été restaurés avec succès',
     restoreError: 'Une erreur est survenue lors de la restauration des achats',
+    avatarChanged: 'Votre photo de profil a été mise à jour avec succès !',
+    avatarChangeError: 'Une erreur est survenue lors du changement de photo de profil.',
     premium: {
       title: 'Passe Premium',
       try: 'Essayer le premium',
@@ -202,7 +204,6 @@ export default {
     buyAssets: {
       title: 'Acheter des assets',
       available: 'Assets disponibles',
-      owned: 'Assets possédés',
       cost: 'Coût',
       points: 'points',
       buy: 'Acheter',
@@ -214,6 +215,8 @@ export default {
       availableAssetsTitle: 'Assets disponibles',
       pointsLabel: 'points',
       notAvailable: 'Non dispo',
+      owned: 'Possédé',
+      equip: 'Équiper',
     },
   },
 

@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, KeyboardAvoidingView, Platform, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/contexts/AuthContext';
@@ -28,10 +28,23 @@ export default function LoginScreen() {
   const [username, setUsername] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState(profils[0] as string);
-  const { signIn } = useAuth();
+  const { signIn, restoreSession } = useAuth();
   const router = useRouter();
   const authAnalytics = useAuthAnalytics();
   const { t } = useTranslation();
+
+  useEffect(() => {
+    const tryRestoreSession = async () => {
+      try {
+        await restoreSession();
+        router.replace('/(tabs)');
+      } catch (error) {
+        console.log('Aucune session précédente trouvée');
+      }
+    };
+
+    tryRestoreSession();
+  }, []);
 
   const handleLogin = async () => {
     if (!username) {
