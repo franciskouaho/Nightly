@@ -527,4 +527,54 @@ export default {
     instruction: "امسح رمز QR أو شارك هذا الرمز لدعوة أصدقائك إلى الغرفة.",
     shareButton: "مشاركة"
   },
+
+  // الأصول والأفاتار
+  assets: {
+    avatars: {
+      'avatar-panda': {
+        name: 'باندا',
+        description: 'باندا لطيف لملفك الشخصي'
+      },
+      'avatar-chat-rare': {
+        name: 'قط غامض',
+        description: 'قط غامض بعيون متوهجة'
+      },
+      'avatar-chat-rare-2': {
+        name: 'قط نادر',
+        description: 'قط نادر بتصميم فريد'
+      },
+      'avatar-crocodile': {
+        name: 'تمساح',
+        description: 'تمساح مثير للإعجاب'
+      },
+      'avatar-hibou': {
+        name: 'بومة',
+        description: 'بومة حكيمة وغامضة'
+      },
+      'avatar-dragon': {
+        name: 'تنين',
+        description: 'تنين مهيب ينفث النار'
+      },
+      'avatar-ourse': {
+        name: 'دبة',
+        description: 'دبة مهيبة'
+      },
+      'avatar-loup-rare': {
+        name: 'ذئب نادر',
+        description: 'ذئب نادر وغامض'
+      },
+      'avatar-dragon-rare': {
+        name: 'تنين أسطوري',
+        description: 'تنين مهيب ينفث النار'
+      },
+      'avatar-licorne': {
+        name: 'يونيكورن',
+        description: 'يونيكورن أسطوري'
+      },
+      'avatar-phoenix': {
+        name: 'عنقاء',
+        description: 'عنقاء أسطورية تنبعث من رمادها'
+      }
+    }
+  },
 }; 

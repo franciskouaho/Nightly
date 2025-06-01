@@ -77,7 +77,7 @@ export const AVAILABLE_ASSETS: Asset[] = [
   {
     id: 'avatar-loup-rare',
     name: 'avatar-loup-rare',
-    cost: 10000,
+    cost: 999999,
     image: 'https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/buy-assets%2Floup-rare.png?alt=media&token=88385a11-5e45-4533-84cd-082be53252e6',
     type: 'avatar',
     rarity: 'epic',

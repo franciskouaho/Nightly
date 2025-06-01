@@ -492,4 +492,54 @@ export default {
     instruction: "Escaneie o código QR ou compartilhe este código para convidar seus amigos para a sala.",
     shareButton: "Compartilhar"
   },
+
+  // Assets e Avatares
+  assets: {
+    avatars: {
+      'avatar-panda': {
+        name: 'Panda',
+        description: 'Um adorável panda para o seu perfil'
+      },
+      'avatar-chat-rare': {
+        name: 'Gato Misterioso',
+        description: 'Um gato misterioso com olhos brilhantes'
+      },
+      'avatar-chat-rare-2': {
+        name: 'Gato Raro',
+        description: 'Um gato raro com um design único'
+      },
+      'avatar-crocodile': {
+        name: 'Crocodilo',
+        description: 'Um impressionante crocodilo'
+      },
+      'avatar-hibou': {
+        name: 'Coruja',
+        description: 'Uma sábia e misteriosa coruja'
+      },
+      'avatar-dragon': {
+        name: 'Dragão',
+        description: 'Um majestoso dragão cuspidor de fogo'
+      },
+      'avatar-ourse': {
+        name: 'Urso',
+        description: 'Uma majestosa ursa'
+      },
+      'avatar-loup-rare': {
+        name: 'Lobo Raro',
+        description: 'Um lobo raro e misterioso'
+      },
+      'avatar-dragon-rare': {
+        name: 'Dragão Lendário',
+        description: 'Um majestoso dragão cuspidor de fogo'
+      },
+      'avatar-licorne': {
+        name: 'Unicórnio',
+        description: 'Um lendário unicórnio'
+      },
+      'avatar-phoenix': {
+        name: 'Fênix',
+        description: 'Uma lendária fênix que renasce das suas cinzas'
+      }
+    }
+  },
 }; 

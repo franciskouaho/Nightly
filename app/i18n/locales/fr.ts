@@ -559,11 +559,11 @@ export default {
         description: 'Un chat mignon et joueur'
       },
       'avatar-chat-rare': {
-        name: 'Chat Rare',
+        name: 'Chat Mystérieux',
         description: 'Un chat mystérieux aux yeux brillants'
       },
       'avatar-chat-rare-2': {
-        name: 'Chat Rare 2',
+        name: 'Chat Rare',
         description: 'Un chat rare avec un design unique'
       },
       'avatar-crocodile': {
@@ -592,7 +592,19 @@ export default {
       },
       'avatar-ourse': {
         name: 'Ourse',
-        description: 'Un ourse majestueux'
+        description: 'Une ourse majestueuse'
+      },
+      'avatar-loup-rare': {
+        name: 'Loup Rare',
+        description: 'Un loup rare et mystérieux'
+      },
+      'avatar-dragon-rare': {
+        name: 'Dragon Légendaire',
+        description: 'Un dragon majestueux cracheur de feu'
+      },
+      'avatar-licorne': {
+        name: 'Licorne',
+        description: 'Une licorne légendaire'
       },
       'avatar-phoenix': {
         name: 'Phénix',
