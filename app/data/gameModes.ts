@@ -103,7 +103,7 @@ export const gameCategories: GameCategory[] = [
                 shadowColor: "#212121",
                 tag: 'PREMIUM',
                 tagColor: "#D81B60",
-                premium: false,
+                premium: true,
                 interactive: 'write'
             },
             {
@@ -116,7 +116,7 @@ export const gameCategories: GameCategory[] = [
                 shadowColor: "#A855F7",
                 tag: 'PREMIUM',
                 tagColor: "#D81B60",
-                premium: false,
+                premium: true,
                 interactive: 'choice'
             },
         ]
