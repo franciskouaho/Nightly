@@ -226,7 +226,19 @@ export default {
         invalidWordMessage: "Dieses Wort entspricht nicht den angeforderten Kriterien.",
         noWordError: "Bitte geben Sie ein Wort ein",
         error: "Ein Fehler ist aufgetreten",
-        howToPlay: "Finden Sie ein Wort, das mit den beiden vorgegebenen Buchstaben beginnt und zum gewählten Thema passt."
+        howToPlay: "Finden Sie ein Wort, das mit den beiden vorgegebenen Buchstaben beginnt und zum gewählten Thema passt.",
+        "theme.marque": "eine Marke",
+        "theme.ville": "eine Stadt",
+        "theme.prenom": "ein Vorname",
+        "theme.pays": "ein Land",
+        "theme.animal": "ein Tier",
+        "theme.metier": "ein Beruf",
+        "theme.sport": "ein Sport",
+        "theme.fruit": "eine Frucht",
+        "theme.legume": "ein Gemüse",
+        "theme.objet": "ein Objekt",
+        "exampleWord": "Beispiel: {{word}}",
+        "nextButton": "Nächste Runde"
       },
     },
     geniusOrLiar: {
@@ -361,7 +373,17 @@ export default {
         timePlayed: "Spielzeit",
         newHighScore: "Neuer Rekord!",
         shareResults: "Ergebnisse teilen",
-        playAgain: "Nochmal spielen"
+        playAgain: "Nochmal spielen",
+        "theme.marque": "eine Marke",
+        "theme.ville": "eine Stadt",
+        "theme.prenom": "ein Vorname",
+        "theme.pays": "ein Land",
+        "theme.animal": "ein Tier",
+        "theme.metier": "ein Beruf",
+        "theme.sport": "ein Sport",
+        "theme.fruit": "eine Frucht",
+        "theme.legume": "ein Gemüse",
+        "theme.objet": "ein Objekt"
       }
     },
     listenButDontJudge: {

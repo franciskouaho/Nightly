@@ -10,22 +10,26 @@ interface WordVerificationParams {
   theme: string;
 }
 
+interface WordVerificationResult {
+  isValid: boolean;
+  example?: string;
+}
+
 /**
  * Vérifie si un mot correspond aux critères du jeu
  * @param params Les paramètres de vérification
- * @returns Promise<boolean> True si le mot est valide, false sinon
+ * @returns Promise<WordVerificationResult> Résultat de la vérification
  */
 export async function verifyWord({
   word,
   firstLetter,
   secondLetter,
   theme
-}: WordVerificationParams): Promise<boolean> {
+}: WordVerificationParams): Promise<WordVerificationResult> {
   try {
-    // Construction de la question pour l'API
-    const prompt = `Le mot '${word}' commence-t-il par les lettres ${firstLetter} et ${secondLetter} et est-ce ${theme} ? Réponds uniquement par 'oui' ou 'non'.`;
+    // Nouveau prompt pour demander un exemple si la réponse est non
+    const prompt = `Le mot '${word}' commence-t-il par les lettres ${firstLetter} et ${secondLetter} et est-ce ${theme} ? Réponds uniquement par 'oui' ou 'non'. Si la réponse est 'non', donne un exemple de mot valide sous la forme : non|exemple.`;
 
-    // Appel à l'API OpenAI
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -37,7 +41,7 @@ export async function verifyWord({
         messages: [
           {
             role: 'system',
-            content: 'Tu es un assistant qui répond uniquement par "oui" ou "non" à la question posée.'
+            content: 'Tu es un assistant qui répond uniquement par "oui" ou "non" à la question posée. Si la réponse est non, donne un exemple sous la forme non|exemple.'
           },
           {
             role: 'user',
@@ -45,7 +49,7 @@ export async function verifyWord({
           }
         ],
         temperature: 0.3,
-        max_tokens: 5
+        max_tokens: 15
       })
     });
 
@@ -62,16 +66,24 @@ export async function verifyWord({
       throw new Error(`Erreur API: ${result.error?.message || 'Erreur inconnue'}`);
     }
 
-    // Extraction de la réponse
     const answer = result.choices[0]?.message?.content?.toLowerCase().trim();
-    
-    // Vérification de la réponse
-    if (!answer || (answer !== 'oui' && answer !== 'non')) {
+
+    if (!answer) {
       throw new Error('Réponse invalide de l\'API');
     }
 
-    return answer === 'oui';
-
+    if (answer.startsWith('oui')) {
+      return { isValid: true };
+    }
+    if (answer.startsWith('non|')) {
+      const example = answer.split('|')[1]?.trim();
+      return { isValid: false, example };
+    }
+    if (answer === 'non') {
+      return { isValid: false };
+    }
+    // fallback
+    return { isValid: false };
   } catch (error) {
     console.error('Erreur lors de la vérification du mot:', error);
     throw error;

@@ -227,6 +227,8 @@ export default {
         "theme.fruit": "a fruit",
         "theme.legume": "a vegetable",
         "theme.objet": "an object",
+        "exampleWord": "Example: {{word}}",
+        "nextButton": "Next round"
       },
     }
   },
@@ -302,7 +304,18 @@ export default {
         timePlayed: "Time played",
         newHighScore: "New high score!",
         shareResults: "Share results",
-        playAgain: "Play again"
+        playAgain: "Play again",
+        // Theme translations
+        "theme.marque": "a brand",
+        "theme.ville": "a city",
+        "theme.prenom": "a first name",
+        "theme.pays": "a country",
+        "theme.animal": "an animal",
+        "theme.metier": "a job",
+        "theme.sport": "a sport",
+        "theme.fruit": "a fruit",
+        "theme.legume": "a vegetable",
+        "theme.objet": "an object"
       }
     },
     player: 'the player',

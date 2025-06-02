@@ -226,19 +226,21 @@ export default {
         invalidWordMessage: "Esta palavra não corresponde aos critérios solicitados.",
         noWordError: "Por favor, digite uma palavra",
         error: "Ocorreu um erro",
-        howToPlay: "Encontre uma palavra que comece com as duas letras dadas e corresponda ao tema escolhido."
+        howToPlay: "Encontre uma palavra que comece com as duas letras dadas e corresponda ao tema escolhido.",
+        // Traduções de temas
+        "theme.marque": "uma marca",
+        "theme.ville": "uma cidade",
+        "theme.prenom": "um nome",
+        "theme.pays": "um país",
+        "theme.animal": "um animal",
+        "theme.metier": "um emprego",
+        "theme.sport": "um esporte",
+        "theme.fruit": "uma fruta",
+        "theme.legume": "um vegetal",
+        "theme.objet": "um objeto",
+        "exampleWord": "Exemplo: {{word}}",
+        "nextButton": "Próxima rodada"
       },
-      // Traduções de temas
-      "theme.marque": "uma marca",
-      "theme.ville": "uma cidade",
-      "theme.prenom": "um nome",
-      "theme.pays": "um país",
-      "theme.animal": "um animal",
-      "theme.metier": "um emprego",
-      "theme.sport": "um esporte",
-      "theme.fruit": "uma fruta",
-      "theme.legume": "um vegetal",
-      "theme.objet": "um objeto",
     }
   },
 
@@ -306,14 +308,27 @@ export default {
       player: "Jogador",
       "two-letters-one-word": {
         title: "Fim de jogo!",
-        subtitle: "Obrigado por jogar 2 Letters 1 Word!",
+        subtitle: "Obrigado por jogar 2 Letras 1 Palavra!",
         totalWords: "Palavras encontradas",
         bestWord: "Melhor palavra",
         averageScore: "Pontuação média",
         timePlayed: "Tempo de jogo",
         newHighScore: "Novo recorde!",
         shareResults: "Compartilhar resultados",
-        playAgain: "Jogar novamente"
+        playAgain: "Jogar novamente",
+        // Traduções de temas
+        "theme.marque": "uma marca",
+        "theme.ville": "uma cidade",
+        "theme.prenom": "um nome",
+        "theme.pays": "um país",
+        "theme.animal": "um animal",
+        "theme.metier": "um emprego",
+        "theme.sport": "um esporte",
+        "theme.fruit": "uma fruta",
+        "theme.legume": "um vegetal",
+        "theme.objet": "um objeto",
+        "exampleWord": "Exemplo: {{word}}",
+        "nextButton": "Próxima rodada"
       }
     },
     listenButDontJudge: {
@@ -421,7 +436,9 @@ export default {
       invalidWordMessage: "Esta palavra não corresponde aos critérios solicitados.",
       noWordError: "Por favor, digite uma palavra",
       error: "Ocorreu um erro",
-      howToPlay: "Encontre uma palavra que comece com as duas letras dadas e corresponda ao tema escolhido."
+      howToPlay: "Encontre uma palavra que comece com as duas letras dadas e corresponda ao tema escolhido.",
+      "exampleWord": "Exemplo: {{word}}",
+      "nextButton": "Próxima rodada"
     }
   },
 

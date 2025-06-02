@@ -226,19 +226,21 @@ export default {
         invalidWordMessage: "Questa parola non corrisponde ai criteri richiesti.",
         noWordError: "Si prega di inserire una parola",
         error: "Si è verificato un errore",
-        howToPlay: "Trova una parola che inizia con le due lettere date e corrisponde al tema scelto."
+        howToPlay: "Trova una parola che inizia con le due lettere date e corrisponde al tema scelto.",
+        // Traduzioni dei temi
+        "theme.marque": "un marchio",
+        "theme.ville": "una città",
+        "theme.prenom": "un nome",
+        "theme.pays": "un paese",
+        "theme.animal": "un animale",
+        "theme.metier": "un lavoro",
+        "theme.sport": "uno sport",
+        "theme.fruit": "un frutto",
+        "theme.legume": "una verdura",
+        "theme.objet": "un oggetto",
+        "exampleWord": "Esempio: {{word}}",
+        "nextButton": "Prossimo turno"
       },
-      // Traduzioni dei temi
-      "theme.marque": "un marchio",
-      "theme.ville": "una città",
-      "theme.prenom": "un nome",
-      "theme.pays": "un paese",
-      "theme.animal": "un animale",
-      "theme.metier": "un lavoro",
-      "theme.sport": "uno sport",
-      "theme.fruit": "un frutto",
-      "theme.legume": "una verdura",
-      "theme.objet": "un oggetto",
     }
   },
 
@@ -306,14 +308,25 @@ export default {
       player: "Giocatore",
       "two-letters-one-word": {
         title: "Fine della partita!",
-        subtitle: "Grazie per aver giocato a 2 Letters 1 Word!",
+        subtitle: "Grazie per aver giocato a 2 Lettere 1 Parola!",
         totalWords: "Parole trovate",
         bestWord: "Migliore parola",
         averageScore: "Punteggio medio",
         timePlayed: "Tempo di gioco",
         newHighScore: "Nuovo record!",
         shareResults: "Condividi risultati",
-        playAgain: "Gioca di nuovo"
+        playAgain: "Gioca di nuovo",
+        // Traduzioni dei temi
+        "theme.marque": "un marchio",
+        "theme.ville": "una città",
+        "theme.prenom": "un nome",
+        "theme.pays": "un paese",
+        "theme.animal": "un animale",
+        "theme.metier": "un lavoro",
+        "theme.sport": "uno sport",
+        "theme.fruit": "un frutto",
+        "theme.legume": "una verdura",
+        "theme.objet": "un oggetto"
       }
     },
     listenButDontJudge: {

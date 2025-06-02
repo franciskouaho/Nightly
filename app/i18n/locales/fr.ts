@@ -217,19 +217,22 @@ export default {
         invalidWordMessage: "Ce mot ne correspond pas aux critères demandés.",
         noWordError: "Veuillez entrer un mot",
         error: "Une erreur est survenue",
-        howToPlay: "Trouvez un mot qui commence par les deux lettres données et correspond au thème choisi."
+        howToPlay: "Trouvez un mot qui commence par les deux lettres données et correspond au thème choisi.",
+        // Traductions des thèmes
+        "theme.marque": "une marque",
+        "theme.ville": "une ville",
+        "theme.prenom": "un prénom",
+        "theme.pays": "un pays",
+        "theme.animal": "un animal",
+        "theme.metier": "un métier",
+        "theme.sport": "un sport",
+        "theme.fruit": "un fruit",
+        "theme.legume": "un légume",
+        "theme.objet": "un objet",
+        "exampleWord": "Exemple : {{word}}",
+        "nextButton": "Tour suivant",
+        "playerCountError": "Le jeu se joue de 1 à 4 joueurs.",
       },
-      // Traductions des thèmes
-      "theme.marque": "une marque",
-      "theme.ville": "une ville",
-      "theme.prenom": "un prénom",
-      "theme.pays": "un pays",
-      "theme.animal": "un animal",
-      "theme.metier": "un métier",
-      "theme.sport": "un sport",
-      "theme.fruit": "un fruit",
-      "theme.legume": "un légume",
-      "theme.objet": "un objet",
     }
   },
 
@@ -306,7 +309,18 @@ export default {
         timePlayed: "Temps de jeu",
         newHighScore: "Nouveau meilleur score !",
         shareResults: "Partager les résultats",
-        playAgain: "Rejouer"
+        playAgain: "Rejouer",
+        // Traductions des thèmes
+        "theme.marque": "une marque",
+        "theme.ville": "une ville",
+        "theme.prenom": "un prénom",
+        "theme.pays": "un pays",
+        "theme.animal": "un animal",
+        "theme.metier": "un métier",
+        "theme.sport": "un sport",
+        "theme.fruit": "un fruit",
+        "theme.legume": "un légume",
+        "theme.objet": "un objet"
       }
     },
     player: 'le joueur',

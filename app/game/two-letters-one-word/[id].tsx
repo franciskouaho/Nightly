@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, Dimensions, Image } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, Dimensions, Image, Modal } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { verifyWord } from './utils/wordVerification';
 import { doc, getFirestore, onSnapshot, updateDoc, getDoc } from '@react-native-firebase/firestore';
@@ -34,6 +34,59 @@ const generateRandomLetters = (): [string, string] => {
   return [firstLetter, secondLetter];
 };
 
+type CustomModalProps = {
+  visible: boolean;
+  icon: keyof typeof MaterialCommunityIcons.glyphMap;
+  iconColor: string;
+  title: string;
+  message: string;
+  example?: string;
+  button1Text: string;
+  button1Action: () => void;
+  button2Text?: string;
+  button2Action?: () => void;
+};
+
+function CustomModal({ visible, icon, iconColor, title, message, example, button1Text, button1Action, button2Text, button2Action }: CustomModalProps) {
+  return (
+    <Modal visible={visible} transparent animationType="fade">
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(10,20,40,0.7)' }}>
+        <LinearGradient
+          colors={["#1a1a2e", "#0f3460"]}
+          style={{ borderRadius: 28, padding: 0, alignItems: 'center', width: 340, shadowColor: '#000', shadowOpacity: 0.18, shadowRadius: 16, elevation: 12 }}
+        >
+          <View style={{ padding: 32, alignItems: 'center', width: '100%' }}>
+            <MaterialCommunityIcons name={icon} size={60} color={iconColor} style={{ marginBottom: 8 }} />
+            <Text style={{ fontSize: 24, fontWeight: 'bold', color: iconColor, marginVertical: 8, textAlign: 'center', fontFamily: 'System' }}>{title}</Text>
+            <Text style={{ fontSize: 16, color: '#fff', marginBottom: example ? 8 : 24, textAlign: 'center', fontFamily: 'System' }}>{message}</Text>
+            {example && (
+              <Text style={{ fontSize: 16, color: '#7B24B1', marginBottom: 20, textAlign: 'center', fontWeight: 'bold', backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 8, padding: 8, fontFamily: 'System' }}>
+                {example}
+              </Text>
+            )}
+            <View style={{ flexDirection: 'row', marginTop: 8 }}>
+              <TouchableOpacity
+                style={{ backgroundColor: '#7B24B1', borderRadius: 12, paddingVertical: 14, paddingHorizontal: 24, marginRight: button2Text ? 10 : 0, minWidth: 110, alignItems: 'center', shadowColor: '#7B24B1', shadowOpacity: 0.18, shadowRadius: 6, elevation: 2 }}
+                onPress={button1Action}
+              >
+                <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16, letterSpacing: 1 }}>{button1Text}</Text>
+              </TouchableOpacity>
+              {button2Text && button2Action && (
+                <TouchableOpacity
+                  style={{ backgroundColor: 'rgba(255,255,255,0.18)', borderRadius: 12, paddingVertical: 14, paddingHorizontal: 24, minWidth: 110, alignItems: 'center', borderWidth: 1, borderColor: '#fff' }}
+                  onPress={button2Action}
+                >
+                  <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16, letterSpacing: 1 }}>{button2Text}</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+        </LinearGradient>
+      </View>
+    </Modal>
+  );
+}
+
 export default function TwoLettersOneWord() {
   const [letters, setLetters] = useState<[string, string]>(['A', 'B']);
   const [theme, setTheme] = useState<string>(THEMES[0]);
@@ -44,6 +97,9 @@ export default function TwoLettersOneWord() {
   const { t } = useTranslation();
   const [gamePhase, setGamePhase] = useState<'playing' | 'results'>('playing');
   const [gameHistory, setGameHistory] = useState<{[playerId: string]: number[]}>({});
+  const [showInvalidModal, setShowInvalidModal] = useState(false);
+  const [invalidExample, setInvalidExample] = useState<string | undefined>(undefined);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const { id } = useLocalSearchParams();
   const gameDocId = typeof id === 'string' ? id : Array.isArray(id) ? id[id.length - 1] : '';
@@ -57,7 +113,7 @@ export default function TwoLettersOneWord() {
 
     const unsubscribe = onSnapshot(gameRef, async (docSnap) => {
       if (docSnap.exists()) {
-        const gameData = docSnap.data() as any;
+        const gameData = docSnap.data() || {};
         setLetters(gameData.currentLetters || ['A', 'B']);
         const loadedTheme = gameData.currentTheme;
         const themeKeyToSet = THEMES.includes(loadedTheme) ? loadedTheme : THEMES[0];
@@ -129,79 +185,41 @@ export default function TwoLettersOneWord() {
   }, [gameDocId, user?.uid]);
 
   const handleSubmit = async () => {
+    // Vérifie le nombre de joueurs
+    if (players.length < 1 || players.length > 4) {
+      Alert.alert(t('game.error'), t('home.games.two-letters-one-word.playerCountError') || 'Le jeu se joue de 1 à 4 joueurs.');
+      return;
+    }
     if (!word.trim()) {
       Alert.alert(t('game.error'), t('home.games.two-letters-one-word.noWordError'));
       return;
     }
-
     setIsLoading(true);
     try {
-      const isValid = await verifyWord({
+      const result = await verifyWord({
         word: word.trim(),
         firstLetter: letters[0],
         secondLetter: letters[1],
         theme: theme
       });
-
-      // Ensure user and user.uid are available before proceeding
-      if (!user?.uid) {
-          console.error("User or user ID is not available.");
-          setIsLoading(false);
-          // Optionally show an alert to the user
-          // Alert.alert('Erreur', 'Votre session utilisateur n\'est pas valide.');
-          return;
+      if (gameDocId && user?.uid) {
+        const db = getFirestore();
+        const gameRef = doc(db, 'games', gameDocId);
+        const gameSnap = await getDoc(gameRef);
+        const gameData = gameSnap.data() || {};
+        const prevHistory = (gameData.history && gameData.history[user.uid]) || [];
+        const newHistory = [...prevHistory, result.isValid ? 1 : 0];
+        await updateDoc(gameRef, {
+          [`history.${user.uid}`]: newHistory
+        });
       }
-
-      const db = getFirestore();
-      const gameRef = doc(db, 'games', gameDocId as string);
-      const currentUserId = user.uid; // user.uid is guaranteed to be defined here
-
-      const currentScore = players.find(p => p.id === currentUserId)?.score || 0;
-
-      // Update history: add result for the current user
-      const updatedHistory = { ...gameHistory };
-      if (!updatedHistory[currentUserId]) updatedHistory[currentUserId] = [];
-
-      // Find the opponent's ID
-      const opponentId = players.find(p => p.id !== currentUserId)?.id;
-
-      // Determine the number of rounds played so far (based on current user's history length)
-      const roundsPlayed = updatedHistory[currentUserId].length;
-
-      // Add result for the current user for the next round
-      updatedHistory[currentUserId].push(isValid ? 1 : 0); // 1 for correct, 0 for incorrect
-
-      // Ensure opponent's history also has an entry for this round
-      if (opponentId) {
-           if (!updatedHistory[opponentId]) updatedHistory[opponentId] = [];
-           // Add a placeholder (-1) if the opponent hasn't played this round yet
-           // This ensures history arrays are the same length for display mapping
-           while(updatedHistory[opponentId].length <= roundsPlayed) { // Use <= roundsPlayed to match the just added entry
-               updatedHistory[opponentId].push(-1); // -1 for not played/placeholder
-           }
-      }
-
-      // Prepare data to update in Firestore
-      const updateData: any = {
-          history: updatedHistory, // Always update history
-      };
-
-      // Only update score if the answer was correct
-      if (isValid) {
-          updateData[`scores.${currentUserId}`] = currentScore + 1;
-          updateData.currentWord = word.trim(); // Update current word only on correct answer
-      }
-
-      await updateDoc(gameRef, updateData);
-
-      // Show alerts and clear word based on validity
-      if (isValid) {
-          Alert.alert(t('home.games.two-letters-one-word.validWord'), t('home.games.two-letters-one-word.validWordMessage'));
-          setWord('');
+      if (result.isValid) {
+        setShowSuccessModal(true);
+        setWord('');
       } else {
-           Alert.alert(t('home.games.two-letters-one-word.invalidWord'), t('home.games.two-letters-one-word.invalidWordMessage'));
+        setInvalidExample(result.example);
+        setShowInvalidModal(true);
       }
-
     } catch (error) {
       console.error('Erreur lors de la vérification ou de la mise à jour du mot:', error);
       Alert.alert(t('game.error'), t('game.error'));
@@ -210,11 +228,69 @@ export default function TwoLettersOneWord() {
     }
   };
 
+  const handleRetry = () => {
+    setShowInvalidModal(false);
+    setWord('');
+    setInvalidExample(undefined);
+  };
+
+  const handleNext = async () => {
+    setShowInvalidModal(false);
+    setWord('');
+    setInvalidExample(undefined);
+
+    // Met à jour Firestore pour passer au tour suivant
+    if (!gameDocId) return;
+    const db = getFirestore();
+    const gameRef = doc(db, 'games', gameDocId);
+
+    // Génère de nouvelles lettres et un nouveau thème
+    const newLetters = generateRandomLetters();
+    const newTheme = THEMES[Math.floor(Math.random() * THEMES.length)];
+
+    try {
+      await updateDoc(gameRef, {
+        currentLetters: newLetters,
+        currentTheme: newTheme,
+        // Réinitialise les réponses des joueurs (exemple : reset un champ answers)
+        answers: {},
+        // Tu peux ajouter ici d'autres champs à réinitialiser si besoin
+      });
+    } catch (e) {
+      Alert.alert('Erreur', 'Impossible de passer au tour suivant.');
+    }
+  };
+
+  const handleSuccessClose = () => {
+    setShowSuccessModal(false);
+  };
+
   return (
     <LinearGradient
       colors={['#1a1a2e', '#0f3460']}
       style={styles.container}
     >
+      {/* Modal succès */}
+      <CustomModal
+        visible={showSuccessModal}
+        icon="check-circle"
+        iconColor="#4CAF50"
+        title={t('home.games.two-letters-one-word.validWord')}
+        message={t('home.games.two-letters-one-word.validWordMessage')}
+        button1Text={t('common.ok') || 'OK'}
+        button1Action={handleSuccessClose}
+      />
+      {/* Modal erreur */}
+      <CustomModal
+        visible={showInvalidModal}
+        icon="close-circle"
+        iconColor="#F44336"
+        title={t('home.games.two-letters-one-word.invalidWord')}
+        message={t('home.games.two-letters-one-word.invalidWordMessage')}
+        example={invalidExample ? t('home.games.two-letters-one-word.exampleWord', { word: invalidExample }) : undefined}
+        button1Text={t('home.games.two-letters-one-word.nextButton')}
+        button1Action={handleNext}
+      />
       {gamePhase === 'playing' ? (
         <View style={styles.content}>
 
@@ -233,16 +309,20 @@ export default function TwoLettersOneWord() {
                 <Text style={styles.playerDuelName}>{players.find(p => p.id === user.uid)?.pseudo || 'Moi'}</Text>
                  {/* Add dots for rounds played based on history */}
                  <View style={styles.roundDots}>
-                    {(gameHistory[user.uid] || []).map((result, i) => (
-                      <View
-                         key={i}
-                         style={[styles.dot,
-                            result === 1 ? styles.correctDot :
-                            result === 0 ? styles.incorrectDot :
-                            styles.notPlayedDot // Style for not played rounds (-1)
-                         ]}
-                      />
-                    ))}
+                    {[...Array(5)].map((_, i) => {
+                      const result = (gameHistory[user.uid] || [])[i];
+                      return (
+                        <View
+                           key={i}
+                           style={[
+                             styles.dot,
+                             result === 1 ? styles.correctDot :
+                             result === 0 ? styles.incorrectDot :
+                             styles.notPlayedDot
+                           ]}
+                        />
+                      );
+                    })}
                  </View>
               </View>
             ) : (
@@ -278,20 +358,25 @@ export default function TwoLettersOneWord() {
                   <View style={styles.roundDots}>
                      {/* Use opponent's history (if opponent exists) */}
                      {players.find(p => p.id !== user?.uid) ? (
-                         // If opponent exists, map their history
-                         (gameHistory[players.find(p => p.id !== user?.uid)?.id || ''] || []).map((result, i) => (
-                           <View
-                             key={i}
-                             style={[styles.dot,
-                                result === 1 ? styles.correctDot :
-                                result === 0 ? styles.incorrectDot :
-                                styles.notPlayedDot // Style for not played rounds (-1)
-                             ]}
-                           />
-                         ))
+                         // If opponent exists, map their history up to 5 rounds
+                         [...Array(5)].map((_, i) => {
+                           const opponentId = players.find(p => p.id !== user?.uid)?.id || '';
+                           const result = (gameHistory[opponentId] || [])[i];
+                           return (
+                             <View
+                               key={i}
+                               style={[
+                                 styles.dot,
+                                 result === 1 ? styles.correctDot :
+                                 result === 0 ? styles.incorrectDot :
+                                 styles.notPlayedDot
+                               ]}
+                             />
+                           );
+                         })
                      ) : ( /* If no opponent, show placeholder dots */
-                         [...Array(5)].map((_, i) => ( // Corrected syntax here
-                             <View key={i} style={styles.notPlayedDot} /> // Use notPlayedDot style for placeholders
+                         [...Array(5)].map((_, i) => (
+                             <View key={i} style={styles.notPlayedDot} />
                           ))
                      )}
                   </View>
@@ -301,17 +386,21 @@ export default function TwoLettersOneWord() {
                      <View style={styles.duelAvatarPlaceholder} />
                      <Text style={styles.playerDuelName}>Adversaire</Text>
                       <View style={styles.roundDots}>
-                         {/* Use current user's history */}
-                         {(gameHistory[user?.uid || ''] || []).map((result, i) => (
-                           <View
-                             key={i}
-                             style={[styles.dot,
-                                result === 1 ? styles.correctDot :
-                                result === 0 ? styles.incorrectDot :
-                                styles.notPlayedDot // Style for not played rounds (-1)
-                             ]}
-                           />
-                         ))}
+                         {/* Show 5 dots for current user's history if available */}
+                         {[...Array(5)].map((_, i) => {
+                           const result = (gameHistory[user?.uid || ''] || [])[i];
+                           return (
+                             <View
+                               key={i}
+                               style={[
+                                 styles.dot,
+                                 result === 1 ? styles.correctDot :
+                                 result === 0 ? styles.incorrectDot :
+                                 styles.notPlayedDot
+                               ]}
+                             />
+                           );
+                         })}
                       </View>
                  </View>
             )}
@@ -326,7 +415,9 @@ export default function TwoLettersOneWord() {
 
             {/* Theme display with neumorphic style */}
             <View style={styles.themeContainer}>
-              <Text style={styles.themeText}>{t('home.games.two-letters-one-word.theme', { theme })}</Text>
+              <Text style={styles.themeText}>
+                {t('home.games.two-letters-one-word.theme', { theme: t(`home.games.two-letters-one-word.${theme}`) })}
+              </Text>
             </View>
 
             {/* Game Explanation */}
@@ -445,10 +536,9 @@ const styles = StyleSheet.create({
      flexDirection: 'row',
   },
   dot: {
-      width: 10,
-      height: 10,
-      borderRadius: 5,
-      backgroundColor: 'rgba(255, 255, 255, 0.3)',
+      width: 14,
+      height: 14,
+      borderRadius: 7,
       marginHorizontal: 3,
   },
   filledDot: {
@@ -597,4 +687,4 @@ const styles = StyleSheet.create({
     backgroundColor: '#ccc',
     marginBottom: 5,
   },
-}); 
+});

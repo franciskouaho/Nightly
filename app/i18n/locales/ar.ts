@@ -226,7 +226,28 @@ export default {
         invalidWordMessage: "هذه الكلمة لا تتطابق مع المعايير المطلوبة.",
         noWordError: "الرجاء إدخال كلمة",
         error: "حدث خطأ",
-        howToPlay: "ابحث عن كلمة تبدأ بالحرفين المعطيين وتناسب الموضوع المختار."
+        howToPlay: "ابحث عن كلمة تبدأ بالحرفين المعطيين وتناسب الموضوع المختار.",
+        title: "انتهت اللعبة!",
+        subtitle: "شكراً للعب حرفين كلمة واحدة!",
+        totalWords: "الكلمات المكتشفة",
+        bestWord: "أفضل كلمة",
+        averageScore: "متوسط النتيجة",
+        timePlayed: "وقت اللعب",
+        newHighScore: "رقم قياسي جديد!",
+        shareResults: "مشاركة النتائج",
+        playAgain: "العب مرة أخرى",
+        "theme.marque": "علامة تجارية",
+        "theme.ville": "مدينة",
+        "theme.prenom": "اسم",
+        "theme.pays": "دولة",
+        "theme.animal": "حيوان",
+        "theme.metier": "مهنة",
+        "theme.sport": "رياضة",
+        "theme.fruit": "فاكهة",
+        "theme.legume": "خضار",
+        "theme.objet": "غرض",
+        "exampleWord": "مثال: {{word}}",
+        "nextButton": "الجولة التالية"
       },
     },
     geniusOrLiar: {
@@ -325,7 +346,17 @@ export default {
         timePlayed: "وقت اللعب",
         newHighScore: "رقم قياسي جديد!",
         shareResults: "مشاركة النتائج",
-        playAgain: "العب مرة أخرى"
+        playAgain: "العب مرة أخرى",
+        "theme.marque": "علامة تجارية",
+        "theme.ville": "مدينة",
+        "theme.prenom": "اسم",
+        "theme.pays": "دولة",
+        "theme.animal": "حيوان",
+        "theme.metier": "مهنة",
+        "theme.sport": "رياضة",
+        "theme.fruit": "فاكهة",
+        "theme.legume": "خضار",
+        "theme.objet": "غرض"
       }
     },
     listenButDontJudge: {
