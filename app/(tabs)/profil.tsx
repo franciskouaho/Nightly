@@ -229,8 +229,9 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   headerRight: {
-    width: 80, // Ajuster la largeur si nécessaire
-    alignItems: 'flex-end', // Aligner à droite
+    minWidth: 0,
+    flexShrink: 1,
+    alignItems: 'flex-end',
     justifyContent: 'center',
   },
   background: {

@@ -5,6 +5,10 @@ import { getAuth, onAuthStateChanged, signInAnonymously } from '@react-native-fi
 import { collection, doc, getDoc, setDoc, getFirestore } from '@react-native-firebase/firestore';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Alert } from 'react-native';
+
+const REVIEWER_PSEUDOS = ['reviewer_google', 'reviewer_apple'];
+const DEFAULT_AVATAR = 'https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/profils%2Frenard.png?alt=media&token=139ed01b-46f2-4f3e-9305-459841f2a893';
 
 interface User {
   uid: string;
@@ -13,6 +17,9 @@ interface User {
   avatar: string;
   points: number;
   hasActiveSubscription?: boolean;
+  isReviewer?: boolean;
+  subscriptionType?: string;
+  subscriptionUpdatedAt?: string;
 }
 
 interface AuthContextType {
@@ -23,6 +30,8 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   setUser: (user: User | null) => void;
   restoreSession: () => Promise<void>;
+  firstLogin: (pseudo: string) => Promise<void>;
+  checkExistingUser: (pseudo: string) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -172,23 +181,185 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     try {
       const auth = getAuth();
+      if (!auth.currentUser) {
+        setUser(null);
+        resetUser();
+        return;
+      }
       await auth.signOut();
-      
-      // Ne pas effacer l'UID sauvegardé
-      // await AsyncStorage.clear();
-      
-      // Réinitialiser l'état
       setUser(null);
       resetUser();
       trackEvent('user_signed_out');
     } catch (err) {
+      console.error('Erreur lors de la déconnexion :', err);
       setError(err as Error);
       throw err;
     }
   };
 
+  const createReviewerAccount = async (pseudo: string, uid: string) => {
+    const userData = {
+      uid,
+      pseudo,
+      createdAt: new Date().toISOString(),
+      avatar: DEFAULT_AVATAR,
+      points: 999999,
+      hasActiveSubscription: true,
+      isReviewer: true,
+      subscriptionType: "monthly",
+      subscriptionUpdatedAt: "2025-05-25T20:27:13.689Z"
+    };
+
+    const db = getFirestore();
+    await setDoc(doc(db, 'users', uid), userData);
+    await saveUserUid(uid);
+    setUser(userData);
+
+    trackEvent('reviewer_login', {
+      pseudo,
+      platform: pseudo === 'reviewer_google' ? 'google' : 'apple'
+    });
+
+    return userData;
+  };
+
+  const firstLogin = async (pseudo: string) => {
+    try {
+      setLoading(true);
+      const auth = getAuth();
+      const db = getFirestore();
+      
+      // Vérifier si c'est un compte reviewer
+      const isReviewer = REVIEWER_PSEUDOS.includes(pseudo);
+      
+      if (isReviewer) {
+        // Connexion anonyme pour les reviewers
+        const userCredential = await signInAnonymously(auth);
+        const uid = userCredential.user.uid;
+        await createReviewerAccount(pseudo, uid);
+        return;
+      }
+
+      // Vérifier si le pseudo est déjà pris (pour les utilisateurs normaux)
+      const usernameDoc = await getDoc(doc(db, 'usernames', pseudo.toLowerCase()));
+      if (usernameDoc.exists()) {
+        throw new Error('Ce pseudo est déjà pris');
+      }
+
+      // Connexion anonyme normale
+      const userCredential = await signInAnonymously(auth);
+      const uid = userCredential.user.uid;
+
+      // Sauvegarder le pseudo
+      await setDoc(doc(db, 'usernames', pseudo.toLowerCase()), {
+        uid,
+        createdAt: new Date().toISOString()
+      });
+
+      // Sauvegarder l'UID dans le localStorage
+      await saveUserUid(uid);
+
+      // Track first login event
+      trackEvent('user_first_login', {
+        pseudo,
+        uid
+      });
+    } catch (err) {
+      setError(err as Error);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const checkExistingUser = async (pseudo: string): Promise<boolean> => {
+    try {
+      const db = getFirestore();
+      
+      // Vérifier si c'est un compte reviewer
+      if (REVIEWER_PSEUDOS.includes(pseudo)) {
+        const auth = getAuth();
+        const userCredential = await signInAnonymously(auth);
+        const uid = userCredential.user.uid;
+        await createReviewerAccount(pseudo, uid);
+        return true;
+      }
+
+      // Logique existante pour les utilisateurs normaux
+      const usernameDoc = await getDoc(doc(db, 'usernames', pseudo.toLowerCase()));
+      
+      if (usernameDoc.exists()) {
+        const usernameData = usernameDoc.data();
+        if (!usernameData?.uid) return false;
+
+        // Vérifier si l'utilisateur a déjà une session active
+        const savedUid = await AsyncStorage.getItem(STORAGE_KEY);
+        
+        // Si l'utilisateur a une session active et que l'UID correspond
+        if (savedUid === usernameData.uid) {
+          const userDoc = await getDoc(doc(db, 'users', usernameData.uid));
+          
+          if (userDoc.exists()) {
+            const userData = userDoc.data() as User;
+            setUser(userData);
+            await saveUserUid(userData.uid);
+            identifyUser(userData.uid, {
+              pseudo: userData.pseudo,
+              createdAt: userData.createdAt
+            });
+            return true;
+          }
+        } else {
+          // Si l'utilisateur n'a pas de session active, on demande une confirmation
+          Alert.alert(
+            'Connexion existante',
+            'Ce pseudo est déjà utilisé. Voulez-vous vous connecter avec ce compte ?',
+            [
+              {
+                text: 'Non',
+                style: 'cancel',
+                onPress: () => false
+              },
+              {
+                text: 'Oui',
+                onPress: async () => {
+                  const userDoc = await getDoc(doc(db, 'users', usernameData.uid));
+                  if (userDoc.exists()) {
+                    const userData = userDoc.data() as User;
+                    setUser(userData);
+                    await saveUserUid(userData.uid);
+                    identifyUser(userData.uid, {
+                      pseudo: userData.pseudo,
+                      createdAt: userData.createdAt
+                    });
+                    return true;
+                  }
+                  return false;
+                }
+              }
+            ]
+          );
+        }
+      }
+      return false;
+    } catch (err) {
+      console.error('Erreur lors de la vérification de l\'utilisateur:', err);
+      return false;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, error, signIn, signOut, setUser, restoreSession }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      loading, 
+      error, 
+      signIn, 
+      signOut, 
+      setUser, 
+      restoreSession, 
+      firstLogin,
+      checkExistingUser 
+    }}>
       {children}
     </AuthContext.Provider>
   );

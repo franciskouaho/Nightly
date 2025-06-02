@@ -28,7 +28,7 @@ export default function LoginScreen() {
   const [username, setUsername] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState(profils[0] as string);
-  const { signIn, restoreSession, user } = useAuth();
+  const { signIn, restoreSession, user, firstLogin, checkExistingUser } = useAuth();
   const router = useRouter();
   const authAnalytics = useAuthAnalytics();
   const { t } = useTranslation();
@@ -54,17 +54,34 @@ export default function LoginScreen() {
 
     try {
       if (!selectedProfile) return;
+      
+      // Vérifier si l'utilisateur existe déjà
+      const userExists = await checkExistingUser(username);
+      
+      if (userExists) {
+        // L'utilisateur existe déjà et a confirmé la connexion
+        await authAnalytics.trackLogin('username', true);
+        router.replace('/(tabs)');
+        return;
+      }
+
+      // Si l'utilisateur n'existe pas ou n'a pas confirmé la connexion
+      try {
+        await restoreSession();
+      } catch (error) {
+        // Si aucune session n'existe, créer une nouvelle session
+        await firstLogin(username);
+      }
+
+      // Continuer avec la connexion normale
       await signIn(username, selectedProfile);
-
       await authAnalytics.trackLogin('username', true);
-
       router.replace('/(tabs)');
     } catch (error: any) {
       await authAnalytics.trackLogin('username', false);
-
       Alert.alert(
-          t('errors.general'),
-          error.message || t('errors.authError')
+        t('errors.general'),
+        error.message || t('errors.authError')
       );
     } finally {
       setIsLoading(false);

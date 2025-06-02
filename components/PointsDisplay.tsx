@@ -95,9 +95,12 @@ export default function PointsDisplay({
       )}
       <Text style={[
         styles.pointsText,
-        { fontSize: getTextSize() }
-      ]}>
-        {points}
+        { fontSize: getTextSize() },
+        { flexShrink: 1, minWidth: 0 },
+      ]}
+        numberOfLines={1}
+      >
+        {Number(points).toLocaleString('fr-FR')}
       </Text>
     </TouchableOpacity>
   );
@@ -111,10 +114,14 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     borderColor: 'rgba(255, 215, 0, 0.3)',
+    minWidth: 0,
+    paddingHorizontal: 12,
   },
   pointsText: {
     color: '#FFD700',
     fontWeight: 'bold',
     marginLeft: 4,
+    minWidth: 0,
+    flexShrink: 1,
   }
 }); 
