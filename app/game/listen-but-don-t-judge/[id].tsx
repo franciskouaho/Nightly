@@ -247,16 +247,21 @@ export default function ListenButDontJudgeScreen() {
         return;
       }
 
+      // Sélectionner un joueur cible aléatoire différent du joueur actuel
+      const availablePlayers = game.players.filter(player => player.id !== user.uid);
+      const randomPlayerIndex = Math.floor(Math.random() * availablePlayers.length);
+      const newTargetPlayer = availablePlayers[randomPlayerIndex];
+
       // Assurer que l'objet nextQuestion a la structure correcte et ne contient pas de undefined
       const questionForFirestore: Question = {
         id: nextQuestion.id || '',
-        text: nextQuestion.text || safeTranslate('game.listenButDontJudge.noQuestions', 'Aucun texte disponible'), // Assurer que le texte est toujours présent
+        text: nextQuestion.text || safeTranslate('game.listenButDontJudge.noQuestions', 'Aucun texte disponible'),
         theme: nextQuestion.theme || '',
         roundNumber: nextQuestion.roundNumber !== undefined ? nextQuestion.roundNumber : game.currentRound + 1
       };
 
       // Nettoyer les objets Player pour supprimer les undefined avant la mise à jour
-      const updatedTargetPlayer = game.targetPlayer ? { ...game.targetPlayer } : null;
+      const updatedTargetPlayer = newTargetPlayer ? { ...newTargetPlayer } : null;
       if (updatedTargetPlayer) {
         (Object.keys(updatedTargetPlayer) as Array<keyof Player>).forEach(key => {
           if (updatedTargetPlayer[key] === undefined) {
