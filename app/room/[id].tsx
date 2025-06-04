@@ -20,7 +20,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 // Configuration des jeux avec le nombre minimum de joueurs requis
 const GAME_CONFIG = {
   'truth-or-dare': { minPlayers: 2 },
-  'listen-but-don-t-judge': { minPlayers: 2 },
+  'listen-but-don-t-judge': { minPlayers: 3 },
   'the-hidden-village': { minPlayers: 5 },
   'trap-answer': { minPlayers: 2 },
   'never-have-i-ever-hot': { minPlayers: 2 },
