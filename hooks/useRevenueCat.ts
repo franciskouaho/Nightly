@@ -4,7 +4,7 @@ import Purchases, { CustomerInfo, PurchasesOffering } from 'react-native-purchas
 
 const APIKeys = {
     apple: 'appl_lWSGnBCBjhRvOLwThHnorabYvWj',
-    google: 'goog_fmXTvmeWmNHvZXpxTiSMMWzhJze',
+    google: 'goog_mhKjhDQSAiyxTBAnLJzoPwQUako',
 };
 
 const typesOfMembership = {
