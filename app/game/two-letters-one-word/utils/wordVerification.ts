@@ -27,8 +27,8 @@ export async function verifyWord({
   theme
 }: WordVerificationParams): Promise<WordVerificationResult> {
   try {
-    // Nouveau prompt pour demander un exemple si la réponse est non
-    const prompt = `Le mot '${word}' commence-t-il par les lettres ${firstLetter} et ${secondLetter} et est-ce ${theme} ? Réponds uniquement par 'oui' ou 'non'. Si la réponse est 'non', donne un exemple de mot valide sous la forme : non|exemple.`;
+    // Nouveau prompt très strict pour s'assurer que l'exemple respecte les règles.
+    const prompt = `Vérifie si le mot '${word}' contient les lettres '${firstLetter}' et '${secondLetter}' et correspond strictement au thème '${theme}'. Si le mot est valide, réponds UNIQUEMENT par 'oui'. Si le mot n'est PAS valide, réponds UNIQUEMENT par 'non|exemple', où 'exemple' est UN SEUL mot valide qui CONTIENT OBLIGATOIREMENT les lettres '${firstLetter}' et '${secondLetter}' (dans n'importe quel ordre, insensible à la casse) et correspond EXACTEMENT au thème '${theme}'. Ne donne AUCUNE autre information, explication ou ponctuation supplémentaire.`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -49,7 +49,7 @@ export async function verifyWord({
           }
         ],
         temperature: 0.3,
-        max_tokens: 15
+        max_tokens: 30
       })
     });
 
@@ -68,6 +68,8 @@ export async function verifyWord({
 
     const answer = result.choices[0]?.message?.content?.toLowerCase().trim();
 
+    console.log('API Answer:', answer);
+
     if (!answer) {
       throw new Error('Réponse invalide de l\'API');
     }
@@ -75,14 +77,11 @@ export async function verifyWord({
     if (answer.startsWith('oui')) {
       return { isValid: true };
     }
-    if (answer.startsWith('non|')) {
-      const example = answer.split('|')[1]?.trim();
+    if (answer.startsWith('non')) {
+      const example = answer.includes('|') ? answer.split('|')[1]?.trim() : undefined;
       return { isValid: false, example };
     }
-    if (answer === 'non') {
-      return { isValid: false };
-    }
-    // fallback
+    // fallback for any other unexpected response
     return { isValid: false };
   } catch (error) {
     console.error('Erreur lors de la vérification du mot:', error);

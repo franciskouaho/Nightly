@@ -200,7 +200,7 @@ export default {
       },
       "two-letters-one-word": {
         name: "2 Lettres 1 Mot",
-        description: "Trouvez un mot qui commence par les deux lettres données et correspond au thème.",
+        description: "Trouvez un mot qui contient les deux lettres données et correspond au thème.",
         tags: {
           free: "GRATUIT",
           "new": "NOUVEAU",
@@ -217,7 +217,7 @@ export default {
         invalidWordMessage: "Ce mot ne correspond pas aux critères demandés.",
         noWordError: "Veuillez entrer un mot",
         error: "Une erreur est survenue",
-        howToPlay: "Trouvez un mot qui commence par les deux lettres données et correspond au thème choisi.",
+        howToPlay: "Trouvez un mot qui contient les deux lettres données et correspond au thème choisi.",
         // Traductions des thèmes
         "theme.marque": "une marque",
         "theme.ville": "une ville",
@@ -232,6 +232,7 @@ export default {
         "exampleWord": "Exemple : {{word}}",
         "nextButton": "Tour suivant",
         "playerCountError": "Le jeu se joue de 1 à 4 joueurs.",
+        "noExampleAvailable": "Aucun exemple disponible",
       },
     }
   },
@@ -373,6 +374,7 @@ export default {
       continue: 'Continuer',
     },
     continue: 'Continuer',
+    round: "Tour",
     geniusOrLiar: {
       roundResults: 'Résultats du tour',
       correctAnswerLabel: 'Bonne réponse : {{answer}}',

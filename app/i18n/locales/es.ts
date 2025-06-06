@@ -198,7 +198,7 @@ export default {
       },
       "two-letters-one-word": {
         name: "2 Letras 1 Palabra",
-        description: "Encuentra una palabra que empiece con las dos letras dadas y coincida con el tema.",
+        description: "Encuentra una palabra que contenga las dos letras dadas y coincida con el tema.",
         tags: {
           free: "GRATIS",
           "new": "NUEVO",
@@ -215,7 +215,7 @@ export default {
         invalidWordMessage: "Esta palabra no coincide con los criterios solicitados.",
         noWordError: "Por favor, introduce una palabra",
         error: "Ha ocurrido un error",
-        howToPlay: "Encuentra una palabra que empiece con las dos letras dadas y coincida con el tema elegido.",
+        howToPlay: "Encuentra una palabra que contenga las dos letras dadas y coincida con el tema elegido.",
         title: "¡Fin del juego!",
         subtitle: "¡Gracias por jugar 2 Letras 1 Palabra!",
         totalWords: "Palabras encontradas",
@@ -236,7 +236,8 @@ export default {
         "theme.legume": "una verdura",
         "theme.objet": "un objeto",
         "exampleWord": "Ejemplo: {{word}}",
-        "nextButton": "Siguiente ronda"
+        "nextButton": "Siguiente ronda",
+        "noExampleAvailable": "No hay ejemplo disponible",
       },
       // Traducciones de temas
       "theme.marque": "una marca",
@@ -338,7 +339,7 @@ export default {
       errorNext: "Ocurrió un error al pasar a la siguiente ronda",
       noQuestions: "No hay preguntas disponibles",
       endTitle: "¡Fin de la partida!",
-      endSubtitle: "¡Gracias por jugar!"
+      endSubtitle: "¡Gracias por jugar a Verdad o Reto!"
     },
     truthOrDare: {
       truth: "¡Verdad!",
@@ -351,6 +352,7 @@ export default {
       endTitle: "¡Fin de la partida!",
       endSubtitle: "¡Gracias por jugar a Verdad o Reto!"
     },
+    round: "Ronda",
     geniusOrLiar: {
       roundResults: 'Resultados de la Ronda',
       correctAnswerLabel: 'Respuesta Correcta: {{answer}}',

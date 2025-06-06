@@ -209,7 +209,7 @@ export default {
       },
       "two-letters-one-word": {
         name: "حرفان كلمة واحدة",
-        description: "ابحث عن كلمة تبدأ بالحرفين المعطيين وتناسب الموضوع.",
+        description: "ابحث عن كلمة تحتوي على الحرفين المعطيين وتناسب الموضوع.",
         tags: {
           free: "مجاني",
           "new": "جديد",
@@ -226,7 +226,7 @@ export default {
         invalidWordMessage: "هذه الكلمة لا تتطابق مع المعايير المطلوبة.",
         noWordError: "الرجاء إدخال كلمة",
         error: "حدث خطأ",
-        howToPlay: "ابحث عن كلمة تبدأ بالحرفين المعطيين وتناسب الموضوع المختار.",
+        howToPlay: "ابحث عن كلمة تحتوي على الحرفين المعطيين وتناسب الموضوع المختار.",
         title: "انتهت اللعبة!",
         subtitle: "شكراً للعب حرفين كلمة واحدة!",
         totalWords: "الكلمات المكتشفة",
@@ -247,7 +247,8 @@ export default {
         "theme.legume": "خضار",
         "theme.objet": "غرض",
         "exampleWord": "مثال: {{word}}",
-        "nextButton": "الجولة التالية"
+        "nextButton": "الجولة التالية",
+        "noExampleAvailable": "لا يوجد مثال متاح",
       },
     },
     geniusOrLiar: {
@@ -463,7 +464,8 @@ export default {
         "validWord": "تهانينا! كلمتك صحيحة!",
         "invalidWord": "للأسف! كلمتك لا تتوافق مع المعايير."
       }
-    }
+    },
+    round: "الجولة",
   },
 
   // Splash Screen

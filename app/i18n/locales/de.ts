@@ -209,7 +209,7 @@ export default {
       },
       "two-letters-one-word": {
         name: "2 Buchstaben 1 Wort",
-        description: "Finden Sie ein Wort, das mit den beiden vorgegebenen Buchstaben beginnt und zum Thema passt.",
+        description: "Finden Sie ein Wort, das die beiden vorgegebenen Buchstaben enthält und zum Thema passt.",
         tags: {
           free: "KOSTENLOS",
           "new": "NEU",
@@ -226,7 +226,7 @@ export default {
         invalidWordMessage: "Dieses Wort entspricht nicht den angeforderten Kriterien.",
         noWordError: "Bitte geben Sie ein Wort ein",
         error: "Ein Fehler ist aufgetreten",
-        howToPlay: "Finden Sie ein Wort, das mit den beiden vorgegebenen Buchstaben beginnt und zum gewählten Thema passt.",
+        howToPlay: "Finden Sie ein Wort, das die beiden vorgegebenen Buchstaben enthält und zum gewählten Thema passt.",
         "theme.marque": "eine Marke",
         "theme.ville": "eine Stadt",
         "theme.prenom": "ein Vorname",
@@ -238,7 +238,8 @@ export default {
         "theme.legume": "ein Gemüse",
         "theme.objet": "ein Objekt",
         "exampleWord": "Beispiel: {{word}}",
-        "nextButton": "Nächste Runde"
+        "nextButton": "Nächste Runde",
+        "noExampleAvailable": "Kein Beispiel verfügbar",
       },
     },
     geniusOrLiar: {
@@ -411,6 +412,7 @@ export default {
       endTitle: "Spiel beendet!",
       endSubtitle: "Danke fürs Spielen von Wahrheit oder Pflicht!"
     },
+    round: "Runde",
     neverHaveIEverHot: {
       never: "Ich habe noch nie",
       ever: "Ich habe schon",

@@ -209,7 +209,7 @@ export default {
       },
       "two-letters-one-word": {
         name: "2 Letras 1 Palavra",
-        description: "Encontre uma palavra que comece com as duas letras dadas e corresponda ao tema.",
+        description: "Encontre uma palavra que contenha as duas letras dadas e corresponda ao tema.",
         tags: {
           free: "GRÁTIS",
           "new": "NOVO",
@@ -226,7 +226,7 @@ export default {
         invalidWordMessage: "Esta palavra não corresponde aos critérios solicitados.",
         noWordError: "Por favor, digite uma palavra",
         error: "Ocorreu um erro",
-        howToPlay: "Encontre uma palavra que comece com as duas letras dadas e corresponda ao tema escolhido.",
+        howToPlay: "Encontre uma palavra que contenha as duas letras dadas e corresponda ao tema escolhido.",
         // Traduções de temas
         "theme.marque": "uma marca",
         "theme.ville": "uma cidade",
@@ -239,9 +239,11 @@ export default {
         "theme.legume": "um vegetal",
         "theme.objet": "um objeto",
         "exampleWord": "Exemplo: {{word}}",
-        "nextButton": "Próxima rodada"
+        "nextButton": "Próxima rodada",
+        "noExampleAvailable": "Nenhum exemplo disponível",
       },
-    }
+    },
+    round: "Rodada",
   },
 
   // Settings
@@ -331,6 +333,7 @@ export default {
         "nextButton": "Próxima rodada"
       }
     },
+    round: "Rodada",
     listenButDontJudge: {
       waiting: "Aguardando outros jogadores...",
       waitingVote: "Aguardando o voto do jogador alvo...",
@@ -436,7 +439,7 @@ export default {
       invalidWordMessage: "Esta palavra não corresponde aos critérios solicitados.",
       noWordError: "Por favor, digite uma palavra",
       error: "Ocorreu um erro",
-      howToPlay: "Encontre uma palavra que comece com as duas letras dadas e corresponda ao tema escolhido.",
+      howToPlay: "Encontre uma palavra que contenha as duas letras dadas e corresponda ao tema escolhido.",
       "exampleWord": "Exemplo: {{word}}",
       "nextButton": "Próxima rodada"
     }

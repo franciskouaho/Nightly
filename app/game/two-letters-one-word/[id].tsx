@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, Dimensions, Image, Modal } from 'react-native';
+import React, { useState, useEffect, useMemo } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, Dimensions, Image, Modal, KeyboardAvoidingView, Platform, ViewStyle, TextStyle, ImageStyle, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { verifyWord } from './utils/wordVerification';
 import { doc, getFirestore, onSnapshot, updateDoc, getDoc } from '@react-native-firebase/firestore';
@@ -8,6 +8,50 @@ import { useTranslation } from 'react-i18next';
 import GameResults from '@/components/game/GameResults';
 import { useAuth } from '@/contexts/AuthContext';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+
+// Define an interface for the styles
+interface ComponentStyles {
+  container: ViewStyle;
+  keyboardAvoidingContainer: ViewStyle;
+  content: ViewStyle;
+  scrollContent: ViewStyle;
+  duelHeader: ViewStyle;
+  playerDuelContainer: ViewStyle;
+  duelAvatar: ImageStyle;
+  defaultDuelAvatar: ViewStyle;
+  defaultDuelAvatarText: TextStyle;
+  playerDuelName: TextStyle;
+  duelTextContainer: ViewStyle;
+  duelIcon: TextStyle;
+  duelText: TextStyle;
+  roundDots: ViewStyle;
+  dot: ViewStyle;
+  filledDot: ViewStyle;
+  correctDot: ViewStyle;
+  incorrectDot: ViewStyle;
+  notPlayedDot: ViewStyle;
+  mainContentArea: ViewStyle;
+  lettersCard: ViewStyle;
+  letters: TextStyle;
+  themeContainer: ViewStyle;
+  themeText: TextStyle;
+  howToPlayText: TextStyle;
+  input: TextStyle;
+  button: ViewStyle;
+  buttonGradient: ViewStyle;
+  buttonDisabled: ViewStyle;
+  playersContainer: ViewStyle;
+  playersTitle: TextStyle;
+  playerEntry: ViewStyle;
+  playerAvatar: ImageStyle;
+  defaultAvatar: ViewStyle;
+  defaultAvatarText: TextStyle;
+  playerText: TextStyle;
+  duelAvatarPlaceholder: ViewStyle;
+  buttonText: TextStyle;
+  roundNumberContainer: ViewStyle;
+  roundNumberText: TextStyle;
+}
 
 // Liste des thèmes possibles
 const THEMES = [
@@ -100,10 +144,21 @@ export default function TwoLettersOneWord() {
   const [showInvalidModal, setShowInvalidModal] = useState(false);
   const [invalidExample, setInvalidExample] = useState<string | undefined>(undefined);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [totalRounds, setTotalRounds] = useState<number>(15);
 
   const { id } = useLocalSearchParams();
   const gameDocId = typeof id === 'string' ? id : Array.isArray(id) ? id[id.length - 1] : '';
   const { user } = useAuth();
+
+  // Calculate current round number
+  const currentRound = useMemo(() => {
+    const histories = Object.values(gameHistory);
+    if (histories.length === 0) {
+      return 1; // Start at round 1 if no history
+    }
+    const maxRoundsPlayed = histories.reduce((max, history) => Math.max(max, history.length), 0);
+    return maxRoundsPlayed + 1;
+  }, [gameHistory]);
 
   useEffect(() => {
     if (!gameDocId) return;
@@ -121,6 +176,11 @@ export default function TwoLettersOneWord() {
 
         const scoresData = gameData.scores || {};
         const playerIds = Object.keys(scoresData);
+
+        // Read total rounds from game data if available, otherwise keep default (15)
+        if (gameData.totalRounds !== undefined) {
+          setTotalRounds(gameData.totalRounds);
+        }
 
         // Initialize or update game history for all players based on scores data
         const currentHistory = gameData.history || {};
@@ -187,7 +247,7 @@ export default function TwoLettersOneWord() {
   const handleSubmit = async () => {
     // Vérifie le nombre de joueurs
     if (players.length < 1 || players.length > 4) {
-      Alert.alert(t('game.error'), t('home.games.two-letters-one-word.playerCountError') || 'Le jeu se joue de 1 à 4 joueurs.');
+      Alert.alert(t('game.error'), t('home.games.two-letters-one-word.playerCountError') || 'Le jeu se joue en solo ou jusqu\'à 4 joueurs.');
       return;
     }
     if (!word.trim()) {
@@ -217,7 +277,7 @@ export default function TwoLettersOneWord() {
         setShowSuccessModal(true);
         setWord('');
       } else {
-        setInvalidExample(result.example);
+        setInvalidExample(result.example || t('home.games.two-letters-one-word.noExampleAvailable'));
         setShowInvalidModal(true);
       }
     } catch (error) {
@@ -292,168 +352,180 @@ export default function TwoLettersOneWord() {
         button1Action={handleNext}
       />
       {gamePhase === 'playing' ? (
-        <View style={styles.content}>
+        <KeyboardAvoidingView
+          style={styles.keyboardAvoidingContainer}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
+        >
+          <ScrollView contentContainerStyle={styles.scrollContent}>
+            <View style={styles.content}>
 
-          {/* Duel Header */}
-          <View style={styles.duelHeader}>
-            {/* Current User */}
-            {user && players.find(p => p.id === user.uid) ? (
-              <View style={styles.playerDuelContainer}>
-                {players.find(p => p.id === user.uid)?.avatar ? (
-                  <Image source={{ uri: players.find(p => p.id === user.uid)?.avatar }} style={styles.duelAvatar} />
-                ) : (
-                  <View style={styles.defaultDuelAvatar}>
-                    <Text style={styles.defaultDuelAvatarText}>{players.find(p => p.id === user.uid)?.pseudo?.charAt(0) || '?'}</Text>
-                  </View>
-                )}
-                <Text style={styles.playerDuelName}>{players.find(p => p.id === user.uid)?.pseudo || 'Moi'}</Text>
-                 {/* Add dots for rounds played based on history */}
-                 <View style={styles.roundDots}>
-                    {[...Array(5)].map((_, i) => {
-                      const result = (gameHistory[user.uid] || [])[i];
-                      return (
-                        <View
-                           key={i}
-                           style={[
-                             styles.dot,
-                             result === 1 ? styles.correctDot :
-                             result === 0 ? styles.incorrectDot :
-                             styles.notPlayedDot
-                           ]}
-                        />
-                      );
-                    })}
-                 </View>
-              </View>
-            ) : (
-                <View style={styles.playerDuelContainer}> {/* Placeholder */}
-                    <View style={styles.duelAvatarPlaceholder} />
-                    <Text style={styles.playerDuelName}>Moi</Text>
-                    <View style={styles.roundDots}>
-                         {[...Array(5)].map((_, i) => (
-                           <View key={i} style={styles.dot} />
-                         ))}
-                    </View>
-                </View>
-            )}
-
-            {/* DUEL text */}
-            <View style={styles.duelTextContainer}>
-               <MaterialCommunityIcons name="sword-cross" size={30} color="#A0B0C0" style={styles.duelIcon} />
-               <Text style={styles.duelText}>DUEL</Text>
-            </View>
-
-            {/* Opponent User */}
-            {user && players.find(p => p.id !== user.uid) ? (
-                 <View style={styles.playerDuelContainer}>
-                 {players.find(p => p.id !== user.uid)?.avatar ? (
-                   <Image source={{ uri: players.find(p => p.id !== user.uid)?.avatar }} style={styles.duelAvatar} />
-                 ) : (
-                   <View style={styles.defaultDuelAvatar}>
-                     <Text style={styles.defaultDuelAvatarText}>{players.find(p => p.id !== user.uid)?.pseudo?.charAt(0) || '?'}</Text>
-                   </View>
-                 )}
-                 <Text style={styles.playerDuelName}>{players.find(p => p.id !== user.uid)?.pseudo || 'Adversaire'}</Text>
-                  {/* Add dots for rounds played based on history */}
-                  <View style={styles.roundDots}>
-                     {/* Use opponent's history (if opponent exists) */}
-                     {players.find(p => p.id !== user?.uid) ? (
-                         // If opponent exists, map their history up to 5 rounds
-                         [...Array(5)].map((_, i) => {
-                           const opponentId = players.find(p => p.id !== user?.uid)?.id || '';
-                           const result = (gameHistory[opponentId] || [])[i];
-                           return (
-                             <View
-                               key={i}
-                               style={[
-                                 styles.dot,
-                                 result === 1 ? styles.correctDot :
-                                 result === 0 ? styles.incorrectDot :
-                                 styles.notPlayedDot
-                               ]}
-                             />
-                           );
-                         })
-                     ) : ( /* If no opponent, show placeholder dots */
-                         [...Array(5)].map((_, i) => (
-                             <View key={i} style={styles.notPlayedDot} />
-                          ))
-                     )}
-                  </View>
-               </View>
-            ) : ( /* Placeholder if no opponent user found */
-                 <View style={styles.playerDuelContainer}> {/* Placeholder container */}
-                     <View style={styles.duelAvatarPlaceholder} />
-                     <Text style={styles.playerDuelName}>Adversaire</Text>
-                      <View style={styles.roundDots}>
-                         {/* Show 5 dots for current user's history if available */}
-                         {[...Array(5)].map((_, i) => {
-                           const result = (gameHistory[user?.uid || ''] || [])[i];
-                           return (
-                             <View
-                               key={i}
-                               style={[
-                                 styles.dot,
-                                 result === 1 ? styles.correctDot :
-                                 result === 0 ? styles.incorrectDot :
-                                 styles.notPlayedDot
-                               ]}
-                             />
-                           );
-                         })}
+              {/* Duel Header */}
+              <View style={styles.duelHeader}>
+                {/* Current User */}
+                {user && players.find(p => p.id === user.uid) ? (
+                  <View style={styles.playerDuelContainer}>
+                    {players.find(p => p.id === user.uid)?.avatar ? (
+                      <Image source={{ uri: players.find(p => p.id === user.uid)?.avatar }} style={styles.duelAvatar} />
+                    ) : (
+                      <View style={styles.defaultDuelAvatar}>
+                        <Text style={styles.defaultDuelAvatarText}>{players.find(p => p.id === user.uid)?.pseudo?.charAt(0) || '?'}</Text>
                       </View>
-                 </View>
-            )}
-          </View>
+                    )}
+                    <Text style={styles.playerDuelName}>{players.find(p => p.id === user.uid)?.pseudo || 'Moi'}</Text>
+                     {/* Add dots for rounds played based on history */}
+                     <View style={styles.roundDots}>
+                        {[...Array(5)].map((_, i) => {
+                          const result = (gameHistory[user.uid] || [])[i];
+                          return (
+                            <View
+                               key={i}
+                               style={[
+                                 styles.dot,
+                                 result === 1 ? styles.correctDot :
+                                 result === 0 ? styles.incorrectDot :
+                                 styles.notPlayedDot
+                               ]}
+                            />
+                          );
+                        })}
+                     </View>
+                  </View>
+                ) : (
+                    <View style={styles.playerDuelContainer}> {/* Placeholder */}
+                        <View style={styles.duelAvatarPlaceholder} />
+                        <Text style={styles.playerDuelName}>Moi</Text>
+                        <View style={styles.roundDots}>
+                             {[...Array(5)].map((_, i) => (
+                               <View key={i} style={styles.dot} />
+                             ))}
+                        </View>
+                    </View>
+                )}
 
-          {/* Main content area - centered */}
-          <View style={styles.mainContentArea}>
-            
-            <View style={styles.lettersCard}>
-              <Text style={styles.letters}>{letters.join(' - ')}</Text>
+                {/* DUEL text */}
+                <View style={styles.duelTextContainer}>
+                   {/* Display Current Round */}
+                   <View style={styles.roundNumberContainer}>
+                     <Text style={styles.roundNumberText}>{t('game.round')}: {currentRound}/{totalRounds}</Text>
+                   </View>
+                   <MaterialCommunityIcons name="sword-cross" size={30} color="#A0B0C0" style={styles.duelIcon} />
+                   <Text style={styles.duelText}>DUEL</Text>
+                </View>
+
+                {/* Opponent User */}
+                {user && players.find(p => p.id !== user.uid) ? (
+                     <View style={styles.playerDuelContainer}>
+                     {players.find(p => p.id !== user.uid)?.avatar ? (
+                       <Image source={{ uri: players.find(p => p.id !== user.uid)?.avatar }} style={styles.duelAvatar} />
+                     ) : (
+                       <View style={styles.defaultDuelAvatar}>
+                         <Text style={styles.defaultDuelAvatarText}>{players.find(p => p.id !== user.uid)?.pseudo?.charAt(0) || '?'}</Text>
+                       </View>
+                     )}
+                     <Text style={styles.playerDuelName}>{players.find(p => p.id !== user.uid)?.pseudo || 'Adversaire'}</Text>
+                      {/* Add dots for rounds played based on history */}
+                      <View style={styles.roundDots}>
+                         {/* Use opponent's history (if opponent exists) */}
+                         {players.find(p => p.id !== user?.uid) ? (
+                             // If opponent exists, map their history up to 5 rounds
+                             [...Array(5)].map((_, i) => {
+                               const opponentId = players.find(p => p.id !== user?.uid)?.id || '';
+                               const result = (gameHistory[opponentId] || [])[i];
+                               return (
+                                 <View
+                                   key={i}
+                                   style={[
+                                     styles.dot,
+                                     result === 1 ? styles.correctDot :
+                                     result === 0 ? styles.incorrectDot :
+                                     styles.notPlayedDot
+                                   ]}
+                                 />
+                               );
+                             })
+                         ) : ( /* If no opponent, show placeholder dots */
+                             [...Array(5)].map((_, i) => (
+                                 <View key={i} style={styles.notPlayedDot} />
+                              ))
+                         )}
+                      </View>
+                     </View>
+                  ) : ( /* Placeholder if no opponent user found */
+                       <View style={styles.playerDuelContainer}> {/* Placeholder container */}
+                           <View style={styles.duelAvatarPlaceholder} />
+                           <Text style={styles.playerDuelName}>Adversaire</Text>
+                            <View style={styles.roundDots}>
+                               {/* Show 5 dots for current user's history if available */}
+                               {[...Array(5)].map((_, i) => {
+                                 const result = (gameHistory[user?.uid || ''] || [])[i];
+                                 return (
+                                   <View
+                                     key={i}
+                                     style={[
+                                       styles.dot,
+                                       result === 1 ? styles.correctDot :
+                                       result === 0 ? styles.incorrectDot :
+                                       styles.notPlayedDot
+                                     ]}
+                                   />
+                                 );
+                               })}
+                            </View>
+                       </View>
+                  )}
+              </View>
+
+              {/* Main content area - centered */}
+              <View style={styles.mainContentArea}>
+                
+                <View style={styles.lettersCard}>
+                  <Text style={styles.letters}>{letters.join(' - ')}</Text>
+                </View>
+
+                {/* Theme display with neumorphic style */}
+                <View style={styles.themeContainer}>
+                  <Text style={styles.themeText}>
+                    {t('home.games.two-letters-one-word.theme', { theme: t(`home.games.two-letters-one-word.${theme}`) })}
+                  </Text>
+                </View>
+
+                {/* Game Explanation */}
+                <Text style={styles.howToPlayText}>
+                  {t('home.games.two-letters-one-word.howToPlay')}
+                </Text>
+
+                <TextInput
+                  style={styles.input}
+                  value={word}
+                  onChangeText={setWord}
+                  placeholder={t('home.games.two-letters-one-word.inputPlaceholder')}
+                  placeholderTextColor="rgba(255, 255, 255, 0.6)"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  editable={!isLoading}
+                />
+              </View>
+
+              {/* Button at the bottom */}
+              <TouchableOpacity
+                style={[styles.button, isLoading && styles.buttonDisabled]}
+                onPress={handleSubmit}
+                disabled={isLoading}
+                activeOpacity={0.8}
+              >
+                <LinearGradient
+                  colors={['rgba(60, 80, 100, 0.9)', 'rgba(80, 100, 120, 1)']}
+                  style={styles.buttonGradient}
+                >
+                  <Text style={styles.buttonText}>
+                    {isLoading ? t('home.games.two-letters-one-word.verifyingButton') : t('home.games.two-letters-one-word.verifyButton')}
+                  </Text>
+                </LinearGradient>
+              </TouchableOpacity>
             </View>
-
-            {/* Theme display with neumorphic style */}
-            <View style={styles.themeContainer}>
-              <Text style={styles.themeText}>
-                {t('home.games.two-letters-one-word.theme', { theme: t(`home.games.two-letters-one-word.${theme}`) })}
-              </Text>
-            </View>
-
-            {/* Game Explanation */}
-            <Text style={styles.howToPlayText}>
-              {t('home.games.two-letters-one-word.howToPlay')}
-            </Text>
-
-            <TextInput
-              style={styles.input}
-              value={word}
-              onChangeText={setWord}
-              placeholder={t('home.games.two-letters-one-word.inputPlaceholder')}
-              placeholderTextColor="rgba(255, 255, 255, 0.6)"
-              autoCapitalize="none"
-              autoCorrect={false}
-              editable={!isLoading}
-            />
-          </View>
-
-          {/* Button at the bottom */}
-          <TouchableOpacity
-            style={[styles.button, isLoading && styles.buttonDisabled]}
-            onPress={handleSubmit}
-            disabled={isLoading}
-            activeOpacity={0.8}
-          >
-            <LinearGradient
-              colors={['rgba(60, 80, 100, 0.9)', 'rgba(80, 100, 120, 1)']}
-              style={styles.buttonGradient}
-            >
-              <Text style={styles.buttonText}>
-                {isLoading ? t('home.games.two-letters-one-word.verifyingButton') : t('home.games.two-letters-one-word.verifyButton')}
-              </Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
       ) : (
         <GameResults
           players={players}
@@ -467,16 +539,25 @@ export default function TwoLettersOneWord() {
 
 const { width } = Dimensions.get('window');
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create<ComponentStyles>({
   container: {
     flex: 1,
     paddingTop: 60,
     paddingHorizontal: 20,
   },
+  keyboardAvoidingContainer: {
+    flex: 1,
+  },
   content: {
     flex: 1,
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingBottom: 20,
   },
   duelHeader: {
     flexDirection: 'row',
@@ -686,5 +767,19 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     backgroundColor: '#ccc',
     marginBottom: 5,
+  },
+  roundNumberContainer: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 15,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    marginBottom: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  roundNumberText: {
+    fontSize: 16,
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });

@@ -198,7 +198,7 @@ export default {
       },
       "two-letters-one-word": {
         name: "2 Letters 1 Word",
-        description: "Find a word that starts with the two given letters and matches the theme.",
+        description: "Find a word that contains the two given letters and matches the theme.",
         tags: {
           free: "FREE",
           "new": "NEW",
@@ -215,7 +215,7 @@ export default {
         invalidWordMessage: "This word does not match the requested criteria.",
         noWordError: "Please enter a word",
         error: "An error occurred",
-        howToPlay: "Find a word that starts with the two given letters and matches the chosen theme.",
+        howToPlay: "Find a word that contains the two given letters and matches the chosen theme.",
         // Theme translations
         "theme.marque": "a brand",
         "theme.ville": "a city",
@@ -228,7 +228,8 @@ export default {
         "theme.legume": "a vegetable",
         "theme.objet": "an object",
         "exampleWord": "Example: {{word}}",
-        "nextButton": "Next round"
+        "nextButton": "Next round",
+        "noExampleAvailable": "No example available",
       },
     }
   },
@@ -319,6 +320,7 @@ export default {
       }
     },
     player: 'the player',
+    round: "Round",
     listenButDontJudge: {
       waiting: "Waiting for other players...",
       waitingVote: "Waiting for the target player's vote...",
@@ -328,7 +330,6 @@ export default {
       next: "Next round",
       voteTitle: "Choose the best answer",
       answerPlaceholder: "Write your answer here...",
-      round: "Round",
       errorSubmit: "Unable to submit answer",
       errorVote: "Unable to submit vote",
       errorNext: "An error occurred when moving to the next round",
