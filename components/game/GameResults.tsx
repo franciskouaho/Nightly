@@ -19,6 +19,7 @@ interface GameResultsProps {
     secondPlace?: number;
     thirdPlace?: number;
   };
+  colors?: [string, string, ...string[]];
 }
 
 export default function GameResults({ 
@@ -29,7 +30,8 @@ export default function GameResults({
     firstPlace: 30,
     secondPlace: 20,
     thirdPlace: 10
-  }
+  },
+  colors = ['#1A0A33', '#3A1A59']
 }: GameResultsProps) {
   const router = useRouter();
   const { addPointsToUser, getUserPoints } = usePoints();
@@ -91,7 +93,7 @@ export default function GameResults({
   const player3 = topPlayers[2];
 
   return (
-    <LinearGradient colors={['#1A0A33', '#3A1A59']} style={styles.resultsBg}>
+    <LinearGradient colors={colors} style={styles.resultsBg}>
       {/* Rétablissement du contentContainer */}
       <View style={[styles.contentContainer, { paddingTop: insets.top, paddingBottom: insets.bottom, paddingLeft: insets.left, paddingRight: insets.right }]}>
 
@@ -197,12 +199,14 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     width: '100%',
+    marginTop: 10,
   },
   topPlayersContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'flex-end',
     marginBottom: 40,
+    marginTop: 20,
     width: '100%',
   },
   pointsContainer: {

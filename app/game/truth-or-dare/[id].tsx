@@ -16,6 +16,7 @@ import { useTruthOrDareQuestions } from './questions';
 import { usePoints } from '@/hooks/usePoints';
 import GameResults from '@/components/game/GameResults';
 import SkewedButton from '@/app/components/game/SkewedButton';
+import Colors from '@/constants/Colors';
 
 interface TruthOrDareQuestion { text: string; type: string; }
 
@@ -78,7 +79,7 @@ const QuestionCard = ({
 
 // Ajout du composant CardStack pour l'effet de cartes empilées
 const CardStack = ({ children }: { children: React.ReactNode }) => (
-    <View style={styles.stackContainer}>
+    <View style={[styles.stackContainer, { paddingHorizontal: 20 }]}>
       {/* Fausse carte la plus éloignée */}
       <View style={[
         styles.fakeCard,
@@ -180,7 +181,7 @@ const TruthOrDareChoiceButtons = ({ onSelect }: { onSelect: (choice: 'verite' | 
       <View style={styles.choiceButtonsRow}>
         <SkewedButton
           text={t('game.truthOrDare.truth')}
-          iconSource={require('../../../assets/jeux/action-verite/truth.png')}
+          iconSource={require('@/assets/jeux/action-verite/dare.png')}
           backgroundColor="#00B7FF"
           skewDirection="left"
           onPress={() => onSelect('verite')}
@@ -190,7 +191,7 @@ const TruthOrDareChoiceButtons = ({ onSelect }: { onSelect: (choice: 'verite' | 
         <ZigzagDivider />
         <SkewedButton
           text={t('game.truthOrDare.dare')}
-          iconSource={require('../../../assets/jeux/action-verite/dare.png')}
+          iconSource={require('@/assets/jeux/action-verite/truth.png')}
           backgroundColor="#FF6600"
           skewDirection="right"
           onPress={() => onSelect('action')}
@@ -598,7 +599,7 @@ export default function TruthOrDareGameScreen() {
                     disabled={game.phase !== 'question' && game.phase !== 'action'}
                     style={styles.choiceButtonLeft}
                     textStyle={styles.choiceButtonText}
-                    iconSource={require('../../../assets/jeux/action-verite/truth.png')}
+                    iconSource={require('@/assets/jeux/action-verite/dare.png')}
                   />
                   <ZigzagDivider />
                   <SkewedButton
@@ -609,7 +610,7 @@ export default function TruthOrDareGameScreen() {
                     disabled={game.phase !== 'question' && game.phase !== 'action'}
                     style={styles.choiceButtonRight}
                     textStyle={styles.choiceButtonText}
-                    iconSource={require('../../../assets/jeux/action-verite/dare.png')}
+                    iconSource={require('@/assets/jeux/action-verite/truth.png')}
                   />
                 </View>
               </View>
@@ -627,9 +628,8 @@ export default function TruthOrDareGameScreen() {
     const votesCount = Object.keys(votes).length;
     const hasVoted = !!votes[user.uid];
     const isCurrentPlayer = game.currentPlayerId === user.uid;
-    const badgeColor = '#7c3aed';
-    const highlightColor = '#b983ff';
-    const cardBgColor = 'rgba(75,39,125,0.60)';
+    const highlightColor = '#FF6600';
+    const cardBgColor = 'rgba(0, 183, 255, 0.25)';
     if (isCurrentPlayer) {
       return (
           <View style={styles.container}>
@@ -688,7 +688,7 @@ export default function TruthOrDareGameScreen() {
                     disabled={hasVoted}
                     style={styles.choiceButtonLeft}
                     textStyle={styles.choiceButtonText}
-                    iconSource={require('../../../assets/jeux/action-verite/truth.png')}
+                    iconSource={require('@/assets/jeux/action-verite/dare.png')}
                   />
                   <ZigzagDivider />
                   <SkewedButton
@@ -699,7 +699,7 @@ export default function TruthOrDareGameScreen() {
                     disabled={hasVoted}
                     style={styles.choiceButtonRight}
                     textStyle={styles.choiceButtonText}
-                    iconSource={require('../../../assets/jeux/action-verite/dare.png')}
+                    iconSource={require('@/assets/jeux/action-verite/truth.png')}
                   />
                 </View>
               </View>
@@ -1024,7 +1024,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   voteThanks: {
-    color: '#C471F5',
+    color: '#FF6600',
     fontSize: 18,
     fontWeight: 'bold',
     marginTop: 12,
@@ -1192,7 +1192,7 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     height: 7,
-    backgroundColor: '#C471F5',
+    backgroundColor: '#FF6600',
     borderRadius: 4,
   },
   cardProgress: {
@@ -1285,18 +1285,6 @@ const styles = StyleSheet.create({
     marginTop: 60,
     marginBottom: 60,
     minWidth: 0,
-  },
-  voteRoundBadge: {
-    backgroundColor: '#7c3aed',
-    color: '#fff',
-    fontWeight: '700',
-    fontSize: 17,
-    borderRadius: 32,
-    paddingHorizontal: 22,
-    paddingVertical: 7,
-    marginBottom: 18,
-    overflow: 'hidden',
-    alignSelf: 'center',
   },
   voteTitle: {
     color: '#fff',
