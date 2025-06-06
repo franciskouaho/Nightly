@@ -37,6 +37,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const STORAGE_KEY = '@nightly_user_uid';
+const DISCONNECTED_UID_KEY = '@nightly_disconnected_uid';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -49,6 +50,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await AsyncStorage.setItem(STORAGE_KEY, uid);
     } catch (err) {
       console.error('Erreur lors de la sauvegarde de l\'UID:', err);
+    }
+  };
+
+  const saveDisconnectedUid = async (uid: string) => {
+    try {
+      await AsyncStorage.setItem(DISCONNECTED_UID_KEY, uid);
+    } catch (err) {
+      console.error('Erreur lors de la sauvegarde de l\'UID déconnecté:', err);
+    }
+  };
+
+  const getDisconnectedUid = async (): Promise<string | null> => {
+    try {
+      return await AsyncStorage.getItem(DISCONNECTED_UID_KEY);
+    } catch (err) {
+      console.error('Erreur lors de la récupération de l\'UID déconnecté:', err);
+      return null;
+    }
+  };
+
+  const clearDisconnectedUid = async () => {
+    try {
+      await AsyncStorage.removeItem(DISCONNECTED_UID_KEY);
+    } catch (err) {
+      console.error('Erreur lors de la suppression de l\'UID déconnecté:', err);
     }
   };
 
@@ -186,6 +212,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         resetUser();
         return;
       }
+      // Sauvegarder l'UID avant la déconnexion
+      await saveDisconnectedUid(auth.currentUser.uid);
       await auth.signOut();
       setUser(null);
       resetUser();
@@ -272,6 +300,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const migrateExistingUser = async (uid: string, pseudo: string) => {
+    try {
+      const db = getFirestore();
+      const userDoc = await getDoc(doc(db, 'users', uid));
+      
+      if (userDoc.exists()) {
+        const userData = userDoc.data() as User;
+        // Sauvegarder l'UID dans les deux clés pour assurer la transition
+        await saveUserUid(uid);
+        await saveDisconnectedUid(uid);
+        
+        // Mettre à jour le document usernames si nécessaire
+        const usernameDoc = await getDoc(doc(db, 'usernames', pseudo.toLowerCase()));
+        if (!usernameDoc.exists()) {
+          await setDoc(doc(db, 'usernames', pseudo.toLowerCase()), {
+            uid,
+            createdAt: userData.createdAt
+          });
+        }
+        
+        return userData;
+      }
+      return null;
+    } catch (err) {
+      console.error('Erreur lors de la migration de l\'utilisateur:', err);
+      return null;
+    }
+  };
+
   const checkExistingUser = async (pseudo: string): Promise<boolean> => {
     try {
       const db = getFirestore();
@@ -281,11 +338,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const auth = getAuth();
         const userCredential = await signInAnonymously(auth);
         const uid = userCredential.user.uid;
-        await createReviewerAccount(pseudo, uid);
+        const userData = await createReviewerAccount(pseudo, uid);
+        setUser(userData);
+        await saveUserUid(uid);
+        identifyUser(userData.uid, {
+          pseudo: userData.pseudo,
+          createdAt: userData.createdAt
+        });
         return true;
       }
 
-      // Logique existante pour les utilisateurs normaux
+      // Logique pour les utilisateurs normaux
       const usernameDoc = await getDoc(doc(db, 'usernames', pseudo.toLowerCase()));
       
       if (usernameDoc.exists()) {
@@ -294,6 +357,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         // Vérifier si l'utilisateur a déjà une session active
         const savedUid = await AsyncStorage.getItem(STORAGE_KEY);
+        const disconnectedUid = await getDisconnectedUid();
         
         // Si l'utilisateur a une session active et que l'UID correspond
         if (savedUid === usernameData.uid) {
@@ -309,8 +373,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             });
             return true;
           }
+        } 
+        // Si l'utilisateur a un UID déconnecté qui correspond
+        else if (disconnectedUid === usernameData.uid) {
+          const userDoc = await getDoc(doc(db, 'users', usernameData.uid));
+          
+          if (userDoc.exists()) {
+            const userData = userDoc.data() as User;
+            setUser(userData);
+            await saveUserUid(userData.uid);
+            await clearDisconnectedUid();
+            identifyUser(userData.uid, {
+              pseudo: userData.pseudo,
+              createdAt: userData.createdAt
+            });
+            return true;
+          }
         } else {
-          // Si l'utilisateur n'a pas de session active, on demande une confirmation
+          // Pour les utilisateurs existants qui n'ont pas encore migré
+          const userData = await migrateExistingUser(usernameData.uid, pseudo);
+          if (userData) {
+            setUser(userData);
+            await saveUserUid(userData.uid);
+            identifyUser(userData.uid, {
+              pseudo: userData.pseudo,
+              createdAt: userData.createdAt
+            });
+            return true;
+          }
+
+          // Si la migration échoue ou si c'est un nouveau compte
           Alert.alert(
             'Connexion existante',
             'Ce pseudo est déjà utilisé. Voulez-vous vous connecter avec ce compte ?',
