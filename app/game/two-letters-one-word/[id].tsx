@@ -175,62 +175,76 @@ export default function TwoLettersOneWord() {
         setTheme(themeKeyToSet);
 
         const scoresData = gameData.scores || {};
-        const playerIds = Object.keys(scoresData);
+        const gamePlayersFromDoc = gameData.players || []; // Récupérer la liste des joueurs du document game
 
-        // Read total rounds from game data if available, otherwise keep default (15)
-        if (gameData.totalRounds !== undefined) {
-          setTotalRounds(gameData.totalRounds);
-        }
+        // Créer une map des joueurs existants dans l'état actuel pour ne pas perdre d'informations si on le remplace
+        const existingPlayersMap = players.reduce((acc, player) => {
+            acc[player.id] = player;
+            return acc;
+        }, {} as any);
 
-        // Initialize or update game history for all players based on scores data
-        const currentHistory = gameData.history || {};
-        const initializedHistory: {[playerId: string]: number[]} = {};
-        playerIds.forEach(id => {
-          // Ensure each player has a history array, initialize if not present
-          initializedHistory[id] = currentHistory[id] || [];
-        });
-        // Add any players from currentHistory not in scoresData (edge case) - though less likely in a game context
-         Object.keys(currentHistory).forEach(id => {
-             if (!initializedHistory[id]) {
-                 initializedHistory[id] = currentHistory[id];
+        // Combiner les joueurs du document game, les IDs des scores, et les joueurs existants
+        const allPlayerIds = new Set([
+            ...Object.keys(scoresData),
+            ...gamePlayersFromDoc.map((p: any) => p.id),
+            ...players.map(p => p.id) // Inclure les IDs des joueurs déjà dans l'état
+        ]);
+
+        const db = getFirestore();
+        const playerDetailsPromises = Array.from(allPlayerIds).map(async (id) => { // Utiliser Array.from pour itérer sur le Set
+             const userDoc = await getDoc(doc(db, 'users', id));
+             const playerFromGameDoc = gamePlayersFromDoc.find((p: any) => p.id === id);
+             const existingPlayer = existingPlayersMap[id];
+
+             let playerInfo: any = {
+                 id: id,
+                 score: scoresData[id] || existingPlayer?.score || 0, // Prioriser le score du document game, sinon l'état existant
+                 history: (gameData.history && gameData.history[id]) || existingPlayer?.history || [], // Récupérer l'histoire
+             };
+
+             if (userDoc.exists()) {
+                 const userData = userDoc.data() as any;
+                 playerInfo.pseudo = userData.pseudo;
+                 playerInfo.avatar = userData.avatar;
+                 // Prioriser le name du document game, sinon user data, sinon fallback
+                 playerInfo.name = playerFromGameDoc?.name || userData.pseudo || userData.displayName || 'Joueur Inconnu';
+             } else {
+                 // Si le document user n'existe pas, utiliser les infos du document game ou état existant, sinon fallback
+                 playerInfo.pseudo = playerFromGameDoc?.pseudo || existingPlayer?.pseudo || 'Joueur Inconnu';
+                 playerInfo.avatar = playerFromGameDoc?.avatar || existingPlayer?.avatar || undefined;
+                 playerInfo.name = playerFromGameDoc?.name || playerFromGameDoc?.pseudo || existingPlayer?.name || existingPlayer?.pseudo || 'Joueur Inconnu';
              }
+
+             // Inclure d'autres propriétés de LocalPlayer si elles sont dans gamePlayersFromDoc ou existingPlayer
+             playerInfo.isHost = playerFromGameDoc?.isHost ?? existingPlayer?.isHost ?? false;
+             playerInfo.isReady = playerFromGameDoc?.isReady ?? existingPlayer?.isReady ?? false;
+             playerInfo.username = playerFromGameDoc?.username || existingPlayer?.username || playerInfo.pseudo;
+             playerInfo.displayName = playerFromGameDoc?.displayName || existingPlayer?.displayName || playerInfo.pseudo;
+             playerInfo.level = playerFromGameDoc?.level || existingPlayer?.level || 1;
+
+
+             return playerInfo;
          });
 
-        setGameHistory(initializedHistory);
 
-        // Fetch player details for all players in the game
-        if (playerIds.length > 0) {
-          const db = getFirestore();
-          const playerDetailsPromises = playerIds.map(async (id) => {
-            const userDoc = await getDoc(doc(db, 'users', id));
-            if (userDoc.exists()) {
-              const userData = userDoc.data() as any;
-              return { id: id, pseudo: userData.pseudo, avatar: userData.avatar };
-            } else {
-              return { id: id, pseudo: 'Joueur Inconnu', avatar: undefined };
-            }
-          });
+        const fetchedDetails = await Promise.all(playerDetailsPromises);
 
-          const fetchedDetails = await Promise.all(playerDetailsPromises);
-          const detailsMap = fetchedDetails.reduce((acc, detail) => {
-            acc[detail.id] = { pseudo: detail.pseudo, avatar: detail.avatar };
-            return acc;
-          }, {} as { [key: string]: { pseudo: string, avatar?: string } });
+        // Mettre à jour l'état 'players' avec les détails combinés
+        setPlayers(fetchedDetails as any);
 
-          // Combine scores with fetched pseudos and avatars
-          const updatedPlayers = playerIds.map(playerId => ({
-            id: playerId,
-            score: scoresData[playerId] as number,
-            pseudo: detailsMap[playerId]?.pseudo || 'Joueur Inconnu',
-            avatar: detailsMap[playerId]?.avatar,
-          }));
 
-          setPlayers(updatedPlayers);
+        // Calculate current user's score after players state is updated
+        const currentUserScore = fetchedDetails.find(p => p.id === user?.uid)?.score || 0;
+        setScore(currentUserScore);
 
-          // Find current user's score using actual user ID
-          const currentUserScore = updatedPlayers.find(p => p.id === user?.uid)?.score || 0;
-          setScore(currentUserScore);
-        }
+
+        // Initialize or update game history for all players based on the fetched details
+        const updatedGameHistory: {[playerId: string]: number[]} = {};
+        fetchedDetails.forEach(player => {
+             updatedGameHistory[player.id] = player.history || [];
+        });
+        setGameHistory(updatedGameHistory);
+
 
         if (gameData.status === 'finished') {
            setGamePhase('results');
@@ -246,10 +260,10 @@ export default function TwoLettersOneWord() {
 
   const handleSubmit = async () => {
     // Vérifie le nombre de joueurs
-    if (players.length < 1 || players.length > 4) {
-      Alert.alert(t('game.error'), t('home.games.two-letters-one-word.playerCountError') || 'Le jeu se joue en solo ou jusqu\'à 4 joueurs.');
-      return;
-    }
+    // if (players.length < 1 || players.length > 4) {
+    //   Alert.alert(t('game.error'), t('home.games.two-letters-one-word.playerCountError') || 'Le jeu se joue en solo ou jusqu\'à 4 joueurs.');
+    //   return;
+    // }
     if (!word.trim()) {
       Alert.alert(t('game.error'), t('home.games.two-letters-one-word.noWordError'));
       return;
@@ -372,7 +386,7 @@ export default function TwoLettersOneWord() {
                         <Text style={styles.defaultDuelAvatarText}>{players.find(p => p.id === user.uid)?.pseudo?.charAt(0) || '?'}</Text>
                       </View>
                     )}
-                    <Text style={styles.playerDuelName}>{players.find(p => p.id === user.uid)?.pseudo || 'Moi'}</Text>
+                    <Text style={styles.playerDuelName}>{players.find(p => p.id === user.uid)?.name || 'Moi'}</Text>
                      {/* Add dots for rounds played based on history */}
                      <View style={styles.roundDots}>
                         {[...Array(5)].map((_, i) => {

@@ -50,7 +50,7 @@ const GAME_CONFIG = {
   'trap-answer': { minPlayers: 2 },
   'never-have-i-ever-hot': { minPlayers: 2 },
   'genius-or-liar': { minPlayers: 2 },
-  'two-letters-one-word': { minPlayers: 2 }
+  'two-letters-one-word': { minPlayers: 1 }
 };
 
 // Type pour l'utilisateur
@@ -145,7 +145,7 @@ export const createFirebaseRoom = async (roomData: RoomCreationData, timeoutMs =
   try {
     // Créer une référence à la collection
     const roomsCollection = collection(db, 'rooms');
-    
+
     // Mesurer le temps d'exécution
     const startTime = Date.now();
     
@@ -330,6 +330,7 @@ export default function RoomScreen() {
   };
 
   const startGame = async () => {
+    setIsStartingGame(true);
     if (!room || !user) return;
 
     try {
@@ -338,10 +339,10 @@ export default function RoomScreen() {
       const gameDocRef = doc(gamesCollection);
       const gameDocId = gameDocRef.id;
 
-      // Récupérer les questions pour le mode de jeu 'never-have-i-ever-hot'
+      // Récupérer les questions pour le mode de jeu
       let gameContent;
       try {
-        gameContent = await getGameContent('never-have-i-ever-hot' as GameMode);
+        gameContent = await getGameContent(room.gameId as GameMode);
       } catch (error) {
         console.error('Erreur lors de la récupération du contenu du jeu:', error);
         Alert.alert('Erreur', 'Impossible de démarrer la partie car les questions n\'ont pas pu être chargées.');
@@ -367,31 +368,42 @@ export default function RoomScreen() {
         setIsStartingGame(false);
         return;
       }
-      
-      // Assurer que la question sélectionnée a une structure correcte pour le stockage
-      const questionToStore = {
-        id: String(Math.random()), // Générer un ID unique pour la question dans le contexte du jeu
-        text: typeof firstQuestion.text === 'string' ? firstQuestion.text : '',
-        theme: (firstQuestion as any).theme || 'hot', // Utiliser le thème si disponible, sinon 'hot'
-        roundNumber: 1, // C'est la première question (round 1)
-      };
+
+      // Assurer que chaque joueur a un champ 'name' avant de le copier dans le document de jeu
+      const playersForGameDoc = room.players.map(player => ({
+          id: player.id,
+          username: player.username,
+          displayName: player.displayName,
+          name: player.displayName || player.username || 'Joueur Inconnu',
+          isHost: player.isHost,
+          isReady: player.isReady,
+          avatar: player.avatar,
+          level: player.level,
+          score: 0,
+          history: [],
+      }));
 
       await setDoc(gameDocRef, {
         gameMode: room.gameId,
-        players: room.players,
+        players: playersForGameDoc,
         status: 'playing',
         currentRound: 1,
         totalRounds: selectedRounds,
-        // Changer la phase de 'waiting' à 'question' car on a déjà la première question
         phase: GamePhase.QUESTION,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         host: user.uid,
         scores: {},
+        history: {},
         naughtyAnswers: {},
-        targetPlayer: room.players[0],
-        currentQuestion: questionToStore, // Inclure la première question formatée
-        askedQuestions: [questionToStore.text], // Ajouter la première question (texte) à la liste des questions posées
+        targetPlayer: playersForGameDoc[0],
+        currentQuestion: {
+             id: String(Math.random()),
+             text: typeof firstQuestion.text === 'string' ? firstQuestion.text : '',
+             theme: (firstQuestion as any).theme || 'general',
+             roundNumber: 1,
+        },
+        askedQuestions: [typeof firstQuestion.text === 'string' ? firstQuestion.text : ''],
       });
 
       // Mettre à jour la salle avec l'ID du document de jeu et le mode de jeu
@@ -406,31 +418,22 @@ export default function RoomScreen() {
 
       switch (room.gameId) {
         case 'never-have-i-ever-hot':
-          router.replace(`/game/never-have-i-ever-hot/${gameDocRef.id}`);
-          break;
         case 'truth-or-dare':
-          router.replace(`/game/truth-or-dare/${gameDocRef.id}`);
-          break;
         case 'listen-but-don-t-judge':
-          router.replace(`/game/listen-but-don-t-judge/${gameDocRef.id}`);
-          break;
         case 'the-hidden-village':
-          router.replace(`/game/the-hidden-village/${gameDocRef.id}`);
-          break;
         case 'trap-answer':
-          router.replace(`/game/trap-answer/${gameDocRef.id}`);
-          break;
         case 'genius-or-liar':
-          router.replace(`/game/genius-or-liar/${gameDocRef.id}`);
+        case 'two-letters-one-word':
+          router.replace(`/game/${room.gameId}/${gameDocRef.id}`);
           break;
         default:
           console.error('Mode de jeu non reconnu:', room.gameId);
           Alert.alert('Erreur', 'Mode de jeu non reconnu');
+          setIsStartingGame(false);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur lors du démarrage du jeu:', error);
       Alert.alert('Erreur', 'Impossible de démarrer le jeu');
-    } finally {
       setIsStartingGame(false);
     }
   };
