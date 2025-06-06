@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, Alert, Clipboard, Share, GestureResponderEvent } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons, FontAwesome5, Ionicons } from '@expo/vector-icons';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { collection, doc, onSnapshot, updateDoc, getFirestore, getDoc, setDoc, addDoc } from '@react-native-firebase/firestore';
-import { GameState, GamePhase, Player, Question } from '@/types/gameTypes';
+import { GameState, GamePhase, Player, Question, GameMode } from '@/types/gameTypes';
 import RulesDrawer from '@/components/room/RulesDrawer';
 import InviteModal from '@/components/room/InviteModal';
 import RoundedButton from '@/components/RoundedButton';
@@ -183,7 +183,6 @@ export const createFirebaseRoom = async (roomData: RoomCreationData, timeoutMs =
 };
 
 export default function RoomScreen() {
-  const router = useRouter();
   const { id } = useLocalSearchParams();
   const { user } = useAuth();
   const [room, setRoom] = useState<Room | null>(null);
@@ -197,7 +196,7 @@ export default function RoomScreen() {
   const [selectedRounds, setSelectedRounds] = useState(5);
   const [showRoundSelector, setShowRoundSelector] = useState(false);
   const { t } = useTranslation();
-  const { language, isRTL } = useLanguage();
+  const { language, isRTL, getGameContent } = useLanguage();
 
   useEffect(() => {
     if (!id || !user) return;
@@ -217,19 +216,24 @@ export default function RoomScreen() {
 
         // Redirection automatique pour tous les joueurs quand la partie commence
         if (roomData.status === 'playing' && roomData.gameDocId) {
-          if (roomData.gameMode === 'truth-or-dare') {
-            router.replace(`/game/truth-or-dare/${roomData.gameDocId}`);
-          } else if (roomData.gameMode === 'listen-but-don-t-judge') {
-            router.replace(`/game/listen-but-don-t-judge/${roomData.gameDocId}`);
-          } else if (roomData.gameMode === 'the-hidden-village') {
-            router.replace(`/game/the-hidden-village/${roomData.gameDocId}`);
-          } else if (roomData.gameMode === 'trap-answer') {
-            router.replace(`/game/trap-answer/${roomData.gameDocId}`);
-          } else if (roomData.gameMode === 'never-have-i-ever-hot') {
-            router.replace(`/game/never-have-i-ever-hot/${roomData.gameDocId}`);
-          }else if (roomData.gameMode === 'genius-or-liar') {
-            router.replace(`/game/genius-or-liar/${roomData.gameDocId}`);
-          }
+          console.log('[DEBUG] Redirection vers le jeu:', roomData.gameMode, roomData.gameDocId);
+          
+          // Attendre un court instant pour s'assurer que le document de jeu est créé
+          setTimeout(() => {
+            if (roomData.gameMode === 'never-have-i-ever-hot') {
+              router.replace(`/game/never-have-i-ever-hot/${roomData.gameDocId}`);
+            } else if (roomData.gameMode === 'truth-or-dare') {
+              router.replace(`/game/truth-or-dare/${roomData.gameDocId}`);
+            } else if (roomData.gameMode === 'listen-but-don-t-judge') {
+              router.replace(`/game/listen-but-don-t-judge/${roomData.gameDocId}`);
+            } else if (roomData.gameMode === 'the-hidden-village') {
+              router.replace(`/game/the-hidden-village/${roomData.gameDocId}`);
+            } else if (roomData.gameMode === 'trap-answer') {
+              router.replace(`/game/trap-answer/${roomData.gameDocId}`);
+            } else if (roomData.gameMode === 'genius-or-liar') {
+              router.replace(`/game/genius-or-liar/${roomData.gameDocId}`);
+            }
+          }, 500);
           return;
         }
       } else {
@@ -303,134 +307,109 @@ export default function RoomScreen() {
   };
 
   const startGame = async () => {
+    setIsStartingGame(true);
     if (!room || !user) return;
 
     try {
-      console.log('[DEBUG] Début startGame');
       const db = getFirestore();
-      let questions = [];
-      let data;
-      
-      const currentLanguage = isRTL ? 'ar' : (language || 'fr');
+      const gamesCollection = collection(db, 'games');
+      const gameDocRef = doc(gamesCollection);
+      const gameDocId = gameDocRef.id;
 
-      if (room.gameId === 'trap-answer') {
-        questions = await getQuestions(currentLanguage);
-      } else {
-        // 1. Récupérer les questions pour le mode de jeu
-        const questionsRef = doc(
-          db,
-          'gameQuestions',
-          room.gameId === 'action-verite' ? 'truth-or-dare' : room.gameId
-        );
-        console.log('[DEBUG] Avant getDoc questionsRef:', questionsRef.path);
-        const questionsDoc = await getDoc(questionsRef);
-        console.log('[DEBUG] Après getDoc, existe:', questionsDoc.exists());
-        if (!questionsDoc.exists()) {
-          throw new Error('Questions non trouvées pour ce mode de jeu');
-        }
-        data = questionsDoc.data();
-        // Récupération des questions dans la langue actuelle
-        const translations = data?.translations || {};
-        questions = translations[currentLanguage] || translations.fr || [];
+      // Récupérer les questions pour le mode de jeu 'never-have-i-ever-hot'
+      let gameContent;
+      try {
+        gameContent = await getGameContent('never-have-i-ever-hot' as GameMode);
+      } catch (error) {
+        console.error('Erreur lors de la récupération du contenu du jeu:', error);
+        Alert.alert('Erreur', 'Impossible de démarrer la partie car les questions n\'ont pas pu être chargées.');
+        setIsStartingGame(false);
+        return;
+      }
+
+      const questionsArr = gameContent?.questions;
+
+      if (!questionsArr || !Array.isArray(questionsArr) || questionsArr.length === 0) {
+        console.error('Aucune question disponible pour ce mode de jeu:', room.gameId);
+        Alert.alert('Erreur', 'Impossible de démarrer la partie car aucune question n\'est disponible pour ce mode de jeu.');
+        setIsStartingGame(false);
+        return;
+      }
+
+      // Sélectionner la première question aléatoirement
+      const firstQuestion = questionsArr[Math.floor(Math.random() * questionsArr.length)];
+
+      if (!firstQuestion) {
+        console.error('Impossible de sélectionner la première question.');
+        Alert.alert('Erreur', 'Impossible de démarrer la partie car la première question n\'a pas pu être sélectionnée.');
+        setIsStartingGame(false);
+        return;
       }
       
-      // Mélanger la liste des questions pour garantir l'aléatoire dès la création de la partie
-      questions = [...questions].sort(() => Math.random() - 0.5);
-      
-      console.log('[DEBUG] Nombre de questions:', questions.length);
-      if (!questions || questions.length === 0) {
-        console.error('Structure de données:', data);
-        throw new Error('Aucune question disponible pour ce mode de jeu');
-      }
-      
-      // 2. Créer le document de jeu
-      const gameRef = doc(collection(db, 'games'));
-      const randomPlayer = room.players[Math.floor(Math.random() * room.players.length)] || null;
-      const gameData: (GameState & { gameId: string, host: string, hostId: string }) | TrapGameState = room.gameId === 'trap-answer' ? {
-        phase: GamePhase.QUESTION,
-        currentRound: 0,
-        totalRounds: selectedRounds,
-        targetPlayer: randomPlayer,
-        currentQuestion: questions[0],
-        questions: questions,
-        answers: [],
-        players: room.players.map(p => ({
-          id: String(p.id),
-          name: p.displayName || p.username,
-          avatar: p.avatar
-        })),
-        scores: {},
-        theme: room.gameId,
-        timer: 60,
-        currentUserState: {
-          isTargetPlayer: false,
-          hasAnswered: false,
-          hasVoted: false
-        },
-        game: {
-          currentPhase: GamePhase.QUESTION,
-          currentRound: 0,
-          totalRounds: selectedRounds,
-          scores: {},
-          gameMode: room.gameMode || room.gameId,
-          hostId: room.host
-        },
-        currentPlayerId: randomPlayer ? String(randomPlayer.id) : '',
-        gameId: room.gameId,
-        host: room.host,
-        hostId: room.host,
-        playerAnswers: {},
-        askedQuestionIds: [],
-        history: {},
-      } : {
-        phase: GamePhase.CHOIX,
-        currentRound: room.gameId === 'the-hidden-village' ? 0 : 1,
-        totalRounds: room.gameId === 'the-hidden-village' ? 0 : selectedRounds,
-        targetPlayer: randomPlayer,
-        currentQuestion: questions[0],
-        answers: [],
-        players: room.players.map(p => ({
-          id: String(p.id),
-          name: p.displayName || p.username,
-          avatar: p.avatar
-        })),
-        scores: {},
-        theme: room.gameId,
-        timer: 60,
-        currentUserState: {
-          isTargetPlayer: false,
-          hasAnswered: false,
-          hasVoted: false
-        },
-        game: {
-          currentPhase: GamePhase.CHOIX,
-          currentRound: room.gameId === 'the-hidden-village' ? 0 : 1,
-          totalRounds: room.gameId === 'the-hidden-village' ? 0 : selectedRounds,
-          scores: {},
-          gameMode: room.gameMode || room.gameId,
-          hostId: room.host
-        },
-        currentPlayerId: randomPlayer ? String(randomPlayer.id) : '',
-        gameId: room.gameId,
-        host: room.host,
-        hostId: room.host
+      // Assurer que la question sélectionnée a une structure correcte pour le stockage
+      const questionToStore = {
+        id: String(Math.random()), // Générer un ID unique pour la question dans le contexte du jeu
+        text: typeof firstQuestion.text === 'string' ? firstQuestion.text : '',
+        theme: (firstQuestion as any).theme || 'hot', // Utiliser le thème si disponible, sinon 'hot'
+        roundNumber: 1, // C'est la première question (round 1)
       };
-      console.log('[DEBUG] Avant setDoc gameRef:', gameRef.path);
-      await setDoc(gameRef, gameData);
-      console.log('[DEBUG] Après setDoc');
+
+      await setDoc(gameDocRef, {
+        gameMode: room.gameId,
+        players: room.players,
+        status: 'playing',
+        currentRound: 1,
+        totalRounds: selectedRounds,
+        // Changer la phase de 'waiting' à 'question' car on a déjà la première question
+        phase: GamePhase.QUESTION,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        host: user.uid,
+        scores: {},
+        naughtyAnswers: {},
+        targetPlayer: room.players[0],
+        currentQuestion: questionToStore, // Inclure la première question formatée
+        askedQuestions: [questionToStore.text], // Ajouter la première question (texte) à la liste des questions posées
+      });
+
+      // Mettre à jour la salle avec l'ID du document de jeu et le mode de jeu
       await updateDoc(doc(db, 'rooms', room.id), {
         status: 'playing',
-        startedAt: new Date().toISOString(),
-        gameDocId: gameRef.id,
-        gameMode: room.gameMode || room.gameId
+        gameDocId: gameDocRef.id,
+        gameMode: room.gameId
       });
-      console.log('[DEBUG] Après updateDoc room');
-      if (room.gameId === 'truth-or-dare') {
-        router.push(`/game/truth-or-dare/${gameRef.id}`);
+
+      // Rediriger vers le jeu
+      console.log('[DEBUG] Redirection vers le jeu:', room.gameId, gameDocRef.id);
+      
+      switch (room.gameId) {
+        case 'never-have-i-ever-hot':
+          router.replace(`/game/never-have-i-ever-hot/${gameDocRef.id}`);
+          break;
+        case 'truth-or-dare':
+          router.replace(`/game/truth-or-dare/${gameDocRef.id}`);
+          break;
+        case 'listen-but-don-t-judge':
+          router.replace(`/game/listen-but-don-t-judge/${gameDocRef.id}`);
+          break;
+        case 'the-hidden-village':
+          router.replace(`/game/the-hidden-village/${gameDocRef.id}`);
+          break;
+        case 'trap-answer':
+          router.replace(`/game/trap-answer/${gameDocRef.id}`);
+          break;
+        case 'genius-or-liar':
+          router.replace(`/game/genius-or-liar/${gameDocRef.id}`);
+          break;
+        default:
+          console.error('Mode de jeu non reconnu:', room.gameId);
+          Alert.alert('Erreur', 'Mode de jeu non reconnu');
       }
-    } catch (error: unknown) {
-      console.error('[DEBUG] Erreur lors du démarrage de la partie:', error);
-      Alert.alert('Erreur', 'Impossible de démarrer la partie');
+    } catch (error) {
+      console.error('Erreur lors du démarrage du jeu:', error);
+      Alert.alert('Erreur', 'Impossible de démarrer le jeu');
+    } finally {
+      setIsStartingGame(false);
     }
   };
 

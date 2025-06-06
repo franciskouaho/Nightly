@@ -158,7 +158,7 @@ export default function TruthOrDareGameScreen() {
   const [voteHandled, setVoteHandled] = useState(false);
   const gameStartTime = useRef(Date.now());
   const { t } = useTranslation();
-  const { getGameContent } = useLanguage();
+  const { getGameContent, language } = useLanguage();
   const { getRandomQuestion, resetAskedQuestions, isLoadingQuestions } = useTruthOrDareQuestions();
 
   const handleNextRound = async () => {
@@ -217,6 +217,7 @@ export default function TruthOrDareGameScreen() {
         const gameContent = await getGameContent('truth-or-dare');
         if (gameContent.questions && gameContent.questions.length > 0) {
           setQuestions(gameContent.questions);
+          console.log('[DEBUG] Questions chargées:', gameContent.questions);
         }
       } catch (e) {
         console.error('Erreur lors du chargement des questions:', e);
@@ -704,8 +705,30 @@ export default function TruthOrDareGameScreen() {
     try {
       const db = getFirestore();
 
-      // Sélectionner la prochaine question ICI
-      const nextQuestion = getRandomQuestion();
+      // Mapping des choix utilisateur aux types de questions dans Firebase par langue
+      const typeMapping: { [key: string]: { verite: string; action: string } } = {
+        fr: { verite: 'verite', action: 'action' },
+        en: { verite: 'truth', action: 'dare' },
+        es: { verite: 'verdad', action: 'reto' },
+        it: { verite: 'verità', action: 'sfida' },
+        ar: { verite: 'حقيقة', action: 'تحدي' },
+        // Ajouter d'autres langues si nécessaire
+      };
+
+      const currentLanguageCode = language || 'fr'; // Fallback au français
+      const firebaseQuestionType = typeMapping[currentLanguageCode]?.[choice];
+
+      if (!firebaseQuestionType) {
+        console.error(`Type de question inconnu pour la langue ${currentLanguageCode}: ${choice}`);
+        Alert.alert(
+          t('game.error'),
+          t('game.truthOrDare.errorSelectingQuestion') // Utilisez une clé de traduction appropriée
+        );
+        return;
+      }
+
+      // Sélectionner la prochaine question en passant le type de Firebase
+      const nextQuestion = getRandomQuestion(firebaseQuestionType as 'verite' | 'action'); // Caster le type pour TypeScript
 
       if (!nextQuestion) {
         Alert.alert(
@@ -713,13 +736,13 @@ export default function TruthOrDareGameScreen() {
           t('game.truthOrDare.noQuestionsAvailable')
         );
         console.error('Aucune question disponible après le choix.');
-        return; // Ne pas continuer si aucune question n'est disponible
+        return;
       }
 
       await updateDoc(doc(db, 'games', String(id)), {
         currentChoice: choice,
         phase: 'question',
-        currentQuestion: nextQuestion, // Stocker la question sélectionnée
+        currentQuestion: nextQuestion,
       });
 
       // Track le choix

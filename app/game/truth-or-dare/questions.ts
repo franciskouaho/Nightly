@@ -61,44 +61,61 @@ export function useTruthOrDareQuestions() {
     // Ajouter currentLanguageCode aux dépendances si la logique de langue le justifie
   }, [isRTL, language]); // Maintenir les dépendances actuelles pour réagir aux changements
 
-  // Obtenir une question aléatoire qui n'a pas encore été posée
-  const getRandomQuestion = (): Question | null => {
-    if (availableQuestions.length === 0) {
-      // Si toutes les questions ont été posées, réinitialiser avec toutes les questions mélangées
-      const shuffledQuestions = [...questions].sort(() => Math.random() - 0.5);
-      setAvailableQuestions(shuffledQuestions);
-      setAskedQuestions([]);
-      // Tenter de prendre une question de la liste nouvellement mélangée
-      const randomIndex = Math.floor(Math.random() * shuffledQuestions.length);
-      const selectedQuestion = shuffledQuestions[randomIndex];
-      if (!selectedQuestion) return null; // Safety check
+  // Obtenir une question aléatoire qui n'a pas encore été posée, filtrée par type si spécifié
+  const getRandomQuestion = (type?: 'verite' | 'action'): Question | null => {
+    // Filtrer toutes les questions originales par le type demandé
+    const allQuestionsOfType = type 
+      ? questions.filter(q => q.theme.toLowerCase() === type.toLowerCase())
+      : questions; // Si pas de type, considérer toutes les questions
 
-      // Ajouter la question à la liste des questions posées
-      setAskedQuestions((prev: string[]) => [...prev, selectedQuestion.id]);
-      return selectedQuestion;
+    if (allQuestionsOfType.length === 0) {
+        console.warn(`Aucune question de type ${type || 'any'} disponible dans la liste originale.`);
+        return null; // Aucune question de ce type n'existe du tout dans la liste originale
     }
 
-    // Sélectionner une question aléatoire parmi les questions disponibles
-    const randomIndex = Math.floor(Math.random() * availableQuestions.length);
-    const selectedQuestion = availableQuestions[randomIndex];
+    // Filtrer celles qui n'ont PAS encore été posées PARMI CE TYPE
+    const availableOfType = allQuestionsOfType.filter(q => !askedQuestions.includes(q.id));
 
-    if (!selectedQuestion) return null;
+    // Si toutes les questions de ce type ont été posées, réinitialiser l'historique des questions posées pour CE TYPE
+    let questionsToChooseFrom = availableOfType;
+    if (availableOfType.length === 0) {
+        console.log(`Toutes les questions de type ${type} ont été posées. Réinitialisation de l'historique pour ce type.`);
+        // Réinitialiser askedQuestions en retirant uniquement celles de ce type
+        const otherTypeAskedQuestions = askedQuestions.filter(id => {
+            const question = questions.find(q => q.id === id);
+            return question && (!type || question.theme.toLowerCase() !== type.toLowerCase());
+        });
+        setAskedQuestions(otherTypeAskedQuestions);
 
-    // Retirer la question sélectionnée des questions disponibles
-    const newAvailableQuestions = availableQuestions.filter((_, index) => index !== randomIndex);
-    setAvailableQuestions(newAvailableQuestions);
+        // Maintenant, toutes les questions de ce type sont à nouveau disponibles pour être choisies
+        questionsToChooseFrom = allQuestionsOfType; 
+    }
 
-    // Ajouter la question à la liste des questions posées
+    // Si même après réinitialisation il n'y a pas de questions (ce cas devrait être couvert par la première vérification, mais sécurité)
+     if (questionsToChooseFrom.length === 0) {
+        console.warn(`Aucune question de type ${type || 'any'} disponible après réinitialisation.`);
+        return null;
+    }
+
+    // Sélectionner une question aléatoire parmi les questions disponibles de ce type (après potentielle réinitialisation)
+    const randomIndex = Math.floor(Math.random() * questionsToChooseFrom.length);
+    const selectedQuestion = questionsToChooseFrom[randomIndex];
+
+    if (!selectedQuestion) {
+        console.error(`Échec de la sélection aléatoire d'une question de type ${type || 'any'}.`);
+        return null; // Vérification de sécurité supplémentaire
+    }
+
+    // Ajouter la question sélectionnée à la liste des questions posées
     setAskedQuestions((prev: string[]) => [...prev, selectedQuestion.id]);
 
     return selectedQuestion;
   };
 
-  // Réinitialiser l'historique des questions posées et mélanger à nouveau
+  // Réinitialiser l'historique des questions posées complètement (cette fonction est une réinitialisation globale)
   const resetAskedQuestions = () => {
     setAskedQuestions([]);
-    const shuffledQuestions = [...questions].sort(() => Math.random() - 0.5);
-    setAvailableQuestions(shuffledQuestions);
+    // Note: availableQuestions n'est plus utilisé comme état séparé géré ici
   };
 
   return {

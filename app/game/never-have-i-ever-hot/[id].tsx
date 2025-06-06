@@ -108,13 +108,14 @@ export default function NeverHaveIEverHotGame() {
   const initialAnswersRef = useRef<Record<string, boolean | null>>({});
   
   // Constantes
-  const TOTAL_ROUNDS = 4;
   const userId = user?.uid;
   const isTarget = userId === gameState?.targetPlayer?.id;
+  const TOTAL_ROUNDS = gameState?.totalRounds || 4;
 
   console.log("[DEBUG NeverHaveIEverHotGame] Component rendered. Game State:", gameState);
   console.log("[DEBUG NeverHaveIEverHotGame] User ID:", userId);
   console.log("[DEBUG NeverHaveIEverHotGame] Is Target Player:", isTarget);
+  console.log("[DEBUG NeverHaveIEverHotGame] Total Rounds:", TOTAL_ROUNDS);
 
   // Mémoriser les joueurs qui ne sont pas la cible
   const nonTargetPlayers = useMemo(() => {
@@ -230,13 +231,11 @@ export default function NeverHaveIEverHotGame() {
         console.log('[DEBUG] Analytics pour fin de round envoyé');
       } catch (analyticsError) {
         console.error('[DEBUG] Erreur analytics:', analyticsError);
-        // Continue même si l'analytics échoue
       }
 
       // Vérifier si c'est le dernier round
       if (gameState.currentRound >= TOTAL_ROUNDS) {
         console.log('[DEBUG] Dernier round atteint, fin du jeu');
-        // C'est le dernier round, passer en phase de fin
         const endGameState = {
           ...gameState,
           phase: GamePhase.END
@@ -246,7 +245,7 @@ export default function NeverHaveIEverHotGame() {
         return;
       }
 
-      // Récupérer une nouvelle question aléatoire dans la langue actuelle
+      // Récupérer une nouvelle question aléatoire
       console.log('[DEBUG] Récupération du contenu du jeu');
       let gameContent;
       try {
@@ -268,7 +267,6 @@ export default function NeverHaveIEverHotGame() {
         return;
       }
       
-      console.log('[DEBUG] Filtrage des questions déjà posées');
       // Filtrer les questions déjà posées
       const availableQuestions = questionsArr.filter(q => {
         const questionText = typeof q.text === 'string' 
@@ -279,12 +277,9 @@ export default function NeverHaveIEverHotGame() {
         return !askedQuestions.includes(questionText);
       });
       
-      console.log('[DEBUG] Questions disponibles:', availableQuestions.length);
       let nextQuestion: GameQuestion;
       
       if (availableQuestions.length === 0) {
-        // Si toutes les questions ont été posées, réinitialiser la liste
-        console.log('[DEBUG] Toutes les questions ont été posées, réinitialisation de la liste');
         setAskedQuestions([]);
         const randomQuestion = questionsArr[Math.floor(Math.random() * questionsArr.length)];
         if (!randomQuestion) {
@@ -306,7 +301,6 @@ export default function NeverHaveIEverHotGame() {
           roundNumber: gameState.currentRound + 1
         };
       } else {
-        console.log('[DEBUG] Sélection d\'une question disponible');
         const randomQuestion = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
         if (!randomQuestion) {
           console.log('[DEBUG] Aucune question aléatoire disponible trouvée');
@@ -328,13 +322,11 @@ export default function NeverHaveIEverHotGame() {
         };
       }
       
-      console.log('[DEBUG] Nouvelle question sélectionnée:', nextQuestion.id);
-      // Mise à jour directe de Firestore ici plutôt que d'utiliser updateGameStateWithNewQuestion
+      // Mise à jour de l'état du jeu avec le nouveau round
       const nextPlayerIndex = (gameState.players.findIndex(p => p.id === gameState.targetPlayer?.id) + 1) % gameState.players.length;
       const nextPlayer = gameState.players[nextPlayerIndex];
       
       if (nextPlayer) {
-        console.log('[DEBUG] Mise à jour directe de Firestore');
         const newGameState = {
           ...gameState,
           currentQuestion: nextQuestion,
@@ -343,10 +335,13 @@ export default function NeverHaveIEverHotGame() {
           phase: GamePhase.QUESTION
         };
         
+        // Réinitialiser les états locaux
         setMode(null);
         setIsQuestionTracked(false);
         previousQuestionId.current = null;
+        setAnswers({});
         
+        // Mettre à jour l'état du jeu
         await updateGameState(newGameState);
         console.log('[DEBUG] État du jeu mis à jour avec succès');
       } else {
@@ -356,8 +351,6 @@ export default function NeverHaveIEverHotGame() {
       console.error('[DEBUG] Erreur globale lors du passage au round suivant:', error);
       Alert.alert(t('game.error'), t('game.neverHaveIEver.errorNext'));
     } finally {
-      // Réinitialiser le verrou avec un léger délai pour éviter les mises à jour cycliques
-      console.log('[DEBUG] Réinitialisation du verrou');
       setTimeout(() => {
         questionUpdateInProgress.current = false;
         console.log('[DEBUG] Verrou désactivé');
