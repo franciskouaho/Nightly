@@ -177,6 +177,9 @@ export default function TwoLettersOneWord() {
         const scoresData = gameData.scores || {};
         const gamePlayersFromDoc = gameData.players || []; // Récupérer la liste des joueurs du document game
 
+        // Mettre à jour totalRounds à partir des données de la partie
+        setTotalRounds(gameData.totalRounds || 15); // Use value from gameData, fallback to 15
+
         // Créer une map des joueurs existants dans l'état actuel pour ne pas perdre d'informations si on le remplace
         const existingPlayersMap = players.reduce((acc, player) => {
             acc[player.id] = player;

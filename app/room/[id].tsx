@@ -339,82 +339,104 @@ export default function RoomScreen() {
       const gameDocRef = doc(gamesCollection);
       const gameDocId = gameDocRef.id;
 
-      // Récupérer les questions pour le mode de jeu
-      let gameContent;
-      try {
-        gameContent = await getGameContent(room.gameId as GameMode);
-      } catch (error) {
-        console.error('Erreur lors de la récupération du contenu du jeu:', error);
-        Alert.alert('Erreur', 'Impossible de démarrer la partie car les questions n\'ont pas pu être chargées.');
-        setIsStartingGame(false);
-        return;
-      }
-
-      const questionsArr = gameContent?.questions;
-
-      if (!questionsArr || !Array.isArray(questionsArr) || questionsArr.length === 0) {
-        console.error('Aucune question disponible pour ce mode de jeu:', room.gameId);
-        Alert.alert('Erreur', 'Impossible de démarrer la partie car aucune question n\'est disponible pour ce mode de jeu.');
-        setIsStartingGame(false);
-        return;
-      }
-
-      // Sélectionner la première question aléatoirement
-      const firstQuestion = questionsArr[Math.floor(Math.random() * questionsArr.length)];
-
-      if (!firstQuestion) {
-        console.error('Impossible de sélectionner la première question.');
-        Alert.alert('Erreur', 'Impossible de démarrer la partie car la première question n\'a pas pu être sélectionnée.');
-        setIsStartingGame(false);
-        return;
-      }
-
       // Assurer que chaque joueur a un champ 'name' avant de le copier dans le document de jeu
       const playersForGameDoc = room.players.map(player => ({
           id: player.id,
-          username: player.username,
-          displayName: player.displayName,
+          username: player.username || player.displayName || 'Joueur',
+          displayName: player.displayName || player.username || 'Joueur',
           name: player.displayName || player.username || 'Joueur Inconnu',
-          isHost: player.isHost,
-          isReady: player.isReady,
-          avatar: player.avatar,
-          level: player.level,
+          isHost: player.isHost || false,
+          isReady: player.isReady || false,
+          avatar: player.avatar || '',
+          level: player.level || 1,
           score: 0,
           history: [],
       }));
 
-      await setDoc(gameDocRef, {
-        gameMode: room.gameId,
-        players: playersForGameDoc,
-        status: 'playing',
-        currentRound: 1,
-        totalRounds: selectedRounds,
-        phase: GamePhase.QUESTION,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        host: user.uid,
-        scores: {},
-        history: {},
-        naughtyAnswers: {},
-        targetPlayer: playersForGameDoc[0],
-        currentQuestion: {
-             id: String(Math.random()),
-             text: typeof firstQuestion.text === 'string' ? firstQuestion.text : '',
-             theme: (firstQuestion as any).theme || 'general',
-             roundNumber: 1,
-        },
-        askedQuestions: [typeof firstQuestion.text === 'string' ? firstQuestion.text : ''],
-      });
+      if (room.gameId === 'two-letters-one-word') {
+        console.log('[DEBUG] Démarrage du jeu Two Letters One Word');
+        const gameDataToSet = {
+          gameMode: room.gameId || 'unknown', // Fallback
+          players: playersForGameDoc || [], // Fallback
+          status: 'playing',
+          currentRound: 1,
+          totalRounds: selectedRounds || 5, // Fallback
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          host: user?.uid || 'unknown', // Fallback
+          scores: {}, // Scores map
+          history: {}, // History map for valid answers per player
+          currentLetters: generateTwoLettersOneWordRandomLetters() || ['', ''], // Fallback
+          currentTheme: TWO_LETTERS_ONE_WORD_THEMES[Math.floor(Math.random() * TWO_LETTERS_ONE_WORD_THEMES.length)] || 'general', // Fallback
+        };
+        console.log('[DEBUG Firestore Data]', JSON.stringify(gameDataToSet)); // Log the data object
+        await setDoc(gameDocRef, gameDataToSet);
+
+      } else { // Logic for other game modes that use questions
+        console.log('[DEBUG] Démarrage d\'un jeu basé sur des questions:', room.gameId);
+        // Récupérer les questions pour le mode de jeu
+        let gameContent;
+        try {
+          gameContent = await getGameContent(room.gameId as GameMode);
+        } catch (error) {
+          console.error('Erreur lors de la récupération du contenu du jeu:', error);
+          Alert.alert('Erreur', 'Impossible de démarrer la partie car les questions n\'ont pas pu être chargées.');
+          setIsStartingGame(false);
+          return;
+        }
+
+        const questionsArr = gameContent?.questions;
+
+        if (!questionsArr || !Array.isArray(questionsArr) || questionsArr.length === 0) {
+          console.error('Aucune question disponible pour ce mode de jeu:', room.gameId);
+          Alert.alert('Erreur', 'Impossible de démarrer la partie car aucune question n\'est disponible pour ce mode de jeu.');
+          setIsStartingGame(false);
+          return;
+        }
+
+        // Sélectionner la première question aléatoirement
+        const firstQuestion = questionsArr[Math.floor(Math.random() * questionsArr.length)];
+
+        if (!firstQuestion) {
+          console.error('Impossible de sélectionner la première question.');
+          Alert.alert('Erreur', 'Impossible de démarrer la partie car la première question n\'a pas pu être sélectionnée.');
+          setIsStartingGame(false);
+          return;
+        }
+
+        await setDoc(gameDocRef, {
+          gameMode: room.gameId,
+          players: playersForGameDoc,
+          status: 'playing',
+          currentRound: 1,
+          totalRounds: selectedRounds,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          host: user.uid,
+          scores: {},
+          history: {},
+          naughtyAnswers: {},
+          targetPlayer: playersForGameDoc[0],
+          currentQuestion: {
+               id: String(Math.random()),
+               text: typeof firstQuestion.text === 'string' ? firstQuestion.text : '',
+               theme: (firstQuestion as any).theme || 'general',
+               roundNumber: 1,
+          },
+          askedQuestions: [typeof firstQuestion.text === 'string' ? firstQuestion.text : ''],
+          phase: GamePhase.QUESTION,
+        });
+      }
 
       // Mettre à jour la salle avec l'ID du document de jeu et le mode de jeu
       await updateDoc(doc(db, 'rooms', room.id), {
         status: 'playing',
-        gameDocId: gameDocRef.id,
+        gameDocId: gameDocId,
         gameMode: room.gameId
       });
 
       // Rediriger vers le jeu
-      console.log('[DEBUG] Redirection vers le jeu:', room.gameId, gameDocRef.id);
+      console.log('[DEBUG] Redirection vers le jeu:', room.gameId, gameDocId);
 
       switch (room.gameId) {
         case 'never-have-i-ever-hot':
@@ -424,16 +446,18 @@ export default function RoomScreen() {
         case 'trap-answer':
         case 'genius-or-liar':
         case 'two-letters-one-word':
-          router.replace(`/game/${room.gameId}/${gameDocRef.id}`);
+          router.replace(`/game/${room.gameId}/${gameDocId}`);
           break;
         default:
           console.error('Mode de jeu non reconnu:', room.gameId);
           Alert.alert('Erreur', 'Mode de jeu non reconnu');
           setIsStartingGame(false);
       }
+
     } catch (error: any) {
       console.error('Erreur lors du démarrage du jeu:', error);
       Alert.alert('Erreur', 'Impossible de démarrer le jeu');
+    } finally {
       setIsStartingGame(false);
     }
   };
