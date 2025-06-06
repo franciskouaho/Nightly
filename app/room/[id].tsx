@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, Alert, Clipboard, Share, GestureResponderEvent } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, Alert, Clipboard, Share, GestureResponderEvent, ViewStyle, TextStyle, ImageStyle } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons, FontAwesome5, Ionicons } from '@expo/vector-icons';
@@ -98,6 +98,67 @@ interface RoomCreationData {
   host: string;
   players: LocalPlayer[];
   [key: string]: any; // Pour les propriétés additionnelles
+}
+
+interface RoomScreenStyles {
+  container: ViewStyle;
+  background: ViewStyle;
+  loadingContainer: ViewStyle;
+  loadingText: TextStyle;
+  topBar: ViewStyle;
+  topBarRow: ViewStyle;
+  backButton: ViewStyle;
+  topBarTitleContainer: ViewStyle;
+  topBarTitle: TextStyle;
+  shareButton: ViewStyle;
+  codeContainer: ViewStyle;
+  codeLabel: TextStyle;
+  codeBox: ViewStyle;
+  codeText: TextStyle;
+  playersContainer: ViewStyle;
+  playersHeaderRow: ViewStyle;
+  rulesButtonRow: ViewStyle;
+  rulesText: TextStyle;
+  rulesCircle: ViewStyle;
+  rulesQuestionMark: TextStyle;
+  sectionTitle: TextStyle;
+  playerCard: ViewStyle;
+  playerAvatar: ImageStyle;
+  playerInfo: ViewStyle;
+  playerName: TextStyle;
+  hostBadge: ViewStyle;
+  hostText: TextStyle;
+  readyBadge: ViewStyle;
+  readyText: TextStyle;
+  readyButton: ViewStyle;
+  readyButtonGradient: ViewStyle;
+  readyButtonText: TextStyle;
+  rightContainer: ViewStyle;
+  headerButtons: ViewStyle;
+  inviteButton: ViewStyle;
+  gameControlsContainer: ViewStyle;
+  roundSelectorContainer: ViewStyle;
+  roundSelectorButton: ViewStyle;
+  roundSelectorGradient: ViewStyle;
+  roundSelectorText: TextStyle;
+  roundSelectorIconContainer: ViewStyle;
+  starIcon: TextStyle;
+  smallStarIcon: TextStyle;
+  roundOptionsContainer: ViewStyle;
+  roundOptionsRow: ViewStyle;
+  roundOption: ViewStyle;
+  roundOptionText: TextStyle;
+  selectedRoundOption: ViewStyle;
+  selectedRoundOptionText: TextStyle;
+  startButton: ViewStyle;
+  startButtonText: TextStyle;
+  leaveButton: ViewStyle;
+  leaveButtonText: TextStyle;
+  iconButton: ViewStyle;
+  minPlayersWarning: TextStyle;
+  disabledButton: ViewStyle;
+  centeredWarning: TextStyle;
+  minPlayersText: TextStyle;
 }
 
 /**
@@ -224,6 +285,17 @@ export default function RoomScreen() {
   const { t } = useTranslation();
   const { language, isRTL, getGameContent } = useLanguage();
 
+  // Debugging useEffect
+  useEffect(() => {
+    if (room) {
+      console.log('DEBUG MIN PLAYERS CONDITION:', {
+        gameId: room.gameId,
+        playersLength: room.players?.length,
+        minRequired: getMinPlayersForGame(room.gameId),
+      });
+    }
+  }, [room?.gameId, room?.players?.length]);
+
   useEffect(() => {
     if (!id || !user) return;
 
@@ -281,10 +353,14 @@ export default function RoomScreen() {
     if (!room || !user) return;
 
     const minPlayers = getMinPlayersForGame(room.gameId);
+    
+    // Déterminer le nombre minimum de joueurs à afficher dans l'alerte
+    const displayMinPlayers = room.gameId === 'two-letters-one-word' ? 1 : minPlayers;
+
     if (room.players.length < minPlayers) {
       Alert.alert(
         t('room.notEnoughPlayers'),
-        t('room.minPlayersRequired', { count: minPlayers })
+        t('room.minPlayersRequired', { count: displayMinPlayers })
       );
       return;
     }
@@ -562,6 +638,8 @@ export default function RoomScreen() {
     return null;
   }
 
+  const minPlayersForGame = room.gameId ? getMinPlayersForGame(room.gameId) : -1; // Calculate minimum players
+
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
@@ -601,7 +679,7 @@ export default function RoomScreen() {
         </View>
 
         {/* Message du minimum de joueurs déplacé ici */}
-        {room.players.length < getMinPlayersForGame(room.gameId) && (
+        {room && room.players && room.gameId && room.players.length <= getMinPlayersForGame(room.gameId) && (
           <Text style={[styles.minPlayersWarning, styles.centeredWarning]}>
             {t('room.minPlayersRequired', { count: getMinPlayersForGame(room.gameId) })}
           </Text>
@@ -833,7 +911,7 @@ export default function RoomScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create<RoomScreenStyles>({
   container: {
     flex: 1,
   },
@@ -1156,5 +1234,11 @@ const styles = StyleSheet.create({
   centeredWarning: {
     textAlign: 'center',
     marginBottom: 10,
+  },
+  minPlayersText: {
+    color: '#ccc', // Couleur grise pour l'information permanente
+    fontSize: 14,
+    marginTop: 5,
+    textAlign: 'center',
   },
 });

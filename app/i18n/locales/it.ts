@@ -245,6 +245,11 @@ export default {
     }
   },
 
+  // Common translations
+  common: {
+    ok: 'OK',
+  },
+
   // Settings
   settings: {
     title: 'Impostazioni',

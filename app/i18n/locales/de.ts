@@ -652,4 +652,9 @@ export default {
       }
     }
   },
+
+  // Common translations
+  common: {
+    ok: 'OK',
+  },
 };

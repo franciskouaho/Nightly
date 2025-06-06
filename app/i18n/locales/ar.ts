@@ -682,4 +682,9 @@ export default {
       }
     }
   },
+
+  // Common translations
+  common: {
+    ok: 'حسناً',
+  },
 };

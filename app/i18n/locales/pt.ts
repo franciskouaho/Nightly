@@ -246,6 +246,11 @@ export default {
     round: "Rodada",
   },
 
+  // Common translations
+  common: {
+    ok: 'OK',
+  },
+
   // Settings
   settings: {
     title: 'Configurações',
@@ -442,7 +447,11 @@ export default {
       howToPlay: "Encontre uma palavra que contenha as duas letras dadas e corresponda ao tema escolhido.",
       "exampleWord": "Exemplo: {{word}}",
       "nextButton": "Próxima rodada"
-    }
+    },
+    waitingForPlayersTitle: "Aguardando jogadores",
+    waitingForPlayersMessage: "Por favor, aguarde todos os jogadores enviarem suas palavras.",
+    actionNotAllowedTitle: "Ação não permitida",
+    onlyHostCanAdvance: "Apenas o anfitrião pode avançar para a próxima rodada.",
   },
 
   // Splash Screen

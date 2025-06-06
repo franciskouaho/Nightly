@@ -231,7 +231,11 @@ export default {
         "nextButton": "Next round",
         "noExampleAvailable": "No example available",
       },
-    }
+    },
+    waitingForPlayersTitle: "Waiting for players",
+    waitingForPlayersMessage: "Please wait for all players to submit their word.",
+    actionNotAllowedTitle: "Action not allowed",
+    onlyHostCanAdvance: "Only the host can advance to the next round.",
   },
 
   // Settings
@@ -688,5 +692,10 @@ export default {
     roomCode: "Room Code",
     instruction: "Scan the QR code or share this code to invite your friends to the room.",
     shareButton: "Share"
+  },
+
+  // Common translations
+  common: {
+    ok: 'OK',
   },
 }; 

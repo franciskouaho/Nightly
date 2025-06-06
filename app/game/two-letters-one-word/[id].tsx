@@ -104,7 +104,7 @@ function CustomModal({ visible, icon, iconColor, title, message, example, button
             <Text style={{ fontSize: 24, fontWeight: 'bold', color: iconColor, marginVertical: 8, textAlign: 'center', fontFamily: 'System' }}>{title}</Text>
             <Text style={{ fontSize: 16, color: '#fff', marginBottom: example ? 8 : 24, textAlign: 'center', fontFamily: 'System' }}>{message}</Text>
             {example && (
-              <Text style={{ fontSize: 16, color: '#7B24B1', marginBottom: 20, textAlign: 'center', fontWeight: 'bold', backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 8, padding: 8, fontFamily: 'System' }}>
+              <Text style={{ fontSize: 16, color: '#00FFFF', marginBottom: 20, textAlign: 'center', fontWeight: 'bold', backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 8, padding: 8, fontFamily: 'System' }}>
                 {example}
               </Text>
             )}
@@ -316,7 +316,24 @@ export default function TwoLettersOneWord() {
     setWord('');
     setInvalidExample(undefined);
 
-    // Met à jour Firestore pour passer au tour suivant
+    // 1. Vérifier si l'utilisateur actuel est l'hôte
+    const currentUserPlayer = players.find(p => p.id === user?.uid);
+    if (!currentUserPlayer?.isHost) {
+      return;
+    }
+
+    // 2. Vérifier si tous les joueurs ont répondu pour le tour actuel
+    const allPlayersResponded = players.every(player => {
+      const playerHistory = gameHistory[player.id] || [];
+      // Un joueur a répondu si son historique a au moins autant d'entrées que le numéro du tour actuel
+      return playerHistory.length >= currentRound;
+    });
+
+    if (!allPlayersResponded) {
+      return;
+    }
+
+    // Si l'utilisateur est l'hôte et que tous les joueurs ont répondu, passer au tour suivant
     if (!gameDocId) return;
     const db = getFirestore();
     const gameRef = doc(db, 'games', gameDocId);
@@ -330,17 +347,39 @@ export default function TwoLettersOneWord() {
         currentLetters: newLetters,
         currentTheme: newTheme,
         // Réinitialise les réponses des joueurs (exemple : reset un champ answers)
-        answers: {},
-        // Tu peux ajouter ici d'autres champs à réinitialiser si besoin
+        // Note: The history is kept, the 'response' for the new round will be added next.
+        // You might have other fields to reset per round if needed.
+        answers: {}, // Assuming 'answers' tracks current round submissions if needed separately
       });
+       // Afficher un message de succès ou passer directement, selon le flow désiré
+       // Alert.alert(t('game.roundAdvancedTitle'), t('game.roundAdvancedMessage', { round: currentRound + 1 }));
+
     } catch (e) {
+      console.error('Erreur lors du passage au tour suivant:', e);
       Alert.alert('Erreur', 'Impossible de passer au tour suivant.');
+    }
+    finally {
+      // Assurez-vous que le modal se ferme après la tentative de passage au tour suivant
+      setShowInvalidModal(false);
     }
   };
 
   const handleSuccessClose = () => {
     setShowSuccessModal(false);
   };
+
+  // Calculate current user's player object
+  const currentUserPlayer = players.find(p => p.id === user?.uid);
+  const isHost = currentUserPlayer?.isHost;
+
+  // Determine button text and action for invalid word modal based on host status
+  const invalidModalButton1Text = isHost
+    ? t('home.games.two-letters-one-word.nextButton')
+    : t('common.ok') || 'OK';
+
+  const invalidModalButton1Action = isHost
+    ? handleNext
+    : handleRetry; // handleRetry just closes the modal
 
   return (
     <LinearGradient
@@ -365,8 +404,8 @@ export default function TwoLettersOneWord() {
         title={t('home.games.two-letters-one-word.invalidWord')}
         message={t('home.games.two-letters-one-word.invalidWordMessage')}
         example={invalidExample ? t('home.games.two-letters-one-word.exampleWord', { word: invalidExample }) : undefined}
-        button1Text={t('home.games.two-letters-one-word.nextButton')}
-        button1Action={handleNext}
+        button1Text={invalidModalButton1Text}
+        button1Action={invalidModalButton1Action}
       />
       {gamePhase === 'playing' ? (
         <KeyboardAvoidingView

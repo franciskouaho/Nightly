@@ -237,6 +237,11 @@ export default {
     }
   },
 
+  // Traductions communes
+  common: {
+    ok: 'OK',
+  },
+
   // Paramètres
   settings: {
     title: 'Paramètres',
@@ -489,7 +494,11 @@ export default {
         validWord: "Bravo ! Votre mot est valide !",
         invalidWord: "Dommage ! Votre mot ne correspond pas aux critères."
       }
-    }
+    },
+    waitingForPlayersTitle: "En attente des joueurs",
+    waitingForPlayersMessage: "Veuillez attendre que tous les joueurs aient soumis leur mot.",
+    actionNotAllowedTitle: "Action non autorisée",
+    onlyHostCanAdvance: "Seul l'hôte peut passer au tour suivant.",
   },
 
   // Splash Screen

@@ -74,7 +74,7 @@ export const gameCategories: GameCategory[] = [
                     text: 'home.games.two-letters-one-word.tags.premium',
                     color: '#D81B60'
                 }],
-                premium: false,
+                premium: true,
                 interactive: 'write'
             }
         ]

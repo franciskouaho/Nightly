@@ -424,7 +424,11 @@ export default {
       invalidWordMessage: "Esta palabra no cumple con los criterios requeridos.",
       noWordError: "Por favor ingresa una palabra",
       error: "Ha ocurrido un error"
-    }
+    },
+    waitingForPlayersTitle: "Esperando jugadores",
+    waitingForPlayersMessage: "Por favor, espera a que todos los jugadores envíen su palabra.",
+    actionNotAllowedTitle: "Acción no permitida",
+    onlyHostCanAdvance: "Solo el anfitrión puede avanzar a la siguiente ronda.",
   },
 
   // Splash Screen
@@ -631,5 +635,10 @@ export default {
     roomCode: "Código de la sala",
     instruction: "Escanea el código QR o comparte este código para invitar a tus amigos a la sala.",
     shareButton: "Compartir"
+  },
+
+  // Common translations
+  common: {
+    ok: 'OK',
   },
 }; 
