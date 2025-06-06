@@ -83,17 +83,35 @@ export default function TrapAnswerGame() {
 
   // Charger la première question lorsque les questions sont disponibles
   useEffect(() => {
-    if (!gameState || gameState.currentQuestion || questions.length === 0) return;
+    console.log('[DEBUG] Checking first question conditions:', {
+      hasGameState: !!gameState,
+      hasCurrentQuestion: !!gameState?.currentQuestion,
+      questionsLength: questions.length,
+      gameStatePhase: gameState?.phase
+    });
+
+    // Ne pas charger de question si :
+    // 1. Pas de gameState
+    // 2. Déjà une question en cours
+    // 3. Pas de questions disponibles
+    // 4. Le jeu n'est pas en phase "question"
+    if (!gameState || 
+        gameState.currentQuestion?.text || 
+        questions.length === 0 || 
+        gameState.phase !== GamePhase.QUESTION) {
+      return;
+    }
 
     // Utiliser getRandomQuestion pour obtenir la première question
     const firstQuestion = getRandomQuestion();
+    console.log('[DEBUG] First question selected:', firstQuestion);
 
     if (firstQuestion) {
       // S'assurer que les réponses de la première question sont bien mélangées
       const shuffledAnswers = [...firstQuestion.answers].sort(() => Math.random() - 0.5);
       const firstQuestionWithShuffledAnswers = {
-          ...firstQuestion,
-          answers: shuffledAnswers
+        ...firstQuestion,
+        answers: shuffledAnswers
       };
 
       const initialPlayersHistory: { [playerId: string]: number[] } = (gameState.players || []).reduce((acc: { [playerId: string]: number[] }, player) => {
@@ -101,9 +119,10 @@ export default function TrapAnswerGame() {
         return acc;
       }, {});
 
+      console.log('[DEBUG] Updating game state with first question:', firstQuestionWithShuffledAnswers);
       updateGameState({
         currentQuestion: firstQuestionWithShuffledAnswers,
-        askedQuestionIds: [firstQuestion.id], 
+        askedQuestionIds: [firstQuestion.id],
         phase: GamePhase.QUESTION,
         currentRound: 1,
         history: initialPlayersHistory,
@@ -111,9 +130,10 @@ export default function TrapAnswerGame() {
         gameMode: 'trap-answer'
       });
     } else {
+      console.log('[DEBUG] No first question available, ending game');
       updateGameState({ phase: GamePhase.END });
     }
-  }, [gameState?.currentQuestion, questions, gameState?.players, gameState?.totalRounds]);
+  }, [gameState?.phase, questions, gameState?.players, gameState?.totalRounds]);
 
   useEffect(() => {
     if (gameState?.phase === GamePhase.QUESTION && gameState?.currentQuestion?.id) {

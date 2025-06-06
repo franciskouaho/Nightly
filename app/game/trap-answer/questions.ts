@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 
 // Fonction pour transformer les données de Firebase en format TrapQuestion
 const transformQuestion = (question: any, index: number): TrapQuestion => ({
-  id: (index + 1).toString(),
+  id: `q_${Date.now()}_${index}`,
   text: question.question,
   theme: question.type,
   roundNumber: 1,
@@ -40,13 +40,19 @@ export function useTrapAnswerQuestions() {
           const currentLanguage = isRTL ? 'ar' : (language || 'fr');
           const rawQuestions = questionsData?.translations?.[currentLanguage] || [];
           
-          // Transformer les questions au format TrapQuestion (les réponses sont mélangées dans transformQuestion)
+          console.log('[DEBUG] Raw questions from Firebase:', rawQuestions);
+          
+          // Transformer les questions au format TrapQuestion
           const transformedQuestions = rawQuestions.map(transformQuestion);
+          console.log('[DEBUG] Transformed questions:', transformedQuestions);
+          
           setQuestions(transformedQuestions);
           setAvailableQuestions([...transformedQuestions].sort(() => Math.random() - 0.5));
+        } else {
+          console.error('[DEBUG] No questions found in Firebase');
         }
       } catch (error) {
-        console.error('Erreur lors du chargement des questions:', error);
+        console.error('[DEBUG] Error loading questions:', error);
       }
     };
 

@@ -429,27 +429,52 @@ export default function RoomScreen() {
           history: [],
       }));
 
+      let gameDataToSet;
+      const initialTargetPlayer = playersForGameDoc.length > 0 ? playersForGameDoc[0] : null;
+      const initialCurrentPlayerId = initialTargetPlayer ? initialTargetPlayer.id : null;
+
+      // Logique spécifique au jeu "Two Letters One Word"
       if (room.gameId === 'two-letters-one-word') {
         console.log('[DEBUG] Démarrage du jeu Two Letters One Word');
-        const gameDataToSet = {
-          gameMode: room.gameId || 'unknown', // Fallback
-          players: playersForGameDoc || [], // Fallback
+        gameDataToSet = {
+          gameMode: room.gameId,
+          players: playersForGameDoc,
           status: 'playing',
           currentRound: 1,
-          totalRounds: selectedRounds || 5, // Fallback
+          totalRounds: selectedRounds,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
-          host: user?.uid || 'unknown', // Fallback
-          scores: {}, // Scores map
-          history: {}, // History map for valid answers per player
-          currentLetters: generateTwoLettersOneWordRandomLetters() || ['', ''], // Fallback
-          currentTheme: TWO_LETTERS_ONE_WORD_THEMES[Math.floor(Math.random() * TWO_LETTERS_ONE_WORD_THEMES.length)] || 'general', // Fallback
+          host: user.uid,
+          scores: {},
+          history: {},
+          currentLetters: generateTwoLettersOneWordRandomLetters(),
+          currentTheme: TWO_LETTERS_ONE_WORD_THEMES[Math.floor(Math.random() * TWO_LETTERS_ONE_WORD_THEMES.length)],
         };
-        console.log('[DEBUG Firestore Data]', JSON.stringify(gameDataToSet)); // Log the data object
-        await setDoc(gameDocRef, gameDataToSet);
-
-      } else { // Logic for other game modes that use questions
-        console.log('[DEBUG] Démarrage d\'un jeu basé sur des questions:', room.gameId);
+      } else if (room.gameId === 'truth-or-dare') {
+        // Logique spécifique au jeu "Truth or Dare" - Commence en phase de choix
+        console.log('[DEBUG] Démarrage du jeu Truth or Dare - Phase de choix');
+        gameDataToSet = {
+          gameMode: room.gameId,
+          players: playersForGameDoc,
+          status: 'playing',
+          currentRound: 1,
+          totalRounds: selectedRounds,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          host: user.uid,
+          scores: {},
+          history: {},
+          naughtyAnswers: {},
+          targetPlayer: initialTargetPlayer, // Le premier joueur commence
+          currentPlayerId: initialCurrentPlayerId, // Initialiser currentPlayerId de manière sécurisée
+          currentChoice: null, // Pas encore de choix
+          currentQuestion: null, // Pas encore de question sélectionnée
+          askedQuestions: [], // Aucune question posée au début
+          phase: GamePhase.CHOIX, // Commence en phase de choix
+        };
+      }
+      else {
+        // Logique pour les autres modes de jeu - Commence en phase de question/action
         // Récupérer les questions pour le mode de jeu
         let gameContent;
         try {
@@ -479,8 +504,17 @@ export default function RoomScreen() {
           setIsStartingGame(false);
           return;
         }
+        
+        // Assurer que la question sélectionnée a une structure correcte pour le stockage
+        const questionToStore = {
+          id: String(Math.random()), // Générer un ID unique pour la question dans le contexte du jeu
+          text: typeof firstQuestion.text === 'string' ? firstQuestion.text : '',
+          theme: (firstQuestion as any).theme || 'general', // Utiliser le thème si disponible, sinon 'general' par défaut pour les autres jeux
+          roundNumber: 1, // C'est la première question (round 1)
+        };
 
-        await setDoc(gameDocRef, {
+        console.log(`[DEBUG] Démarrage du jeu ${room.gameId} - Phase Question/Action`);
+        gameDataToSet = {
           gameMode: room.gameId,
           players: playersForGameDoc,
           status: 'playing',
@@ -491,18 +525,24 @@ export default function RoomScreen() {
           host: user.uid,
           scores: {},
           history: {},
-          naughtyAnswers: {},
-          targetPlayer: playersForGameDoc[0],
-          currentQuestion: {
-               id: String(Math.random()),
-               text: typeof firstQuestion.text === 'string' ? firstQuestion.text : '',
-               theme: (firstQuestion as any).theme || 'general',
-               roundNumber: 1,
-          },
-          askedQuestions: [typeof firstQuestion.text === 'string' ? firstQuestion.text : ''],
-          phase: GamePhase.QUESTION,
-        });
+          naughtyAnswers: {}, // Peut être spécifique à certains jeux, laisser pour l'instant si c'était là
+          targetPlayer: initialTargetPlayer, // Définir le premier joueur comme cible initiale
+          currentPlayerId: initialCurrentPlayerId, // Initialiser currentPlayerId de manière sécurisée
+          currentQuestion: questionToStore, // Inclure la première question formatée
+          askedQuestions: [questionToStore.text], // Ajouter la première question (texte) à la liste des questions posées
+          phase: GamePhase.QUESTION, // Commence en phase de question/action (nom ajusté pour clarté)
+        };
       }
+
+      // Assurez-vous que gameDataToSet est défini avant d'appeler setDoc
+      if (!gameDataToSet) {
+          console.error('Erreur: gameDataToSet n\'a pas été défini pour le mode de jeu', room.gameId);
+          Alert.alert('Erreur', 'Impossible de démarrer la partie: configuration de jeu manquante.');
+          setIsStartingGame(false);
+          return;
+      }
+
+      await setDoc(gameDocRef, gameDataToSet);
 
       // Mettre à jour la salle avec l'ID du document de jeu et le mode de jeu
       await updateDoc(doc(db, 'rooms', room.id), {
@@ -530,7 +570,7 @@ export default function RoomScreen() {
           setIsStartingGame(false);
       }
 
-    } catch (error: any) {
+    } catch (error) {
       console.error('Erreur lors du démarrage du jeu:', error);
       Alert.alert('Erreur', 'Impossible de démarrer le jeu');
     } finally {
