@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Svg, { Path } from 'react-native-svg';
-import { View, Text, ActivityIndicator, Alert, StyleSheet, ScrollView, Image, SafeAreaView } from 'react-native';
+import { View, Text, ActivityIndicator, Alert, StyleSheet, ScrollView, Image, SafeAreaView, Platform } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { getFirestore, doc, onSnapshot, updateDoc } from '@react-native-firebase/firestore';
@@ -678,7 +678,7 @@ export default function TruthOrDareGameScreen() {
             </View>
 
             {!hasVoted && (
-              <View style={[styles.voteButtonsContainer]}>
+              <View style={[styles.choiceButtonsRowContainer]}>
                 <View style={styles.choiceButtonsRow}>
                   <SkewedButton
                     text={t('game.truthOrDare.yes')}
@@ -1058,6 +1058,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     marginTop: 24,
+    paddingHorizontal: 0,
   },
   zigzagWrapper: {
     position: 'absolute',
@@ -1328,7 +1329,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     paddingHorizontal: 0,
-    paddingBottom: 32,
+    paddingBottom: 0,
     marginHorizontal: 0,
   },
   phaseWithButtonsContainer: {
@@ -1347,7 +1348,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     paddingHorizontal: 0,
-    paddingBottom: 32,
+    paddingBottom: 0,
     backgroundColor: 'transparent',
     alignItems: 'center',
   },
