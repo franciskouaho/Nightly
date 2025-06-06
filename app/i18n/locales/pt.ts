@@ -157,32 +157,44 @@ export default {
       "listen-but-don-t-judge": {
         name: "OUÇA MAS NÃO JULGUE",
         description: "Um modo gratuito para se divertir com amigos.",
-        tag: "GRÁTIS"
+        tags: {
+          free: "GRÁTIS"
+        }
       },
       "truth-or-dare": {
         name: "VERDADE OU DESAFIO",
-        description: "O clássico revisado com desafios exclusivos.",
-        tag: "PREMIUM"
+        description: "O clássico revisitado com desafios exclusivos.",
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "never-have-i-ever-hot": {
         name: "NUNCA NUNCA 🔞",
-        description: "Perguntas picantes e ousadas... Pronto para confessar?",
-        tag: "PREMIUM"
+        description: "Perguntas picantes e inapropriadas... Pronto para confessar?",
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "genius-or-liar": {
         name: "GÊNIO OU MENTIROSO",
-        description: "Um modo divertido onde você deve provar seus conhecimentos ou enfrentar desafios.",
-        tag: "PREMIUM"
+        description: "Um modo divertido onde você deve provar seus conhecimentos ou enfrentar as consequências.",
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "the-hidden-village": {
         name: "A VILA OCULTA",
-        description: "Um jogo de blefe, estratégia e discussões... para quem gosta de acusar os amigos 😈",
-        tag: "PREMIUM"
+        description: "Um jogo de blefe, estratégia e discussões... para quem ama acusar os amigos 😈",
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "trap-answer": {
         name: "Resposta Armadilha",
-        tag: "GRÁTIS",
-        description: "Um quiz onde uma resposta errada te faz perder pontos... Consegues evitar as armadilhas?"
+        description: "Um quiz onde uma resposta errada faz você perder pontos... Você conseguirá evitar as armadilhas?",
+        tags: {
+          free: "GRÁTIS"
+        }
       },
       'avatar-dragon': {
         name: 'Dragão',
@@ -195,7 +207,48 @@ export default {
       'avatar-phoenix': {
         name: 'Fênix',
       },
-    }
+      "two-letters-one-word": {
+        name: "2 Letras 1 Palavra",
+        description: "Encontre uma palavra que contenha as duas letras dadas e corresponda ao tema.",
+        tags: {
+          free: "GRÁTIS",
+          "new": "NOVO",
+          "premium": "PREMIUM"
+        },
+        score: "Pontuação: {{score}}",
+        theme: "Tema: {{theme}}",
+        inputPlaceholder: "Digite sua palavra...",
+        verifyButton: "Verificar",
+        verifyingButton: "Verificando...",
+        validWord: "Palavra válida!",
+        validWordMessage: "Você encontrou uma palavra válida!",
+        invalidWord: "Palavra inválida",
+        invalidWordMessage: "Esta palavra não corresponde aos critérios solicitados.",
+        noWordError: "Por favor, digite uma palavra",
+        error: "Ocorreu um erro",
+        howToPlay: "Encontre uma palavra que contenha as duas letras dadas e corresponda ao tema escolhido.",
+        // Traduções de temas
+        "theme.marque": "uma marca",
+        "theme.ville": "uma cidade",
+        "theme.prenom": "um nome",
+        "theme.pays": "um país",
+        "theme.animal": "um animal",
+        "theme.metier": "um emprego",
+        "theme.sport": "um esporte",
+        "theme.fruit": "uma fruta",
+        "theme.legume": "um vegetal",
+        "theme.objet": "um objeto",
+        "exampleWord": "Exemplo: {{word}}",
+        "nextButton": "Próxima rodada",
+        "noExampleAvailable": "Nenhum exemplo disponível",
+      },
+    },
+    round: "Rodada",
+  },
+
+  // Common translations
+  common: {
+    ok: 'OK',
   },
 
   // Settings
@@ -260,7 +313,32 @@ export default {
       rank: "Posição",
       score: "Pontuação",
       player: "Jogador",
+      "two-letters-one-word": {
+        title: "Fim de jogo!",
+        subtitle: "Obrigado por jogar 2 Letras 1 Palavra!",
+        totalWords: "Palavras encontradas",
+        bestWord: "Melhor palavra",
+        averageScore: "Pontuação média",
+        timePlayed: "Tempo de jogo",
+        newHighScore: "Novo recorde!",
+        shareResults: "Compartilhar resultados",
+        playAgain: "Jogar novamente",
+        // Traduções de temas
+        "theme.marque": "uma marca",
+        "theme.ville": "uma cidade",
+        "theme.prenom": "um nome",
+        "theme.pays": "um país",
+        "theme.animal": "um animal",
+        "theme.metier": "um emprego",
+        "theme.sport": "um esporte",
+        "theme.fruit": "uma fruta",
+        "theme.legume": "um vegetal",
+        "theme.objet": "um objeto",
+        "exampleWord": "Exemplo: {{word}}",
+        "nextButton": "Próxima rodada"
+      }
     },
+    round: "Rodada",
     listenButDontJudge: {
       waiting: "Aguardando outros jogadores...",
       waitingVote: "Aguardando o voto do jogador alvo...",
@@ -350,7 +428,30 @@ export default {
       name: "A VILA OCULTA",
       description: "Um jogo de blefe, estratégia e discussões... para quem gosta de acusar os amigos 😈",
       tag: "PREMIUM"
-    }
+    },
+    "two-letters-one-word": {
+      enterWord: "Digite sua palavra...",
+      verify: "Verificar",
+      verifying: "Verificando...",
+      score: "Pontuação: {{score}}",
+      theme: "Tema: {{theme}}",
+      inputPlaceholder: "Digite sua palavra...",
+      verifyButton: "Verificar",
+      verifyingButton: "Verificando...",
+      validWord: "Palavra válida!",
+      validWordMessage: "Você encontrou uma palavra válida!",
+      invalidWord: "Palavra inválida",
+      invalidWordMessage: "Esta palavra não corresponde aos critérios solicitados.",
+      noWordError: "Por favor, digite uma palavra",
+      error: "Ocorreu um erro",
+      howToPlay: "Encontre uma palavra que contenha as duas letras dadas e corresponda ao tema escolhido.",
+      "exampleWord": "Exemplo: {{word}}",
+      "nextButton": "Próxima rodada"
+    },
+    waitingForPlayersTitle: "Aguardando jogadores",
+    waitingForPlayersMessage: "Por favor, aguarde todos os jogadores enviarem suas palavras.",
+    actionNotAllowedTitle: "Ação não permitida",
+    onlyHostCanAdvance: "Apenas o anfitrião pode avançar para a próxima rodada.",
   },
 
   // Splash Screen

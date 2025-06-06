@@ -156,34 +156,100 @@ export default {
     games: {
       "listen-but-don-t-judge": {
         name: "ESCUCHA PERO NO JUZGUES",
-        description: "Un modo gratuito para divertirse con amigos.",
-        tag: "GRATIS"
+        description: "Un modo gratuito para reírte con amigos.",
+        tags: {
+          free: "GRATIS"
+        }
       },
       "truth-or-dare": {
         name: "VERDAD O RETO",
         description: "El clásico revisado con desafíos exclusivos.",
-        tag: "PREMIUM"
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "never-have-i-ever-hot": {
         name: "NUNCA NUNCA 🔞",
-        description: "Preguntas picantes y atrevidas... ¿Listo para confesar?",
-        tag: "PREMIUM"
+        description: "Preguntas picantes e inapropiadas... ¿Listo para confesar?",
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "genius-or-liar": {
         name: "GENIO O MENTIROSO",
-        description: "Un modo divertido donde debes demostrar tus conocimientos o enfrentar retos.",
-        tag: "PREMIUM"
+        description: "Un modo divertido donde debes demostrar tus conocimientos o enfrentar las consecuencias.",
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "the-hidden-village": {
-        name: "EL PUEBLO ESCONDIDO",
-        description: "Un juego de farol, estrategia y discusiones... para los que disfrutan acusando a sus amigos 😈",
-        tag: "PREMIUM"
+        name: "EL PUEBLO OCULTO",
+        description: "Un juego de engaño, estrategia y discusiones... para los que aman acusar a sus amigos 😈",
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "trap-answer": {
         name: "Respuesta Trampa",
-        tag: "GRATIS",
-        description: "Un quiz donde una respuesta incorrecta te hace perder puntos... ¿Podrás evitar las trampas?"
+        description: "Un quiz donde una respuesta incorrecta te hace perder puntos... ¿Podrás evitar las trampas?",
+        tags: {
+          free: "GRATIS"
+        }
       },
+      "two-letters-one-word": {
+        name: "2 Letras 1 Palabra",
+        description: "Encuentra una palabra que contenga las dos letras dadas y coincida con el tema.",
+        tags: {
+          free: "GRATIS",
+          "new": "NUEVO",
+          "premium": "PREMIUM"
+        },
+        score: "Puntuación: {{score}}",
+        theme: "Tema: {{theme}}",
+        inputPlaceholder: "Introduce tu palabra...",
+        verifyButton: "Verificar",
+        verifyingButton: "Verificando...",
+        validWord: "¡Palabra válida!",
+        validWordMessage: "¡Has encontrado una palabra válida!",
+        invalidWord: "Palabra inválida",
+        invalidWordMessage: "Esta palabra no coincide con los criterios solicitados.",
+        noWordError: "Por favor, introduce una palabra",
+        error: "Ha ocurrido un error",
+        howToPlay: "Encuentra una palabra que contenga las dos letras dadas y coincida con el tema elegido.",
+        title: "¡Fin del juego!",
+        subtitle: "¡Gracias por jugar 2 Letras 1 Palabra!",
+        totalWords: "Palabras encontradas",
+        bestWord: "Mejor palabra",
+        averageScore: "Puntuación media",
+        timePlayed: "Tiempo de juego",
+        newHighScore: "¡Nuevo récord!",
+        shareResults: "Compartir resultados",
+        playAgain: "Jugar de nuevo",
+        "theme.marque": "una marca",
+        "theme.ville": "una ciudad",
+        "theme.prenom": "un nombre",
+        "theme.pays": "un país",
+        "theme.animal": "un animal",
+        "theme.metier": "un trabajo",
+        "theme.sport": "un deporte",
+        "theme.fruit": "una fruta",
+        "theme.legume": "una verdura",
+        "theme.objet": "un objeto",
+        "exampleWord": "Ejemplo: {{word}}",
+        "nextButton": "Siguiente ronda",
+        "noExampleAvailable": "No hay ejemplo disponible",
+      },
+      // Traducciones de temas
+      "theme.marque": "una marca",
+      "theme.ville": "una ciudad",
+      "theme.prenom": "un nombre",
+      "theme.pays": "un país",
+      "theme.animal": "un animal",
+      "theme.metier": "un trabajo",
+      "theme.sport": "un deporte",
+      "theme.fruit": "una fruta",
+      "theme.legume": "una verdura",
+      "theme.objet": "un objeto",
     }
   },
 
@@ -235,20 +301,31 @@ export default {
     results: {
       title: "Resultados finales",
       subtitle: "¡Felicitaciones a todos!",
-      bravo: "¡Felicidades {{name}}!",
+      bravo: "¡Felicitaciones {{name}}!",
       points: "puntos",
       home: "Inicio",
       calculating: "Calculando resultados...",
       podium: {
-        first: "1ª posición",
-        second: "2ª posición",
-        third: "3ª posición",
+        first: "1er lugar",
+        second: "2do lugar",
+        third: "3er lugar",
         others: "Otros jugadores",
         title: "Clasificación del podio",
       },
-      rank: "Puesto",
+      rank: "Posición",
       score: "Puntuación",
       player: "Jugador",
+      "two-letters-one-word": {
+        title: "¡Fin del juego!",
+        subtitle: "¡Gracias por jugar 2 Letras 1 Palabra!",
+        totalWords: "Palabras encontradas",
+        bestWord: "Mejor palabra",
+        averageScore: "Puntuación media",
+        timePlayed: "Tiempo de juego",
+        newHighScore: "¡Nuevo récord!",
+        shareResults: "Compartir resultados",
+        playAgain: "Jugar de nuevo"
+      }
     },
     listenButDontJudge: {
       waiting: "Esperando a otros jugadores...",
@@ -262,7 +339,7 @@ export default {
       errorNext: "Ocurrió un error al pasar a la siguiente ronda",
       noQuestions: "No hay preguntas disponibles",
       endTitle: "¡Fin de la partida!",
-      endSubtitle: "¡Gracias por jugar!"
+      endSubtitle: "¡Gracias por jugar a Verdad o Reto!"
     },
     truthOrDare: {
       truth: "¡Verdad!",
@@ -275,6 +352,7 @@ export default {
       endTitle: "¡Fin de la partida!",
       endSubtitle: "¡Gracias por jugar a Verdad o Reto!"
     },
+    round: "Ronda",
     geniusOrLiar: {
       roundResults: 'Resultados de la Ronda',
       correctAnswerLabel: 'Respuesta Correcta: {{answer}}',
@@ -333,7 +411,24 @@ export default {
       naughtyAnswers: "respuestas traviesas",
       neverButton: "🙅‍♂️ Nunca he...",
       everButton: "🔥 Ya lo he hecho",
-    }
+    },
+    "two-letters-one-word": {
+      score: "Puntuación: {{score}}",
+      theme: "Tema: {{theme}}",
+      inputPlaceholder: "Ingresa tu palabra...",
+      verifyButton: "Verificar",
+      verifyingButton: "Verificando...",
+      validWord: "¡Palabra válida!",
+      validWordMessage: "¡Has encontrado una palabra válida!",
+      invalidWord: "Palabra inválida",
+      invalidWordMessage: "Esta palabra no cumple con los criterios requeridos.",
+      noWordError: "Por favor ingresa una palabra",
+      error: "Ha ocurrido un error"
+    },
+    waitingForPlayersTitle: "Esperando jugadores",
+    waitingForPlayersMessage: "Por favor, espera a que todos los jugadores envíen su palabra.",
+    actionNotAllowedTitle: "Acción no permitida",
+    onlyHostCanAdvance: "Solo el anfitrión puede avanzar a la siguiente ronda.",
   },
 
   // Splash Screen
@@ -540,5 +635,10 @@ export default {
     roomCode: "Código de la sala",
     instruction: "Escanea el código QR o comparte este código para invitar a tus amigos a la sala.",
     shareButton: "Compartir"
+  },
+
+  // Common translations
+  common: {
+    ok: 'OK',
   },
 }; 

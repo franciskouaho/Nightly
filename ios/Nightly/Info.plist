@@ -27,7 +27,7 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>cosmic-quest</string>
+          <string>nightly</string>
           <string>com.emplica.nightly</string>
         </array>
       </dict>

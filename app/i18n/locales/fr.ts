@@ -159,34 +159,87 @@ export default {
       "listen-but-don-t-judge": {
         name: "ON ÉCOUTE MAIS ON NE JUGE PAS",
         description: "Un mode gratuit pour rigoler tranquillement entre potes.",
-        tag: "GRATUIT"
+        tags: {
+          free: "GRATUIT"
+        }
       },
       "truth-or-dare": {
         name: "ACTION OU VÉRITÉ",
         description: "Le classique revisité avec des défis exclusifs.",
-        tag: "PREMIUM"
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "never-have-i-ever-hot": {
         name: "JE N'AI JAMAIS 🔞",
         description: "Questions coquines et déplacées... Prêts à assumer ?",
-        tag: "PREMIUM"
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "genius-or-liar": {
         name: "GENIE OU MENTEUR",
         description: "Un mode ludique où vous devez prouver vos connaissances ou assumer vos gages.",
-        tag: "PREMIUM"
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "the-hidden-village": {
         name: "LE VILLAGE CACHÉ",
         description: "Un jeu de bluff, de stratégie et de discussions... pour ceux qui aiment accuser leurs potes 😈",
-        tag: "PREMIUM"
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "trap-answer": {
         name: "Question Piège",
-        tag: "GRATUIT",
-        description: "Un quiz où une mauvaise réponse te fait perdre des points... Pourras-tu éviter les pièges ?"
-      }
+        description: "Un quiz où une mauvaise réponse te fait perdre des points... Pourras-tu éviter les pièges ?",
+        tags: {
+          free: "GRATUIT"
+        }
+      },
+      "two-letters-one-word": {
+        name: "2 Lettres 1 Mot",
+        description: "Trouvez un mot qui contient les deux lettres données et correspond au thème.",
+        tags: {
+          free: "GRATUIT",
+          "new": "NOUVEAU",
+          "premium": "PREMIUM"
+        },
+        score: "Score : {{score}}",
+        theme: "Thème : {{theme}}",
+        inputPlaceholder: "Entrez votre mot...",
+        verifyButton: "Vérifier",
+        verifyingButton: "Vérification...",
+        validWord: "Mot valide !",
+        validWordMessage: "Vous avez trouvé un mot valide !",
+        invalidWord: "Mot invalide",
+        invalidWordMessage: "Ce mot ne correspond pas aux critères demandés.",
+        noWordError: "Veuillez entrer un mot",
+        error: "Une erreur est survenue",
+        howToPlay: "Trouvez un mot qui contient les deux lettres données et correspond au thème choisi.",
+        // Traductions des thèmes
+        "theme.marque": "une marque",
+        "theme.ville": "une ville",
+        "theme.prenom": "un prénom",
+        "theme.pays": "un pays",
+        "theme.animal": "un animal",
+        "theme.metier": "un métier",
+        "theme.sport": "un sport",
+        "theme.fruit": "un fruit",
+        "theme.legume": "un légume",
+        "theme.objet": "un objet",
+        "exampleWord": "Exemple : {{word}}",
+        "nextButton": "Tour suivant",
+        "playerCountError": "Le jeu se joue de 1 à 4 joueurs.",
+        "noExampleAvailable": "Aucun exemple disponible",
+      },
     }
+  },
+
+  // Traductions communes
+  common: {
+    ok: 'OK',
   },
 
   // Paramètres
@@ -253,6 +306,28 @@ export default {
       rank: "Rang",
       score: "Score",
       player: "Joueur",
+      "two-letters-one-word": {
+        title: "Fin de la partie !",
+        subtitle: "Merci d'avoir joué à 2 Lettres 1 Mot !",
+        totalWords: "Mots trouvés",
+        bestWord: "Meilleur mot",
+        averageScore: "Score moyen",
+        timePlayed: "Temps de jeu",
+        newHighScore: "Nouveau meilleur score !",
+        shareResults: "Partager les résultats",
+        playAgain: "Rejouer",
+        // Traductions des thèmes
+        "theme.marque": "une marque",
+        "theme.ville": "une ville",
+        "theme.prenom": "un prénom",
+        "theme.pays": "un pays",
+        "theme.animal": "un animal",
+        "theme.metier": "un métier",
+        "theme.sport": "un sport",
+        "theme.fruit": "un fruit",
+        "theme.legume": "un légume",
+        "theme.objet": "un objet"
+      }
     },
     player: 'le joueur',
     listenButDontJudge: {
@@ -304,6 +379,7 @@ export default {
       continue: 'Continuer',
     },
     continue: 'Continuer',
+    round: "Tour",
     geniusOrLiar: {
       roundResults: 'Résultats du tour',
       correctAnswerLabel: 'Bonne réponse : {{answer}}',
@@ -403,7 +479,26 @@ export default {
         traitor: 'Traître : éliminer tous les autres sans se faire démasquer.',
         village: 'Village : découvrir le traître avant qu\'il ne gagne.'
       }
-    }
+    },
+    twoLettersOneWord: {
+      enterWord: "Entrez votre mot...",
+      verify: "Vérifier",
+      verifying: "Vérification...",
+      score: "Score",
+      theme: "Thème",
+      error: {
+        emptyWord: "Veuillez entrer un mot",
+        verificationFailed: "Une erreur est survenue lors de la vérification"
+      },
+      success: {
+        validWord: "Bravo ! Votre mot est valide !",
+        invalidWord: "Dommage ! Votre mot ne correspond pas aux critères."
+      }
+    },
+    waitingForPlayersTitle: "En attente des joueurs",
+    waitingForPlayersMessage: "Veuillez attendre que tous les joueurs aient soumis leur mot.",
+    actionNotAllowedTitle: "Action non autorisée",
+    onlyHostCanAdvance: "Seul l'hôte peut passer au tour suivant.",
   },
 
   // Splash Screen

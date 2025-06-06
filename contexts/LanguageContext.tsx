@@ -49,22 +49,33 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const loadLanguage = async () => {
       try {
+        console.log('[DEBUG LanguageContext] Starting language load process');
         const savedLanguage = await AsyncStorage.getItem('@app_language');
+        console.log('[DEBUG LanguageContext] Saved language from AsyncStorage:', savedLanguage);
+        
         if (savedLanguage) {
+          console.log('[DEBUG LanguageContext] Using saved language:', savedLanguage);
           setLanguageState(savedLanguage);
           await i18nChangeLanguage(savedLanguage);
         } else {
-          // Utiliser la langue du système si aucune langue n'est sauvegardée
+          console.log('[DEBUG LanguageContext] No saved language found, checking device language');
           const deviceLanguage = Localization.locale.split('-')[0];
+          console.log('[DEBUG LanguageContext] Device language:', deviceLanguage);
+          
           const supportedLanguage = LANGUAGES.find(lang => lang.id === deviceLanguage);
+          console.log('[DEBUG LanguageContext] Supported language found:', supportedLanguage);
+          
           if (supportedLanguage) {
+            console.log('[DEBUG LanguageContext] Setting language to:', supportedLanguage.id);
             setLanguageState(supportedLanguage.id);
             await AsyncStorage.setItem('@app_language', supportedLanguage.id);
             await i18nChangeLanguage(supportedLanguage.id);
+          } else {
+            console.log('[DEBUG LanguageContext] No supported language found, keeping default (fr)');
           }
         }
       } catch (error) {
-        console.error('Erreur lors du chargement de la langue:', error);
+        console.error('[DEBUG LanguageContext] Error during language load:', error);
       }
     };
     

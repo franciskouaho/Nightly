@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, Alert, Clipboard, Share, GestureResponderEvent } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, Alert, Clipboard, Share, GestureResponderEvent, ViewStyle, TextStyle, ImageStyle } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons, FontAwesome5, Ionicons } from '@expo/vector-icons';
@@ -17,6 +17,31 @@ import { getQuestions } from '../game/trap-answer/questions';
 import { TrapGameState } from '@/types/types';
 import { useLanguage } from '@/contexts/LanguageContext';
 
+// Liste des thèmes possibles pour 2 Lettres 1 Mot
+const TWO_LETTERS_ONE_WORD_THEMES = [
+  'une marque',
+  'une ville',
+  'un prénom',
+  'un pays',
+  'un animal',
+  'un métier',
+  'un sport',
+  'un fruit',
+  'un légume',
+  'un objet'
+] as const;
+
+// Génère deux lettres aléatoires pour 2 Lettres 1 Mot
+const generateTwoLettersOneWordRandomLetters = (): [string, string] => {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  let firstLetter = alphabet[Math.floor(Math.random() * alphabet.length)] as string;
+  let secondLetter: string;
+  do {
+    secondLetter = alphabet[Math.floor(Math.random() * alphabet.length)] as string;
+  } while (secondLetter === firstLetter);
+  return [firstLetter, secondLetter];
+};
+
 // Configuration des jeux avec le nombre minimum de joueurs requis
 const GAME_CONFIG = {
   'truth-or-dare': { minPlayers: 2 },
@@ -24,7 +49,8 @@ const GAME_CONFIG = {
   'the-hidden-village': { minPlayers: 5 },
   'trap-answer': { minPlayers: 2 },
   'never-have-i-ever-hot': { minPlayers: 2 },
-  'genius-or-liar': { minPlayers: 2 }
+  'genius-or-liar': { minPlayers: 2 },
+  'two-letters-one-word': { minPlayers: 1 }
 };
 
 // Type pour l'utilisateur
@@ -74,6 +100,67 @@ interface RoomCreationData {
   [key: string]: any; // Pour les propriétés additionnelles
 }
 
+interface RoomScreenStyles {
+  container: ViewStyle;
+  background: ViewStyle;
+  loadingContainer: ViewStyle;
+  loadingText: TextStyle;
+  topBar: ViewStyle;
+  topBarRow: ViewStyle;
+  backButton: ViewStyle;
+  topBarTitleContainer: ViewStyle;
+  topBarTitle: TextStyle;
+  shareButton: ViewStyle;
+  codeContainer: ViewStyle;
+  codeLabel: TextStyle;
+  codeBox: ViewStyle;
+  codeText: TextStyle;
+  playersContainer: ViewStyle;
+  playersHeaderRow: ViewStyle;
+  rulesButtonRow: ViewStyle;
+  rulesText: TextStyle;
+  rulesCircle: ViewStyle;
+  rulesQuestionMark: TextStyle;
+  sectionTitle: TextStyle;
+  playerCard: ViewStyle;
+  playerAvatar: ImageStyle;
+  playerInfo: ViewStyle;
+  playerName: TextStyle;
+  hostBadge: ViewStyle;
+  hostText: TextStyle;
+  readyBadge: ViewStyle;
+  readyText: TextStyle;
+  readyButton: ViewStyle;
+  readyButtonGradient: ViewStyle;
+  readyButtonText: TextStyle;
+  rightContainer: ViewStyle;
+  headerButtons: ViewStyle;
+  inviteButton: ViewStyle;
+  gameControlsContainer: ViewStyle;
+  roundSelectorContainer: ViewStyle;
+  roundSelectorButton: ViewStyle;
+  roundSelectorGradient: ViewStyle;
+  roundSelectorText: TextStyle;
+  roundSelectorIconContainer: ViewStyle;
+  starIcon: TextStyle;
+  smallStarIcon: TextStyle;
+  roundOptionsContainer: ViewStyle;
+  roundOptionsRow: ViewStyle;
+  roundOption: ViewStyle;
+  roundOptionText: TextStyle;
+  selectedRoundOption: ViewStyle;
+  selectedRoundOptionText: TextStyle;
+  startButton: ViewStyle;
+  startButtonText: TextStyle;
+  leaveButton: ViewStyle;
+  leaveButtonText: TextStyle;
+  iconButton: ViewStyle;
+  minPlayersWarning: TextStyle;
+  disabledButton: ViewStyle;
+  centeredWarning: TextStyle;
+  minPlayersText: TextStyle;
+}
+
 /**
  * Crée une salle dans Firebase avec gestion de timeout et d'erreurs améliorée
  * @param roomData Données de la salle à créer
@@ -119,7 +206,7 @@ export const createFirebaseRoom = async (roomData: RoomCreationData, timeoutMs =
   try {
     // Créer une référence à la collection
     const roomsCollection = collection(db, 'rooms');
-    
+
     // Mesurer le temps d'exécution
     const startTime = Date.now();
     
@@ -198,6 +285,17 @@ export default function RoomScreen() {
   const { t } = useTranslation();
   const { language, isRTL, getGameContent } = useLanguage();
 
+  // Debugging useEffect
+  useEffect(() => {
+    if (room) {
+      console.log('DEBUG MIN PLAYERS CONDITION:', {
+        gameId: room.gameId,
+        playersLength: room.players?.length,
+        minRequired: getMinPlayersForGame(room.gameId),
+      });
+    }
+  }, [room?.gameId, room?.players?.length]);
+
   useEffect(() => {
     if (!id || !user) return;
 
@@ -216,24 +314,21 @@ export default function RoomScreen() {
 
         // Redirection automatique pour tous les joueurs quand la partie commence
         if (roomData.status === 'playing' && roomData.gameDocId) {
-          console.log('[DEBUG] Redirection vers le jeu:', roomData.gameMode, roomData.gameDocId);
-          
-          // Attendre un court instant pour s'assurer que le document de jeu est créé
-          setTimeout(() => {
-            if (roomData.gameMode === 'never-have-i-ever-hot') {
-              router.replace(`/game/never-have-i-ever-hot/${roomData.gameDocId}`);
-            } else if (roomData.gameMode === 'truth-or-dare') {
-              router.replace(`/game/truth-or-dare/${roomData.gameDocId}`);
-            } else if (roomData.gameMode === 'listen-but-don-t-judge') {
-              router.replace(`/game/listen-but-don-t-judge/${roomData.gameDocId}`);
-            } else if (roomData.gameMode === 'the-hidden-village') {
-              router.replace(`/game/the-hidden-village/${roomData.gameDocId}`);
-            } else if (roomData.gameMode === 'trap-answer') {
-              router.replace(`/game/trap-answer/${roomData.gameDocId}`);
-            } else if (roomData.gameMode === 'genius-or-liar') {
-              router.replace(`/game/genius-or-liar/${roomData.gameDocId}`);
-            }
-          }, 500);
+          if (roomData.gameMode === 'truth-or-dare') {
+            router.replace(`/game/truth-or-dare/${roomData.gameDocId}`);
+          } else if (roomData.gameMode === 'listen-but-don-t-judge') {
+            router.replace(`/game/listen-but-don-t-judge/${roomData.gameDocId}`);
+          } else if (roomData.gameMode === 'the-hidden-village') {
+            router.replace(`/game/the-hidden-village/${roomData.gameDocId}`);
+          } else if (roomData.gameMode === 'trap-answer') {
+            router.replace(`/game/trap-answer/${roomData.gameDocId}`);
+          } else if (roomData.gameMode === 'never-have-i-ever-hot') {
+            router.replace(`/game/never-have-i-ever-hot/${roomData.gameDocId}`);
+          } else if (roomData.gameMode === 'genius-or-liar') {
+            router.replace(`/game/genius-or-liar/${roomData.gameDocId}`);
+          } else if (roomData.gameMode === 'two-letters-one-word') {
+            router.replace(`/game/two-letters-one-word/${roomData.gameDocId}`);
+          }
           return;
         }
       } else {
@@ -258,10 +353,14 @@ export default function RoomScreen() {
     if (!room || !user) return;
 
     const minPlayers = getMinPlayersForGame(room.gameId);
+    
+    // Déterminer le nombre minimum de joueurs à afficher dans l'alerte
+    const displayMinPlayers = room.gameId === 'two-letters-one-word' ? 1 : minPlayers;
+
     if (room.players.length < minPlayers) {
       Alert.alert(
         t('room.notEnoughPlayers'),
-        t('room.minPlayersRequired', { count: minPlayers })
+        t('room.minPlayersRequired', { count: displayMinPlayers })
       );
       return;
     }
@@ -316,96 +415,122 @@ export default function RoomScreen() {
       const gameDocRef = doc(gamesCollection);
       const gameDocId = gameDocRef.id;
 
-      // Récupérer les questions pour le mode de jeu 'never-have-i-ever-hot'
-      let gameContent;
-      try {
-        gameContent = await getGameContent('never-have-i-ever-hot' as GameMode);
-      } catch (error) {
-        console.error('Erreur lors de la récupération du contenu du jeu:', error);
-        Alert.alert('Erreur', 'Impossible de démarrer la partie car les questions n\'ont pas pu être chargées.');
-        setIsStartingGame(false);
-        return;
+      // Assurer que chaque joueur a un champ 'name' avant de le copier dans le document de jeu
+      const playersForGameDoc = room.players.map(player => ({
+          id: player.id,
+          username: player.username || player.displayName || 'Joueur',
+          displayName: player.displayName || player.username || 'Joueur',
+          name: player.displayName || player.username || 'Joueur Inconnu',
+          isHost: player.isHost || false,
+          isReady: player.isReady || false,
+          avatar: player.avatar || '',
+          level: player.level || 1,
+          score: 0,
+          history: [],
+      }));
+
+      if (room.gameId === 'two-letters-one-word') {
+        console.log('[DEBUG] Démarrage du jeu Two Letters One Word');
+        const gameDataToSet = {
+          gameMode: room.gameId || 'unknown', // Fallback
+          players: playersForGameDoc || [], // Fallback
+          status: 'playing',
+          currentRound: 1,
+          totalRounds: selectedRounds || 5, // Fallback
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          host: user?.uid || 'unknown', // Fallback
+          scores: {}, // Scores map
+          history: {}, // History map for valid answers per player
+          currentLetters: generateTwoLettersOneWordRandomLetters() || ['', ''], // Fallback
+          currentTheme: TWO_LETTERS_ONE_WORD_THEMES[Math.floor(Math.random() * TWO_LETTERS_ONE_WORD_THEMES.length)] || 'general', // Fallback
+        };
+        console.log('[DEBUG Firestore Data]', JSON.stringify(gameDataToSet)); // Log the data object
+        await setDoc(gameDocRef, gameDataToSet);
+
+      } else { // Logic for other game modes that use questions
+        console.log('[DEBUG] Démarrage d\'un jeu basé sur des questions:', room.gameId);
+        // Récupérer les questions pour le mode de jeu
+        let gameContent;
+        try {
+          gameContent = await getGameContent(room.gameId as GameMode);
+        } catch (error) {
+          console.error('Erreur lors de la récupération du contenu du jeu:', error);
+          Alert.alert('Erreur', 'Impossible de démarrer la partie car les questions n\'ont pas pu être chargées.');
+          setIsStartingGame(false);
+          return;
+        }
+
+        const questionsArr = gameContent?.questions;
+
+        if (!questionsArr || !Array.isArray(questionsArr) || questionsArr.length === 0) {
+          console.error('Aucune question disponible pour ce mode de jeu:', room.gameId);
+          Alert.alert('Erreur', 'Impossible de démarrer la partie car aucune question n\'est disponible pour ce mode de jeu.');
+          setIsStartingGame(false);
+          return;
+        }
+
+        // Sélectionner la première question aléatoirement
+        const firstQuestion = questionsArr[Math.floor(Math.random() * questionsArr.length)];
+
+        if (!firstQuestion) {
+          console.error('Impossible de sélectionner la première question.');
+          Alert.alert('Erreur', 'Impossible de démarrer la partie car la première question n\'a pas pu être sélectionnée.');
+          setIsStartingGame(false);
+          return;
+        }
+
+        await setDoc(gameDocRef, {
+          gameMode: room.gameId,
+          players: playersForGameDoc,
+          status: 'playing',
+          currentRound: 1,
+          totalRounds: selectedRounds,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          host: user.uid,
+          scores: {},
+          history: {},
+          naughtyAnswers: {},
+          targetPlayer: playersForGameDoc[0],
+          currentQuestion: {
+               id: String(Math.random()),
+               text: typeof firstQuestion.text === 'string' ? firstQuestion.text : '',
+               theme: (firstQuestion as any).theme || 'general',
+               roundNumber: 1,
+          },
+          askedQuestions: [typeof firstQuestion.text === 'string' ? firstQuestion.text : ''],
+          phase: GamePhase.QUESTION,
+        });
       }
-
-      const questionsArr = gameContent?.questions;
-
-      if (!questionsArr || !Array.isArray(questionsArr) || questionsArr.length === 0) {
-        console.error('Aucune question disponible pour ce mode de jeu:', room.gameId);
-        Alert.alert('Erreur', 'Impossible de démarrer la partie car aucune question n\'est disponible pour ce mode de jeu.');
-        setIsStartingGame(false);
-        return;
-      }
-
-      // Sélectionner la première question aléatoirement
-      const firstQuestion = questionsArr[Math.floor(Math.random() * questionsArr.length)];
-
-      if (!firstQuestion) {
-        console.error('Impossible de sélectionner la première question.');
-        Alert.alert('Erreur', 'Impossible de démarrer la partie car la première question n\'a pas pu être sélectionnée.');
-        setIsStartingGame(false);
-        return;
-      }
-      
-      // Assurer que la question sélectionnée a une structure correcte pour le stockage
-      const questionToStore = {
-        id: String(Math.random()), // Générer un ID unique pour la question dans le contexte du jeu
-        text: typeof firstQuestion.text === 'string' ? firstQuestion.text : '',
-        theme: (firstQuestion as any).theme || 'hot', // Utiliser le thème si disponible, sinon 'hot'
-        roundNumber: 1, // C'est la première question (round 1)
-      };
-
-      await setDoc(gameDocRef, {
-        gameMode: room.gameId,
-        players: room.players,
-        status: 'playing',
-        currentRound: 1,
-        totalRounds: selectedRounds,
-        // Changer la phase de 'waiting' à 'question' car on a déjà la première question
-        phase: GamePhase.QUESTION,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        host: user.uid,
-        scores: {},
-        naughtyAnswers: {},
-        targetPlayer: room.players[0],
-        currentQuestion: questionToStore, // Inclure la première question formatée
-        askedQuestions: [questionToStore.text], // Ajouter la première question (texte) à la liste des questions posées
-      });
 
       // Mettre à jour la salle avec l'ID du document de jeu et le mode de jeu
       await updateDoc(doc(db, 'rooms', room.id), {
         status: 'playing',
-        gameDocId: gameDocRef.id,
+        gameDocId: gameDocId,
         gameMode: room.gameId
       });
 
       // Rediriger vers le jeu
-      console.log('[DEBUG] Redirection vers le jeu:', room.gameId, gameDocRef.id);
-      
+      console.log('[DEBUG] Redirection vers le jeu:', room.gameId, gameDocId);
+
       switch (room.gameId) {
         case 'never-have-i-ever-hot':
-          router.replace(`/game/never-have-i-ever-hot/${gameDocRef.id}`);
-          break;
         case 'truth-or-dare':
-          router.replace(`/game/truth-or-dare/${gameDocRef.id}`);
-          break;
         case 'listen-but-don-t-judge':
-          router.replace(`/game/listen-but-don-t-judge/${gameDocRef.id}`);
-          break;
         case 'the-hidden-village':
-          router.replace(`/game/the-hidden-village/${gameDocRef.id}`);
-          break;
         case 'trap-answer':
-          router.replace(`/game/trap-answer/${gameDocRef.id}`);
-          break;
         case 'genius-or-liar':
-          router.replace(`/game/genius-or-liar/${gameDocRef.id}`);
+        case 'two-letters-one-word':
+          router.replace(`/game/${room.gameId}/${gameDocId}`);
           break;
         default:
           console.error('Mode de jeu non reconnu:', room.gameId);
           Alert.alert('Erreur', 'Mode de jeu non reconnu');
+          setIsStartingGame(false);
       }
-    } catch (error) {
+
+    } catch (error: any) {
       console.error('Erreur lors du démarrage du jeu:', error);
       Alert.alert('Erreur', 'Impossible de démarrer le jeu');
     } finally {
@@ -513,6 +638,8 @@ export default function RoomScreen() {
     return null;
   }
 
+  const minPlayersForGame = room.gameId ? getMinPlayersForGame(room.gameId) : -1; // Calculate minimum players
+
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
@@ -552,7 +679,7 @@ export default function RoomScreen() {
         </View>
 
         {/* Message du minimum de joueurs déplacé ici */}
-        {room.players.length < getMinPlayersForGame(room.gameId) && (
+        {room && room.players && room.gameId && room.players.length <= getMinPlayersForGame(room.gameId) && (
           <Text style={[styles.minPlayersWarning, styles.centeredWarning]}>
             {t('room.minPlayersRequired', { count: getMinPlayersForGame(room.gameId) })}
           </Text>
@@ -784,7 +911,7 @@ export default function RoomScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create<RoomScreenStyles>({
   container: {
     flex: 1,
   },
@@ -1107,5 +1234,11 @@ const styles = StyleSheet.create({
   centeredWarning: {
     textAlign: 'center',
     marginBottom: 10,
+  },
+  minPlayersText: {
+    color: '#ccc', // Couleur grise pour l'information permanente
+    fontSize: 14,
+    marginTop: 5,
+    textAlign: 'center',
   },
 });

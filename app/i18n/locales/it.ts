@@ -157,32 +157,44 @@ export default {
       "listen-but-don-t-judge": {
         name: "ASCOLTA MA NON GIUDICARE",
         description: "Una modalità gratuita per divertirsi con gli amici.",
-        tag: "GRATIS"
+        tags: {
+          free: "GRATIS"
+        }
       },
       "truth-or-dare": {
         name: "VERITÀ O SFOIDA",
         description: "Il classico rivisitato con sfide esclusive.",
-        tag: "PREMIUM"
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "never-have-i-ever-hot": {
-        name: "MAI MAI 🔞",
-        description: "Domande piccanti e audaci... Pronto a confessare?",
-        tag: "PREMIUM"
+        name: "NON HO MAI 🔞",
+        description: "Domande piccanti e inappropriate... Pronto a confessare?",
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "genius-or-liar": {
         name: "GENIO O BUGIARDO",
-        description: "Una modalità divertente in cui devi dimostrare le tue conoscenze o affrontare sfide.",
-        tag: "PREMIUM"
+        description: "Una modalità divertente dove devi dimostrare le tue conoscenze o affrontare le conseguenze.",
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "the-hidden-village": {
         name: "IL VILLAGGIO NASCOSTO",
         description: "Un gioco di bluff, strategia e discussioni... per chi ama accusare gli amici 😈",
-        tag: "PREMIUM"
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "trap-answer": {
         name: "Risposta Trappola",
-        tag: "GRATIS",
-        description: "Un quiz in cui una risposta sbagliata ti fa perdere punti... Riuscirai a evitare le trappole?"
+        description: "Un quiz dove una risposta sbagliata ti fa perdere punti... Riuscirai a evitare le trappole?",
+        tags: {
+          free: "GRATIS"
+        }
       },
       'avatar-dragon': {
         name: 'Drago',
@@ -195,7 +207,47 @@ export default {
       'avatar-phoenix': {
         name: 'Fenice',
       },
+      "two-letters-one-word": {
+        name: "2 Lettere 1 Parola",
+        description: "Trova una parola che contiene le due lettere date e corrisponde al tema.",
+        tags: {
+          free: "GRATIS",
+          "new": "NUOVO",
+          "premium": "PREMIUM"
+        },
+        score: "Punteggio: {{score}}",
+        theme: "Tema: {{theme}}",
+        inputPlaceholder: "Inserisci la tua parola...",
+        verifyButton: "Verifica",
+        verifyingButton: "Verifica...",
+        validWord: "Parola valida!",
+        validWordMessage: "Hai trovato una parola valida!",
+        invalidWord: "Parola non valida",
+        invalidWordMessage: "Questa parola non corrisponde ai criteri richiesti.",
+        noWordError: "Si prega di inserire una parola",
+        error: "Si è verificato un errore",
+        howToPlay: "Trova una parola che contiene le due lettere date e corrisponde al tema scelto.",
+        // Traduzioni dei temi
+        "theme.marque": "un marchio",
+        "theme.ville": "una città",
+        "theme.prenom": "un nome",
+        "theme.pays": "un paese",
+        "theme.animal": "un animale",
+        "theme.metier": "un lavoro",
+        "theme.sport": "uno sport",
+        "theme.fruit": "un frutto",
+        "theme.legume": "una verdura",
+        "theme.objet": "un oggetto",
+        "exampleWord": "Esempio: {{word}}",
+        "nextButton": "Prossimo turno",
+        "noExampleAvailable": "Nessun esempio disponibile",
+      },
     }
+  },
+
+  // Common translations
+  common: {
+    ok: 'OK',
   },
 
   // Settings
@@ -260,6 +312,28 @@ export default {
       rank: "Posizione",
       score: "Punteggio",
       player: "Giocatore",
+      "two-letters-one-word": {
+        title: "Fine della partita!",
+        subtitle: "Grazie per aver giocato a 2 Lettere 1 Parola!",
+        totalWords: "Parole trovate",
+        bestWord: "Migliore parola",
+        averageScore: "Punteggio medio",
+        timePlayed: "Tempo di gioco",
+        newHighScore: "Nuovo record!",
+        shareResults: "Condividi risultati",
+        playAgain: "Gioca di nuovo",
+        // Traduzioni dei temi
+        "theme.marque": "un marchio",
+        "theme.ville": "una città",
+        "theme.prenom": "un nome",
+        "theme.pays": "un paese",
+        "theme.animal": "un animale",
+        "theme.metier": "un lavoro",
+        "theme.sport": "uno sport",
+        "theme.fruit": "un frutto",
+        "theme.legume": "una verdura",
+        "theme.objet": "un oggetto"
+      }
     },
     listenButDontJudge: {
       waiting: "In attesa degli altri giocatori...",
@@ -344,6 +418,21 @@ export default {
       naughtyAnswers: "risposte birichine",
       neverButton: "🙅‍♂️ Non ho mai...",
       everButton: "🔥 L'ho già fatto",
+    },
+    "two-letters-one-word": {
+      enterWord: "Inserisci la tua parola...",
+      verify: "Verifica",
+      verifying: "Verifica in corso...",
+      score: "Punteggio: {{score}}",
+      theme: "Tema: {{theme}}",
+      error: {
+        emptyWord: "Inserisci una parola",
+        verificationFailed: "Si è verificato un errore durante la verifica"
+      },
+      success: {
+        validWord: "Congratulazioni! La tua parola è valida!",
+        invalidWord: "Peccato! La tua parola non corrisponde ai criteri."
+      }
     }
   },
 

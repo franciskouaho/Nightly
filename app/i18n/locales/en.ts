@@ -157,34 +157,85 @@ export default {
       "listen-but-don-t-judge": {
         name: "LISTEN BUT DON'T JUDGE",
         description: "A free mode to have fun with friends.",
-        tag: "FREE"
+        tags: {
+          free: "FREE"
+        }
       },
       "truth-or-dare": {
         name: "TRUTH OR DARE",
-        description: "The classic game revisited with exclusive challenges.",
-        tag: "PREMIUM"
+        description: "The classic revisited with exclusive challenges.",
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "never-have-i-ever-hot": {
         name: "NEVER HAVE I EVER 🔞",
-        description: "Naughty and cheeky questions... Ready to confess?",
-        tag: "PREMIUM"
+        description: "Naughty and inappropriate questions... Ready to own up?",
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "genius-or-liar": {
         name: "GENIUS OR LIAR",
-        description: "A fun mode where you must prove your knowledge or face dares.",
-        tag: "PREMIUM"
+        description: "A fun mode where you must prove your knowledge or face the consequences.",
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "the-hidden-village": {
         name: "THE HIDDEN VILLAGE",
         description: "A game of bluff, strategy and discussions... for those who love accusing their friends 😈",
-        tag: "PREMIUM"
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "trap-answer": {
         name: "Trap Answer",
-        tag: "FREE",
-        description: "A quiz where one wrong answer makes you lose points... Can you avoid the traps?"
+        description: "A quiz where a wrong answer makes you lose points... Can you avoid the traps?",
+        tags: {
+          free: "FREE"
+        }
       },
-    }
+      "two-letters-one-word": {
+        name: "2 Letters 1 Word",
+        description: "Find a word that contains the two given letters and matches the theme.",
+        tags: {
+          free: "FREE",
+          "new": "NEW",
+          "premium": "PREMIUM"
+        },
+        score: "Score: {{score}}",
+        theme: "Theme: {{theme}}",
+        inputPlaceholder: "Enter your word...",
+        verifyButton: "Verify",
+        verifyingButton: "Verifying...",
+        validWord: "Valid word!",
+        validWordMessage: "You found a valid word!",
+        invalidWord: "Invalid word",
+        invalidWordMessage: "This word does not match the requested criteria.",
+        noWordError: "Please enter a word",
+        error: "An error occurred",
+        howToPlay: "Find a word that contains the two given letters and matches the chosen theme.",
+        // Theme translations
+        "theme.marque": "a brand",
+        "theme.ville": "a city",
+        "theme.prenom": "a first name",
+        "theme.pays": "a country",
+        "theme.animal": "an animal",
+        "theme.metier": "a job",
+        "theme.sport": "a sport",
+        "theme.fruit": "a fruit",
+        "theme.legume": "a vegetable",
+        "theme.objet": "an object",
+        "exampleWord": "Example: {{word}}",
+        "nextButton": "Next round",
+        "noExampleAvailable": "No example available",
+      },
+    },
+    waitingForPlayersTitle: "Waiting for players",
+    waitingForPlayersMessage: "Please wait for all players to submit their word.",
+    actionNotAllowedTitle: "Action not allowed",
+    onlyHostCanAdvance: "Only the host can advance to the next round.",
   },
 
   // Settings
@@ -233,9 +284,9 @@ export default {
     noMode: "No game mode found in the games document.",
     loading: "Loading...",
     results: {
-      title: "Final results",
-      subtitle: "Congratulations everyone!",
-      bravo: "Congrats {{name}}!",
+      title: "Final Results",
+      subtitle: "Congratulations to all!",
+      bravo: "Congratulations {{name}}!",
       points: "points",
       home: "Home",
       calculating: "Calculating results...",
@@ -244,13 +295,36 @@ export default {
         second: "2nd place",
         third: "3rd place",
         others: "Other players",
-        title: "Podium ranking",
+        title: "Podium Ranking",
       },
       rank: "Rank",
       score: "Score",
       player: "Player",
+      "two-letters-one-word": {
+        title: "Game Over!",
+        subtitle: "Thanks for playing 2 Letters 1 Word!",
+        totalWords: "Words found",
+        bestWord: "Best word",
+        averageScore: "Average score",
+        timePlayed: "Time played",
+        newHighScore: "New high score!",
+        shareResults: "Share results",
+        playAgain: "Play again",
+        // Theme translations
+        "theme.marque": "a brand",
+        "theme.ville": "a city",
+        "theme.prenom": "a first name",
+        "theme.pays": "a country",
+        "theme.animal": "an animal",
+        "theme.metier": "a job",
+        "theme.sport": "a sport",
+        "theme.fruit": "a fruit",
+        "theme.legume": "a vegetable",
+        "theme.objet": "an object"
+      }
     },
     player: 'the player',
+    round: "Round",
     listenButDontJudge: {
       waiting: "Waiting for other players...",
       waitingVote: "Waiting for the target player's vote...",
@@ -260,7 +334,6 @@ export default {
       next: "Next round",
       voteTitle: "Choose the best answer",
       answerPlaceholder: "Write your answer here...",
-      round: "Round",
       errorSubmit: "Unable to submit answer",
       errorVote: "Unable to submit vote",
       errorNext: "An error occurred when moving to the next round",
@@ -394,6 +467,19 @@ export default {
         traitor: 'Traitor: eliminate everyone else without being caught.',
         village: 'Village: discover the traitor before they win.'
       }
+    },
+    twoLettersOneWord: {
+      score: "Score: {{score}}",
+      theme: "Theme: {{theme}}",
+      inputPlaceholder: "Enter your word...",
+      verifyButton: "Verify",
+      verifyingButton: "Verifying...",
+      validWord: "Valid word!",
+      validWordMessage: "You found a valid word!",
+      invalidWord: "Invalid word",
+      invalidWordMessage: "This word doesn't match the required criteria.",
+      noWordError: "Please enter a word",
+      error: "An error occurred"
     }
   },
 
@@ -606,5 +692,10 @@ export default {
     roomCode: "Room Code",
     instruction: "Scan the QR code or share this code to invite your friends to the room.",
     shareButton: "Share"
+  },
+
+  // Common translations
+  common: {
+    ok: 'OK',
   },
 }; 

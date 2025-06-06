@@ -156,33 +156,45 @@ export default {
     games: {
       "listen-but-don-t-judge": {
         name: "ZUHÖREN ABER NICHT URTEILEN",
-        description: "Ein kostenloser Modus zum Spaß mit Freunden.",
-        tag: "KOSTENLOS"
+        description: "Ein kostenloser Modus zum Spaß haben mit Freunden.",
+        tags: {
+          free: "KOSTENLOS"
+        }
       },
       "truth-or-dare": {
         name: "WAHRHEIT ODER PFICHT",
         description: "Der Klassiker neu interpretiert mit exklusiven Herausforderungen.",
-        tag: "PREMIUM"
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "never-have-i-ever-hot": {
-        name: "NOCH NIE 🔞",
-        description: "Freche und pikante Fragen... Bereit zu gestehen?",
-        tag: "PREMIUM"
+        name: "ICH HABE NOCH NIE 🔞",
+        description: "Freche und unangemessene Fragen... Bereit zu gestehen?",
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "genius-or-liar": {
         name: "GENIE ODER LÜGNER",
-        description: "Ein unterhaltsamer Modus, in dem du dein Wissen beweisen oder Herausforderungen meistern musst.",
-        tag: "PREMIUM"
+        description: "Ein unterhaltsamer Modus, in dem du dein Wissen beweisen oder die Konsequenzen tragen musst.",
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "the-hidden-village": {
         name: "DAS VERSTECKTE DORF",
-        description: "Ein Bluff-, Strategie- und Diskussionsspiel... für alle, die es lieben, ihre Freunde zu beschuldigen 😈",
-        tag: "PREMIUM"
+        description: "Ein Spiel aus Bluff, Strategie und Diskussionen... für diejenigen, die gerne ihre Freunde beschuldigen 😈",
+        tags: {
+          premium: "PREMIUM"
+        }
       },
       "trap-answer": {
         name: "Fallen-Antwort",
-        tag: "KOSTENLOS",
-        description: "Ein Quiz, bei dem du bei jeder falschen Antwort Punkte verlierst... Kannst du die Fallen vermeiden?"
+        description: "Ein Quiz, bei dem eine falsche Antwort Punkte kostet... Kannst du den Fallen entgehen?",
+        tags: {
+          free: "KOSTENLOS"
+        }
       },
       'avatar-dragon': {
         name: 'Drache',
@@ -194,6 +206,40 @@ export default {
       },
       'avatar-phoenix': {
         name: 'Phönix',
+      },
+      "two-letters-one-word": {
+        name: "2 Buchstaben 1 Wort",
+        description: "Finden Sie ein Wort, das die beiden vorgegebenen Buchstaben enthält und zum Thema passt.",
+        tags: {
+          free: "KOSTENLOS",
+          "new": "NEU",
+          "premium": "PREMIUM"
+        },
+        score: "Punktzahl: {{score}}",
+        theme: "Thema: {{theme}}",
+        inputPlaceholder: "Geben Sie Ihr Wort ein...",
+        verifyButton: "Überprüfen",
+        verifyingButton: "Überprüfe...",
+        validWord: "Gültiges Wort!",
+        validWordMessage: "Du hast ein gültiges Wort gefunden!",
+        invalidWord: "Ungültiges Wort",
+        invalidWordMessage: "Dieses Wort entspricht nicht den angeforderten Kriterien.",
+        noWordError: "Bitte geben Sie ein Wort ein",
+        error: "Ein Fehler ist aufgetreten",
+        howToPlay: "Finden Sie ein Wort, das die beiden vorgegebenen Buchstaben enthält und zum gewählten Thema passt.",
+        "theme.marque": "eine Marke",
+        "theme.ville": "eine Stadt",
+        "theme.prenom": "ein Vorname",
+        "theme.pays": "ein Land",
+        "theme.animal": "ein Tier",
+        "theme.metier": "ein Beruf",
+        "theme.sport": "ein Sport",
+        "theme.fruit": "eine Frucht",
+        "theme.legume": "ein Gemüse",
+        "theme.objet": "ein Objekt",
+        "exampleWord": "Beispiel: {{word}}",
+        "nextButton": "Nächste Runde",
+        "noExampleAvailable": "Kein Beispiel verfügbar",
       },
     },
     geniusOrLiar: {
@@ -307,18 +353,39 @@ export default {
       subtitle: "Glückwunsch an alle!",
       bravo: "Glückwunsch {{name}}!",
       points: "Punkte",
-      home: "Start",
+      home: "Startseite",
       calculating: "Berechne Ergebnisse...",
       podium: {
         first: "1. Platz",
         second: "2. Platz",
         third: "3. Platz",
-        others: "Weitere Spieler",
-        title: "Podium-Rangliste",
+        others: "Andere Spieler",
+        title: "Podiumsplatzierung",
       },
       rank: "Rang",
-      score: "Punkte",
+      score: "Punktzahl",
       player: "Spieler",
+      "two-letters-one-word": {
+        title: "Spielende!",
+        subtitle: "Danke fürs Spielen von 2 Buchstaben 1 Wort!",
+        totalWords: "Gefundene Wörter",
+        bestWord: "Bestes Wort",
+        averageScore: "Durchschnittspunktzahl",
+        timePlayed: "Spielzeit",
+        newHighScore: "Neuer Rekord!",
+        shareResults: "Ergebnisse teilen",
+        playAgain: "Nochmal spielen",
+        "theme.marque": "eine Marke",
+        "theme.ville": "eine Stadt",
+        "theme.prenom": "ein Vorname",
+        "theme.pays": "ein Land",
+        "theme.animal": "ein Tier",
+        "theme.metier": "ein Beruf",
+        "theme.sport": "ein Sport",
+        "theme.fruit": "eine Frucht",
+        "theme.legume": "ein Gemüse",
+        "theme.objet": "ein Objekt"
+      }
     },
     listenButDontJudge: {
       waiting: "Warten auf andere Spieler...",
@@ -345,6 +412,7 @@ export default {
       endTitle: "Spiel beendet!",
       endSubtitle: "Danke fürs Spielen von Wahrheit oder Pflicht!"
     },
+    round: "Runde",
     neverHaveIEverHot: {
       never: "Ich habe noch nie",
       ever: "Ich habe schon",
@@ -365,6 +433,21 @@ export default {
       naughtyAnswers: "versauten Antworten",
       neverButton: "🙅‍♂️ Ich habe noch nie",
       everButton: "🔥 Ich habe schon",
+    },
+    twoLettersOneWord: {
+      enterWord: "Gib dein Wort ein...",
+      verify: "Überprüfen",
+      verifying: "Überprüfung...",
+      score: "Punktzahl",
+      theme: "Thema",
+      error: {
+        emptyWord: "Bitte gib ein Wort ein",
+        verificationFailed: "Bei der Überprüfung ist ein Fehler aufgetreten"
+      },
+      success: {
+        validWord: "Glückwunsch! Dein Wort ist gültig!",
+        invalidWord: "Schade! Dein Wort entspricht nicht den Kriterien."
+      }
     }
   },
 
@@ -501,6 +584,18 @@ export default {
     }
   },
 
+  // Theme translations
+  "theme.marque": "eine Marke",
+  "theme.ville": "eine Stadt",
+  "theme.prenom": "ein Vorname",
+  "theme.pays": "ein Land",
+  "theme.animal": "ein Tier",
+  "theme.metier": "ein Beruf",
+  "theme.sport": "eine Sportart",
+  "theme.fruit": "eine Frucht",
+  "theme.legume": "ein Gemüse",
+  "theme.objet": "ein Gegenstand",
+
   inviteModal: {
     title: "Freunde einladen",
     roomCode: "Raumcode",
@@ -557,4 +652,9 @@ export default {
       }
     }
   },
-}; 
+
+  // Common translations
+  common: {
+    ok: 'OK',
+  },
+};

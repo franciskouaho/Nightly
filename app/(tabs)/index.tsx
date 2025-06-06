@@ -322,11 +322,22 @@ export default function HomeScreen() {
             imageStyle={{ borderRadius: 20 }}
             resizeMode="cover"
           >
-            {game.tag ? (
-              <View style={[styles.modeTagContainer, styles.gridModeTagContainer, { backgroundColor: game.tagColor }]}> 
-                <Text style={styles.modeTagText}>{t(`home.games.${game.id}.tag`)}</Text>
+            {game.tags && game.tags.length > 0 && (
+              <View style={styles.tagsContainer}>
+                {game.tags.map((tag, index) => (
+                  <View 
+                    key={index}
+                    style={[
+                      styles.modeTagContainer, 
+                      styles.gridModeTagContainer, 
+                      { backgroundColor: tag.color }
+                    ]}
+                  > 
+                    <Text style={styles.modeTagText}>{t(tag.text)}</Text>
+                  </View>
+                ))}
               </View>
-            ) : null}
+            )}
             <View style={styles.overlay}>
               <Text style={styles.cardTitle}>{t(`home.games.${game.id}.name`)}</Text>
             </View>
@@ -384,11 +395,22 @@ export default function HomeScreen() {
                 <Text style={styles.modeDescription}>{t(`home.games.${game.id}.description`)}</Text>
               )}
             </View>
-            {game.tag ? (
-              <View style={[styles.modeTagContainer, isGridItem && styles.gridModeTagContainer, { backgroundColor: game.tagColor }]}> 
-                <Text style={styles.modeTagText}>{t(`home.games.${game.id}.tag`)}</Text>
+            {game.tags && game.tags.length > 0 && (
+              <View style={styles.tagsContainer}>
+                {game.tags.map((tag, index) => (
+                  <View 
+                    key={index}
+                    style={[
+                      styles.modeTagContainer, 
+                      styles.gridModeTagContainer, 
+                      { backgroundColor: tag.color }
+                    ]}
+                  > 
+                    <Text style={styles.modeTagText}>{t(tag.text)}</Text>
+                  </View>
+                ))}
               </View>
-            ) : null}
+            )}
           </View>
         </LinearGradient>
       </TouchableOpacity>
@@ -590,9 +612,6 @@ const styles = StyleSheet.create({
     lineHeight: 14,
   },
   modeTagContainer: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 4,
@@ -743,5 +762,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginLeft: 4,
+  },
+  tagsContainer: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    flexDirection: 'row',
+    gap: 4,
   },
 });
