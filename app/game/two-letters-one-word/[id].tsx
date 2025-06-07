@@ -157,10 +157,24 @@ export default function TwoLettersOneWord() {
       return 1; // Start at round 1 if no history
     }
     const maxRoundsPlayed = histories.reduce((max, history) => Math.max(max, history.length), 0);
-    return maxRoundsPlayed + 1;
-  }, [gameHistory]);
+    // If the game is in the results phase, display the total rounds.
+    if (gamePhase === 'results') {
+      return totalRounds; // Display total rounds when game is finished
+    }
+    // Otherwise, calculate the current round, but don't exceed totalRounds + 1 for display.
+    return Math.min(maxRoundsPlayed + 1, totalRounds + 1);
+  }, [gameHistory, totalRounds, gamePhase]);
 
   useEffect(() => {
+    // Log pour le débogage
+    console.log('Current Round:', currentRound);
+    console.log('Total Rounds:', totalRounds);
+    console.log('Game Phase:', gamePhase);
+    console.log('Game History:', gameHistory);
+    const histories = Object.values(gameHistory);
+    const maxRoundsPlayedDebug = histories.reduce((max, history) => Math.max(max, history.length), 0);
+    console.log('Max Rounds Played (debug): ', maxRoundsPlayedDebug);
+
     if (!gameDocId) return;
 
     const db = getFirestore();
@@ -235,11 +249,9 @@ export default function TwoLettersOneWord() {
         // Mettre à jour l'état 'players' avec les détails combinés
         setPlayers(fetchedDetails as any);
 
-
         // Calculate current user's score after players state is updated
         const currentUserScore = fetchedDetails.find(p => p.id === user?.uid)?.score || 0;
         setScore(currentUserScore);
-
 
         // Initialize or update game history for all players based on the fetched details
         const updatedGameHistory: {[playerId: string]: number[]} = {};
@@ -248,9 +260,30 @@ export default function TwoLettersOneWord() {
         });
         setGameHistory(updatedGameHistory);
 
+        // Calculer le tour actuel basé sur l'historique le plus récent
+        const histories = Object.values(updatedGameHistory);
+        const maxRoundsPlayed = histories.reduce((max, history) => Math.max(max, history.length), 0);
+
+        // Vérifier si la partie doit se terminer (tous les joueurs ont complété le nombre total de tours)
+        if (gameData.status !== 'finished' && maxRoundsPlayed >= (gameData.totalRounds || 15)) {
+          // Seul l'hôte doit tenter de mettre à jour le statut du jeu pour éviter les conflits
+          if (user?.uid && gameData.players.find((p: any) => p.isHost)?.id === user.uid) {
+            try {
+              await updateDoc(gameRef, {
+                status: 'finished' // Marquer la partie comme terminée
+              });
+              console.log('Partie marquée comme terminée automatiquement.');
+            } catch (e) {
+              console.error('Erreur lors de la fin de la partie dans onSnapshot:', e);
+            }
+          }
+        }
 
         if (gameData.status === 'finished') {
            setGamePhase('results');
+        } else {
+           // Assurez-vous que la phase de jeu est 'playing' si le statut n'est pas 'finished'
+           setGamePhase('playing');
         }
 
       } else {
@@ -271,6 +304,16 @@ export default function TwoLettersOneWord() {
       Alert.alert(t('game.error'), t('home.games.two-letters-one-word.noWordError'));
       return;
     }
+
+    // Empêcher la soumission si la partie est terminée ou si le nombre de tours est dépassé
+    if (gamePhase === 'results' || currentRound > totalRounds) {
+        Alert.alert(
+            t('game.error'),
+            t('home.games.two-letters-one-word.gameFinishedError') || 'La partie est terminée. Veuillez consulter les résultats.'
+        );
+        return;
+    }
+
     setIsLoading(true);
     try {
       const result = await verifyWord({
@@ -282,13 +325,20 @@ export default function TwoLettersOneWord() {
       if (gameDocId && user?.uid) {
         const db = getFirestore();
         const gameRef = doc(db, 'games', gameDocId);
-        const gameSnap = await getDoc(gameRef);
-        const gameData = gameSnap.data() || {};
-        const prevHistory = (gameData.history && gameData.history[user.uid]) || [];
-        const newHistory = [...prevHistory, result.isValid ? 1 : 0];
-        await updateDoc(gameRef, {
-          [`history.${user.uid}`]: newHistory
-        });
+        // Utiliser l'historique des parties depuis l'état local (mis à jour par onSnapshot)
+        const prevHistory = gameHistory[user.uid] || [];
+
+        // Ajouter à l'historique uniquement si nous sommes dans la limite des tours
+        // Utiliser totalRounds depuis l'état local
+        if (prevHistory.length < totalRounds) {
+            const newHistory = [...prevHistory, result.isValid ? 1 : 0];
+            await updateDoc(gameRef, {
+              [`history.${user.uid}`]: newHistory
+            });
+        } else {
+            // Si l'historique est déjà complet, ne pas ajouter de nouvelles entrées
+            // La partie devrait déjà être en phase de fin ou de résultats
+        }
       }
       if (result.isValid) {
         setShowSuccessModal(true);
@@ -316,24 +366,52 @@ export default function TwoLettersOneWord() {
     setWord('');
     setInvalidExample(undefined);
 
-    // 1. Vérifier si l'utilisateur actuel est l'hôte
+    // Si l'utilisateur est l'hôte ou s'il n'y a qu'un seul joueur, permettre le passage au tour suivant
     const currentUserPlayer = players.find(p => p.id === user?.uid);
-    if (!currentUserPlayer?.isHost) {
+    const isSoloMode = players.length === 1;
+
+    if (!currentUserPlayer?.isHost && !isSoloMode) {
       return;
     }
 
-    // 2. Vérifier si tous les joueurs ont répondu pour le tour actuel
-    const allPlayersResponded = players.every(player => {
-      const playerHistory = gameHistory[player.id] || [];
-      // Un joueur a répondu si son historique a au moins autant d'entrées que le numéro du tour actuel
-      return playerHistory.length >= currentRound;
-    });
+    // En mode solo, on ne vérifie pas si tous les joueurs ont répondu
+    if (!isSoloMode) {
+      // Vérifier si tous les joueurs ont répondu pour le tour précédent
+      const allPlayersResponded = players.every(player => {
+        const playerHistory = gameHistory[player.id] || [];
+        // Un joueur a répondu si son historique a au moins autant d'entrées que le numéro du tour précédent
+        return playerHistory.length >= currentRound - 1;
+      });
 
-    if (!allPlayersResponded) {
-      return;
+      if (!allPlayersResponded) {
+        Alert.alert(
+          t('game.waitingForPlayers'),
+          t('game.waitingForPlayersMessage', { currentRound })
+        );
+        return;
+      }
     }
 
-    // Si l'utilisateur est l'hôte et que tous les joueurs ont répondu, passer au tour suivant
+    // Vérifier si le jeu est terminé (tous les tours joués)
+    if (currentRound >= totalRounds) {
+      if (gameDocId) {
+        const db = getFirestore();
+        const gameRef = doc(db, 'games', gameDocId);
+        try {
+          await updateDoc(gameRef, {
+            status: 'finished' // Marquer la partie comme terminée
+          });
+          // Suppression de la mise à jour locale immédiate de la phase de jeu
+          // setGamePhase('results'); // La phase est mise à jour via l'onSnapshot quand le statut Firestore change
+        } catch (e) {
+          console.error('Erreur lors de la fin de la partie:', e);
+          Alert.alert('Erreur', 'Impossible de terminer la partie.');
+        }
+      }
+      return; // Ne pas passer au tour suivant si la partie est terminée
+    }
+
+    // Si l'utilisateur est l'hôte ou en mode solo, passer au tour suivant
     if (!gameDocId) return;
     const db = getFirestore();
     const gameRef = doc(db, 'games', gameDocId);
@@ -346,20 +424,18 @@ export default function TwoLettersOneWord() {
       await updateDoc(gameRef, {
         currentLetters: newLetters,
         currentTheme: newTheme,
-        // Réinitialise les réponses des joueurs (exemple : reset un champ answers)
-        // Note: The history is kept, the 'response' for the new round will be added next.
-        // You might have other fields to reset per round if needed.
-        answers: {}, // Assuming 'answers' tracks current round submissions if needed separately
+        answers: {},
+        // Réinitialiser le statut de réponse pour le nouveau tour
+        [`responses.${currentRound}`]: {},
       });
-       // Afficher un message de succès ou passer directement, selon le flow désiré
-       // Alert.alert(t('game.roundAdvancedTitle'), t('game.roundAdvancedMessage', { round: currentRound + 1 }));
 
+      // Mise à jour locale immédiate pour éviter de garder les anciennes lettres
+      setLetters(newLetters);
+      setTheme(newTheme);
     } catch (e) {
       console.error('Erreur lors du passage au tour suivant:', e);
       Alert.alert('Erreur', 'Impossible de passer au tour suivant.');
-    }
-    finally {
-      // Assurez-vous que le modal se ferme après la tentative de passage au tour suivant
+    } finally {
       setShowInvalidModal(false);
     }
   };
@@ -380,6 +456,19 @@ export default function TwoLettersOneWord() {
   const invalidModalButton1Action = isHost
     ? handleNext
     : handleRetry; // handleRetry just closes the modal
+
+  // Affichage conditionnel du fond selon la phase du jeu
+  if (gamePhase === 'results') {
+    return (
+      <View style={{ flex: 1 }}>
+        <GameResults
+          players={players}
+          scores={players.reduce((acc, player) => ({ ...acc, [player.id]: player.score }), {})}
+          userId={user?.uid || ''}
+        />
+      </View>
+    );
+  }
 
   return (
     <LinearGradient
@@ -407,87 +496,114 @@ export default function TwoLettersOneWord() {
         button1Text={invalidModalButton1Text}
         button1Action={invalidModalButton1Action}
       />
-      {gamePhase === 'playing' ? (
-        <KeyboardAvoidingView
-          style={styles.keyboardAvoidingContainer}
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
-        >
-          <ScrollView contentContainerStyle={styles.scrollContent}>
-            <View style={styles.content}>
+      {/* Tout le contenu de l'écran de jeu ici */}
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoidingContainer}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
+      >
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <View style={styles.content}>
 
-              {/* Duel Header */}
-              <View style={styles.duelHeader}>
-                {/* Current User */}
-                {user && players.find(p => p.id === user.uid) ? (
-                  <View style={styles.playerDuelContainer}>
-                    {players.find(p => p.id === user.uid)?.avatar ? (
-                      <Image source={{ uri: players.find(p => p.id === user.uid)?.avatar }} style={styles.duelAvatar} />
-                    ) : (
-                      <View style={styles.defaultDuelAvatar}>
-                        <Text style={styles.defaultDuelAvatarText}>{players.find(p => p.id === user.uid)?.pseudo?.charAt(0) || '?'}</Text>
-                      </View>
-                    )}
-                    <Text style={styles.playerDuelName}>{players.find(p => p.id === user.uid)?.name || 'Moi'}</Text>
-                     {/* Add dots for rounds played based on history */}
-                     <View style={styles.roundDots}>
-                        {[...Array(5)].map((_, i) => {
-                          const result = (gameHistory[user.uid] || [])[i];
-                          return (
-                            <View
-                               key={i}
-                               style={[
-                                 styles.dot,
-                                 result === 1 ? styles.correctDot :
-                                 result === 0 ? styles.incorrectDot :
-                                 styles.notPlayedDot
-                               ]}
-                            />
-                          );
-                        })}
-                     </View>
-                  </View>
-                ) : (
-                    <View style={styles.playerDuelContainer}> {/* Placeholder */}
-                        <View style={styles.duelAvatarPlaceholder} />
-                        <Text style={styles.playerDuelName}>Moi</Text>
-                        <View style={styles.roundDots}>
-                             {[...Array(5)].map((_, i) => (
-                               <View key={i} style={styles.dot} />
-                             ))}
-                        </View>
+            {/* Duel Header */}
+            <View style={styles.duelHeader}>
+              {/* Current User */}
+              {user && players.find(p => p.id === user.uid) ? (
+                <View style={styles.playerDuelContainer}>
+                  {players.find(p => p.id === user.uid)?.avatar ? (
+                    <Image source={{ uri: players.find(p => p.id === user.uid)?.avatar }} style={styles.duelAvatar} />
+                  ) : (
+                    <View style={styles.defaultDuelAvatar}>
+                      <Text style={styles.defaultDuelAvatarText}>{players.find(p => p.id === user.uid)?.pseudo?.charAt(0) || '?'}</Text>
                     </View>
-                )}
-
-                {/* DUEL text */}
-                <View style={styles.duelTextContainer}>
-                   {/* Display Current Round */}
-                   <View style={styles.roundNumberContainer}>
-                     <Text style={styles.roundNumberText}>{t('game.round')}: {currentRound}/{totalRounds}</Text>
+                  )}
+                  <Text style={styles.playerDuelName}>{players.find(p => p.id === user.uid)?.name || 'Moi'}</Text>
+                   {/* Add dots for rounds played based on history */}
+                   <View style={styles.roundDots}>
+                      {[...Array(5)].map((_, i) => {
+                        const result = (gameHistory[user.uid] || [])[i];
+                        return (
+                          <View
+                             key={i}
+                             style={[
+                               styles.dot,
+                               result === 1 ? styles.correctDot :
+                               result === 0 ? styles.incorrectDot :
+                               styles.notPlayedDot
+                             ]}
+                          />
+                        );
+                      })}
                    </View>
-                   <MaterialCommunityIcons name="sword-cross" size={30} color="#A0B0C0" style={styles.duelIcon} />
-                   <Text style={styles.duelText}>DUEL</Text>
                 </View>
-
-                {/* Opponent User */}
-                {user && players.find(p => p.id !== user.uid) ? (
-                     <View style={styles.playerDuelContainer}>
-                     {players.find(p => p.id !== user.uid)?.avatar ? (
-                       <Image source={{ uri: players.find(p => p.id !== user.uid)?.avatar }} style={styles.duelAvatar} />
-                     ) : (
-                       <View style={styles.defaultDuelAvatar}>
-                         <Text style={styles.defaultDuelAvatarText}>{players.find(p => p.id !== user.uid)?.pseudo?.charAt(0) || '?'}</Text>
-                       </View>
-                     )}
-                     <Text style={styles.playerDuelName}>{players.find(p => p.id !== user.uid)?.pseudo || 'Adversaire'}</Text>
-                      {/* Add dots for rounds played based on history */}
+              ) : (
+                  <View style={styles.playerDuelContainer}> {/* Placeholder */}
+                      <View style={styles.duelAvatarPlaceholder} />
+                      <Text style={styles.playerDuelName}>Moi</Text>
                       <View style={styles.roundDots}>
-                         {/* Use opponent's history (if opponent exists) */}
-                         {players.find(p => p.id !== user?.uid) ? (
-                             // If opponent exists, map their history up to 5 rounds
-                             [...Array(5)].map((_, i) => {
-                               const opponentId = players.find(p => p.id !== user?.uid)?.id || '';
-                               const result = (gameHistory[opponentId] || [])[i];
+                           {[...Array(5)].map((_, i) => (
+                             <View key={i} style={styles.dot} />
+                           ))}
+                      </View>
+                  </View>
+              )}
+
+              {/* DUEL text */}
+              <View style={styles.duelTextContainer}>
+                 {/* Display Current Round */}
+                 <View style={styles.roundNumberContainer}>
+                   <Text style={styles.roundNumberText}>{t('game.round')}: {currentRound}/{totalRounds}</Text>
+                 </View>
+                 <MaterialCommunityIcons name="sword-cross" size={30} color="#A0B0C0" style={styles.duelIcon} />
+                 <Text style={styles.duelText}>DUEL</Text>
+              </View>
+
+              {/* Opponent User */}
+              {user && players.find(p => p.id !== user.uid) ? (
+                   <View style={styles.playerDuelContainer}>
+                   {players.find(p => p.id !== user.uid)?.avatar ? (
+                     <Image source={{ uri: players.find(p => p.id !== user.uid)?.avatar }} style={styles.duelAvatar} />
+                   ) : (
+                     <View style={styles.defaultDuelAvatar}>
+                       <Text style={styles.defaultDuelAvatarText}>{players.find(p => p.id !== user.uid)?.pseudo?.charAt(0) || '?'}</Text>
+                     </View>
+                   )}
+                   <Text style={styles.playerDuelName}>{players.find(p => p.id !== user.uid)?.pseudo || 'Adversaire'}</Text>
+                    {/* Add dots for rounds played based on history */}
+                    <View style={styles.roundDots}>
+                       {/* Use opponent's history (if opponent exists) */}
+                       {players.find(p => p.id !== user?.uid) ? (
+                           // If opponent exists, map their history up to 5 rounds
+                           [...Array(5)].map((_, i) => {
+                             const opponentId = players.find(p => p.id !== user?.uid)?.id || '';
+                             const result = (gameHistory[opponentId] || [])[i];
+                             return (
+                               <View
+                                 key={i}
+                                 style={[
+                                   styles.dot,
+                                   result === 1 ? styles.correctDot :
+                                   result === 0 ? styles.incorrectDot :
+                                   styles.notPlayedDot
+                                 ]}
+                               />
+                             );
+                           })
+                       ) : ( /* If no opponent, show placeholder dots */
+                           [...Array(5)].map((_, i) => (
+                               <View key={i} style={styles.notPlayedDot} />
+                            ))
+                       )}
+                    </View>
+                   </View>
+                ) : ( /* Placeholder if no opponent user found */
+                     <View style={styles.playerDuelContainer}> {/* Placeholder container */}
+                         <View style={styles.duelAvatarPlaceholder} />
+                         <Text style={styles.playerDuelName}>Adversaire</Text>
+                          <View style={styles.roundDots}>
+                             {/* Show 5 dots for current user's history if available */}
+                             {[...Array(5)].map((_, i) => {
+                               const result = (gameHistory[user?.uid || ''] || [])[i];
                                return (
                                  <View
                                    key={i}
@@ -499,96 +615,62 @@ export default function TwoLettersOneWord() {
                                    ]}
                                  />
                                );
-                             })
-                         ) : ( /* If no opponent, show placeholder dots */
-                             [...Array(5)].map((_, i) => (
-                                 <View key={i} style={styles.notPlayedDot} />
-                              ))
-                         )}
-                      </View>
+                             })}
+                          </View>
                      </View>
-                  ) : ( /* Placeholder if no opponent user found */
-                       <View style={styles.playerDuelContainer}> {/* Placeholder container */}
-                           <View style={styles.duelAvatarPlaceholder} />
-                           <Text style={styles.playerDuelName}>Adversaire</Text>
-                            <View style={styles.roundDots}>
-                               {/* Show 5 dots for current user's history if available */}
-                               {[...Array(5)].map((_, i) => {
-                                 const result = (gameHistory[user?.uid || ''] || [])[i];
-                                 return (
-                                   <View
-                                     key={i}
-                                     style={[
-                                       styles.dot,
-                                       result === 1 ? styles.correctDot :
-                                       result === 0 ? styles.incorrectDot :
-                                       styles.notPlayedDot
-                                     ]}
-                                   />
-                                 );
-                               })}
-                            </View>
-                       </View>
-                  )}
-              </View>
-
-              {/* Main content area - centered */}
-              <View style={styles.mainContentArea}>
-                
-                <View style={styles.lettersCard}>
-                  <Text style={styles.letters}>{letters.join(' - ')}</Text>
-                </View>
-
-                {/* Theme display with neumorphic style */}
-                <View style={styles.themeContainer}>
-                  <Text style={styles.themeText}>
-                    {t('home.games.two-letters-one-word.theme', { theme: t(`home.games.two-letters-one-word.${theme}`) })}
-                  </Text>
-                </View>
-
-                {/* Game Explanation */}
-                <Text style={styles.howToPlayText}>
-                  {t('home.games.two-letters-one-word.howToPlay')}
-                </Text>
-
-                <TextInput
-                  style={styles.input}
-                  value={word}
-                  onChangeText={setWord}
-                  placeholder={t('home.games.two-letters-one-word.inputPlaceholder')}
-                  placeholderTextColor="rgba(255, 255, 255, 0.6)"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  editable={!isLoading}
-                />
-              </View>
-
-              {/* Button at the bottom */}
-              <TouchableOpacity
-                style={[styles.button, isLoading && styles.buttonDisabled]}
-                onPress={handleSubmit}
-                disabled={isLoading}
-                activeOpacity={0.8}
-              >
-                <LinearGradient
-                  colors={['rgba(60, 80, 100, 0.9)', 'rgba(80, 100, 120, 1)']}
-                  style={styles.buttonGradient}
-                >
-                  <Text style={styles.buttonText}>
-                    {isLoading ? t('home.games.two-letters-one-word.verifyingButton') : t('home.games.two-letters-one-word.verifyButton')}
-                  </Text>
-                </LinearGradient>
-              </TouchableOpacity>
+                )}
             </View>
-          </ScrollView>
-        </KeyboardAvoidingView>
-      ) : (
-        <GameResults
-          players={players}
-          scores={players.reduce((acc, player) => ({ ...acc, [player.id]: player.score }), {})}
-          userId={'some-user-id'}
-        />
-      )}
+
+            {/* Main content area - centered */}
+            <View style={styles.mainContentArea}>
+              
+              <View style={styles.lettersCard}>
+                <Text style={styles.letters}>{letters.join(' - ')}</Text>
+              </View>
+
+              {/* Theme display with neumorphic style */}
+              <View style={styles.themeContainer}>
+                <Text style={styles.themeText}>
+                  {t('home.games.two-letters-one-word.theme', { theme: t(`home.games.two-letters-one-word.${theme}`) })}
+                </Text>
+              </View>
+
+              {/* Game Explanation */}
+              <Text style={styles.howToPlayText}>
+                {t('home.games.two-letters-one-word.howToPlay')}
+              </Text>
+
+              <TextInput
+                style={styles.input}
+                value={word}
+                onChangeText={setWord}
+                placeholder={t('home.games.two-letters-one-word.inputPlaceholder')}
+                placeholderTextColor="rgba(255, 255, 255, 0.6)"
+                autoCapitalize="none"
+                autoCorrect={false}
+                editable={!isLoading && gamePhase === 'playing' && currentRound <= totalRounds}
+              />
+            </View>
+
+            {/* Button at the bottom */}
+            <TouchableOpacity
+              style={[styles.button, isLoading && styles.buttonDisabled]}
+              onPress={handleSubmit}
+              disabled={isLoading || gamePhase === 'results' || currentRound > totalRounds}
+              activeOpacity={0.8}
+            >
+              <LinearGradient
+                colors={['rgba(60, 80, 100, 0.9)', 'rgba(80, 100, 120, 1)']}
+                style={styles.buttonGradient}
+              >
+                <Text style={styles.buttonText}>
+                  {isLoading ? t('home.games.two-letters-one-word.verifyingButton') : t('home.games.two-letters-one-word.verifyButton')}
+                </Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </LinearGradient>
   );
 }
