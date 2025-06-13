@@ -249,16 +249,6 @@ export default function TrapAnswerGame() {
     updateGameState(updateData);
   };
 
-  const isContinueButtonEnabled =
-    gameState?.phase === GamePhase.QUESTION &&
-    gameState?.players?.length > 0 &&
-    Object.keys(gameState?.playerAnswers || {}).length === gameState?.players?.length;
-
-  // Pour la démo, on prend les deux premiers joueurs
-  const leftPlayer = (gameState?.players || [])[0];
-  const rightPlayer = (gameState?.players || [])[1];
-  const thirdPlayer = (gameState?.players || [])[2];
-  const fourthPlayer = (gameState?.players || [])[3];
 
   if (!gameState) return null;
 
@@ -289,15 +279,21 @@ export default function TrapAnswerGame() {
 
   return (
     <LinearGradient colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]} style={{ flex: 1 }}>
-      <View style={{ flex: 1, paddingVertical: 16, paddingHorizontal: 12 }}>
+      <View style={{ flex: 1, paddingVertical: 40, paddingHorizontal: 12 }}>
         <View style={{ alignItems: 'center' }}>
           <View style={styles.duelHeaderCircle}>
             {/* DUEL header réorganisé avec Flexbox */}
             {/* Le cercle central DUEL reste en position absolue */}
-            <View key="duel-center" style={styles.duelCenterCircle}>
-              <MaterialCommunityIcons name="sword-cross" size={38} color="#661A59" />
-              <Text style={styles.duelLabel}>DUEL</Text>
-            </View>
+          <View
+            key="duel-center"
+            style={[
+              styles.duelCenterCircle,
+              gameState?.players?.length === 3 && { top: '44%' }
+            ]}
+          >
+            <MaterialCommunityIcons name="sword-cross" size={38} color="#661A59" />
+            <Text style={styles.duelLabel}>DUEL</Text>
+          </View>
 
             {/* 4-player UI layout */}
             {(() => {
@@ -337,7 +333,7 @@ export default function TrapAnswerGame() {
             })()}
           </View>
 
-          <View style={[styles.questionCard, { paddingVertical: 16, marginTop: 8, marginBottom: 8 }]}>
+          <View style={[styles.questionCard, { paddingVertical: 16, marginTop: 32, marginBottom: 8 }]}>
             {gameState.currentQuestion && (
               <View style={styles.categoryBadge}>
                 <Text style={styles.categoryBadgeText}>{gameState.currentQuestion.theme}</Text>
@@ -452,7 +448,6 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     paddingHorizontal: 16,
     paddingVertical: 16,
-    marginHorizontal: 18,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: 'rgba(123, 44, 191, 0.3)',
@@ -461,7 +456,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 6,
-    marginTop: 0,
+    marginTop: 50,
   },
   categoryBadge: {
     backgroundColor: '#7B2CBF',
@@ -526,14 +521,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    paddingHorizontal: 4,
   },
   answerButton: {
     backgroundColor: 'rgba(43, 45, 66, 0.95)',
     borderRadius: 18,
     width: '47%',
     paddingVertical: 16,
-    paddingHorizontal: 12,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: 'rgba(123, 44, 191, 0.3)',
@@ -545,7 +538,6 @@ const styles = StyleSheet.create({
     width: '47%',
     marginBottom: 18,
     paddingVertical: 16,
-    paddingHorizontal: 12,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#00C853',
@@ -562,7 +554,6 @@ const styles = StyleSheet.create({
     width: '47%',
     marginBottom: 18,
     paddingVertical: 16,
-    paddingHorizontal: 12,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#D32F2F',
@@ -629,7 +620,7 @@ const styles = StyleSheet.create({
   },
   duelHeaderCircle: {
     width: '100%',
-    height: 240,
+    height: 270,
     alignSelf: 'center',
     marginBottom: 10,
     position: 'relative',
@@ -646,7 +637,7 @@ const styles = StyleSheet.create({
     left: '50%',
     top: '50%',
     marginLeft: -25,
-    marginTop: -25,
+    marginTop: -70,
     width: 50,
     height: 50,
     borderRadius: 25,
@@ -659,6 +650,7 @@ const styles = StyleSheet.create({
     flexBasis: '45%',
     flexGrow: 1,
     maxWidth: '50%',
+    marginTop: 8,
     alignItems: 'center',
     zIndex: 3,
     justifyContent: 'center',
