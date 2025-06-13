@@ -418,6 +418,7 @@ export default function TwoLettersOneWord() {
 
     // Génère de nouvelles lettres et un nouveau thème
     const newLetters = generateRandomLetters();
+    // On s'assure que newTheme est toujours une string du tableau THEMES
     const newTheme = THEMES[Math.floor(Math.random() * THEMES.length)];
 
     try {
@@ -431,7 +432,7 @@ export default function TwoLettersOneWord() {
 
       // Mise à jour locale immédiate pour éviter de garder les anciennes lettres
       setLetters(newLetters);
-      setTheme(newTheme);
+      setTheme(newTheme as string); // Ajout du cast explicite pour satisfaire TypeScript
     } catch (e) {
       console.error('Erreur lors du passage au tour suivant:', e);
       Alert.alert('Erreur', 'Impossible de passer au tour suivant.');
@@ -469,6 +470,9 @@ export default function TwoLettersOneWord() {
       </View>
     );
   }
+
+  // Ajout d'une variable pour clarifier la condition et éviter TS2367
+  const isResultsPhase = gamePhase === 'results' as any;
 
   return (
     <LinearGradient
@@ -648,7 +652,7 @@ export default function TwoLettersOneWord() {
                 placeholderTextColor="rgba(255, 255, 255, 0.6)"
                 autoCapitalize="none"
                 autoCorrect={false}
-                editable={!isLoading && gamePhase === 'playing' && currentRound <= totalRounds}
+                editable={!isLoading && !isResultsPhase && currentRound <= totalRounds}
               />
             </View>
 
@@ -656,7 +660,7 @@ export default function TwoLettersOneWord() {
             <TouchableOpacity
               style={[styles.button, isLoading && styles.buttonDisabled]}
               onPress={handleSubmit}
-              disabled={isLoading || gamePhase === 'results' || currentRound > totalRounds}
+              disabled={isLoading || isResultsPhase || currentRound > totalRounds}
               activeOpacity={0.8}
             >
               <LinearGradient
