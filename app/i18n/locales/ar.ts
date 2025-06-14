@@ -472,7 +472,7 @@ export default {
         "invalidWord": "للأسف! كلمتك لا تتوافق مع المعايير."
       }
     },
-    round: "الجولة",
+    round: "الجولة {{current}}/{{total}}",
     word_guessing: {
       title: 'خمن الكلمة',
       timer: 'الوقت المتبقي',

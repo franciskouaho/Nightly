@@ -46,8 +46,8 @@ export default function TrapAnswerGame() {
   const { awardGamePoints } = usePoints();
   const { isRTL, language } = useLanguage();
 
-  // Utiliser le hook pour gérer les questions
-  const { questions, getRandomQuestion, askedQuestions } = useTrapAnswerQuestions();
+  // Utiliser le hook pour gérer les questions, en lui passant l'historique des questions posées
+  const { questions, getRandomQuestion } = useTrapAnswerQuestions(gameState?.askedQuestionIds || []);
 
   // Timer pour la barre de temps (UI only)
   const TIMER_DURATION = 20; // secondes
@@ -78,62 +78,12 @@ export default function TrapAnswerGame() {
       console.log('[DEBUG GAME STATE]', JSON.stringify(gameState));
       console.log('[DEBUG GAME STATE] History:', JSON.stringify(gameState.history));
       console.log('[DEBUG GAME STATE] Current Round:', gameState.currentRound);
+      console.log('[DEBUG GAME STATE] Current Question:', gameState.currentQuestion);
     }
   }, [gameState]); // Dépend de gameState pour se déclencher à chaque mise à jour
 
   // Charger la première question lorsque les questions sont disponibles
-  useEffect(() => {
-    console.log('[DEBUG] Checking first question conditions:', {
-      hasGameState: !!gameState,
-      hasCurrentQuestion: !!gameState?.currentQuestion,
-      questionsLength: questions.length,
-      gameStatePhase: gameState?.phase
-    });
-
-    // Ne pas charger de question si :
-    // 1. Pas de gameState
-    // 2. Déjà une question en cours
-    // 3. Pas de questions disponibles
-    // 4. Le jeu n'est pas en phase "question"
-    if (!gameState || 
-        gameState.currentQuestion?.text || 
-        questions.length === 0 || 
-        gameState.phase !== GamePhase.QUESTION) {
-      return;
-    }
-
-    // Utiliser getRandomQuestion pour obtenir la première question
-    const firstQuestion = getRandomQuestion();
-    console.log('[DEBUG] First question selected:', firstQuestion);
-
-    if (firstQuestion) {
-      // S'assurer que les réponses de la première question sont bien mélangées
-      const shuffledAnswers = [...firstQuestion.answers].sort(() => Math.random() - 0.5);
-      const firstQuestionWithShuffledAnswers = {
-        ...firstQuestion,
-        answers: shuffledAnswers
-      };
-
-      const initialPlayersHistory: { [playerId: string]: number[] } = (gameState.players || []).reduce((acc: { [playerId: string]: number[] }, player) => {
-        acc[player.id] = Array(gameState.totalRounds || 5).fill(0);
-        return acc;
-      }, {});
-
-      console.log('[DEBUG] Updating game state with first question:', firstQuestionWithShuffledAnswers);
-      updateGameState({
-        currentQuestion: firstQuestionWithShuffledAnswers,
-        askedQuestionIds: [firstQuestion.id],
-        phase: GamePhase.QUESTION,
-        currentRound: 1,
-        history: initialPlayersHistory,
-        playerAnswers: {},
-        gameMode: 'trap-answer'
-      });
-    } else {
-      console.log('[DEBUG] No first question available, ending game');
-      updateGameState({ phase: GamePhase.END });
-    }
-  }, [gameState?.phase, questions, gameState?.players, gameState?.totalRounds]);
+  // Ancien bloc de code supprimé car l'initialisation est gérée par RoomScreen
 
   useEffect(() => {
     if (gameState?.phase === GamePhase.QUESTION && gameState?.currentQuestion?.id) {
@@ -230,7 +180,7 @@ export default function TrapAnswerGame() {
       newHistory[user.uid].push(0);
     }
     if (gameState?.currentRound !== undefined) {
-        newHistory[user.uid][gameState.currentRound] = answer.isCorrect ? 1 : answer.isTrap ? -1 : 0;
+        newHistory[user.uid][gameState.currentRound - 1] = answer.isCorrect ? 1 : answer.isTrap ? -1 : 0;
     }
 
     const updateData: Partial<TrapGameState> = {
@@ -333,23 +283,28 @@ export default function TrapAnswerGame() {
             })()}
           </View>
 
-          <View style={[styles.questionCard, { paddingVertical: 16, marginTop: 32, marginBottom: 8 }]}>
-            {gameState.currentQuestion && (
-              <View style={styles.categoryBadge}>
-                <Text style={styles.categoryBadgeText}>{gameState.currentQuestion.theme}</Text>
-              </View>
-            )}
-            <Text style={[styles.questionText, { fontSize: 18 }]} numberOfLines={3} adjustsFontSizeToFit>
-              {gameState.currentQuestion?.question}
-            </Text>
+          <View style={{ alignItems: 'center' }}>
+            <View style={[styles.questionCard, { paddingVertical: 16, marginTop: 32, marginBottom: 30 }]}>
+              {gameState.currentQuestion && (
+                <View style={styles.categoryBadge}>
+                  <Text style={styles.categoryBadgeText}>{gameState.currentQuestion.theme}</Text>
+                </View>
+              )}
+              <Text style={[styles.questionText, { fontSize: 18 }]} numberOfLines={3} adjustsFontSizeToFit>
+                {gameState.currentQuestion?.question}
+              </Text>
+            </View>
           </View>
         </View>
 
         <View style={styles.timerBarContainer}>
+          <View style={styles.timerHeaderRow}>
+            <Text style={styles.timerText}>{timeLeft}s</Text>
+            <Text style={styles.roundInfoText}>{t('game.round', { current: gameState.currentRound || 0, total: gameState.totalRounds || 0 })}</Text>
+          </View>
           <View style={styles.timerBarBg}>
             <View style={[styles.timerBarFg, { width: `${(timeLeft / TIMER_DURATION) * 100}%` }]} />
           </View>
-          <Text style={styles.timerText}>{timeLeft}s</Text>
         </View>
 
         <View style={[styles.answersGridWrapper, { marginBottom: 0, marginTop: 8 }]}>
@@ -457,6 +412,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 6,
     marginTop: 50,
+    marginBottom: 15,
   },
   categoryBadge: {
     backgroundColor: '#7B2CBF',
@@ -486,8 +442,8 @@ const styles = StyleSheet.create({
   timerBarContainer: {
     width: '90%',
     alignSelf: 'center',
-    marginTop: 4,
-    marginBottom: 8,
+    marginTop: 25,
+    marginBottom: 15,
     alignItems: 'center',
   },
   timerBarBg: {
@@ -508,13 +464,23 @@ const styles = StyleSheet.create({
     color: '#7B2CBF',
     fontWeight: 'bold',
     fontSize: 14,
-    marginTop: 2,
+  },
+  roundInfoText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  timerHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginBottom: 10,
   },
   answersGridWrapper: {
     width: '100%',
     paddingHorizontal: 16,
     marginBottom: 0,
-    marginTop: 8,
+    marginTop: 15,
   },
   answersGrid: {
     width: '100%',

@@ -337,7 +337,7 @@ export default {
       }
     },
     player: 'le joueur',
-    round: 'Tour {{count}}',
+    round: 'Tour {{current}}/{{total}}',
     truthOrDare: {
       title: 'Action ou Vérité',
       choice: 'Choix',

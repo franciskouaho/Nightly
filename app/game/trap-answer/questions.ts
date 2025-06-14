@@ -4,7 +4,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useState, useEffect } from 'react';
 
 // Fonction pour transformer les données de Firebase en format TrapQuestion
-const transformQuestion = (question: any, index: number): TrapQuestion => ({
+export const transformQuestion = (question: any, index: number): TrapQuestion => ({
   id: `q_${index}`,
   text: question.question,
   theme: question.type,
@@ -21,9 +21,22 @@ const transformQuestion = (question: any, index: number): TrapQuestion => ({
 });
 
 // Hook personnalisé pour les questions de Trap Answer
-export function useTrapAnswerQuestions() {
+export function useTrapAnswerQuestions(askedQuestionIdsFromGame: string[]) {
   const [questions, setQuestions] = useState<TrapQuestion[]>([]);
   const { isRTL, language } = useLanguage();
+
+  // Fonction pour obtenir une question aléatoire non posée
+  const getRandomQuestion = (): TrapQuestion | null => {
+    const availableQuestions = questions.filter(q => !askedQuestionIdsFromGame.includes(q.id));
+    if (availableQuestions.length === 0) return null;
+    
+    const randomIndex = Math.floor(Math.random() * availableQuestions.length);
+    const selectedQuestion = availableQuestions[randomIndex];
+    
+    if (!selectedQuestion) return null;
+    
+    return selectedQuestion;
+  };
 
   // Charger les questions depuis Firebase
   useEffect(() => {
@@ -62,6 +75,7 @@ export function useTrapAnswerQuestions() {
 
   return {
     questions,
+    getRandomQuestion,
   };
 }
 

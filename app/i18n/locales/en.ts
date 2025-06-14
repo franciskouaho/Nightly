@@ -304,7 +304,7 @@ export default {
       }
     },
     player: 'the player',
-    round: 'Round {{count}}',
+    round: 'Round {{current}}/{{total}}',
     truthOrDare: {
       title: 'Truth or Dare',
       choice: 'Choice',

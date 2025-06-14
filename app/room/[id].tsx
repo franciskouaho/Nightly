@@ -16,7 +16,7 @@ import i18n from '@/app/i18n/i18n';
 import { getQuestions } from '../game/trap-answer/questions';
 import { TrapGameState } from '@/types/types';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { transformQuestion } from '../game/word-guessing/questions';
+import { transformQuestion } from '../game/trap-answer/questions';
 
 // Liste des thèmes possibles pour 2 Lettres 1 Mot
 const TWO_LETTERS_ONE_WORD_THEMES = [
@@ -437,6 +437,12 @@ export default function RoomScreen() {
       const initialTargetPlayer = playersForGameDoc.length > 0 ? playersForGameDoc[0] : null;
       const initialCurrentPlayerId = initialTargetPlayer ? initialTargetPlayer.id : null;
 
+      // Initialiser l'historique des joueurs avec des tableaux pré-remplis de 0 pour chaque round
+      const initialPlayersHistory: { [playerId: string]: number[] } = playersForGameDoc.reduce((acc: { [playerId: string]: number[] }, player) => {
+        acc[player.id] = Array(selectedRounds || 5).fill(0);
+        return acc;
+      }, {});
+
       // Logique spécifique au jeu "Two Letters One Word"
       if (room.gameId === 'two-letters-one-word') {
         console.log('[DEBUG] Démarrage du jeu Two Letters One Word');
@@ -450,7 +456,7 @@ export default function RoomScreen() {
           updatedAt: new Date().toISOString(),
           host: user.uid,
           scores: {},
-          history: {},
+          history: initialPlayersHistory,
           currentLetters: generateTwoLettersOneWordRandomLetters(),
           currentTheme: TWO_LETTERS_ONE_WORD_THEMES[Math.floor(Math.random() * TWO_LETTERS_ONE_WORD_THEMES.length)],
         };
@@ -525,7 +531,7 @@ export default function RoomScreen() {
           updatedAt: new Date().toISOString(),
           host: user.uid,
           scores: {},
-          history: {},
+          history: initialPlayersHistory,
           naughtyAnswers: {}, // Peut être spécifique à certains jeux, laisser pour l'instant si c'était là
           targetPlayer: initialTargetPlayer, // Définir le premier joueur comme cible initiale
           currentPlayerId: initialCurrentPlayerId, // Initialiser currentPlayerId de manière sécurisée

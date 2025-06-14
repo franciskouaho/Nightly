@@ -43,6 +43,7 @@ i18n.use(initReactI18next).init({
   interpolation: {
     escapeValue: false,
   },
+  debug: true,
 });
 
 // Fonction pour changer la langue (utilisée par LanguageContext)

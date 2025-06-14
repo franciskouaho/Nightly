@@ -270,7 +270,7 @@ export default {
 
   // Game
   game: {
-    start: 'Avvia',
+    start: 'Inizia',
     join: 'Unisciti',
     leave: 'Esci',
     players: 'Giocatori',
@@ -327,7 +327,7 @@ export default {
       }
     },
     player: 'il giocatore',
-    round: 'Turno {{count}}',
+    round: 'Turno {{current}}/{{total}}',
     truthOrDare: {
       title: 'Verità o Sfida',
       choice: 'Scelta',
