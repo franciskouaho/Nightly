@@ -231,40 +231,18 @@ export default {
         "nextButton": "Next round",
         "noExampleAvailable": "No example available",
       },
+      "word-guessing": {
+        name: "GUESS THE WORD",
+        description: "Make others guess a word without using forbidden words... A game of words and speed!",
+        tags: {
+          free: "FREE"
+        }
+      },
     },
     waitingForPlayersTitle: "Waiting for players",
     waitingForPlayersMessage: "Please wait for all players to submit their word.",
     actionNotAllowedTitle: "Action not allowed",
     onlyHostCanAdvance: "Only the host can advance to the next round.",
-  },
-
-  // Settings
-  settings: {
-    title: 'Settings',
-    language: 'Language',
-    notifications: 'Notifications',
-    theme: 'Theme',
-    privacy: 'Privacy',
-    about: 'About',
-    help: 'Help',
-    darkMode: 'Dark Mode',
-    lightMode: 'Light Mode',
-    system: 'System',
-    buyAssets: {
-      title: 'Buy Assets',
-      available: 'Available Assets',
-      availableAssetsTitle: 'Available Assets',
-      owned: 'Owned',
-      cost: 'Cost',
-      points: 'points',
-      buy: 'Buy',
-      confirm: 'Confirm Purchase',
-      cancel: 'Cancel',
-      success: 'Asset purchased successfully!',
-      error: 'Error during purchase',
-      insufficientPoints: 'Insufficient points',
-      equip: 'Equip',
-    },
   },
 
   // Game
@@ -275,17 +253,17 @@ export default {
     players: 'Players',
     waiting: 'Waiting',
     yourTurn: 'Your turn',
-    gameOver: 'Game over',
+    gameOver: 'Game Over',
     winner: 'Winner',
     draw: 'Draw',
     error: "Error",
     unknownMode: "Unknown game mode: {{mode}}",
     notFound: "No game document found for id: {{id}}",
-    noMode: "No game mode found in the games document.",
+    noMode: "No game mode found in the game document.",
     loading: "Loading...",
     results: {
       title: "Final Results",
-      subtitle: "Congratulations to all!",
+      subtitle: "Congratulations everyone!",
       bravo: "Congratulations {{name}}!",
       points: "points",
       home: "Home",
@@ -309,110 +287,63 @@ export default {
         timePlayed: "Time played",
         newHighScore: "New high score!",
         shareResults: "Share results",
-        playAgain: "Play again",
-        // Theme translations
-        "theme.marque": "a brand",
-        "theme.ville": "a city",
-        "theme.prenom": "a first name",
-        "theme.pays": "a country",
-        "theme.animal": "an animal",
-        "theme.metier": "a job",
-        "theme.sport": "a sport",
-        "theme.fruit": "a fruit",
-        "theme.legume": "a vegetable",
-        "theme.objet": "an object"
+        playAgain: "Play again"
+      },
+      "word-guessing": {
+        title: "Guess the Word",
+        timer: "Time remaining",
+        score: "Score",
+        forbiddenWords: "Forbidden words",
+        start: "Start",
+        next: "Next word",
+        found: "Word found!",
+        forbidden: "Forbidden word used!",
+        timeUp: "Time's up!",
+        finalScore: "Final score",
+        playAgain: "Play again"
       }
     },
     player: 'the player',
-    round: "Round",
-    listenButDontJudge: {
-      waiting: "Waiting for other players...",
-      waitingVote: "Waiting for the target player's vote...",
-      waitingForOthers: "Waiting for other votes...",
-      submit: "Submit",
-      vote: "Vote",
-      next: "Next round",
-      voteTitle: "Choose the best answer",
-      answerPlaceholder: "Write your answer here...",
-      errorSubmit: "Unable to submit answer",
-      errorVote: "Unable to submit vote",
-      errorNext: "An error occurred when moving to the next round",
-      noQuestions: "No questions available",
-      endTitle: "End of the game!",
-      endSubtitle: "Thanks for playing!"
-    },
+    round: 'Round {{count}}',
     truthOrDare: {
-      truth: "Truth!",
-      dare: "Dare!",
-      chooseTask: "Choose your challenge",
-      isThinking: "is thinking...",
-      willChoose: "Will they choose",
-      or: "or",
-      action: "Dare",
-      iAnswered: "I answered",
-      iRefuse: "I refuse",
-      voteInProgress: "Vote in progress",
-      otherPlayersDecide: "Other players decide if",
-      playedGame: "completed the challenge",
-      vote: "Vote",
-      did: "Did",
-      yes: "Yes",
-      no: "No",
-      thanksVote: "Thanks for your vote!",
-      votes: "votes",
-      round: "Round",
-      roundEnd: "End of round for",
-      scores: "Scores",
-      next: "Next round",
-      submit: "Submit",
-      errorSubmit: "Unable to submit answer",
-      errorVote: "Unable to submit vote",
-      errorNext: "An error occurred while moving to the next round",
-      endTitle: "Game over!",
-      endSubtitle: "Thanks for playing Truth or Dare!"
+      title: 'Truth or Dare',
+      choice: 'Choice',
+      question: 'Question',
+      action: 'Dare',
+      submitChoice: 'Submit choice',
+      submitAnswer: 'Submit answer',
+      next: 'Next',
+      endGame: 'End game',
+      endTitle: 'Congratulations everyone!',
+      endSubtitle: 'You finished the Truth or Dare game',
+      home: 'Back to home',
+      readAloud: 'Read aloud',
+      targetChooses: '{{name}} chooses between Truth or Dare!',
+      targetAnswers: '{{name}} answers the truth!',
+      targetDoesDare: '{{name}} does the dare!',
+      error: 'An error occurred',
+      noQuestions: 'No questions available',
+      errorNext: 'An error occurred when moving to the next round',
+      naughtyRanking: 'Naughtiest ranking'
     },
-    geniusOrLiar: {
-      roundResults: 'Round Results',
-      correctAnswerLabel: 'Correct Answer: {{answer}}',
-      givenAnswerLabel: 'Given Answer: {{answer}}',
-      playerStatus: {
-        dontKnow: 'Didn\'t know',
-        correctAnswer: 'Found the correct answer',
-        correctButAccused: 'Found the correct answer but was accused',
-        liarNotAccused: 'Lied without being accused',
-        liarAccused: 'Lied and was accused',
-        wrongAnswer: 'Wrong answer'
-      },
-      accuserStatus: {
-        correctAccusation: 'Justified accusation!',
-        wrongAccusation: 'Wrong accusation!'
-      },
-      wasAccused: 'Was accused',
-      nextRound: 'Next Round',
-      endGame: 'End Game',
-      drinks: 'dares',
-      chooseGameMode: 'Choose Game Mode',
-      pointsMode: 'Points Mode',
-      gagesMode: 'Dares Mode',
-      modeSelectError: 'Unable to select game mode.',
-      noQuestionAvailable: 'No question available.',
-      incorrectQuestionFormat: 'Incorrect question format for id: {{id}}.',
-      noQuestions: 'No questions loaded.',
-      accuseTitle: 'Accuse a Liar',
-      pretendKnows: 'Pretends to know',
-      accusedBy: 'Accused by {{count}} player(s)',
-      accuseNoOne: 'Accuse no one',
-      waitingForPlayers: 'Waiting for other players...',
-      answerPlaceholder: 'Enter your answer here...',
-      validate: 'Validate',
-      know: 'I know',
-      dontKnow: 'I don\'t know',
-      errorSubmit: 'Error submitting your answer or vote.'
+    listenButDontJudge: {
+      title: 'Listen but Don\'t Judge',
+      question: 'Question',
+      next: 'Next',
+      endGame: 'End game',
+      endTitle: 'Congratulations everyone!',
+      endSubtitle: 'You finished the Listen but Don\'t Judge game',
+      home: 'Back to home',
+      readAloud: 'Read aloud',
+      targetAnswers: '{{name}} answers!',
+      error: 'An error occurred',
+      noQuestions: 'No questions available',
+      errorNext: 'An error occurred when moving to the next round'
     },
     neverHaveIEverHot: {
       never: "Never have I ever",
       ever: "I have already",
-      waiting: "Waiting for the target player's choice...",
+      waiting: "Waiting for the target player\'s choice...",
       prepare: "Get ready to answer!",
       submit: "Submit",
       next: "Next round",
@@ -426,6 +357,25 @@ export default {
       noQuestions: "No questions available",
       errorNext: "An error occurred when moving to the next round",
       naughtyRanking: "Naughtiest ranking"
+    },
+    geniusOrLiar: {
+      title: 'Genius or Liar',
+      question: 'Question',
+      know: 'I know',
+      dontKnow: 'I don\'t know',
+      accuse: 'Accuse',
+      submitAnswer: 'Submit answer',
+      next: 'Next round',
+      endGame: 'End game',
+      endTitle: 'Congratulations everyone!',
+      endSubtitle: 'You finished the Genius or Liar game',
+      home: 'Back to home',
+      readAloud: 'Read aloud',
+      targetAnswers: '{{name}} answers!',
+      error: 'An error occurred',
+      noQuestions: 'No questions available',
+      errorNext: 'An error occurred when moving to the next round',
+      errorSubmit: 'Error submitting your answer or vote.'
     },
     theHiddenVillage: {
       title: 'THE HIDDEN VILLAGE',
@@ -468,6 +418,31 @@ export default {
         village: 'Village: discover the traitor before they win.'
       }
     },
+    trapAnswer: {
+      title: "Trap Answer",
+      question: "Question",
+      next: "Next",
+      endGame: "End game",
+      endTitle: "Congratulations everyone!",
+      endSubtitle: "You finished the Trap Answer game",
+      home: "Back to home",
+      readAloud: "Read aloud",
+      targetAnswers: "{{name}} answers!",
+      error: "An error occurred",
+      noQuestions: "No questions available",
+      errorNext: "An error occurred when moving to the next round",
+      submit: "Submit",
+      choices: "Choices",
+      correctAnswer: "Correct answer!",
+      wrongAnswer: "Wrong answer.",
+      correct: "Correct",
+      wrong: "Wrong",
+      waitingForPlayers: "Waiting for other players...",
+      playerAnswered: "{{count}} player has answered",
+      playerAnswered_plural: "{{count}} players have answered",
+      yourScore: "Your score",
+      playerScores: "Player scores"
+    },
     twoLettersOneWord: {
       score: "Score: {{score}}",
       theme: "Theme: {{theme}}",
@@ -477,16 +452,79 @@ export default {
       validWord: "Valid word!",
       validWordMessage: "You found a valid word!",
       invalidWord: "Invalid word",
-      invalidWordMessage: "This word doesn't match the required criteria.",
+      invalidWordMessage: "This word doesn\'t match the required criteria.",
       noWordError: "Please enter a word",
-      error: "An error occurred"
-    }
+      error: "An error occurred",
+      howToPlay: "Find a word that contains the two given letters and matches the chosen theme.",
+      "theme.marque": "a brand",
+      "theme.ville": "a city",
+      "theme.prenom": "a first name",
+      "theme.pays": "a country",
+      "theme.animal": "an animal",
+      "theme.metier": "a job",
+      "theme.sport": "a sport",
+      "theme.fruit": "a fruit",
+      "theme.legume": "a vegetable",
+      "theme.objet": "an object",
+      "exampleWord": "Example: {{word}}",
+      "nextButton": "Next round",
+      "noExampleAvailable": "No example available",
+    },
+    word_guessing: {
+      targetPlayer: 'Make {{player}} guess',
+      forbiddenWords: 'Forbidden words',
+      found: 'Word found!',
+      forbidden: 'Forbidden word!',
+      nextWord: 'Next word',
+      categories: {
+        lieux: 'Places',
+        aliments: 'Food',
+        transport: 'Transport',
+        technologie: 'Technology',
+        sports: 'Sports',
+        loisirs: 'Hobbies',
+        nature: 'Nature',
+        objets: 'Objects',
+        animaux: 'Animals',
+      },
+      guesserInstructions: 'Your friend is trying to make you guess a word!',
+      guesserInfo: 'Listen carefully and try to find the word without them using the forbidden words.',
+    },
+  },
+
+  // Settings
+  settings: {
+    title: 'Settings',
+    language: 'Language',
+    notifications: 'Notifications',
+    theme: 'Theme',
+    privacy: 'Privacy',
+    about: 'About',
+    help: 'Help',
+    darkMode: 'Dark Mode',
+    lightMode: 'Light Mode',
+    system: 'System',
+    buyAssets: {
+      title: 'Buy Assets',
+      available: 'Available Assets',
+      availableAssetsTitle: 'Available Assets',
+      owned: 'Owned',
+      cost: 'Cost',
+      points: 'points',
+      buy: 'Buy',
+      confirm: 'Confirm Purchase',
+      cancel: 'Cancel',
+      success: 'Asset purchased successfully!',
+      error: 'Error during purchase',
+      insufficientPoints: 'Insufficient points',
+      equip: 'Equip',
+    },
   },
 
   // Splash Screen
   splash: {
     title: 'Nightly',
-    subtitle: 'Get ready to play',
+    subtitle: 'Ready to play',
     loading: 'Loading...',
   },
 
@@ -523,7 +561,7 @@ export default {
     rulesNotRead: "Please read the rules before starting the game.",
     iAmReady: "I am ready",
     startGame: "Start Game",
-    inviteTitle: "Join my game",
+    inviteTitle: "Invite Friends",
     inviteMessage: "Join my game on Nightly! Code: {{code}}",
     error: "Error",
     errorLoading: "Unable to load the room",
@@ -547,6 +585,7 @@ export default {
     }
   },
 
+  // Paywall
   paywall: {
     title: 'Nightly Premium',
     subtitle: 'UNLIMITED ACCESS',
@@ -563,7 +602,7 @@ export default {
         badge: 'PASS',
         title: 'Nightly Pass',
         period: 'per week',
-        description: 'Perfect for a night or weekend with friends'
+        description: 'Perfect for a night out or a weekend with friends'
       },
       monthly: {
         badge: 'PARTY',
@@ -585,7 +624,7 @@ export default {
     },
     alerts: {
       productUnavailable: {
-        title: 'Product unavailable',
+        title: 'Product not available',
         message: 'The subscription is not available at the moment. Please try again later.'
       },
       success: {
@@ -594,11 +633,11 @@ export default {
       },
       pending: {
         title: 'Information',
-        message: 'Your subscription has been processed but is not yet active. Please restart the application.'
+        message: 'Your subscription has been processed but is not yet active. Please restart the app.'
       },
       error: {
         title: 'Error',
-        message: 'The purchase failed. Please try again or choose another payment method.'
+        message: 'Purchase failed. Please try again or choose another payment method.'
       },
       restoreSuccess: {
         title: 'Success',
@@ -606,7 +645,7 @@ export default {
       },
       restoreError: {
         title: 'Error',
-        message: 'Failed to restore purchases'
+        message: 'Purchase restoration failed'
       },
       termsError: {
         title: 'Error',
@@ -617,9 +656,9 @@ export default {
       weekly: '3.99',
       monthly: '7.99',
       annual: '29.99',
-      currency: '$'
+      currency: '€'
     },
-    freeTrial: 'Free 3 days',
+    freeTrial: 'Free 3-day trial',
   },
 
   assets: {

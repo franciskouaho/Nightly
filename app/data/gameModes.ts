@@ -113,6 +113,21 @@ export const gameCategories: GameCategory[] = [
                 }],
                 premium: true,
                 interactive: 'write'
+            },
+            {
+                id: 'word-guessing',
+                name: 'DEVINE LE MOT',
+                description: 'Faites deviner un mot sans utiliser les mots interdits... Un jeu de mots et de rapidité !',
+                image: require('@/assets/jeux/word-guessing.png'),
+                colors: ["rgba(40, 90, 120, 0.8)", "rgba(60, 120, 160, 0.9)"],
+                borderColor: "#2C7A9C",
+                shadowColor: "#2C7A9C",
+                tags: [{
+                    text: 'home.games.word-guessing.tags.free',
+                    color: "#8E24AA"
+                }],
+                premium: false,
+                interactive: 'write'
             }
         ]
     },

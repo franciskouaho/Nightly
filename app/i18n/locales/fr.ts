@@ -234,6 +234,13 @@ export default {
         "playerCountError": "Le jeu se joue de 1 à 4 joueurs.",
         "noExampleAvailable": "Aucun exemple disponible",
       },
+      'word-guessing': {
+        name: 'DEVINE LE MOT',
+        description: 'Faites deviner un mot sans utiliser les mots interdits... Un jeu de mots et de rapidité !',
+        tags: {
+          free: 'GRATUIT'
+        },
+      },
     }
   },
 
@@ -257,6 +264,8 @@ export default {
     buyAssets: {
       title: 'Acheter des assets',
       available: 'Assets disponibles',
+      availableAssetsTitle: 'Assets disponibles',
+      owned: 'Possédés',
       cost: 'Coût',
       points: 'points',
       buy: 'Acheter',
@@ -265,34 +274,30 @@ export default {
       success: 'Asset acheté avec succès !',
       error: 'Erreur lors de l\'achat',
       insufficientPoints: 'Points insuffisants',
-      availableAssetsTitle: 'Assets disponibles',
-      pointsLabel: 'points',
-      notAvailable: 'Non dispo',
-      owned: 'Possédé',
       equip: 'Équiper',
     },
   },
 
   // Jeu
   game: {
-    start: 'Commencer',
+    start: 'Démarrer',
     join: 'Rejoindre',
     leave: 'Quitter',
     players: 'Joueurs',
     waiting: 'En attente',
-    yourTurn: 'À votre tour',
-    gameOver: 'Partie terminée',
-    winner: 'Gagnant',
-    draw: 'Match nul',
+    yourTurn: 'Votre tour',
+    gameOver: 'Fin de la partie',
+    winner: 'Vainqueur',
+    draw: 'Égalité',
     error: "Erreur",
-    unknownMode: "Mode de jeu inconnu: {{mode}}",
-    notFound: "Aucun document de jeu trouvé pour l'id: {{id}}",
-    noMode: "Aucun mode de jeu trouvé dans le document games.",
+    unknownMode: "Mode de jeu inconnu : {{mode}}",
+    notFound: "Aucun document de jeu trouvé pour l'id : {{id}}",
+    noMode: "Aucun mode de jeu trouvé dans le document de jeux.",
     loading: "Chargement...",
     results: {
-      title: "Résultats finaux",
+      title: "Résultats Finaux",
       subtitle: "Félicitations à tous !",
-      bravo: "Bravo {{name}} !",
+      bravo: "Félicitations {{name}} !",
       points: "points",
       home: "Accueil",
       calculating: "Calcul des résultats...",
@@ -301,9 +306,9 @@ export default {
         second: "2ème place",
         third: "3ème place",
         others: "Autres joueurs",
-        title: "Classement du podium",
+        title: "Classement du Podium",
       },
-      rank: "Rang",
+      rank: "Classement",
       score: "Score",
       player: "Joueur",
       "two-letters-one-word": {
@@ -312,132 +317,98 @@ export default {
         totalWords: "Mots trouvés",
         bestWord: "Meilleur mot",
         averageScore: "Score moyen",
-        timePlayed: "Temps de jeu",
-        newHighScore: "Nouveau meilleur score !",
+        timePlayed: "Temps joué",
+        newHighScore: "Nouveau record !",
         shareResults: "Partager les résultats",
-        playAgain: "Rejouer",
-        // Traductions des thèmes
-        "theme.marque": "une marque",
-        "theme.ville": "une ville",
-        "theme.prenom": "un prénom",
-        "theme.pays": "un pays",
-        "theme.animal": "un animal",
-        "theme.metier": "un métier",
-        "theme.sport": "un sport",
-        "theme.fruit": "un fruit",
-        "theme.legume": "un légume",
-        "theme.objet": "un objet"
+        playAgain: "Rejouer"
+      },
+      "word-guessing": {
+        title: "Devine le Mot",
+        timer: "Temps restant",
+        score: "Score",
+        forbiddenWords: "Mots interdits",
+        start: "Démarrer",
+        next: "Mot suivant",
+        found: "Mot trouvé !",
+        forbidden: "Mot interdit utilisé !",
+        timeUp: "Temps écoulé !",
+        finalScore: "Score final",
+        playAgain: "Rejouer"
       }
     },
     player: 'le joueur',
-    listenButDontJudge: {
-      waiting: "En attente des autres joueurs...",
-      waitingVote: "En attente du vote du joueur cible...",
-      waitingForOthers: "En attente des autres votes...",
-      submit: "Soumettre",
-      vote: "Voter",
-      next: "Tour suivant",
-      voteTitle: "Choisissez la meilleure réponse",
-      answerPlaceholder: "Écrivez votre réponse ici...",
-      round: "Tour",
-      errorSubmit: "Impossible de soumettre la réponse",
-      errorVote: "Impossible de soumettre le vote",
-      errorNext: "Une erreur est survenue lors du passage au tour suivant",
-      noQuestions: "Aucune question disponible",
-      endTitle: "Fin de la partie !",
-      endSubtitle: "Merci d'avoir joué !"
-    },
+    round: 'Tour {{count}}',
     truthOrDare: {
-      truth: "Vérité !",
-      dare: "Action !",
-      chooseTask: "Choisis ton défi",
-      isThinking: "réfléchit...",
-      willChoose: "Va-t-il choisir",
-      or: "ou",
-      action: "Action",
-      iAnswered: "J'ai répondu",
-      iRefuse: "Je refuse",
-      voteInProgress: "Vote en cours",
-      otherPlayersDecide: "Les autres joueurs décident si",
-      playedGame: "a relevé le défi",
-      vote: "Votez",
-      did: "Est-ce que",
-      yes: "Oui",
-      no: "Non",
-      thanksVote: "Merci pour votre vote !",
-      votes: "votes",
-      round: "Tour",
-      roundEnd: "Fin du tour pour",
-      scores: "Scores",
-      next: "Tour suivant",
-      submit: "Soumettre",
-      errorSubmit: "Impossible de soumettre la réponse",
-      errorVote: "Impossible de soumettre le vote",
-      errorNext: "Une erreur est survenue lors du passage au tour suivant",
-      endTitle: "Fin de la partie !",
-      endSubtitle: "Merci d'avoir joué à Action ou Vérité !",
-      continue: 'Continuer',
+      title: 'Action ou Vérité',
+      choice: 'Choix',
+      question: 'Question',
+      action: 'Action',
+      submitChoice: 'Envoyer le choix',
+      submitAnswer: 'Envoyer la réponse',
+      next: 'Suivant',
+      endGame: 'Fin de la partie',
+      endTitle: 'Félicitations à tous !',
+      endSubtitle: 'Vous avez terminé le jeu Action ou Vérité',
+      home: 'Retour à l\'accueil',
+      readAloud: 'Lire à voix haute',
+      targetChooses: '{{name}} choisit entre Action ou Vérité !',
+      targetAnswers: '{{name}} répond à la vérité !',
+      targetDoesDare: '{{name}} fait l\'action !',
+      error: 'Une erreur est survenue',
+      noQuestions: 'Aucune question disponible',
+      errorNext: 'Une erreur est survenue lors du passage au tour suivant',
+      naughtyRanking: 'Classement coquin'
     },
-    continue: 'Continuer',
-    round: "Tour",
-    geniusOrLiar: {
-      roundResults: 'Résultats du tour',
-      correctAnswerLabel: 'Bonne réponse : {{answer}}',
-      givenAnswerLabel: 'Réponse donnée : {{answer}}',
-      playerStatus: {
-        dontKnow: 'Ne savait pas',
-        correctAnswer: 'A trouvé la bonne réponse',
-        correctButAccused: 'A trouvé la bonne réponse mais a été accusé',
-        liarNotAccused: 'A menti sans être accusé',
-        liarAccused: 'A menti et a été accusé',
-        wrongAnswer: 'Mauvaise réponse'
-      },
-      accuserStatus: {
-        correctAccusation: 'Accusation justifiée !',
-        wrongAccusation: 'Mauvaise accusation !'
-      },
-      wasAccused: 'A été accusé',
-      nextRound: 'Tour suivant',
-      endGame: 'Terminer la partie',
-      drinks: 'gages',
-      chooseGameMode: 'Choisir le mode de jeu',
-      pointsMode: 'Mode Points',
-      gagesMode: 'Mode Gages',
-      modeSelectError: 'Impossible de sélectionner le mode de jeu.',
-      noQuestionAvailable: 'Aucune question disponible.',
-      incorrectQuestionFormat: 'Format de question incorrect pour l\'id: {{id}}.',
-      noQuestions: 'Aucune question chargée.',
-      accuseTitle: 'Accuser un menteur',
-      pretendKnows: 'Prétend savoir',
-      accusedBy: 'Accusé par {{count}} joueur(s)',
-      accuseNoOne: 'N\'accuser personne',
-      waitingForPlayers: 'En attente des autres joueurs...',
-      answerPlaceholder: 'Entrez votre réponse ici...',
-      validate: 'Valider',
-      know: 'Je sais',
-      dontKnow: 'Je ne sais pas',
-      errorSubmit: 'Erreur lors de la soumission de votre réponse ou vote.'
+    listenButDontJudge: {
+      title: 'On Écoute Mais On Ne Juge Pas',
+      question: 'Question',
+      next: 'Suivant',
+      endGame: 'Fin de la partie',
+      endTitle: 'Félicitations à tous !',
+      endSubtitle: 'Vous avez terminé le jeu On Écoute Mais On Ne Juge Pas',
+      home: 'Retour à l\'accueil',
+      readAloud: 'Lire à voix haute',
+      targetAnswers: '{{name}} répond !',
+      error: 'Une erreur est survenue',
+      noQuestions: 'Aucune question disponible',
+      errorNext: 'Une erreur est survenue lors du passage au tour suivant'
     },
     neverHaveIEverHot: {
       never: "Je n'ai jamais",
       ever: "J'ai déjà",
       waiting: "En attente du choix du joueur cible...",
-      prepare: "Préparez-vous à répondre !",
-      submit: "Soumettre",
+      prepare: "Prépare-toi à répondre !",
+      submit: "Envoyer",
       next: "Tour suivant",
-      endGame: "Terminer le jeu",
-      errorSubmit: "Impossible de soumettre la réponse",
+      endGame: "Fin de la partie",
+      errorSubmit: "Impossible d'envoyer la réponse",
       endTitle: "Félicitations à tous !",
-      endSubtitle: "Vous avez terminé la partie Je n'ai jamais 🔞",
+      endSubtitle: "Vous avez terminé le jeu Je n'ai jamais 🔞",
       home: "Retour à l'accueil",
-      readAloud: "Lis la question à haute voix",
+      readAloud: "Lis la question à voix haute",
       targetReads: "{{name}} lit la question",
       noQuestions: "Aucune question disponible",
       errorNext: "Une erreur est survenue lors du passage au tour suivant",
-      naughtyRanking: "Classement des plus cochons",
-      naughtyAnswers: "réponses cochonnes",
-      neverButton: "🙅‍♂️ Je n'ai jamais",
-      everButton: "🔥 J'ai déjà",
+      naughtyRanking: "Classement coquin"
+    },
+    geniusOrLiar: {
+      title: 'Génie ou Menteur',
+      question: 'Question',
+      know: 'Je sais',
+      dontKnow: 'Je ne sais pas',
+      accuse: 'Accuser',
+      submitAnswer: 'Envoyer la réponse',
+      next: 'Tour suivant',
+      endGame: 'Fin de la partie',
+      endTitle: 'Félicitations à tous !',
+      endSubtitle: 'Vous avez terminé le jeu Génie ou Menteur',
+      home: 'Retour à l\'accueil',
+      readAloud: 'Lire à voix haute',
+      targetAnswers: '{{name}} répond !',
+      error: 'Une erreur est survenue',
+      noQuestions: 'Aucune question disponible',
+      errorNext: 'Une erreur est survenue lors du passage au tour suivant',
+      errorSubmit: 'Erreur lors de l\'envoi de votre réponse ou de votre vote.'
     },
     theHiddenVillage: {
       title: 'LE VILLAGE CACHÉ',
@@ -447,8 +418,8 @@ export default {
         title: '🌓 PRINCIPE DU JEU',
         list: [
           'Chaque nuit, un joueur "traître" élimine un autre joueur.',
-          'Chaque jour, les survivants discutent et votent pour éliminer celui qu\'ils soupçonnent.',
-          'Objectif : démasquer le coupable avant qu\'il ne vous élimine tous.'
+          'Chaque jour, les survivants débattent et votent pour éliminer celui qu\'ils soupçonnent.',
+          'Objectif : démasquer le coupable avant qu\'il n\'élimine tout le monde.'
         ]
       },
       roles: {
@@ -459,7 +430,7 @@ export default {
         },
         medium: {
           name: 'Le Médium',
-          description: 'Devine si un joueur est villageois ou traître.'
+          description: 'Devine si un joueur est un villageois ou un traître.'
         },
         protector: {
           name: 'Le Protecteur',
@@ -467,44 +438,101 @@ export default {
         },
         villager: {
           name: 'Le Villageois',
-          description: 'Pas de pouvoir. Vote intelligemment.'
+          description: 'Sans pouvoir. Votez sagement.'
         },
         liar: {
           name: 'Le Menteur',
-          description: 'Rôle fun. Sème le doute.'
+          description: 'Rôle amusant. Sème le doute.'
         }
       },
       objectives: {
         title: '🎯 OBJECTIFS',
-        traitor: 'Traître : éliminer tous les autres sans se faire démasquer.',
+        traitor: 'Traître : éliminer tous les autres sans se faire prendre.',
         village: 'Village : découvrir le traître avant qu\'il ne gagne.'
       }
     },
+    trapAnswer: {
+      title: "Question Piège",
+      question: "Question",
+      next: "Suivant",
+      endGame: "Fin de la partie",
+      endTitle: "Félicitations à tous !",
+      endSubtitle: "Vous avez terminé le jeu Question Piège",
+      home: "Accueil",
+      readAloud: "Lire à voix haute",
+      targetAnswers: "{{name}} répond !",
+      error: "Une erreur est survenue",
+      noQuestions: "Aucune question disponible",
+      errorNext: "Une erreur est survenue lors du passage au tour suivant",
+      submit: "Envoyer",
+      choices: "Choix",
+      correctAnswer: "Bonne réponse !",
+      wrongAnswer: "Mauvaise réponse.",
+      correct: "Correct",
+      wrong: "Faux",
+      waitingForPlayers: "En attente des autres joueurs...",
+      playerAnswered: "{{count}} joueur a répondu",
+      playerAnswered_plural: "{{count}} joueurs ont répondu",
+      yourScore: "Votre score",
+      playerScores: "Scores des joueurs"
+    },
     twoLettersOneWord: {
-      enterWord: "Entrez votre mot...",
-      verify: "Vérifier",
-      verifying: "Vérification...",
-      score: "Score",
-      theme: "Thème",
-      error: {
-        emptyWord: "Veuillez entrer un mot",
-        verificationFailed: "Une erreur est survenue lors de la vérification"
-      },
-      success: {
-        validWord: "Bravo ! Votre mot est valide !",
-        invalidWord: "Dommage ! Votre mot ne correspond pas aux critères."
-      }
+      score: "Score : {{score}}",
+      theme: "Thème : {{theme}}",
+      inputPlaceholder: "Entrez votre mot...",
+      verifyButton: "Vérifier",
+      verifyingButton: "Vérification...",
+      validWord: "Mot valide !",
+      validWordMessage: "Vous avez trouvé un mot valide !",
+      invalidWord: "Mot invalide",
+      invalidWordMessage: "Ce mot ne correspond pas aux critères demandés.",
+      noWordError: "Veuillez entrer un mot",
+      error: "Une erreur est survenue",
+      howToPlay: "Trouvez un mot qui contient les deux lettres données et correspond au thème choisi.",
+      "theme.marque": "une marque",
+      "theme.ville": "une ville",
+      "theme.prenom": "un prénom",
+      "theme.pays": "un pays",
+      "theme.animal": "un animal",
+      "theme.metier": "un métier",
+      "theme.sport": "un sport",
+      "theme.fruit": "un fruit",
+      "theme.legume": "un légume",
+      "theme.objet": "un objet",
+      "exampleWord": "Exemple : {{word}}",
+      "nextButton": "Tour suivant",
+      "noExampleAvailable": "Aucun exemple disponible",
     },
     waitingForPlayersTitle: "En attente des joueurs",
     waitingForPlayersMessage: "Veuillez attendre que tous les joueurs aient soumis leur mot.",
     actionNotAllowedTitle: "Action non autorisée",
     onlyHostCanAdvance: "Seul l'hôte peut passer au tour suivant.",
+    word_guessing: {
+      targetPlayer: 'Fais deviner à {{player}}',
+      forbiddenWords: 'Mots interdits',
+      found: 'Mot trouvé !',
+      forbidden: 'Mot interdit !',
+      nextWord: 'Mot suivant',
+      categories: {
+        lieux: 'Lieux',
+        aliments: 'Aliments',
+        transport: 'Transport',
+        technologie: 'Technologie',
+        sports: 'Sports',
+        loisirs: 'Loisirs',
+        nature: 'Nature',
+        objets: 'Objets',
+        animaux: 'Animaux',
+      },
+      guesserInstructions: 'Votre ami essaie de vous faire deviner un mot !',
+      guesserInfo: 'Écoutez attentivement et essayez de trouver le mot sans qu\'il utilise les mots interdits.',
+    },
   },
 
   // Splash Screen
   splash: {
     title: 'Nightly',
-    subtitle: 'Préparez-vous à jouer',
+    subtitle: 'Prêt à jouer',
     loading: 'Chargement...',
   },
 
@@ -516,14 +544,14 @@ export default {
     confirmStart: 'J\'ai lu les règles, démarrer la partie',
     general: {
       title: 'RÈGLES GÉNÉRALES',
-      description: 'Un joueur est désigné aléatoirement à chaque tour.'
+      description: 'Un joueur est désigné au hasard à chaque tour.'
     },
     participation: {
       title: 'PARTICIPATION',
       description: 'Tous les joueurs doivent participer activement.'
     },
     scoring: {
-      title: 'SCORING',
+      title: 'ATTRIBUTION DES POINTS',
       description: 'Les points sont attribués selon les règles spécifiques du jeu.'
     }
   },
@@ -542,7 +570,7 @@ export default {
     iAmReady: "Je suis prêt",
     startGame: "Démarrer la partie",
     inviteTitle: "Rejoins ma partie",
-    inviteMessage: "Rejoins ma partie sur Nightly ! Code: {{code}}",
+    inviteMessage: "Rejoins ma partie sur Nightly ! Code : {{code}}",
     error: "Erreur",
     errorLoading: "Impossible de charger la salle",
     errorStart: "Impossible de démarrer la partie",
@@ -551,23 +579,21 @@ export default {
     errorCopy: "Erreur lors de la copie du code",
     errorShare: "Erreur lors du partage",
     successCopy: "Code copié dans le presse-papiers",
-    minPlayers: "Il faut au moins 2 joueurs pour démarrer la partie.",
-    allReady: "Tous les joueurs sont prêts !",
-    waiting: "En attente des autres joueurs...",
-    title: "Salle de jeu",
-    rounds: "tours",
     minPlayersRequired: "Minimum {{count}} joueurs requis",
     notEnoughPlayers: "Pas assez de joueurs",
+    rounds: "tours",
+    title: "Salle de jeu"
   },
 
   topBar: {
     greeting: 'Bonjour',
     notifications: {
       title: 'Notifications',
-      comingSoon: 'Cette fonctionnalité sera bientôt disponible !'
+      comingSoon: 'Cette fonctionnalité arrive bientôt !'
     }
   },
 
+  // Paywall
   paywall: {
     title: 'Nightly Premium',
     subtitle: 'UNLIMITED ACCESS',

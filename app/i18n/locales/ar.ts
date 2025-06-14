@@ -250,6 +250,13 @@ export default {
         "nextButton": "الجولة التالية",
         "noExampleAvailable": "لا يوجد مثال متاح",
       },
+      word_guessing: {
+        name: 'خمن الكلمة',
+        description: 'اجعل الآخرين يخمنون كلمة دون استخدام كلمات محظورة... لعبة كلمات وسرعة!',
+        tags: {
+          free: 'مجاني'
+        }
+      },
     },
     geniusOrLiar: {
       roundResults: 'نتائج الجولة',
@@ -466,6 +473,19 @@ export default {
       }
     },
     round: "الجولة",
+    word_guessing: {
+      title: 'خمن الكلمة',
+      timer: 'الوقت المتبقي',
+      score: 'النتيجة',
+      forbiddenWords: 'الكلمات المحظورة',
+      start: 'ابدأ',
+      next: 'الكلمة التالية',
+      found: 'تم العثور على الكلمة!',
+      forbidden: 'تم استخدام كلمة محظورة!',
+      timeUp: 'انتهى الوقت!',
+      finalScore: 'النتيجة النهائية',
+      playAgain: 'العب مرة أخرى',
+    },
   },
 
   // Splash Screen
@@ -503,35 +523,36 @@ export default {
     title: "غرفة اللعب"
   },
 
+  // Paywall
   paywall: {
-    title: 'Nightly المميز',
+    title: 'Nightly Premium',
     subtitle: 'وصول غير محدود',
     tagline: 'العب بلا حدود',
     features: {
       unlimited: 'وصول غير محدود لجميع الأوضاع',
       weekly: 'بطاقات جديدة كل أسبوع',
-      visuals: 'مظاهر بصرية حصرية',
+      visuals: 'ثيمات بصرية حصرية',
       characters: 'تخصيص الشخصيات',
       updates: 'تحديثات ذات أولوية'
     },
     plans: {
       weekly: {
-        badge: 'باس',
+        badge: 'PASS',
         title: 'Nightly Pass',
         period: 'أسبوعيًا',
-        description: 'مثالي لليلة أو عطلة نهاية الأسبوع مع الأصدقاء'
+        description: 'مثالي لقضاء ليلة أو عطلة نهاية أسبوع مع الأصدقاء'
       },
       monthly: {
-        badge: 'حفلة',
+        badge: 'PARTY',
         title: 'Nightly Party',
         period: 'شهريًا',
-        description: 'لللاعبين المنتظمين'
+        description: 'للاعبين المنتظمين'
       },
       annual: {
-        badge: 'وصول كامل',
+        badge: 'ALL ACCESS',
         title: 'Nightly All Access',
         period: 'سنويًا',
-        description: 'العرض النهائي للمعجبين'
+        description: 'العرض الأمثل للمعجبين'
       }
     },
     cta: 'ابدأ الآن',
@@ -542,11 +563,11 @@ export default {
     alerts: {
       productUnavailable: {
         title: 'المنتج غير متوفر',
-        message: 'الاشتراك غير متوفر حاليًا. يرجى المحاولة لاحقًا.'
+        message: 'الاشتراك غير متاح في الوقت الحالي. يرجى المحاولة مرة أخرى لاحقًا.'
       },
       success: {
         title: 'نجاح',
-        message: 'شكرًا لشرائك!'
+        message: 'شكرا لك على الشراء!'
       },
       pending: {
         title: 'معلومات',
@@ -554,7 +575,7 @@ export default {
       },
       error: {
         title: 'خطأ',
-        message: 'فشلت عملية الشراء. يرجى المحاولة مرة أخرى أو اختيار طريقة دفع أخرى.'
+        message: 'فشل الشراء. يرجى المحاولة مرة أخرى أو اختيار طريقة دفع أخرى.'
       },
       restoreSuccess: {
         title: 'نجاح',
@@ -562,7 +583,7 @@ export default {
       },
       restoreError: {
         title: 'خطأ',
-        message: 'خطأ في استعادة المشتريات'
+        message: 'فشلت استعادة المشتريات'
       },
       termsError: {
         title: 'خطأ',
@@ -570,12 +591,12 @@ export default {
       }
     },
     prices: {
-      weekly: '3,99',
-      monthly: '7,99',
-      annual: '29,99',
+      weekly: '3.99',
+      monthly: '7.99',
+      annual: '29.99',
       currency: '€'
     },
-    freeTrial: 'مجاني لمدة 3 أيام',
+    freeTrial: 'تجربة مجانية لمدة 3 أيام',
   },
 
   // القواعد

@@ -16,6 +16,7 @@ import i18n from '@/app/i18n/i18n';
 import { getQuestions } from '../game/trap-answer/questions';
 import { TrapGameState } from '@/types/types';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { transformQuestion } from '../game/word-guessing/questions';
 
 // Liste des thèmes possibles pour 2 Lettres 1 Mot
 const TWO_LETTERS_ONE_WORD_THEMES = [
@@ -50,7 +51,8 @@ const GAME_CONFIG = {
   'trap-answer': { minPlayers: 2 },
   'never-have-i-ever-hot': { minPlayers: 2 },
   'genius-or-liar': { minPlayers: 2 },
-  'two-letters-one-word': { minPlayers: 1 }
+  'two-letters-one-word': { minPlayers: 1 },
+  'word-guessing': { minPlayers: 2 }
 };
 
 // Type pour l'utilisateur
@@ -328,6 +330,8 @@ export default function RoomScreen() {
             router.replace(`/game/genius-or-liar/${roomData.gameDocId}`);
           } else if (roomData.gameMode === 'two-letters-one-word') {
             router.replace(`/game/two-letters-one-word/${roomData.gameDocId}`);
+          } else if (roomData.gameMode === 'word-guessing') {
+            router.replace(`/game/word-guessing/${roomData.gameDocId}`);
           }
           return;
         }
@@ -469,7 +473,7 @@ export default function RoomScreen() {
           currentPlayerId: initialCurrentPlayerId, // Initialiser currentPlayerId de manière sécurisée
           currentChoice: null, // Pas encore de choix
           currentQuestion: null, // Pas encore de question sélectionnée
-          askedQuestions: [], // Aucune question posée au début
+          askedQuestionIds: [], // Aucune question posée au début
           phase: GamePhase.CHOIX, // Commence en phase de choix
         };
       }
@@ -497,6 +501,7 @@ export default function RoomScreen() {
 
         // Sélectionner la première question aléatoirement
         const firstQuestion = questionsArr[Math.floor(Math.random() * questionsArr.length)];
+        console.log('[DEBUG ROOM] firstQuestion (raw from array):', firstQuestion);
 
         if (!firstQuestion) {
           console.error('Impossible de sélectionner la première question.');
@@ -506,12 +511,8 @@ export default function RoomScreen() {
         }
         
         // Assurer que la question sélectionnée a une structure correcte pour le stockage
-        const questionToStore = {
-          id: String(Math.random()), // Générer un ID unique pour la question dans le contexte du jeu
-          text: typeof firstQuestion.text === 'string' ? firstQuestion.text : '',
-          theme: (firstQuestion as any).theme || 'general', // Utiliser le thème si disponible, sinon 'general' par défaut pour les autres jeux
-          roundNumber: 1, // C'est la première question (round 1)
-        };
+        const transformedFirstQuestion = transformQuestion(firstQuestion, 0);
+        console.log('[DEBUG ROOM] transformedFirstQuestion:', transformedFirstQuestion);
 
         console.log(`[DEBUG] Démarrage du jeu ${room.gameId} - Phase Question/Action`);
         gameDataToSet = {
@@ -528,8 +529,8 @@ export default function RoomScreen() {
           naughtyAnswers: {}, // Peut être spécifique à certains jeux, laisser pour l'instant si c'était là
           targetPlayer: initialTargetPlayer, // Définir le premier joueur comme cible initiale
           currentPlayerId: initialCurrentPlayerId, // Initialiser currentPlayerId de manière sécurisée
-          currentQuestion: questionToStore, // Inclure la première question formatée
-          askedQuestions: [questionToStore.text], // Ajouter la première question (texte) à la liste des questions posées
+          currentQuestion: transformedFirstQuestion, // Utiliser la question transformée
+          askedQuestionIds: [transformedFirstQuestion.id], // Ajouter l'ID de la première question à la liste des questions posées
           phase: GamePhase.QUESTION, // Commence en phase de question/action (nom ajusté pour clarté)
         };
       }
@@ -562,6 +563,7 @@ export default function RoomScreen() {
         case 'trap-answer':
         case 'genius-or-liar':
         case 'two-letters-one-word':
+        case 'word-guessing':
           router.replace(`/game/${room.gameId}/${gameDocId}`);
           break;
         default:

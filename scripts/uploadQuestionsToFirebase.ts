@@ -10,6 +10,62 @@ const firebaseConfig = {
 //node scripts/uploadQuestionsToFirebase.js
 
 const questions = {
+  'word-guessing': {
+    translations: {
+      fr: [
+        {
+          type: "lieux",
+          question: "plage",
+          answer: "plage",
+          traps: ["sable", "soleil", "mer"]
+        },
+        {
+          type: "aliments",
+          question: "pizza",
+          answer: "pizza",
+          traps: ["fromage", "tomate", "mozzarella"]
+        },
+        {
+          type: "objets",
+          question: "téléphone",
+          answer: "téléphone",
+          traps: ["appel", "portable", "smartphone"]
+        },
+        {
+          type: "animaux",
+          question: "chat",
+          answer: "chat",
+          traps: ["miaou", "ronron", "griffes"]
+        }
+      ],
+      en: [
+        {
+          type: "places",
+          question: "beach",
+          answer: "beach",
+          traps: ["sand", "sun", "sea"]
+        },
+        {
+          type: "food",
+          question: "pizza",
+          answer: "pizza",
+          traps: ["cheese", "tomato", "mozzarella"]
+        },
+        {
+          type: "objects",
+          question: "phone",
+          answer: "phone",
+          traps: ["call", "mobile", "smartphone"]
+        },
+        {
+          type: "animals",
+          question: "cat",
+          answer: "cat",
+          traps: ["meow", "purr", "claws"]
+        }
+      ]
+    }
+  },
   'listen-but-don-t-judge': {
     translations: {
       fr: [
@@ -230,7 +286,7 @@ const questions = {
         'Se {playerName} fosse un personaggio di un film o di una serie TV, quale sarebbe e perché?',
         'Qual è secondo te la più grande paura di {playerName}?',
         'Come immagini la vita di {playerName} tra 10 anni?',
-        'Qual è la cosa più gentile che {playerName} abbia mai fatto per qualcuno?',
+        'Qual è la cosa più gentile che {playerName} ha mai fatto per qualcuno?',
         'Se {playerName} potesse cambiare una cosa nella sua vita, quale pensi che sarebbe?',
         'Quale situazione fa dubitare maggiormente {playerName} delle proprie capacità?',
         'Qual è secondo te il sogno segreto di {playerName}?',
@@ -257,13 +313,13 @@ const questions = {
         'Se {playerName} potesse incontrare una persona famosa, chi sceglierebbe?',
         'Come pensi che {playerName} definisca la felicità?',
         'Come esprime {playerName} la sua creatività?',
-        'Se {playerName} potesse imparare istantaneamente un\'abilità, quale sceglierebbe?',
+        'Se {playerName} potesse imparare istantaneamente una habilidad, quale sceglierebbe?',
         'Come immagina {playerName} la sua pensione ideale?',
         'Se {playerName} fosse un profumo, quale sarebbe la sua essenza?',
         'Come si comporta {playerName} quando nessuno lo/la guarda?',
         'Se {playerName} potesse cambiare il mondo, da dove inizierebbe?',
         'Come celebra {playerName} le sue piccole vittorie?',
-        'Se {playerName} fosse un dolce, quale sarebbe e perché?',
+        'Se {playerName} fosse una sobremesa, quale sarebbe e perché?',
         'Come affronta {playerName} i momenti difficili?',
         'Se {playerName} potesse possedere un oggetto magico, quale sceglierebbe?',
         'Come esprime {playerName} la gratitudine?',
@@ -1954,11 +2010,19 @@ const questions = {
         {type: "sports", question: "In which sport do players use rackets and a yellow ball?", answer: "Tennis"},
         {type: "generalKnowledge", question: "How many days are in a leap year?", answer: "366"},
         {type: "popCulture", question: "Which superhero wears a red and blue costume and can fly?", answer: "Superman"},
-        {type: "hardGeneralKnowledge", question: "What is the smallest bone in the human body?", answer: "The stapes"},
+        {
+          type: "hardGeneralKnowledge",
+          question: "What is the smallest bone in the human body?",
+          answer: "The stapes"
+        },
         {type: "geography", question: "On which continent is Egypt located?", answer: "Africa"},
         {type: "history", question: "In what year was the Eiffel Tower built?", answer: "1889"},
         {type: "science", question: "What is the chemical symbol for gold?", answer: "Au"},
-        {type: "sports", question: "How many sets must you win to win a men's Grand Slam tennis match?", answer: "3"},
+        {
+          type: "sports",
+          question: "How many sets must you win to win a men's Grand Slam tennis match?",
+          answer: "3"
+        },
         {type: "generalKnowledge", question: "How many legs does a spider have?", answer: "8"},
         {type: "popCulture", question: "What is the name of the lion in 'The Lion King'?", answer: "Simba"},
         {type: "hardGeneralKnowledge", question: "Which country invented pasta?", answer: "China"},
@@ -2077,7 +2141,11 @@ const questions = {
         {type: "sport", question: "Wie viele Spieler sind in einem Basketballteam auf dem Feld?", answer: "5"},
         {type: "allgemeinwissen", question: "Welches Tier ist das Symbol Australiens?", answer: "Das Känguru"},
         {type: "wissenschaft", question: "Welcher Planet ist der Sonne am nächsten?", answer: "Merkur"},
-        {type: "schwerAllgemeinwissen", question: "In welchem Land wurde Sudoku erfunden?", answer: "Japan"},
+        {
+          type: "schwerAllgemeinwissen",
+          question: "In welchem Land wurde Sudoku erfunden?",
+          answer: "Japan"
+        },
         {type: "popkultur", question: "Wer schrieb 'Harry Potter'?", answer: "J.K. Rowling"},
         {type: "geographie", question: "Was ist das kleinste Land der Welt?", answer: "Vatikan"},
         {
@@ -3304,7 +3372,7 @@ const questions = {
           "type": "piccante"
         },
         {
-          "text": "Non ho mai avuto pensieri sessuali su un amico stretto",
+          "text": "Non ho mai avuto pensamenti sessuali su un amico stretto",
           "type": "piccante"
         },
         {
@@ -3466,7 +3534,7 @@ const questions = {
           "type": "quente"
         },
         {
-          "text": "Eu nunca fiquei com alguém muito mais velho que eu",
+          "text": "Eu nunca fiquei com alguém muito mais velhor que eu",
           "type": "apimentado"
         },
         {
@@ -5288,7 +5356,7 @@ const questions = {
         {
           type: "natura",
           question: "Quale insetto può sollevare 50 volte il suo peso?",
-          answer: "Formica",
+          answer: "Formiga",
           traps: ["Scarabeo", "Ape", "Cavalletta"]
         },
         {

@@ -11683,7 +11683,7 @@ __metadata:
     react-native-reanimated: "npm:~3.16.1"
     react-native-safe-area-context: "npm:4.12.0"
     react-native-screens: "npm:~4.4.0"
-    react-native-svg: "npm:^15.11.2"
+    react-native-svg: "npm:^15.12.0"
     react-native-web: "npm:~0.19.13"
     react-test-renderer: "npm:18.3.1"
     ts-node: "npm:^10.9.2"
@@ -12920,7 +12920,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-svg@npm:^15.11.2":
+"react-native-svg@npm:^15.12.0":
   version: 15.12.0
   resolution: "react-native-svg@npm:15.12.0"
   dependencies:
