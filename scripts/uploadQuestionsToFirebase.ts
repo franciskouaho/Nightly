@@ -222,7 +222,7 @@ const questions = {
         'Si {playerName} fuera un color, ¿cuál sería y por qué?',
         '¿Cómo demuestra {playerName} que está feliz?',
         'Si {playerName} pudiera viajar en el tiempo, ¿qué época visitaría?',
-        '¿Cuál es la lección más hermosa que la vida le ha enseñado a {playerName}?'
+        '¿Cuál es la lección más hermosa que la vida ha enseñado a {playerName}?'
       ],
       de: [
         'Wenn {playerName} eine niedliche Sünde gestehen müsste, welche wäre das?',
@@ -6121,9 +6121,20 @@ const uploadQuestionsToFirebase = async () => {
 
     // Pour chaque jeu, uploadez les questions
     for (const [gameId, content] of Object.entries(questions)) {
+      // Upload des questions
       await setDoc(doc(db, 'gameQuestions', gameId), {
         translations: content.translations
       });
+
+      // Créer ou mettre à jour l'entrée dans la collection gameReleases
+      const gameRef = doc(db, 'gameReleases', gameId);
+      await setDoc(gameRef, {
+        name: gameId, // Vous pouvez ajouter un nom plus convivial si nécessaire
+        notified: false,
+        releaseDate: new Date(),
+        isActive: true
+      }, { merge: true }); // merge: true permet de mettre à jour sans écraser les autres champs
+
       console.log(`Questions pour ${gameId} ajoutées avec succès!`);
     }
 

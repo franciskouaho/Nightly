@@ -4,6 +4,11 @@ export {
   sendNewContentNotification,
   sendEventNotification,
   sendSundayNotification,
+  sendNewGameAnnouncement,
+  sendMidweekReminder,
+  sendTuesdayTeaser,
+  sendNewGameReminderSaturday,
+  sendNewGameReminderWednesday
 } from './notifications';
 
 export { scheduledDeleteCollections } from './scheduled-cleanup';
