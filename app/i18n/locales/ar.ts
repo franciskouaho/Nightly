@@ -706,6 +706,7 @@ export default {
 
   // Common translations
   common: {
-    ok: 'حسناً',
+    ok: 'حسنا',
+    loading: 'جاري التحميل...',
   },
 };

@@ -177,10 +177,8 @@ export default function WordGuessingGame() {
 
   // Effet pour gérer le timer
   useEffect(() => {
-    console.log('[DEBUG] Timer effect triggered. Phase:', gameState?.phase);
     
     if (gameState?.phase === GamePhase.QUESTION) {
-      console.log('[DEBUG] Starting timer for question:', gameState.currentQuestion?.id);
       setTimeLeft(TIMER_DURATION);
       
       if (timerRef.current) {
@@ -189,7 +187,6 @@ export default function WordGuessingGame() {
       
       timerRef.current = setInterval(() => {
         setTimeLeft(prev => {
-          console.log('[DEBUG] Timer tick:', prev);
           if (prev <= 1) {
             if (timerRef.current) {
               clearInterval(timerRef.current);
@@ -211,24 +208,26 @@ export default function WordGuessingGame() {
   // Self-correction for incomplete currentQuestion (NEW EFFECT)
   useEffect(() => {
     if (gameState?.phase === GamePhase.QUESTION && gameState.currentQuestion) {
+      // Déferre la self-correction tant que les questions ne sont pas chargées.
+      if (questions.length === 0) {
+        return; 
+      }
+
       const isComplete = gameState.currentQuestion.word && (gameState.currentQuestion.forbiddenWords?.length ?? 0) > 0;
       if (!isComplete) {
-        console.log('[DEBUG] Incomplete currentQuestion detected, fetching a new random question for self-correction.');
         const newQuestion = getRandomQuestion();
         if (newQuestion) {
           updateGameState({ currentQuestion: newQuestion });
         } else {
-          console.log('[DEBUG] No new random question available for self-correction, ending game.');
           updateGameState({ phase: GamePhase.END });
         }
       }
     }
-  }, [gameState?.currentQuestion?.id, gameState?.currentQuestion?.word, gameState?.currentQuestion?.forbiddenWords, gameState?.phase, getRandomQuestion, updateGameState]);
+  }, [gameState?.currentQuestion?.id, gameState?.currentQuestion?.word, gameState?.currentQuestion?.forbiddenWords, gameState?.phase, getRandomQuestion, updateGameState, questions.length]);
 
   // Passer à la question suivante quand le timer arrive à zéro
   useEffect(() => {
     if (gameState?.phase === GamePhase.QUESTION && timeLeft === 0) {
-      console.log('[DEBUG] Timer reached zero, moving to next question');
       // Pénalité de points pour le joueur qui fait deviner quand le temps est écoulé
       if (gameState?.targetPlayer) {
         const newScores = {
@@ -289,25 +288,19 @@ export default function WordGuessingGame() {
   };
 
   const nextQuestion = () => {
-    console.log('[DEBUG] nextQuestion called. Current round:', gameState?.currentRound, 'Total rounds:', gameState?.totalRounds);
-
     // Vérifier si on a atteint le nombre maximum de rounds
     if ((gameState?.currentRound ?? 0) >= (gameState?.totalRounds || 5)) {
-      console.log('[DEBUG] Max rounds reached, ending game');
       updateGameState({ phase: GamePhase.END });
       return;
     }
 
     // Sélectionner une nouvelle question aléatoire
     const nextQ = getRandomQuestion();
-    console.log('[DEBUG] New question selected:', nextQ);
 
     if (nextQ) {
       // Sélectionner aléatoirement le prochain joueur
       const availablePlayers = gameState?.players.filter(p => p.id !== gameState.targetPlayer?.id) || [];
       const nextPlayer = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
-
-      console.log('[DEBUG] Next player selected:', nextPlayer);
 
       // Réinitialiser le timer
       setTimeLeft(TIMER_DURATION);
@@ -318,7 +311,6 @@ export default function WordGuessingGame() {
       const nextRound = (gameState?.currentRound ?? 0) + 1;
       // Vérifier si le prochain round ne dépasse pas le nombre total de rounds
       if (nextRound > (gameState?.totalRounds || 5)) {
-        console.log('[DEBUG] Next round would exceed total rounds, ending game');
         updateGameState({ phase: GamePhase.END });
         return;
       }
@@ -332,15 +324,12 @@ export default function WordGuessingGame() {
         targetPlayer: nextPlayer
       });
     } else {
-      console.log('[DEBUG] No more questions available, ending game');
       updateGameState({ phase: GamePhase.END });
     }
   };
 
   const handleAnswer = (answer: string) => {
     if (!gameState?.currentQuestion || !user) return;
-
-    console.log('[DEBUG] handleAnswer called with:', answer);
 
     // Arrêter le timer
     if (timerRef.current) {
@@ -373,7 +362,6 @@ export default function WordGuessingGame() {
     // Sélectionner une nouvelle question immédiatement
     const nextQ = getRandomQuestion();
     if (!nextQ) {
-      console.log('[DEBUG] No more questions available, ending game');
       updateGameState({ 
         phase: GamePhase.END,
         playerAnswers: newPlayerAnswers,
@@ -473,11 +461,14 @@ export default function WordGuessingGame() {
 
   const isLoading = !gameState || !gameState.currentQuestion || questions.length === 0 || !currentQuestionText || currentForbiddenWords.length === 0;
 
-  if (isLoading) {
+  if (!gameState || !user) {
     return (
-      <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>{t('common.loading')}</Text>
-      </View>
+      <LinearGradient
+        colors={['#1a2a6c', '#b21f1f', '#fdbb2d']} // Couleurs du dégradé, à ajuster si nécessaire
+        style={styles.loadingContainer}
+      >
+        <Text style={styles.loadingText}>{t('game.loading')}</Text>
+      </LinearGradient>
     );
   }
 
@@ -496,16 +487,13 @@ export default function WordGuessingGame() {
     );
   }
 
-  console.log('[DEBUG] Current Question:', gameState?.currentQuestion);
-  console.log('[DEBUG] Forbidden Words:', currentForbiddenWords);
-
   return (
     <LinearGradient
       colors={["rgba(40, 90, 120, 0.8)", "rgba(60, 120, 160, 0.9)"]}
       style={styles.container}
     >
       <View style={styles.header}>
-        <Text style={styles.roundText}>{t('game.round', { count: gameState?.currentRound || 1 })}/{gameState?.totalRounds || 5}</Text>
+        <Text style={styles.roundText}>{t('game.round', { current: gameState?.currentRound || 1, total: gameState?.totalRounds || 5 })}</Text>
         <TimerCircle timeLeft={timeLeft} totalTime={TIMER_DURATION} />
         <View style={styles.scoreContainer}>
           <MaterialCommunityIcons name="star-four-points" size={20} color="#FFD700" />
@@ -583,7 +571,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#0E1117',
   },
   loadingText: {
     color: '#fff',

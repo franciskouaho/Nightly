@@ -765,5 +765,6 @@ export default {
   // Common translations
   common: {
     ok: 'OK',
+    loading: 'Cargando...',
   },
 }; 

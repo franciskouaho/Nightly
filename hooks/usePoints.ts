@@ -15,7 +15,7 @@ import {
 } from "@react-native-firebase/firestore";
 
 // Types pour la configuration des points
-type GameMode = 'genius-or-liar' | 'never-have-i-ever-hot' | 'truth-or-dare' | 'the-hidden-village' | 'trap-answer' | 'listen-but-don-t-judge';
+type GameMode = 'genius-or-liar' | 'never-have-i-ever-hot' | 'truth-or-dare' | 'the-hidden-village' | 'trap-answer' | 'listen-but-don-t-judge' | 'word-guessing';
 
 interface PointsConfig {
   firstPlace: number;
@@ -72,6 +72,11 @@ const GAME_POINTS_CONFIG: Record<GameMode, PointsConfig> = {
     thirdPlace: 10,
     winningVote: 2,
     losingVote: 0
+  },
+  'word-guessing': {
+    firstPlace: 30,
+    secondPlace: 20,
+    thirdPlace: 10,
   }
 };
 

@@ -244,12 +244,13 @@ export default {
     }
   },
 
-  // Traductions communes
+  // Common translations
   common: {
     ok: 'OK',
+    loading: 'Chargement...',
   },
 
-  // Paramètres
+  // Settings
   settings: {
     title: 'Paramètres',
     language: 'Langue',
@@ -278,8 +279,9 @@ export default {
     },
   },
 
-  // Jeu
+  // Game
   game: {
+    round: 'Tour {{current}}/{{total}}',
     start: 'Démarrer',
     join: 'Rejoindre',
     leave: 'Quitter',
@@ -337,7 +339,6 @@ export default {
       }
     },
     player: 'le joueur',
-    round: 'Tour {{current}}/{{total}}',
     truthOrDare: {
       title: 'Action ou Vérité',
       choice: 'Choix',
@@ -510,6 +511,8 @@ export default {
     word_guessing: {
       targetPlayer: 'Fais deviner à {{player}}',
       forbiddenWords: 'Mots interdits',
+      guesserInstructions: 'Votre ami essaie de vous faire deviner un mot !',
+      guesserInfo: 'Écoutez attentivement et essayez de trouver le mot sans qu\'il utilise les mots interdits.',
       found: 'Mot trouvé !',
       forbidden: 'Mot interdit !',
       nextWord: 'Mot suivant',
@@ -524,8 +527,6 @@ export default {
         objets: 'Objets',
         animaux: 'Animaux',
       },
-      guesserInstructions: 'Votre ami essaie de vous faire deviner un mot !',
-      guesserInfo: 'Écoutez attentivement et essayez de trouver le mot sans qu\'il utilise les mots interdits.',
     },
   },
 

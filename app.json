@@ -94,6 +94,6 @@
       "checkAutomatically": "ON_LOAD",
       "url": "https://u.expo.dev/3de41614-7f99-4215-bec0-9a2ece4bbd35"
     },
-    "runtimeVersion": "1.0.0"
+    "runtimeVersion": "1.1.2"
   }
 }

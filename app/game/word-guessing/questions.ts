@@ -32,39 +32,30 @@ export function useWordGuessingQuestions() {
   const [questions, setQuestions] = useState<WordGuessingQuestion[]>([]);
   const [askedQuestions, setAskedQuestions] = useState<string[]>([]);
   const [availableQuestions, setAvailableQuestions] = useState<WordGuessingQuestion[]>([]);
-  const { isRTL, language } = useLanguage();
+  const { getGameContent, language } = useLanguage();
 
-  // Charger les questions depuis Firebase
+  // Charger les questions via getGameContent du LanguageContext
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const db = getFirestore();
-        const questionsRef = doc(db, 'gameQuestions', 'word-guessing');
-        const questionsDoc = await getDoc(questionsRef);
-        
-        if (questionsDoc.exists()) {
-          const questionsData = questionsDoc.data();
-          const currentLanguage = isRTL ? 'ar' : (language || 'fr');
-          const rawQuestions = questionsData?.translations?.[currentLanguage] || [];
-          
-          console.log('[DEBUG] Raw questions from Firebase:', rawQuestions);
-          
-          // Transformer les questions au format WordGuessingQuestion
-          const transformedQuestions = rawQuestions.map(transformQuestion);
-          console.log('[DEBUG] Transformed questions:', transformedQuestions);
-          
-          setQuestions(transformedQuestions);
-          setAvailableQuestions([...transformedQuestions].sort(() => Math.random() - 0.5));
-        } else {
-          console.error('[DEBUG] No questions found in Firebase');
-        }
+        console.log(`[DEBUG useWordGuessingQuestions] Fetching questions for word-guessing in ${language}`);
+        const gameContent = await getGameContent('word-guessing');
+        const rawQuestions = gameContent.questions;
+
+        console.log('[DEBUG] Raw questions from getGameContent:', rawQuestions);
+
+        const transformedQuestions = rawQuestions.map(transformQuestion);
+        console.log('[DEBUG] Transformed questions (from useWordGuessingQuestions):', transformedQuestions);
+
+        setQuestions(transformedQuestions);
+        setAvailableQuestions([...transformedQuestions].sort(() => Math.random() - 0.5));
       } catch (error) {
-        console.error('[DEBUG] Error loading questions:', error);
+        console.error('[DEBUG] Error loading questions in useWordGuessingQuestions:', error);
       }
     };
 
     fetchQuestions();
-  }, [isRTL, language]);
+  }, [getGameContent, language]);
 
   // Obtenir une question aléatoire qui n'a pas encore été posée
   const getRandomQuestion = (): WordGuessingQuestion | null => {

@@ -237,6 +237,7 @@ export default {
   // Common translations
   common: {
     ok: 'OK',
+    loading: 'Caricamento...',
   },
 
   // Settings

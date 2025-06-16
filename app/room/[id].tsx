@@ -16,7 +16,8 @@ import i18n from '@/app/i18n/i18n';
 import { getQuestions } from '../game/trap-answer/questions';
 import { TrapGameState } from '@/types/types';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { transformQuestion } from '../game/trap-answer/questions';
+import { transformQuestion as transformTrapAnswerQuestion } from '../game/trap-answer/questions';
+import { transformQuestion as transformWordGuessingQuestion } from '../game/word-guessing/questions';
 
 // Liste des thèmes possibles pour 2 Lettres 1 Mot
 const TWO_LETTERS_ONE_WORD_THEMES = [
@@ -517,7 +518,7 @@ export default function RoomScreen() {
         }
         
         // Assurer que la question sélectionnée a une structure correcte pour le stockage
-        const transformedFirstQuestion = transformQuestion(firstQuestion, 0);
+        const transformedFirstQuestion = room.gameId === 'word-guessing' ? transformWordGuessingQuestion(firstQuestion, 0) : transformTrapAnswerQuestion(firstQuestion, 0);
         console.log('[DEBUG ROOM] transformedFirstQuestion:', transformedFirstQuestion);
 
         console.log(`[DEBUG] Démarrage du jeu ${room.gameId} - Phase Question/Action`);
