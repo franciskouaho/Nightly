@@ -2,7 +2,7 @@
   "expo": {
     "name": "Nightly",
     "slug": "nightly",
-    "version": "1.1.3",
+    "version": "1.2.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
     "scheme": "nightly",
@@ -33,7 +33,7 @@
       },
       "package": "com.emplica.nightly.android",
       "googleServicesFile": "./google-services.json",
-      "versionCode": 16,
+      "versionCode": 17,
       "permissions": [
         "INTERNET",
         "NOTIFICATIONS",
@@ -99,12 +99,13 @@
     "owner": "iamfrancisco",
     "updates": {
       "enabled": true,
-      "fallbackToCacheTimeout": 0,
       "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0,
       "url": "https://u.expo.dev/3de41614-7f99-4215-bec0-9a2ece4bbd35",
-      "channel": "production",
-      "platform": ["ios", "android"]
+      "requestHeaders": {
+        "expo-channel-name": "production"
+      }
     },
-    "runtimeVersion": "1.1.3"
+    "runtimeVersion": "1.2.0"
   }
 }

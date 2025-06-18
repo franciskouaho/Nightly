@@ -8,9 +8,11 @@ import NotificationService from '@/services/notifications';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { useAppsFlyer } from "@/hooks/useAppsFlyer";
 import analytics from '@react-native-firebase/analytics';
+import { useIsHasUpdates } from "@/hooks/useIsHasUpdates";
 
 export default function RootLayout() {
   useAppsFlyer();
+  useIsHasUpdates();
 
   useEffect(() => {
     NotificationService.initialize();
