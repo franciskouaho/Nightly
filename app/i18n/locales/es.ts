@@ -358,7 +358,7 @@ export default {
       }
     },
     player: 'el jugador',
-    round: 'Ronda {{current}}/{{total}}',
+    round: "Ronda {{current}}/{{total}}",
     truthOrDare: {
       title: 'Verdad o Reto',
       choice: 'Elección',

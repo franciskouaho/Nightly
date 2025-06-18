@@ -328,7 +328,7 @@ export default {
       }
     },
     player: 'il giocatore',
-    round: 'Turno {{current}}/{{total}}',
+    round: "Turno {{current}}/{{total}}",
     truthOrDare: {
       title: 'Verità o Sfida',
       choice: 'Scelta',

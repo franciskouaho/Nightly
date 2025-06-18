@@ -250,7 +250,7 @@ export default {
         }
       },
     },
-    round: "Rodada",
+    round: "Rodada {{current}}/{{total}}",
   },
 
   // Common translations
@@ -347,7 +347,7 @@ export default {
       }
     },
     player: 'o jogador',
-    round: 'Rodada {{current}}/{{total}}',
+    round: "Rodada {{current}}/{{total}}",
     truthOrDare: {
       title: 'Verdade ou Desafio',
       choice: 'Escolha',

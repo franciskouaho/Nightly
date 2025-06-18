@@ -157,12 +157,12 @@ export default function TwoLettersOneWord() {
       return 1; // Start at round 1 if no history
     }
     const maxRoundsPlayed = histories.reduce((max, history) => Math.max(max, history.length), 0);
-    // If the game is in the results phase, display the total rounds.
+    const allEmpty = histories.every(history => !history || history.length === 0);
+    if (allEmpty) return 1;
     if (gamePhase === 'results') {
-      return totalRounds; // Display total rounds when game is finished
+      return totalRounds;
     }
-    // Otherwise, calculate the current round, but don't exceed totalRounds + 1 for display.
-    return Math.min(maxRoundsPlayed + 1, totalRounds + 1);
+    return Math.min(maxRoundsPlayed + 1, totalRounds);
   }, [gameHistory, totalRounds, gamePhase]);
 
   useEffect(() => {
@@ -213,10 +213,11 @@ export default function TwoLettersOneWord() {
              const playerFromGameDoc = gamePlayersFromDoc.find((p: any) => p.id === id);
              const existingPlayer = existingPlayersMap[id];
 
+             // Localiser la création de playerInfo.history ici pour éviter de remplir d'avance avec []
              let playerInfo: any = {
                  id: id,
                  score: scoresData[id] || existingPlayer?.score || 0, // Prioriser le score du document game, sinon l'état existant
-                 history: (gameData.history && gameData.history[id]) || existingPlayer?.history || [], // Récupérer l'histoire
+                 history: gameData.history?.[id] ?? existingPlayer?.history ?? [], // Corrigé pour éviter le tableau vide trop tôt
              };
 
              if (userDoc.exists()) {
@@ -238,7 +239,6 @@ export default function TwoLettersOneWord() {
              playerInfo.username = playerFromGameDoc?.username || existingPlayer?.username || playerInfo.pseudo;
              playerInfo.displayName = playerFromGameDoc?.displayName || existingPlayer?.displayName || playerInfo.pseudo;
              playerInfo.level = playerFromGameDoc?.level || existingPlayer?.level || 1;
-
 
              return playerInfo;
          });
@@ -265,7 +265,11 @@ export default function TwoLettersOneWord() {
         const maxRoundsPlayed = histories.reduce((max, history) => Math.max(max, history.length), 0);
 
         // Vérifier si la partie doit se terminer (tous les joueurs ont complété le nombre total de tours)
-        if (gameData.status !== 'finished' && maxRoundsPlayed >= (gameData.totalRounds || 15)) {
+        if (
+          gameData.status !== 'finished' &&
+          maxRoundsPlayed >= (gameData.totalRounds || 15) &&
+          maxRoundsPlayed > 0 // <-- Empêche la fin immédiate à la création
+        ) {
           // Seul l'hôte doit tenter de mettre à jour le statut du jeu pour éviter les conflits
           if (user?.uid && gameData.players.find((p: any) => p.isHost)?.id === user.uid) {
             try {
@@ -279,10 +283,14 @@ export default function TwoLettersOneWord() {
           }
         }
 
-        if (gameData.status === 'finished') {
+        // Vérifier si on doit afficher les résultats
+        // Ne pas afficher les résultats si c'est une nouvelle partie ou si aucun joueur n'a encore joué
+        const hasAnyPlayerPlayed = Object.values(updatedGameHistory).some(history => history.length > 0);
+        
+        if (gameData.status === 'finished' && hasAnyPlayerPlayed) {
            setGamePhase('results');
         } else {
-           // Assurez-vous que la phase de jeu est 'playing' si le statut n'est pas 'finished'
+           // Assurez-vous que la phase de jeu est 'playing' si le statut n'est pas 'finished' ou si personne n'a joué
            setGamePhase('playing');
         }
 
@@ -504,7 +512,7 @@ export default function TwoLettersOneWord() {
       <KeyboardAvoidingView
         style={styles.keyboardAvoidingContainer}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 20}
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.content}>
@@ -531,9 +539,8 @@ export default function TwoLettersOneWord() {
                              key={i}
                              style={[
                                styles.dot,
-                               result === 1 ? styles.correctDot :
-                               result === 0 ? styles.incorrectDot :
-                               styles.notPlayedDot
+                               (typeof result === 'undefined') ? styles.notPlayedDot :
+                               result === 1 ? styles.correctDot : styles.incorrectDot
                              ]}
                           />
                         );
@@ -556,7 +563,7 @@ export default function TwoLettersOneWord() {
               <View style={styles.duelTextContainer}>
                  {/* Display Current Round */}
                  <View style={styles.roundNumberContainer}>
-                   <Text style={styles.roundNumberText}>{t('game.round')}: {currentRound}/{totalRounds}</Text>
+                   <Text style={styles.roundNumberText}>{t('game.round', { current: currentRound, total: totalRounds })}</Text>
                  </View>
                  <MaterialCommunityIcons name="sword-cross" size={30} color="#A0B0C0" style={styles.duelIcon} />
                  <Text style={styles.duelText}>DUEL</Text>
@@ -586,9 +593,8 @@ export default function TwoLettersOneWord() {
                                  key={i}
                                  style={[
                                    styles.dot,
-                                   result === 1 ? styles.correctDot :
-                                   result === 0 ? styles.incorrectDot :
-                                   styles.notPlayedDot
+                                   (typeof result === 'undefined') ? styles.notPlayedDot :
+                                   result === 1 ? styles.correctDot : styles.incorrectDot
                                  ]}
                                />
                              );
@@ -613,9 +619,8 @@ export default function TwoLettersOneWord() {
                                    key={i}
                                    style={[
                                      styles.dot,
-                                     result === 1 ? styles.correctDot :
-                                     result === 0 ? styles.incorrectDot :
-                                     styles.notPlayedDot
+                                     (typeof result === 'undefined') ? styles.notPlayedDot :
+                                     result === 1 ? styles.correctDot : styles.incorrectDot
                                    ]}
                                  />
                                );
@@ -652,6 +657,10 @@ export default function TwoLettersOneWord() {
                 placeholderTextColor="rgba(255, 255, 255, 0.6)"
                 autoCapitalize="none"
                 autoCorrect={false}
+                keyboardType="default"
+                returnKeyType="done"
+                blurOnSubmit={true}
+                autoFocus={Platform.OS === 'android'}
                 editable={!isLoading && !isResultsPhase && currentRound <= totalRounds}
               />
             </View>
