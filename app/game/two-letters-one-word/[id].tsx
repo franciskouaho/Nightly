@@ -311,13 +311,16 @@ export default function TwoLettersOneWord() {
             return;
         }
 
-        // En mode solo, on ne vérifie pas si tous les joueurs ont répondu
+        // CORRECTION: Vérification améliorée pour le mode multijoueur
         if (!isSoloMode) {
-            // Vérifier si tous les joueurs ont répondu pour le tour précédent
+            // Calculer le nombre minimum de réponses que tous les joueurs devraient avoir
+            // En mode multijoueur, on vérifie que tous ont répondu au tour actuel
+            const minResponsesNeeded = currentRound;
+
             const allPlayersResponded = players.every(player => {
                 const playerHistory = gameHistory[player.id] || [];
-                // Un joueur a répondu si son historique a au moins autant d'entrées que le numéro du tour précédent
-                return playerHistory.length >= currentRound - 1;
+                // Chaque joueur doit avoir au moins autant de réponses que le tour actuel
+                return playerHistory.length >= minResponsesNeeded;
             });
 
             if (!allPlayersResponded) {
@@ -338,8 +341,6 @@ export default function TwoLettersOneWord() {
                     await updateDoc(gameRef, {
                         status: 'finished' // Marquer la partie comme terminée
                     });
-                    // Suppression de la mise à jour locale immédiate de la phase de jeu
-                    // setGamePhase('results'); // La phase est mise à jour via l'onSnapshot quand le statut Firestore change
                 } catch (e) {
                     console.error('Erreur lors de la fin de la partie:', e);
                     Alert.alert('Erreur', 'Impossible de terminer la partie.');
@@ -355,7 +356,6 @@ export default function TwoLettersOneWord() {
 
         // Génère de nouvelles lettres et un nouveau thème
         const newLetters = generateRandomLetters();
-        // On s'assure que newTheme est toujours une string du tableau THEMES
         const newTheme = THEMES[Math.floor(Math.random() * THEMES.length)];
 
         try {
@@ -364,12 +364,12 @@ export default function TwoLettersOneWord() {
                 currentTheme: newTheme,
                 answers: {},
                 // Réinitialiser le statut de réponse pour le nouveau tour
-                [`responses.${currentRound}`]: {},
+                [`responses.${currentRound + 1}`]: {},
             });
 
             // Mise à jour locale immédiate pour éviter de garder les anciennes lettres
             setLetters(newLetters);
-            setTheme(newTheme as string); // Ajout du cast explicite pour satisfaire TypeScript
+            setTheme(newTheme as string);
         } catch (e) {
             console.error('Erreur lors du passage au tour suivant:', e);
             Alert.alert('Erreur', 'Impossible de passer au tour suivant.');
