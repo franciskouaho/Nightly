@@ -313,17 +313,25 @@ export default function TwoLettersOneWord() {
 
         // CORRECTION: Vérification améliorée pour le mode multijoueur
         if (!isSoloMode) {
-            // Calculer le nombre minimum de réponses que tous les joueurs devraient avoir
-            // En mode multijoueur, on vérifie que tous ont répondu au tour actuel
-            const minResponsesNeeded = currentRound;
+            // Le joueur actuel vient de répondre, donc on vérifie que tous les autres
+            // ont au moins autant de réponses que le joueur actuel
+            const currentUserHistory = gameHistory[user?.uid || ''] || [];
+            const currentUserResponseCount = currentUserHistory.length;
 
             const allPlayersResponded = players.every(player => {
                 const playerHistory = gameHistory[player.id] || [];
-                // Chaque joueur doit avoir au moins autant de réponses que le tour actuel
-                return playerHistory.length >= minResponsesNeeded;
+                // Chaque joueur doit avoir au moins autant de réponses que l'utilisateur actuel
+                return playerHistory.length >= currentUserResponseCount;
             });
 
             if (!allPlayersResponded) {
+                // Afficher les détails pour debug
+                console.log('Debug - Historique des joueurs:');
+                players.forEach(player => {
+                    const history = gameHistory[player.id] || [];
+                    console.log(`${player.pseudo}: ${history.length} réponses`);
+                });
+
                 Alert.alert(
                     t('game.waitingForPlayers'),
                     t('game.waitingForPlayersMessage', { currentRound })

@@ -2,7 +2,7 @@
   "expo": {
     "name": "Nightly",
     "slug": "nightly",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
     "scheme": "nightly",
@@ -106,6 +106,6 @@
         "expo-channel-name": "production"
       }
     },
-    "runtimeVersion": "1.2.0"
+    "runtimeVersion": "1.2.1"
   }
 }
