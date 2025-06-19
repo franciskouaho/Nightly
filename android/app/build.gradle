@@ -91,7 +91,7 @@ android {
         applicationId 'com.emplica.nightly.android'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 17
+        versionCode 18
         versionName "1.2.1"
     }
     signingConfigs {
