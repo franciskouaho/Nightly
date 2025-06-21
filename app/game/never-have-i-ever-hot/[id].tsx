@@ -117,7 +117,7 @@ export default function NeverHaveIEverHotGame() {
   console.log("[DEBUG NeverHaveIEverHotGame] Is Target Player:", isTarget);
   console.log("[DEBUG NeverHaveIEverHotGame] Total Rounds:", TOTAL_ROUNDS);
 
-  // Mémoriser les joueurs qui ne sont pas la cible
+  // Mémoriser les joueurs qui ne sont pas @ne la cible
   const nonTargetPlayers = useMemo(() => {
     if (!gameState?.players || !gameState?.targetPlayer) return [];
     return gameState.players.filter(p => p.id !== gameState.targetPlayer?.id);
@@ -440,38 +440,19 @@ export default function NeverHaveIEverHotGame() {
     }
 
     return (
-      <LinearGradient colors={["#0E1117", "#661A59"]} style={styles.container}>
-        <View style={styles.resultsContainer}>
-          <Text style={styles.resultsTitle}>{t('game.results.title')}</Text>
-          
-          {/* Classement des scores */}
-          <View style={styles.scoresSection}>
-            <Text style={styles.sectionTitle}>{t('game.results.podium.title')}</Text>
-            <GameResults
-              players={gameState.players || []}
-              scores={gameState.scores || {}}
-              userId={user?.uid || ''}
-              pointsConfig={{
-                firstPlace: 30,
-                secondPlace: 20,
-                thirdPlace: 10
-              }}
-            />
-          </View>
-
-          {/* Nouveau classement des plus cochons */}
-          <NaughtyResults 
-            players={gameState.players || []} 
-            naughtyAnswers={gameState.naughtyAnswers || {}} 
-            userId={user?.uid || ''}
-            pointsConfig={{
-              firstPlace: 30,
-              secondPlace: 20,
-              thirdPlace: 10
-            }}
-          />
-        </View>
-      </LinearGradient>
+      <GameResults
+        players={gameState.players || []}
+        scores={gameState.scores || {}}
+        userId={user?.uid || ''}
+        pointsConfig={{
+          firstPlace: 30,
+          secondPlace: 20,
+          thirdPlace: 10,
+        }}
+        secondaryScores={gameState.naughtyAnswers}
+        secondaryScoresTitle={t('game.results.naughty.title')}
+        colors={["#0E1117", "#661A59", "#21101C"]}
+      />
     );
   }
 

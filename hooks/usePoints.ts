@@ -1,92 +1,76 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { 
-  getFirestore, 
-  doc, 
-  updateDoc, 
-  getDoc, 
-  collection, 
-  addDoc, 
-  serverTimestamp,
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  updateDoc,
+  collection,
   query,
-  where,
   orderBy,
   getDocs,
-  limit as firestoreLimit
+  limit as firestoreLimit,
+  increment,
+  writeBatch,
+  serverTimestamp,
+  addDoc,
+  where
 } from "@react-native-firebase/firestore";
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import { Player, GameMode } from "@/types/gameTypes";
+import { PointsTransaction } from "@/types/types";
 
 // Types pour la configuration des points
-type GameMode = 'genius-or-liar' | 'never-have-i-ever-hot' | 'truth-or-dare' | 'the-hidden-village' | 'trap-answer' | 'listen-but-don-t-judge' | 'word-guessing';
-
-interface PointsConfig {
-  firstPlace: number;
-  secondPlace: number;
-  thirdPlace: number;
-  [key: string]: number;
-}
+type PointsConfig = {
+  [key in GameMode]?: {
+    firstPlace: number;
+    secondPlace: number;
+    thirdPlace: number;
+  };
+};
 
 // Configuration des points pour chaque jeu
-const GAME_POINTS_CONFIG: Record<GameMode, PointsConfig> = {
+export const GAME_POINTS_CONFIG: PointsConfig = {
   'genius-or-liar': {
-    firstPlace: 30,
-    secondPlace: 20,
+    firstPlace: 25,
+    secondPlace: 15,
     thirdPlace: 10,
-    correctAnswer: 2,
-    wrongAnswer: -1,
-    correctAccusation: 1,
-    wrongAccusation: -1,
-    bonusAccusedCorrectly: 1
   },
   'never-have-i-ever-hot': {
     firstPlace: 30,
     secondPlace: 20,
     thirdPlace: 10,
-    correctAnswer: 1,
-    wrongAnswer: 0
   },
   'truth-or-dare': {
     firstPlace: 20,
-    secondPlace: 15,
-    thirdPlace: 10,
-    completedTask: 1,
-    refusedTask: 0
+    secondPlace: 10,
+    thirdPlace: 5,
   },
   'the-hidden-village': {
-    firstPlace: 40,
-    secondPlace: 25,
+    firstPlace: 50,
+    secondPlace: 30,
     thirdPlace: 15,
-    traitorWin: 30,
-    villagerWin: 20,
-    correctVote: 2,
-    wrongVote: -1
   },
   'trap-answer': {
     firstPlace: 25,
     secondPlace: 15,
     thirdPlace: 10,
-    correctAnswer: 2,
-    trapAnswer: -1
   },
   'listen-but-don-t-judge': {
-    firstPlace: 25,
-    secondPlace: 15,
-    thirdPlace: 10,
-    winningVote: 2,
-    losingVote: 0
-  },
-  'word-guessing': {
     firstPlace: 30,
     secondPlace: 20,
     thirdPlace: 10,
+  },
+  'word-guessing': {
+    firstPlace: 3,
+    secondPlace: 2,
+    thirdPlace: 1
   }
 };
 
-interface Player {
-  id: string;
-  name: string;
-}
-
 export const usePoints = () => {
   const { user } = useAuth();
+  const db = getFirestore();
+  const functions = getFunctions();
 
   const addPointsToUser = async (userId: string, pointsToAdd: number, reason?: string) => {
     if (!userId) {
@@ -94,7 +78,6 @@ export const usePoints = () => {
       return;
     }
 
-    const db = getFirestore();
     const userRef = doc(db, "users", userId);
 
     try {
@@ -139,7 +122,6 @@ export const usePoints = () => {
       return 0;
     }
 
-    const db = getFirestore();
     const userRef = doc(db, "users", userId);
 
     try {
@@ -165,7 +147,6 @@ export const usePoints = () => {
       return [];
     }
 
-    const db = getFirestore();
     try {
       const transactionsRef = collection(db, "pointTransactions");
       const q = query(
@@ -183,6 +164,15 @@ export const usePoints = () => {
     } catch (error) {
       console.error("Error getting point transactions:", error);
       return [];
+    }
+  };
+
+  const awardLumiCoins = async (userId: string, amount: number, reason: string, rank_name: string) => {
+    try {
+      const awardLumiCoinsFn = httpsCallable(functions, 'awardLumiCoins');
+      await awardLumiCoinsFn({ userId, amount, reason, rank_name });
+    } catch (error) {
+      console.error("Erreur lors de l'attribution des LumiCoins:", error);
     }
   };
 
@@ -225,6 +215,7 @@ export const usePoints = () => {
     hasEnoughPoints,
     getPointTransactions,
     awardGamePoints,
+    awardLumiCoins,
     GAME_POINTS_CONFIG
   };
 }; 

@@ -6,6 +6,13 @@ export interface TrapAnswer {
   isTrap: boolean;
 }
 
+export interface PointsTransaction {
+  amount: number;
+  reason: string;
+  timestamp: any;
+  gameId?: string;
+}
+
 export interface TrapQuestion {
   id: string;
   text: string;
