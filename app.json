@@ -36,12 +36,6 @@
       "versionCode": 19,
       "permissions": [
         "INTERNET",
-        "NOTIFICATIONS",
-        "INTERNET",
-        "NOTIFICATIONS",
-        "INTERNET",
-        "NOTIFICATIONS",
-        "INTERNET",
         "NOTIFICATIONS"
       ]
     },
