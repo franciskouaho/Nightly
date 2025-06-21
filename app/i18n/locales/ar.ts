@@ -180,7 +180,16 @@ export default {
         description: "وضع ممتع حيث يجب عليك إثبات معرفتك أو مواجهة العواقب.",
         tags: {
           premium: "بريميوم"
-        }
+        },
+        accuseTitle: "من هو الكاذب؟",
+        accuseDescription: "صوّت للشخص الذي تعتقد أنه كذب.",
+        resultsTitle: "نتائج التصويت",
+        resultsDescription: "دعنا نرى من تم كشفه.",
+        liarRevealed: "الكاذب كان...",
+        noLiarFound: "لم يتم العثور على الكاذب. يفوز بـ 3 نقاط.",
+        liarFound: "تم العثور على الكاذب! يخسر 5 نقاط.",
+        votedForLiar: "أولئك الذين صوتوا للكاذب يفوزون بنقطتين.",
+        votedForInnocent: "أولئك الذين صوتوا لشخص بريء يخسرون نقطة واحدة."
       },
       "the-hidden-village": {
         name: "القرية المخفية",

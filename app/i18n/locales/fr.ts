@@ -1,4 +1,4 @@
-export default {
+const fr = {
   // Général
   app: {
     name: 'Nightly',
@@ -218,7 +218,6 @@ export default {
         noWordError: "Veuillez entrer un mot",
         error: "Une erreur est survenue",
         howToPlay: "Trouvez un mot qui contient les deux lettres données et correspond au thème choisi.",
-        // Traductions des thèmes
         "theme.marque": "une marque",
         "theme.ville": "une ville",
         "theme.prenom": "un prénom",
@@ -284,7 +283,7 @@ export default {
     round: 'Tour {{current}}/{{total}}',
     start: 'Démarrer',
     join: 'Rejoindre',
-    leave: 'Quitter',
+    leave: 'Quitter la partie',
     players: 'Joueurs',
     waiting: 'En attente',
     yourTurn: 'Votre tour',
@@ -415,23 +414,74 @@ export default {
       naughtyRanking: "Classement coquin"
     },
     geniusOrLiar: {
-      title: 'Génie ou Menteur',
-      question: 'Question',
+      // --- Main UI Keys from screenshots ---
+      accuseTitle: 'Qui est le menteur ?',
+      pretendKnows: 'prétend savoir',
+      accuseNoOne: 'N\'accuser personne',
+      roundResults: 'Résultats de la manche',
+      correctAnswerLabel: 'La bonne réponse était : {{answer}}',
+      givenAnswerLabel: 'Ta réponse : {{answer}}',
+      drinks: 'gages',
+      
+      // --- Player Statuses ---
+      playerStatus: {
+        wrongAnswer: 'Mauvaise réponse',
+        dontKnow: 'Ne savait pas la réponse',
+        correctAnswer: 'Bonne réponse !',
+        correctButAccused: 'Génie, mais accusé !',
+        liarNotAccused: 'Le mensonge est passé !',
+        liarAccused: 'Menteur, et démasqué !',
+      },
+      accuserStatus: {
+        correctAccusation: 'Bien vu !',
+        wrongAccusation: 'Fausse accusation !'
+      },
+      
+      // --- General Gameplay ---
+      answerPlaceholder: 'Votre réponse...',
+      validate: 'Valider',
       know: 'Je sais',
       dontKnow: 'Je ne sais pas',
       accuse: 'Accuser',
-      submitAnswer: 'Envoyer la réponse',
-      next: 'Tour suivant',
-      endGame: 'Fin de la partie',
-      endTitle: 'Félicitations à tous !',
-      endSubtitle: 'Vous avez terminé le jeu Génie ou Menteur',
-      home: 'Retour à l\'accueil',
-      readAloud: 'Lire à voix haute',
-      targetAnswers: '{{name}} répond !',
-      error: 'Une erreur est survenue',
-      noQuestions: 'Aucune question disponible',
-      errorNext: 'Une erreur est survenue lors du passage au tour suivant',
-      errorSubmit: 'Erreur lors de l\'envoi de votre réponse ou de votre vote.'
+      nextRound: 'Manche suivante',
+      showResults: 'Afficher les résultats',
+      endGame: 'Afficher les résultats finaux',
+      chooseGameMode: 'Choisissez le mode de jeu',
+      pointsMode: 'Points',
+      forfeitsMode: 'Gages',
+      points: 'points',
+      forfeit: 'gage',
+      forfeits: 'gages',
+
+      // --- Waiting / Info Text ---
+      yourAnswer: 'Votre réponse',
+      waitingForPlayers: 'En attente des autres joueurs...',
+      waitingForAnswers: 'En attente que les autres joueurs répondent...',
+      waitingForVotes: 'En attente que les autres joueurs votent...',
+      playersWhoKnow: 'Joueurs qui prétendent savoir :',
+      playersWhoDontKnow: 'Joueurs qui ne savent pas :',
+      noOneKnows: 'Personne ne connaissait la réponse !',
+      allPlayersKnow: 'Tout le monde connaissait la réponse !',
+      wasAccused: 'A été accusé',
+      accusedBy: 'Accusé par {{count}}',
+
+      // --- Error / Edge Cases ---
+      errorSubmit: 'Erreur lors de la soumission de la réponse.',
+      noQuestionAvailable: 'Aucune question disponible pour ce jeu.',
+      incorrectQuestionFormat: 'Format de question incorrect (ID : {{id}})',
+      modeSelectError: 'Erreur lors de la sélection du mode de jeu.',
+      
+      // --- Question Categories ---
+      questionTypes: {
+        cultureG: 'Culture Générale',
+        cultureGHard: 'Culture Générale (Difficile)',
+        culturePop: 'Culture Pop',
+        cultureGeek: 'Culture Geek',
+        cultureArt: 'Art',
+        hard: 'Difficile',
+        devinette: 'Devinette',
+        verite: 'Vérité'
+      }
     },
     theHiddenVillage: {
       title: 'LE VILLAGE CACHÉ',
@@ -763,4 +813,10 @@ export default {
     instruction: "Scanne le QR code ou partage ce code pour inviter tes amis dans la salle.",
     shareButton: "Partager"
   },
-}; 
+
+  ads: {
+    title: 'Regardez une pub pour avoir 3 manches en plus !',
+  },
+};
+
+export default fr; 

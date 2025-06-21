@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 // Fonction pour transformer les données de Firebase en format Question
-const transformQuestion = (question: any, index: number): Question => ({
+export const transformQuestion = (question: any, index: number): Question => ({
   id: (index + 1).toString(),
   text: question.text,
   theme: question.type,

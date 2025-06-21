@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { transformQuestion as transformTrapAnswerQuestion } from '../game/trap-answer/questions';
 import { transformQuestion as transformWordGuessingQuestion } from '../game/word-guessing/questions';
+import { transformQuestion as transformNeverHaveIEverHotQuestion } from '../game/never-have-i-ever-hot/questions';
 
 // Liste des thèmes possibles pour 2 Lettres 1 Mot
 const TWO_LETTERS_ONE_WORD_THEMES = [
@@ -512,7 +513,23 @@ export default function RoomScreen() {
                 }
 
                 // Assurer que la question sélectionnée a une structure correcte pour le stockage
-                const transformedFirstQuestion = room.gameId === 'word-guessing' ? transformWordGuessingQuestion(firstQuestion, 0) : transformTrapAnswerQuestion(firstQuestion, 0);
+                let transformedFirstQuestion;
+                switch (room.gameId) {
+                    case 'word-guessing':
+                        transformedFirstQuestion = transformWordGuessingQuestion(firstQuestion, 0);
+                        break;
+                    case 'trap-answer':
+                        transformedFirstQuestion = transformTrapAnswerQuestion(firstQuestion, 0);
+                        break;
+                    case 'never-have-i-ever-hot':
+                        transformedFirstQuestion = transformNeverHaveIEverHotQuestion(firstQuestion, 0);
+                        break;
+                    default:
+                        // Fallback pour les autres jeux, en supposant une structure simple.
+                        console.warn(`Utilisation de la transformation de question générique pour: ${room.gameId}`);
+                        transformedFirstQuestion = { ...firstQuestion, id: `q_0` };
+                        break;
+                }
                 console.log('[DEBUG ROOM] transformedFirstQuestion:', transformedFirstQuestion);
 
                 console.log(`[DEBUG] Démarrage du jeu ${room.gameId} - Phase Question/Action`);

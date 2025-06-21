@@ -1,36 +1,36 @@
-export default {
-  // General
+const de = {
+  // Allgemein
   app: {
     name: 'Nightly',
   },
   
-  // Language screen
+  // Sprachbildschirm
   language: {
     title: 'Sprache',
-    selectLanguage: 'Wähle deine bevorzugte Sprache für die App',
+    selectLanguage: 'Wählen Sie Ihre bevorzugte Sprache für die Anwendung',
     updated: 'Sprache aktualisiert',
-    updatedMessage: 'Die App-Sprache wurde geändert.',
+    updatedMessage: 'Die Sprache der Anwendung wurde geändert.',
     error: 'Fehler',
-    errorMessage: 'Sprache konnte nicht geändert werden.',
+    errorMessage: 'Die Sprache konnte nicht geändert werden.',
   },
 
   // Navigation
   navigation: {
     back: 'Zurück',
-    home: 'Start',
+    home: 'Startseite',
     profile: 'Profil',
     settings: 'Einstellungen',
   },
 
-  // Error messages
+  // Fehlermeldungen
   errors: {
     general: 'Ein Fehler ist aufgetreten',
-    tryAgain: 'Bitte versuche es erneut',
+    tryAgain: 'Bitte versuchen Sie es erneut',
     networkError: 'Netzwerkfehler',
     authError: 'Authentifizierungsfehler',
   },
 
-  // Authentication
+  // Authentifizierung
   auth: {
     login: {
       title: 'Anmelden',
@@ -40,10 +40,10 @@ export default {
       forgotPassword: 'Passwort vergessen?',
       noAccount: 'Kein Konto?',
       signUp: 'Registrieren',
-      username: 'Dein Benutzername',
-      usernameRequired: 'Bitte gib deinen Benutzernamen ein',
-      usernameLength: 'Der Benutzername muss mindestens 3 Zeichen lang sein',
-      enterUsername: 'Gib deinen Benutzernamen ein, um zu spielen',
+      username: 'Dein Spitzname',
+      usernameRequired: 'Bitte geben Sie Ihren Spitznamen ein',
+      usernameLength: 'Der Spitzname muss mindestens 3 Zeichen lang sein',
+      enterUsername: 'Geben Sie Ihren Spitznamen ein, um zu spielen',
       connecting: 'Verbinde...',
       play: 'Spielen',
       selectCharacter: 'Wähle deinen Charakter',
@@ -55,12 +55,12 @@ export default {
       password: 'Passwort',
       confirmPassword: 'Passwort bestätigen',
       submit: 'Registrieren',
-      haveAccount: 'Bereits ein Konto?',
+      haveAccount: 'Haben Sie bereits ein Konto?',
       login: 'Anmelden',
     },
   },
 
-  // Profile
+  // Profil
   profile: {
     title: 'Profil',
     edit: 'Bearbeiten',
@@ -69,13 +69,13 @@ export default {
     username: 'Benutzername',
     defaultUsername: 'Spieler',
     email: 'E-Mail',
-    bio: 'Biografie',
+    bio: 'Bio',
     avatar: 'Profilbild',
     changeAvatar: 'Bild ändern',
     settings: 'Einstellungen',
     logout: 'Abmelden',
     logoutError: 'Beim Abmelden ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
-    contact: 'Kontakt',
+    contact: 'Kontaktieren Sie uns',
     contactEmail: 'Senden Sie uns eine E-Mail an support@cosmicquest.com',
     buyAssetsTitle: 'Assets kaufen',
     insufficientPoints: 'Nicht genügend Punkte',
@@ -88,23 +88,25 @@ export default {
     restoreSuccess: 'Erfolg',
     restoreSuccessMessage: 'Ihre Käufe wurden erfolgreich wiederhergestellt',
     restoreError: 'Beim Wiederherstellen der Käufe ist ein Fehler aufgetreten',
+    avatarChanged: 'Ihr Profilbild wurde erfolgreich aktualisiert!',
+    avatarChangeError: 'Beim Ändern Ihres Profilbilds ist ein Fehler aufgetreten.',
     premium: {
-      title: 'Premium-Pass',
-      try: 'Premium testen',
+      title: 'Premium Pass',
+      try: 'Premium ausprobieren',
       free: '3 Tage kostenlos',
-      price: 'dann 3,99€/Woche',
+      price: 'danach 3,99€ pro Woche',
       features: {
-        unlock: 'Alle Modi freischalten',
-        weekly: 'Wöchentlich neues Paket',
-        friends: 'Kostenloser Zugang für Freunde',
+        unlock: 'Schalte alle Modi frei',
+        weekly: 'Jede Woche ein neues Paket',
+        friends: 'Kostenloser Zugang für deine Freunde',
         cancel: 'Jederzeit kündbar',
       },
     },
   },
 
-  // Home
+  // Startseite
   home: {
-    title: 'Start',
+    title: 'Startseite',
     welcome: 'Willkommen',
     createGame: 'Spiel erstellen',
     joinGame: 'Spiel beitreten',
@@ -114,22 +116,22 @@ export default {
       title: 'Spielmodi',
       classic: 'Klassisch',
       custom: 'Benutzerdefiniert',
-      quick: 'Schnell',
+      quick: 'Schnellspiel',
     },
     errors: {
-      noConnection: 'Keine Internetverbindung. Bitte überprüfe deine Verbindung und versuche es erneut.',
-      loginRequired: 'Du musst angemeldet sein, um einen Spielraum zu erstellen.',
-      invalidSession: 'Deine Benutzersitzung ist ungültig. Bitte melde dich erneut an.',
-      roomCreationFailed: 'Raum konnte nicht erstellt werden',
+      noConnection: 'Keine Internetverbindung. Bitte überprüfen Sie Ihre Verbindung und versuchen Sie es erneut.',
+      loginRequired: 'Sie müssen angemeldet sein, um einen Spielraum zu erstellen.',
+      invalidSession: 'Ihre Benutzersitzung ist ungültig. Bitte melden Sie sich erneut an.',
+      roomCreationFailed: 'Der Raum konnte nicht erstellt werden',
       invalidCode: 'Ungültiger Spielcode',
       roomNotFound: 'Raum nicht gefunden',
       gameStarted: 'Dieses Spiel hat bereits begonnen',
       roomFull: 'Dieses Spiel ist voll',
       notAuthenticated: 'Benutzer nicht authentifiziert',
-      alreadyInGame: 'Du bist bereits in diesem Spiel',
-      serverTimeout: 'Server antwortet zu langsam. Bitte versuche es erneut.',
-      networkError: 'Netzwerkfehler: Überprüfe deine Internetverbindung',
-      permissionDenied: 'Zugriff verweigert: Überprüfe die Firestore-Sicherheitsregeln',
+      alreadyInGame: 'Sie sind bereits in diesem Spiel',
+      serverTimeout: 'Der Server antwortet zu langsam. Bitte versuchen Sie es erneut.',
+      networkError: 'Netzwerkfehler: Überprüfen Sie Ihre Internetverbindung',
+      permissionDenied: 'Zugriff verweigert: Überprüfen Sie die Firestore-Sicherheitsregeln',
     },
     room: {
       create: 'Raum erstellen',
@@ -143,370 +145,111 @@ export default {
       },
     },
     codePlaceholder: "Spielcode eingeben",
-    loading: "Verbinde mit dem Spiel...",
+    loading: "Verbindung zum Spiel wird hergestellt...",
     categories: {
-      nightly_modes: "WOCHEMPFEHLUNG",
-      same_room: "IM GLEICHEN RAUM",
+      nightly_modes: "VORSCHLAG DER WOCHE",
+      same_room: "IM SELBEN RAUM",
       online: "ONLINE"
     },
     subtitles: {
       same_room: "Spielt zusammen im selben Raum!",
-      online: "Spielt auch wenn ihr nicht zusammen seid"
+      online: "Spielt auch, wenn ihr nicht zusammen seid"
     },
     games: {
-      "listen-but-dont-judge": {
-        name: "ZUHÖREN ABER NICHT URTEILEN",
-        description: "Ein kostenloser Modus zum Spaß haben mit Freunden.",
+      "listen-but-don-t-judge": {
+        name: "WIR HÖREN ZU, ABER WIR URTEILEN NICHT",
+        description: "Ein kostenloser Modus, um mit Freunden zu lachen.",
         tags: {
           free: "KOSTENLOS"
         }
       },
       "truth-or-dare": {
-        name: "WAHRHEIT ODER PFICHT",
+        name: "WAHRHEIT ODER PFLICHT",
         description: "Der Klassiker neu interpretiert mit exklusiven Herausforderungen.",
         tags: {
           premium: "PREMIUM"
         }
       },
       "never-have-i-ever-hot": {
-        name: "ICH HABE NOCH NIE 🔞",
-        description: "Freche und unangemessene Fragen... Bereit zu gestehen?",
+        name: "ICH HAB NOCH NIE 🔞",
+        description: "Unanständige und unpassende Fragen... Seid ihr bereit, dazu zu stehen?",
         tags: {
           premium: "PREMIUM"
         }
       },
       "genius-or-liar": {
         name: "GENIE ODER LÜGNER",
-        description: "Ein unterhaltsamer Modus, in dem du dein Wissen beweisen oder die Konsequenzen tragen musst.",
+        description: "Ein lustiger Modus, in dem du dein Wissen beweisen oder die Konsequenzen tragen musst.",
         tags: {
           premium: "PREMIUM"
         }
       },
       "the-hidden-village": {
-        name: "DAS VERSTECKTE DORF",
-        description: "Ein Spiel aus Bluff, Strategie und Diskussionen... für diejenigen, die gerne ihre Freunde beschuldigen 😈",
+        name: "DAS VERBORGENE DORF",
+        description: "Ein Spiel voller Bluff, Strategie und Diskussionen... für alle, die gerne ihre Freunde beschuldigen 😈",
         tags: {
           premium: "PREMIUM"
         }
       },
       "trap-answer": {
-        name: "Fallen-Antwort",
-        description: "Ein Quiz, bei dem eine falsche Antwort Punkte kostet... Kannst du den Fallen entgehen?",
+        name: "Fallenfrage",
+        description: "Ein Quiz, bei dem du bei einer falschen Antwort Punkte verlierst... Kannst du den Fallen ausweichen?",
         tags: {
           free: "KOSTENLOS"
         }
       },
       "two-letters-one-word": {
         name: "2 Buchstaben 1 Wort",
-        description: "Finden Sie ein Wort, das die beiden vorgegebenen Buchstaben enthält und zum Thema passt.",
+        description: "Finde ein Wort, das die beiden gegebenen Buchstaben enthält und zum Thema passt.",
         tags: {
           free: "KOSTENLOS",
           "new": "NEU",
           "premium": "PREMIUM"
         },
-        score: "Punktzahl: {{score}}",
+        score: "Punktestand: {{score}}",
         theme: "Thema: {{theme}}",
-        inputPlaceholder: "Geben Sie Ihr Wort ein...",
+        inputPlaceholder: "Gib dein Wort ein...",
         verifyButton: "Überprüfen",
-        verifyingButton: "Überprüfe...",
+        verifyingButton: "Wird überprüft...",
         validWord: "Gültiges Wort!",
         validWordMessage: "Du hast ein gültiges Wort gefunden!",
         invalidWord: "Ungültiges Wort",
-        invalidWordMessage: "Dieses Wort entspricht nicht den angeforderten Kriterien.",
-        noWordError: "Bitte geben Sie ein Wort ein",
+        invalidWordMessage: "Dieses Wort entspricht nicht den geforderten Kriterien.",
+        noWordError: "Bitte gib ein Wort ein",
         error: "Ein Fehler ist aufgetreten",
-        howToPlay: "Finden Sie ein Wort, das die beiden vorgegebenen Buchstaben enthält und zum gewählten Thema passt.",
+        howToPlay: "Finde ein Wort, das die beiden gegebenen Buchstaben enthält und zum gewählten Thema passt.",
         "theme.marque": "eine Marke",
         "theme.ville": "eine Stadt",
         "theme.prenom": "ein Vorname",
         "theme.pays": "ein Land",
         "theme.animal": "ein Tier",
         "theme.metier": "ein Beruf",
-        "theme.sport": "ein Sport",
+        "theme.sport": "eine Sportart",
         "theme.fruit": "eine Frucht",
         "theme.legume": "ein Gemüse",
-        "theme.objet": "ein Objekt",
+        "theme.objet": "ein Gegenstand",
         "exampleWord": "Beispiel: {{word}}",
         "nextButton": "Nächste Runde",
+        "playerCountError": "Das Spiel ist für 1 bis 4 Spieler.",
         "noExampleAvailable": "Kein Beispiel verfügbar",
       },
-    },
-    waitingForPlayersTitle: "Warte auf Spieler",
-    waitingForPlayersMessage: "Bitte warten Sie, bis alle Spieler ihr Wort eingegeben haben.",
-    actionNotAllowedTitle: "Aktion nicht erlaubt",
-    onlyHostCanAdvance: "Nur der Host kann zur nächsten Runde wechseln.",
+      'word-guessing': {
+        name: 'WORTE RATEN',
+        description: 'Lass jemanden ein Wort erraten, ohne die verbotenen Wörter zu benutzen... Ein Spiel mit Worten und Geschwindigkeit!',
+        tags: {
+          free: 'KOSTENLOS'
+        },
+      },
+    }
   },
 
-  // Game
-  game: {
-    start: 'Start',
-    join: 'Beitreten',
-    leave: 'Verlassen',
-    players: 'Spieler',
-    waiting: 'Warten',
-    yourTurn: 'Dein Zug',
-    gameOver: 'Spiel beendet',
-    winner: 'Gewinner',
-    draw: 'Unentschieden',
-    error: "Fehler",
-    unknownMode: "Unbekannter Spielmodus: {{mode}}",
-    notFound: "Kein Spieldokument für ID gefunden: {{id}}",
-    noMode: "Kein Spielmodus im Spieldokument gefunden.",
-    loading: "Laden...",
-    results: {
-      title: "Endergebnisse",
-      subtitle: "Glückwunsch an alle!",
-      bravo: "Glückwunsch {{name}}!",
-      points: "Punkte",
-      home: "Startseite",
-      calculating: "Ergebnisse berechnen...",
-      podium: {
-        first: "1. Platz",
-        second: "2. Platz",
-        third: "3. Platz",
-        others: "Andere Spieler",
-        title: "Podiums-Rangliste",
-      },
-      rank: "Rang",
-      score: "Punktzahl",
-      player: "Spieler",
-      "two-letters-one-word": {
-        title: "Spiel vorbei!",
-        subtitle: "Danke fürs Spielen von 2 Buchstaben 1 Wort!",
-        totalWords: "Gefundene Wörter",
-        bestWord: "Bestes Wort",
-        averageScore: "Durchschnittliche Punktzahl",
-        timePlayed: "Spielzeit",
-        newHighScore: "Neuer Highscore!",
-        shareResults: "Ergebnisse teilen",
-        playAgain: "Erneut spielen"
-      },
-      "word-guessing": {
-        title: "Rate das Wort",
-        timer: "Verbleibende Zeit",
-        score: "Punktzahl",
-        forbiddenWords: "Verbotene Wörter",
-        start: "Start",
-        next: "Nächstes Wort",
-        found: "Wort gefunden!",
-        forbidden: "Verbotenes Wort benutzt!",
-        timeUp: "Zeit abgelaufen!",
-        finalScore: "Endergebnis",
-        playAgain: "Erneut spielen"
-      }
-    },
-    player: 'der Spieler',
-    round: "Runde {{current}}/{{total}}",
-    truthOrDare: {
-      title: 'Wahrheit oder Pflicht',
-      choice: 'Wahl',
-      question: 'Frage',
-      action: 'Pflicht',
-      submitChoice: 'Auswahl senden',
-      submitAnswer: 'Antwort senden',
-      next: 'Weiter',
-      endGame: 'Spiel beenden',
-      endTitle: 'Glückwunsch an alle!',
-      endSubtitle: 'Du hast das Wahrheit oder Pflicht Spiel beendet',
-      home: 'Zur Startseite',
-      readAloud: 'Laut vorlesen',
-      targetChooses: '{{name}} wählt zwischen Wahrheit oder Pflicht!',
-      targetAnswers: '{{name}} antwortet ehrlich!',
-      targetDoesDare: '{{name}} erfüllt die Pflicht!',
-      error: 'Ein Fehler ist aufgetreten',
-      noQuestions: 'Keine Fragen verfügbar',
-      errorNext: 'Beim Wechsel zur nächsten Runde ist ein Fehler aufgetreten',
-      naughtyRanking: 'Unartigstes Ranking',
-      truth: "Wahrheit",
-      dare: "Pflicht",
-      chooseTask: "Wähle: Wahrheit oder Pflicht?",
-      isThinking: "überlegt...",
-      willChoose: "wird wählen",
-      or: "oder",
-      iAnswered: "Ich habe geantwortet",
-      iRefuse: "Ich passe",
-      voteInProgress: "Abstimmung läuft",
-      otherPlayersDecide: "Die anderen entscheiden, ob",
-      playedGame: "das Spiel gespielt hat",
-      votes: "Stimmen",
-      vote: "Abstimmen",
-      did: "Hat",
-      thanksVote: "Danke für deine Stimme!",
-      yes: "Ja",
-      no: "Nein",
-      round: "Runde",
-      roundEnd: "Ende der Runde für",
-      scores: "Punkte",
-      errorSelectingQuestion: "Fehler bei der Auswahl der Frage",
-      noQuestionsAvailable: "Keine Fragen für diese Auswahl verfügbar",
-    },
-    listenButDontJudge: {
-      title: 'Zuhören aber nicht urteilen',
-      question: 'Frage',
-      next: 'Weiter',
-      endGame: 'Spiel beenden',
-      endTitle: 'Glückwunsch an alle!',
-      endSubtitle: 'Du hast das Zuhören aber nicht urteilen Spiel beendet',
-      home: 'Zur Startseite',
-      readAloud: 'Laut vorlesen',
-      targetAnswers: '{{name}} antwortet!',
-      error: 'Ein Fehler ist aufgetreten',
-      noQuestions: 'Keine Fragen verfügbar',
-      errorNext: 'Beim Wechsel zur nächsten Runde ist ein Fehler aufgetreten'
-    },
-    neverHaveIEverHot: {
-      never: "Ich habe noch nie",
-      ever: "Ich habe schon",
-      waiting: "Warten auf die Wahl des Zielspielers...",
-      prepare: "Mach dich bereit zu antworten!",
-      submit: "Senden",
-      next: "Nächste Runde",
-      endGame: "Spiel beenden",
-      errorSubmit: "Antwort konnte nicht gesendet werden",
-      endTitle: "Glückwunsch an alle!",
-      endSubtitle: "Du hast das Ich habe noch nie 🔞 Spiel beendet",
-      home: "Zur Startseite",
-      readAloud: "Frage laut vorlesen",
-      targetReads: "{{name}} liest die Frage vor",
-      noQuestions: "Keine Fragen verfügbar",
-      errorNext: "Beim Wechsel zur nächsten Runde ist ein Fehler aufgetreten",
-      naughtyRanking: "Unartigstes Ranking"
-    },
-    geniusOrLiar: {
-      title: 'Genie oder Lügner',
-      question: 'Frage',
-      know: 'Ich weiß',
-      dontKnow: 'Ich weiß nicht',
-      accuse: 'Beschuldigen',
-      submitAnswer: 'Antwort senden',
-      next: 'Nächste Runde',
-      endGame: 'Spiel beenden',
-      endTitle: 'Glückwunsch an alle!',
-      endSubtitle: 'Du hast das Genie oder Lügner Spiel beendet',
-      home: 'Zur Startseite',
-      readAloud: 'Laut vorlesen',
-      targetAnswers: '{{name}} antwortet!',
-      error: 'Ein Fehler ist aufgetreten',
-      noQuestions: 'Keine Fragen verfügbar',
-      errorNext: 'Beim Wechsel zur nächsten Runde ist ein Fehler aufgetreten',
-      errorSubmit: 'Fehler beim Senden deiner Antwort oder Stimme.'
-    },
-    theHiddenVillage: {
-      title: 'DAS VERSTECKTE DORF',
-      subtitle: 'Ein Spiel aus Bluff und Strategie',
-      description: 'Ein Spiel aus Bluff, Strategie und Diskussionen... für diejenigen, die gerne ihre Freunde beschuldigen 😈',
-      principles: {
-        title: '🌓 SPIELPRINZIP',
-        list: [
-          'Jede Nacht eliminiert ein "Verräter" einen anderen Spieler.',
-          'Jeden Tag diskutieren und stimmen die Überlebenden ab, um den Verdächtigen zu eliminieren.',
-          'Ziel: Entlarve den Täter, bevor er alle eliminiert.'
-        ]
-      },
-      roles: {
-        title: '🎭 ROLLEN',
-        traitor: {
-          name: 'Der Verräter',
-          description: 'Eliminiert jede Nacht. Muss überleben.'
-        },
-        medium: {
-          name: 'Das Medium',
-          description: 'Erkennt, ob ein Spieler ein Dorfbewohner oder Verräter ist.'
-        },
-        protector: {
-          name: 'Der Beschützer',
-          description: 'Schützt jede Nacht einen Spieler.'
-        },
-        villager: {
-          name: 'Der Dorfbewohner',
-          description: 'Keine Kraft. Stimmt weise ab.'
-        },
-        liar: {
-          name: 'Der Lügner',
-          description: 'Lustige Rolle. Sät Zweifel.'
-        }
-      },
-      objectives: {
-        title: '🎯 ZIELE',
-        traitor: 'Verräter: Eliminiere alle anderen, ohne gefasst zu werden.',
-        village: 'Dorf: Entdecke den Verräter, bevor er gewinnt.'
-      }
-    },
-    trapAnswer: {
-      title: "Fallen-Antwort",
-      question: "Frage",
-      next: "Nächste",
-      endGame: "Spiel beenden",
-      endTitle: "Glückwunsch an alle!",
-      endSubtitle: "Du hast das Fallen-Antwort Spiel beendet",
-      home: "Startseite",
-      readAloud: "Laut vorlesen",
-      targetAnswers: "{{name}} antwortet!",
-      error: "Ein Fehler ist aufgetreten",
-      noQuestions: "Keine Fragen verfügbar",
-      errorNext: "Beim Wechsel zur nächsten Runde ist ein Fehler aufgetreten",
-      submit: "Senden",
-      choices: "Auswahlmöglichkeiten",
-      correctAnswer: "Richtige Antwort!",
-      wrongAnswer: "Falsche Antwort.",
-      correct: "Richtig",
-      wrong: "Falsch",
-      waitingForPlayers: "Warten auf andere Spieler...",
-      playerAnswered: "{{count}} Spieler hat geantwortet",
-      playerAnswered_plural: "{{count}} Spieler haben geantwortet",
-      yourScore: "Deine Punktzahl",
-      playerScores: "Spieler-Punktzahlen"
-    },
-    twoLettersOneWord: {
-      score: "Punktzahl: {{score}}",
-      theme: "Thema: {{theme}}",
-      inputPlaceholder: "Geben Sie Ihr Wort ein...",
-      verifyButton: "Überprüfen",
-      verifyingButton: "Überprüfe...",
-      validWord: "Gültiges Wort!",
-      validWordMessage: "Du hast ein gültiges Wort gefunden!",
-      invalidWord: "Ungültiges Wort",
-      invalidWordMessage: "Dieses Wort entspricht nicht den angeforderten Kriterien.",
-      noWordError: "Bitte geben Sie ein Wort ein",
-      error: "Ein Fehler ist aufgetreten",
-      howToPlay: "Finden Sie ein Wort, das die beiden vorgegebenen Buchstaben enthält und zum gewählten Thema passt.",
-      "theme.marque": "eine Marke",
-      "theme.ville": "eine Stadt",
-      "theme.prenom": "ein Vorname",
-      "theme.pays": "ein Land",
-      "theme.animal": "ein Tier",
-      "theme.metier": "ein Beruf",
-      "theme.sport": "ein Sport",
-      "theme.fruit": "eine Frucht",
-      "theme.legume": "ein Gemüse",
-      "theme.objet": "ein Objekt",
-      "exampleWord": "Beispiel: {{word}}",
-      "nextButton": "Nächste Runde",
-      "noExampleAvailable": "Kein Beispiel verfügbar",
-    },
-    word_guessing: {
-      targetPlayer: 'Lass {{player}} erraten',
-      forbiddenWords: 'Verbotene Wörter',
-      found: 'Wort gefunden!',
-      forbidden: 'Verbotenes Wort!',
-      nextWord: 'Nächstes Wort',
-      categories: {
-        lieux: 'Orte',
-        aliments: 'Essen',
-        transport: 'Transport',
-        technologie: 'Technologie',
-        sports: 'Sport',
-        loisirs: 'Hobbies',
-        nature: 'Natur',
-        objets: 'Objekte',
-        animaux: 'Tiere',
-      },
-      guesserInstructions: 'Dein Freund versucht, dich ein Wort erraten zu lassen!',
-      guesserInfo: 'Höre aufmerksam zu und versuche, das Wort zu finden, ohne dass verbotene Wörter verwendet werden.',
-    },
+  // Allgemeine Übersetzungen
+  common: {
+    ok: 'OK',
+    loading: 'Wird geladen...',
   },
 
-  // Settings
+  // Einstellungen
   settings: {
     title: 'Einstellungen',
     language: 'Sprache',
@@ -522,9 +265,9 @@ export default {
       title: 'Assets kaufen',
       available: 'Verfügbare Assets',
       availableAssetsTitle: 'Verfügbare Assets',
-      owned: 'Besessen',
+      owned: 'Im Besitz',
       cost: 'Kosten',
-      points: 'Punkte',
+      points: 'punkte',
       buy: 'Kaufen',
       confirm: 'Kauf bestätigen',
       cancel: 'Abbrechen',
@@ -535,59 +278,383 @@ export default {
     },
   },
 
-  // Splash Screen
+  // Spiel
+  game: {
+    round: 'Runde {{current}}/{{total}}',
+    start: 'Start',
+    join: 'Beitreten',
+    leave: 'Spiel verlassen',
+    players: 'Spieler',
+    waiting: 'Warten',
+    yourTurn: 'Du bist dran',
+    gameOver: 'Spiel beendet',
+    winner: 'Gewinner',
+    draw: 'Unentschieden',
+    error: "Fehler",
+    unknownMode: "Unbekannter Spielmodus: {{mode}}",
+    notFound: "Kein Spieldokument für die ID gefunden: {{id}}",
+    noMode: "Kein Spielmodus im Spieldokument gefunden.",
+    loading: "Wird geladen...",
+    results: {
+      title: "Endergebnisse",
+      subtitle: "Glückwunsch an alle!",
+      bravo: "Glückwunsch {{name}}!",
+      points: "punkte",
+      home: "Startseite",
+      calculating: "Ergebnisse werden berechnet...",
+      podium: {
+        first: "1. Platz",
+        second: "2. Platz",
+        third: "3. Platz",
+        others: "Andere Spieler",
+        title: "Podiumsplätze",
+      },
+      rank: "Rang",
+      score: "Punktestand",
+      player: "Spieler",
+      "two-letters-one-word": {
+        title: "Spiel beendet!",
+        subtitle: "Danke, dass du 2 Buchstaben 1 Wort gespielt hast!",
+        totalWords: "Gefundene Wörter",
+        bestWord: "Bestes Wort",
+        averageScore: "Durchschnittliche Punktzahl",
+        timePlayed: "Gespielte Zeit",
+        newHighScore: "Neuer Highscore!",
+        shareResults: "Ergebnisse teilen",
+        playAgain: "Nochmal spielen"
+      },
+      "word-guessing": {
+        title: "Wort Raten",
+        timer: "Verbleibende Zeit",
+        score: "Punktestand",
+        forbiddenWords: "Verbotene Wörter",
+        start: "Start",
+        next: "Nächstes Wort",
+        found: "Wort gefunden!",
+        forbidden: "Verbotenes Wort benutzt!",
+        timeUp: "Zeit abgelaufen!",
+        finalScore: "Endstand",
+        playAgain: "Nochmal spielen"
+      }
+    },
+    player: 'der Spieler',
+    truthOrDare: {
+      title: 'Wahrheit oder Pflicht',
+      choice: 'Wahl',
+      question: 'Frage',
+      action: 'Pflicht',
+      submitChoice: 'Wahl senden',
+      submitAnswer: 'Antwort senden',
+      next: 'Weiter',
+      endGame: 'Spiel beenden',
+      endTitle: 'Glückwunsch an alle!',
+      endSubtitle: 'Du hast das Spiel Wahrheit oder Pflicht beendet',
+      home: 'Zurück zur Startseite',
+      readAloud: 'Laut vorlesen',
+      targetChooses: '{{name}} wählt zwischen Wahrheit oder Pflicht!',
+      targetAnswers: '{{name}} beantwortet die Wahrheit!',
+      targetDoesDare: '{{name}} macht die Pflicht!',
+      error: 'Ein Fehler ist aufgetreten',
+      noQuestions: 'Keine Fragen verfügbar',
+      errorNext: 'Beim Wechsel zur nächsten Runde ist ein Fehler aufgetreten',
+      naughtyRanking: 'Unanständige Rangliste',
+      truth: "Wahrheit",
+      dare: "Pflicht",
+      chooseTask: "Wähle: Wahrheit oder Pflicht?",
+      isThinking: "denkt nach...",
+      willChoose: "wird wählen",
+      or: "oder",
+      iAnswered: "Ich habe geantwortet",
+      iRefuse: "Ich passe",
+      voteInProgress: "Abstimmung läuft",
+      otherPlayersDecide: "Die anderen Spieler entscheiden, ob",
+      playedGame: "das Spiel gespielt hat",
+      votes: "stimmen",
+      vote: "Abstimmen",
+      did: "Hat",
+      thanksVote: "Danke für deine Stimme!",
+      yes: "Ja",
+      no: "Nein",
+      round: "Runde",
+      roundEnd: "Ende der Runde für",
+      scores: "Punktestände",
+      errorSelectingQuestion: "Fehler bei der Auswahl der Frage",
+      noQuestionsAvailable: "Für diese Wahl sind keine Fragen verfügbar",
+    },
+    listenButDontJudge: {
+      title: 'Wir Hören Zu, Aber Wir Urteilen Nicht',
+      question: 'Frage',
+      next: 'Weiter',
+      endGame: 'Spiel beenden',
+      endTitle: 'Glückwunsch an alle!',
+      endSubtitle: 'Du hast das Spiel Wir Hören Zu, Aber Wir Urteilen Nicht beendet',
+      home: 'Zurück zur Startseite',
+      readAloud: 'Laut vorlesen',
+      targetAnswers: '{{name}} antwortet!',
+      error: 'Ein Fehler ist aufgetreten',
+      noQuestions: 'Keine Fragen verfügbar',
+      errorNext: 'Beim Wechsel zur nächsten Runde ist ein Fehler aufgetreten'
+    },
+    neverHaveIEverHot: {
+      never: "Ich habe noch nie",
+      ever: "Ich habe schon",
+      waiting: "Warte auf die Wahl des Zielspielers...",
+      prepare: "Mach dich bereit zu antworten!",
+      submit: "Senden",
+      next: "Nächste Runde",
+      endGame: "Spiel beenden",
+      errorSubmit: "Antwort konnte nicht gesendet werden",
+      endTitle: "Glückwunsch an alle!",
+      endSubtitle: "Du hast das Spiel Ich Hab Noch Nie 🔞 beendet",
+      home: "Zurück zur Startseite",
+      readAloud: "Lies die Frage laut vor",
+      targetReads: "{{name}} liest die Frage",
+      noQuestions: "Keine Fragen verfügbar",
+      errorNext: "Beim Wechsel zur nächsten Runde ist ein Fehler aufgetreten",
+      naughtyRanking: "Unanständige Rangliste"
+    },
+    geniusOrLiar: {
+      // --- Haupt-UI-Schlüssel aus Screenshots ---
+      accuseTitle: 'Wer ist der Lügner?',
+      pretendKnows: 'behauptet zu wissen',
+      accuseNoOne: 'Niemanden beschuldigen',
+      roundResults: 'Ergebnisse der Runde',
+      correctAnswerLabel: 'Die richtige Antwort war: {{answer}}',
+      givenAnswerLabel: 'Deine Antwort: {{answer}}',
+      drinks: 'Schlucke',
+      
+      // --- Spieler-Status ---
+      playerStatus: {
+        wrongAnswer: 'Falsche Antwort',
+        dontKnow: 'Wusste die Antwort nicht',
+        correctAnswer: 'Richtige Antwort!',
+        correctButAccused: 'Genie, aber beschuldigt!',
+        liarNotAccused: 'Die Lüge wurde geglaubt!',
+        liarAccused: 'Lügner, und entlarvt!',
+      },
+      accuserStatus: {
+        correctAccusation: 'Gut erkannt!',
+        wrongAccusation: 'Falsche Anschuldigung!'
+      },
+      
+      // --- Allgemeines Gameplay ---
+      answerPlaceholder: 'Deine Antwort...',
+      validate: 'Bestätigen',
+      know: 'Ich weiß es',
+      dontKnow: 'Ich weiß es nicht',
+      accuse: 'Beschuldigen',
+      nextRound: 'Nächste Runde',
+      showResults: 'Ergebnisse anzeigen',
+      endGame: 'Endergebnisse anzeigen',
+      chooseGameMode: 'Wähle den Spielmodus',
+      pointsMode: 'Punkte',
+      forfeitsMode: 'Schlucke',
+      points: 'punkte',
+      forfeit: 'schluck',
+      forfeits: 'schlucke',
+
+      // --- Warte- / Info-Text ---
+      yourAnswer: 'Deine Antwort',
+      waitingForPlayers: 'Warte auf andere Spieler...',
+      waitingForAnswers: 'Warte, bis andere Spieler geantwortet haben...',
+      waitingForVotes: 'Warte, bis andere Spieler abgestimmt haben...',
+      playersWhoKnow: 'Spieler, die behaupten, es zu wissen:',
+      playersWhoDontKnow: 'Spieler, die es nicht wissen:',
+      noOneKnows: 'Niemand kannte die Antwort!',
+      allPlayersKnow: 'Alle kannten die Antwort!',
+      wasAccused: 'Wurde beschuldigt',
+      accusedBy: 'Beschuldigt von {{count}}',
+
+      // --- Fehler / Sonderfälle ---
+      errorSubmit: 'Fehler beim Senden der Antwort.',
+      noQuestionAvailable: 'Für dieses Spiel sind keine Fragen verfügbar.',
+      incorrectQuestionFormat: 'Falsches Fragenformat (ID: {{id}})',
+      modeSelectError: 'Fehler bei der Auswahl des Spielmodus.',
+      
+      // --- Fragenkategorien ---
+      questionTypes: {
+        cultureG: 'Allgemeinwissen',
+        cultureGHard: 'Allgemeinwissen (Schwer)',
+        culturePop: 'Popkultur',
+        cultureGeek: 'Geek-Kultur',
+        cultureArt: 'Kunst',
+        hard: 'Schwer',
+        devinette: 'Rätsel',
+        verite: 'Wahrheit'
+      }
+    },
+    theHiddenVillage: {
+      title: 'DAS VERBORGENE DORF',
+      subtitle: 'Ein Spiel voller Bluff und Strategie',
+      description: 'Ein Spiel voller Bluff, Strategie und Diskussionen... für alle, die gerne ihre Freunde beschuldigen 😈',
+      principles: {
+        title: '🌓 SPIELPRINZIP',
+        list: [
+          'Jede Nacht eliminiert ein "Verräter" einen anderen Spieler.',
+          'Jeden Tag diskutieren und stimmen die Überlebenden ab, um den zu eliminieren, den sie verdächtigen.',
+          'Ziel: den Schuldigen entlarven, bevor er alle eliminiert.'
+        ]
+      },
+      roles: {
+        title: '🎭 ROLLEN',
+        traitor: {
+          name: 'Der Verräter',
+          description: 'Eliminiert jede Nacht. Muss überleben.'
+        },
+        medium: {
+          name: 'Das Medium',
+          description: 'Errät, ob ein Spieler ein Dorfbewohner oder ein Verräter ist.'
+        },
+        protector: {
+          name: 'Der Beschützer',
+          description: 'Schützt jede Nacht einen Spieler.'
+        },
+        villager: {
+          name: 'Der Dorfbewohner',
+          description: 'Keine Macht. Stimmt weise ab.'
+        },
+        liar: {
+          name: 'Der Lügner',
+          description: 'Lustige Rolle. Streut Zweifel.'
+        }
+      },
+      objectives: {
+        title: '🎯 ZIELE',
+        traitor: 'Verräter: alle anderen eliminieren, ohne erwischt zu werden.',
+        village: 'Dorf: den Verräter entdecken, bevor er gewinnt.'
+      }
+    },
+    trapAnswer: {
+      title: "Fallenfrage",
+      question: "Frage",
+      next: "Weiter",
+      endGame: "Spiel beenden",
+      endTitle: "Glückwunsch an alle!",
+      endSubtitle: "Du hast das Spiel Fallenfrage beendet",
+      home: "Startseite",
+      readAloud: "Laut vorlesen",
+      targetAnswers: "{{name}} antwortet!",
+      error: "Ein Fehler ist aufgetreten",
+      noQuestions: "Keine Fragen verfügbar",
+      errorNext: "Beim Wechsel zur nächsten Runde ist ein Fehler aufgetreten",
+      submit: "Senden",
+      choices: "Auswahlmöglichkeiten",
+      correctAnswer: "Richtige Antwort!",
+      wrongAnswer: "Falsche Antwort.",
+      correct: "Richtig",
+      wrong: "Falsch",
+      waitingForPlayers: "Warte auf andere Spieler...",
+      playerAnswered: "{{count}} Spieler hat geantwortet",
+      playerAnswered_plural: "{{count}} Spieler haben geantwortet",
+      yourScore: "Dein Punktestand",
+      playerScores: "Punktestände der Spieler"
+    },
+    twoLettersOneWord: {
+      score: "Punktestand: {{score}}",
+      theme: "Thema: {{theme}}",
+      inputPlaceholder: "Gib dein Wort ein...",
+      verifyButton: "Überprüfen",
+      verifyingButton: "Wird überprüft...",
+      validWord: "Gültiges Wort!",
+      validWordMessage: "Du hast ein gültiges Wort gefunden!",
+      invalidWord: "Ungültiges Wort",
+      invalidWordMessage: "Dieses Wort entspricht nicht den geforderten Kriterien.",
+      noWordError: "Bitte gib ein Wort ein",
+      error: "Ein Fehler ist aufgetreten",
+      howToPlay: "Finde ein Wort, das die beiden gegebenen Buchstaben enthält und zum gewählten Thema passt.",
+      "theme.marque": "eine Marke",
+      "theme.ville": "eine Stadt",
+      "theme.prenom": "ein Vorname",
+      "theme.pays": "ein Land",
+      "theme.animal": "ein Tier",
+      "theme.metier": "ein Beruf",
+      "theme.sport": "eine Sportart",
+      "theme.fruit": "eine Frucht",
+      "theme.legume": "ein Gemüse",
+      "theme.objet": "ein Gegenstand",
+      "exampleWord": "Beispiel: {{word}}",
+      "nextButton": "Nächste Runde",
+      "noExampleAvailable": "Kein Beispiel verfügbar",
+    },
+    waitingForPlayersTitle: "Warte auf Spieler",
+    waitingForPlayersMessage: "Bitte warte, bis alle Spieler ihr Wort eingereicht haben.",
+    actionNotAllowedTitle: "Aktion nicht erlaubt",
+    onlyHostCanAdvance: "Nur der Host kann zur nächsten Runde übergehen.",
+    word_guessing: {
+      targetPlayer: 'Lass {{player}} raten',
+      forbiddenWords: 'Verbotene Wörter',
+      guesserInstructions: 'Dein Freund versucht, dich ein Wort erraten zu lassen!',
+      guesserInfo: 'Höre aufmerksam zu und versuche, das Wort zu finden, ohne dass er die verbotenen Wörter benutzt.',
+      found: 'Wort gefunden!',
+      forbidden: 'Verbotenes Wort!',
+      nextWord: 'Nächstes Wort',
+      categories: {
+        lieux: 'Orte',
+        aliments: 'Lebensmittel',
+        transport: 'Transport',
+        technologie: 'Technologie',
+        sports: 'Sport',
+        loisirs: 'Hobbys',
+        nature: 'Natur',
+        objets: 'Gegenstände',
+        animaux: 'Tiere',
+      },
+    },
+  },
+
+  // Ladebildschirm
   splash: {
     title: 'Nightly',
     subtitle: 'Bereit zum Spielen',
-    loading: 'Laden...',
+    loading: 'Wird geladen...',
   },
 
-  // Rules translations
+  // Regeln
   rules: {
     title: 'SPIELREGELN',
-    loading: 'Regeln laden...',
+    loading: 'Regeln werden geladen...',
     confirm: 'Ich habe die Regeln gelesen',
     confirmStart: 'Ich habe die Regeln gelesen, Spiel starten',
     general: {
       title: 'ALLGEMEINE REGELN',
-      description: 'Ein Spieler wird jede Runde zufällig bestimmt.'
+      description: 'In jeder Runde wird ein Spieler zufällig ausgewählt.'
     },
     participation: {
       title: 'TEILNAHME',
       description: 'Alle Spieler müssen aktiv teilnehmen.'
     },
     scoring: {
-      title: 'PUNKTEVERGABE',
-      description: 'Punkte werden gemäß den spezifischen Spielregeln vergeben.'
+      title: 'PUNKTWERTUNG',
+      description: 'Punkte werden nach den spezifischen Regeln des Spiels vergeben.'
     }
   },
 
   room: {
-    loading: "Raum laden...",
+    loading: "Raum wird geladen...",
     notFound: "Raum nicht gefunden",
     codeLabel: "Raumcode",
-    codeCopied: "Code in Zwischenablage kopiert",
+    codeCopied: "Code in die Zwischenablage kopiert",
     players: "{{count}} Spieler",
     players_plural: "{{count}} Spieler",
     host: "Host",
     ready: "Bereit",
     rules: "Regeln",
-    rulesNotRead: "Bitte lesen Sie die Regeln, bevor Sie das Spiel starten.",
+    rulesNotRead: "Bitte lies die Regeln, bevor du das Spiel startest.",
     iAmReady: "Ich bin bereit",
     startGame: "Spiel starten",
     inviteTitle: "Tritt meinem Spiel bei",
     inviteMessage: "Tritt meinem Spiel auf Nightly bei! Code: {{code}}",
     error: "Fehler",
-    errorLoading: "Raum konnte nicht geladen werden",
-    errorStart: "Spiel konnte nicht gestartet werden",
-    errorLeave: "Raum konnte nicht verlassen werden",
-    errorReady: "Bereitschaft konnte nicht gesetzt werden",
+    errorLoading: "Der Raum konnte nicht geladen werden",
+    errorStart: "Das Spiel konnte nicht gestartet werden",
+    errorLeave: "Der Raum konnte nicht verlassen werden",
+    errorReady: "Konnte nicht auf 'Bereit' stellen",
     errorCopy: "Fehler beim Kopieren des Codes",
     errorShare: "Fehler beim Teilen",
-    successCopy: "Code in Zwischenablage kopiert",
+    successCopy: "Code in die Zwischenablage kopiert",
     minPlayersRequired: "Mindestens {{count}} Spieler erforderlich",
-    notEnoughPlayers: "Nicht genug Spieler",
-    rounds: "Runden",
+    notEnoughPlayers: "Nicht genügend Spieler",
+    rounds: "runden",
     title: "Spielraum"
   },
 
@@ -595,19 +662,19 @@ export default {
     greeting: 'Hallo',
     notifications: {
       title: 'Benachrichtigungen',
-      comingSoon: 'Diese Funktion ist bald verfügbar!'
+      comingSoon: 'Diese Funktion kommt bald!'
     }
   },
 
   // Paywall
   paywall: {
     title: 'Nightly Premium',
-    subtitle: 'UNBEGRENZTER ZUGRIFF',
-    tagline: 'SPIELE OHNE GRENZEN',
+    subtitle: 'UNBEGRENZTER ZUGANG',
+    tagline: 'SPIELE OHNE LIMITS',
     features: {
       unlimited: 'Unbegrenzter Zugang zu allen Modi',
-      weekly: 'Neue Karten jede Woche',
-      visuals: 'Exklusive visuelle Themen',
+      weekly: 'Jede Woche neue Karten',
+      visuals: 'Exklusive visuelle Designs',
       characters: 'Charakteranpassung',
       updates: 'Priorisierte Updates'
     },
@@ -622,7 +689,7 @@ export default {
         badge: 'PARTY',
         title: 'Nightly Party',
         period: 'pro Monat',
-        description: 'Für regelmäßige Spieler'
+        description: 'Für alle, die regelmäßig spielen'
       },
       annual: {
         badge: 'ALL ACCESS',
@@ -639,15 +706,15 @@ export default {
     alerts: {
       productUnavailable: {
         title: 'Produkt nicht verfügbar',
-        message: 'Das Abonnement ist zurzeit nicht verfügbar. Bitte versuchen Sie es später noch einmal.'
+        message: 'Das Abonnement ist im Moment nicht verfügbar. Bitte versuchen Sie es später erneut.'
       },
       success: {
         title: 'Erfolg',
-        message: 'Vielen Dank für Ihren Kauf!'
+        message: 'Danke für deinen Kauf!'
       },
       pending: {
         title: 'Information',
-        message: 'Ihr Abonnement wurde verarbeitet, ist aber noch nicht aktiv. Bitte starten Sie die App neu.'
+        message: 'Ihr Abonnement wurde bearbeitet, ist aber noch nicht aktiv. Bitte starten Sie die Anwendung neu.'
       },
       error: {
         title: 'Fehler',
@@ -663,7 +730,7 @@ export default {
       },
       termsError: {
         title: 'Fehler',
-        message: 'Nutzungsbedingungen konnten nicht geöffnet werden'
+        message: 'Die Nutzungsbedingungen konnten nicht geöffnet werden'
       }
     },
     prices: {
@@ -672,24 +739,25 @@ export default {
       annual: '29,99',
       currency: '€'
     },
-    freeTrial: '3-Tage-Gratistest',
+    freeTrial: '3 Tage kostenlos',
   },
 
   assets: {
     avatars: {
       'avatar-panda': {
         name: 'Panda',
-        description: 'Ein entzückender Panda für dein Profil'
+        description: 'Ein niedlicher Panda für dein Profil'
       },
       'avatar-chat': {
         name: 'Katze',
         description: 'Eine süße und verspielte Katze'
       },
       'avatar-chat-rare': {
-        name: 'Mysteriöse Katze',
-        description: 'Eine mysteriöse Katze mit leuchtenden Augen'
+        name: 'Geheimnisvolle Katze',
+        description: 'Eine geheimnisvolle Katze mit leuchtenden Augen'
       },
-      'avatar-chat-rare-2': {
+      'avatar-chat-rare-2':
+      {
         name: 'Seltene Katze',
         description: 'Eine seltene Katze mit einzigartigem Design'
       },
@@ -699,7 +767,7 @@ export default {
       },
       'avatar-hibou': {
         name: 'Eule',
-        description: 'Eine weise und mysteriöse Eule'
+        description: 'Eine weise und geheimnisvolle Eule'
       },
       'avatar-grenouille': {
         name: 'Frosch',
@@ -707,7 +775,7 @@ export default {
       },
       'avatar-oiseau': {
         name: 'Vogel',
-        description: 'Ein Vogel mit lebendigen Farben'
+        description: 'Ein Vogel mit leuchtenden Farben'
       },
       'avatar-renard': {
         name: 'Fuchs',
@@ -715,19 +783,19 @@ export default {
       },
       'avatar-dragon': {
         name: 'Drache',
-        description: 'Ein majestätischer, feuerspeiender Drache'
+        description: 'Ein majestätischer feuerspeiender Drache'
       },
       'avatar-ourse': {
-        name: 'Bär',
-        description: 'Ein majestätischer Bär'
+        name: 'Bärin',
+        description: 'Eine majestätische Bärin'
       },
       'avatar-loup-rare': {
         name: 'Seltener Wolf',
-        description: 'Ein seltener und mysteriöser Wolf'
+        description: 'Ein seltener und geheimnisvoller Wolf'
       },
       'avatar-dragon-rare': {
         name: 'Legendärer Drache',
-        description: 'Ein majestätischer, feuerspeiender Drache'
+        description: 'Ein majestätischer feuerspeiender Drache'
       },
       'avatar-licorne': {
         name: 'Einhorn',
@@ -735,7 +803,7 @@ export default {
       },
       'avatar-phoenix': {
         name: 'Phönix',
-        description: 'Ein legendärer Phönix, der aus seiner Asche steigt'
+        description: 'Ein legendärer Phönix, der aus seiner Asche aufsteigt'
       }
     }
   },
@@ -743,13 +811,13 @@ export default {
   inviteModal: {
     title: "Freunde einladen",
     roomCode: "Raumcode",
-    instruction: "Scannen Sie den QR-Code oder teilen Sie diesen Code, um Ihre Freunde in den Raum einzuladen.",
+    instruction: "Scanne den QR-Code oder teile diesen Code, um deine Freunde in den Raum einzuladen.",
     shareButton: "Teilen"
   },
 
-  // Common translations
-  common: {
-    ok: 'OK',
-    loading: 'Laden...',
+  ads: {
+    title: 'Schau dir eine Werbung an und erhalte 3 weitere Runden!',
   },
 };
+
+export default de;

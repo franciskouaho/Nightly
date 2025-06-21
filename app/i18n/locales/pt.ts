@@ -180,7 +180,16 @@ export default {
         description: "Um modo divertido onde você deve provar seus conhecimentos ou enfrentar as consequências.",
         tags: {
           premium: "PREMIUM"
-        }
+        },
+        accuseTitle: "Quem é o mentiroso?",
+        accuseDescription: "Vote na pessoa que você acha que mentiu.",
+        resultsTitle: "Resultados da votação",
+        resultsDescription: "Vamos ver quem foi desmascarado.",
+        liarRevealed: "O mentiroso era...",
+        noLiarFound: "O mentiroso não foi encontrado. Ele ganha 3 pontos.",
+        liarFound: "O mentiroso foi encontrado! Ele perde 5 pontos.",
+        votedForLiar: "Quem votou no mentiroso ganha 2 pontos.",
+        votedForInnocent: "Quem votou em um inocente perde 1 ponto."
       },
       "the-hidden-village": {
         name: "A VILA OCULTA",
