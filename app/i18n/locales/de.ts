@@ -247,6 +247,7 @@ const de = {
   common: {
     ok: 'OK',
     loading: 'Wird geladen...',
+    lumicoins: 'Lumicoins',
   },
 
   // Einstellungen
@@ -335,7 +336,11 @@ const de = {
         timeUp: "Zeit abgelaufen!",
         finalScore: "Endstand",
         playAgain: "Nochmal spielen"
-      }
+      },
+      naughty: {
+        title: 'Ranking der unartigsten Spieler',
+      },
+      yourCurrentRank: 'Dein aktueller Rang',
     },
     player: 'der Spieler',
     truthOrDare: {

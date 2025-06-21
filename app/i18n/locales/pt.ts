@@ -266,6 +266,7 @@ export default {
   common: {
     ok: 'OK',
     loading: 'Carregando...',
+    lumicoins: 'Lumicoins',
   },
 
   // Settings
@@ -353,7 +354,11 @@ export default {
         timeUp: "Tempo esgotado!",
         finalScore: "Pontuação final",
         playAgain: "Jogar novamente"
-      }
+      },
+      naughty: {
+        title: 'Ranking dos mais travessos',
+      },
+      yourCurrentRank: 'Sua classificação atual',
     },
     player: 'o jogador',
     round: "Rodada {{current}}/{{total}}",

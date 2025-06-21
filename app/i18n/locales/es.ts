@@ -247,6 +247,7 @@ const es = {
   common: {
     ok: 'OK',
     loading: 'Cargando...',
+    lumicoins: 'Lumicoins',
   },
 
   // Settings
@@ -335,7 +336,11 @@ const es = {
         timeUp: "¡Se acabó el tiempo!",
         finalScore: "Puntuación final",
         playAgain: "Jugar de nuevo"
-      }
+      },
+      naughty: {
+        title: 'Ranking de los más traviesos',
+      },
+      yourCurrentRank: 'Tu rango actual',
     },
     player: 'el jugador',
     truthOrDare: {

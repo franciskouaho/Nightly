@@ -106,6 +106,8 @@ export default function NeverHaveIEverHotGame() {
   const previousQuestionId = useRef<string | null>(null);
   const questionUpdateInProgress = useRef(false);
   const initialAnswersRef = useRef<Record<string, boolean | null>>({});
+  const latestScores = useRef(gameState?.scores);
+  const latestNaughtyAnswers = useRef(gameState?.naughtyAnswers);
   
   // Constantes
   const userId = user?.uid;
@@ -174,19 +176,19 @@ export default function NeverHaveIEverHotGame() {
   const handleAnswer = useCallback((playerId: string, value: boolean) => {
     setAnswers(prev => ({ ...prev, [playerId]: value }));
     gameAnalytics.trackPlayerResponse(String(gameId), playerId, value ? 'yes' : 'no');
-    
-    // Mettre à jour le compteur de réponses cochonnes
-    // Si mode 'ever', on compte les réponses positives
-    // Si mode 'never', on compte les réponses négatives
-    if ((mode === 'ever' && value) || (mode === 'never' && !value)) {
-      updateGameState({
-        naughtyAnswers: {
-          ...(gameState?.naughtyAnswers || {}),
-          [playerId]: (gameState?.naughtyAnswers?.[playerId] || 0) + 1
-        }
-      });
+
+    // Mettre à jour le compteur de réponses cochonnes et le score si la réponse est "J'ai déjà"
+    if (value) {
+      const newScores = { ...(latestScores.current || {}) };
+      const newNaughty = { ...(latestNaughtyAnswers.current || {}) };
+      
+      newScores[playerId] = (newScores[playerId] || 0) + 1;
+      newNaughty[playerId] = (newNaughty[playerId] || 0) + 1;
+
+      latestScores.current = newScores;
+      latestNaughtyAnswers.current = newNaughty;
     }
-  }, [gameId, gameAnalytics, mode, gameState, updateGameState]);
+  }, [gameId, gameAnalytics]);
 
   // Passer au round suivant
   const handleNextRound = useCallback(async () => {
@@ -238,7 +240,9 @@ export default function NeverHaveIEverHotGame() {
         console.log('[DEBUG] Dernier round atteint, fin du jeu');
         const endGameState = {
           ...gameState,
-          phase: GamePhase.END
+          phase: GamePhase.END,
+          scores: latestScores.current,
+          naughtyAnswers: latestNaughtyAnswers.current,
         };
         await updateGameState(endGameState);
         questionUpdateInProgress.current = false;
@@ -332,7 +336,9 @@ export default function NeverHaveIEverHotGame() {
           currentQuestion: nextQuestion,
           targetPlayer: nextPlayer,
           currentRound: gameState.currentRound + 1,
-          phase: GamePhase.QUESTION
+          phase: GamePhase.QUESTION,
+          scores: latestScores.current,
+          naughtyAnswers: latestNaughtyAnswers.current,
         };
         
         // Réinitialiser les états locaux
@@ -415,6 +421,10 @@ export default function NeverHaveIEverHotGame() {
     }
   }, [gameState?.currentQuestion?.id, initializeAnswers, trackQuestionStart, askedQuestions, currentQuestion?.id]);
 
+  useEffect(() => {
+    latestScores.current = gameState?.scores;
+    latestNaughtyAnswers.current = gameState?.naughtyAnswers;
+  }, [gameState?.scores, gameState?.naughtyAnswers]);
 
   // Gestion des rendus conditionnels
   if (!gameState) {

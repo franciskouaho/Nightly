@@ -9,6 +9,7 @@ import { usePoints } from '@/hooks/usePoints';
 import { Player } from '@/types/gameTypes';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useInAppReview } from '@/hooks/useInAppReview';
+import { useTranslation } from 'react-i18next';
 
 const PlayerRankDisplay: React.FC<{ player: Player; rank: number; score: number }> = ({ player, rank, score }) => {
   const containerStyle = [
@@ -59,6 +60,7 @@ export default function GameResults({
   const insets = useSafeAreaInsets();
   const { awardLumiCoins } = usePoints();
   const { requestReview } = useInAppReview();
+  const { t } = useTranslation();
 
   const sortedPlayers = useMemo(() =>
     [...players].sort((a, b) => (scores[b.id] || 0) - (scores[a.id] || 0)),
@@ -71,6 +73,14 @@ export default function GameResults({
   const player3 = topThree.find((p, i) => i === 2);
 
   const currentUserRank = useMemo(() => sortedPlayers.findIndex((p) => p.id === userId) + 1, [sortedPlayers, userId]);
+
+  const lumicoinsReward = useMemo(() => {
+    if (currentUserRank === 1) return 30;
+    if (currentUserRank === 2) return 20;
+    if (currentUserRank === 3) return 10;
+    return 5;
+  }, [currentUserRank]);
+
   const rank_name = `rang ${currentUserRank}`;
 
   useEffect(() => {
@@ -90,16 +100,16 @@ export default function GameResults({
         </View>
 
         <Pressable
-          onPress={() => awardLumiCoins(userId, 20, 'game_reward', rank_name)}
+          onPress={() => awardLumiCoins(userId, lumicoinsReward, 'game_reward', rank_name)}
           style={styles.lumicoinsButton}
         >
           <MaterialCommunityIcons name="currency-btc" size={22} color="#FDD835" />
-          <Text style={styles.lumicoinsButtonText}>+20 Lumicoins</Text>
+          <Text style={styles.lumicoinsButtonText}>+{lumicoinsReward} {t('common.lumicoins', 'Lumicoins')}</Text>
         </Pressable>
 
         {currentUserRank > 0 && (
           <View style={styles.currentUserRankContainer}>
-            <Text style={styles.currentUserRankText}>Votre rang actuel</Text>
+            <Text style={styles.currentUserRankText}>{t('game.results.yourCurrentRank', 'Votre rang actuel')}</Text>
             <View style={styles.rankInfo}>
               <Text style={styles.rankNumber}>{currentUserRank}</Text>
               <Ionicons name="arrow-up" size={24} color="#00E676" />

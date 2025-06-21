@@ -247,6 +247,7 @@ const fr = {
   common: {
     ok: 'OK',
     loading: 'Chargement...',
+    lumicoins: 'Lumicoins',
   },
 
   // Settings
@@ -335,7 +336,11 @@ const fr = {
         timeUp: "Temps écoulé !",
         finalScore: "Score final",
         playAgain: "Rejouer"
-      }
+      },
+      naughty: {
+        title: 'Classement des plus coquins',
+      },
+      yourCurrentRank: 'Votre rang actuel',
     },
     player: 'le joueur',
     truthOrDare: {

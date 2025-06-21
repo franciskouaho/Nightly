@@ -247,6 +247,7 @@ const it = {
   common: {
     ok: 'OK',
     loading: 'Caricamento...',
+    lumicoins: 'Lumicoins',
   },
 
   // Impostazioni
@@ -335,7 +336,11 @@ const it = {
         timeUp: "Tempo scaduto!",
         finalScore: "Punteggio finale",
         playAgain: "Gioca di nuovo"
-      }
+      },
+      naughty: {
+        title: 'Classifica dei più birichini',
+      },
+      yourCurrentRank: 'Il tuo rango attuale',
     },
     player: 'il giocatore',
     truthOrDare: {

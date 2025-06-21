@@ -374,7 +374,11 @@ export default {
         "theme.fruit": "فاكهة",
         "theme.legume": "خضار",
         "theme.objet": "غرض"
-      }
+      },
+      naughty: {
+        title: 'ترتيب اللاعبين الأكثر شقاوة',
+      },
+      yourCurrentRank: 'ترتيبك الحالي',
     },
     listenButDontJudge: {
       waiting: "في انتظار اللاعبين الآخرين...",
@@ -737,5 +741,6 @@ export default {
   common: {
     ok: 'حسنا',
     loading: 'جاري التحميل...',
+    lumicoins: 'لوميكوينز',
   },
 };

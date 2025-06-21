@@ -247,6 +247,7 @@ const en = {
   common: {
     ok: 'OK',
     loading: 'Loading...',
+    lumicoins: 'Lumicoins',
   },
 
   // Settings
@@ -335,7 +336,11 @@ const en = {
         timeUp: "Time's up!",
         finalScore: "Final score",
         playAgain: "Play again"
-      }
+      },
+      naughty: {
+        title: 'Naughtiest Player Ranking',
+      },
+      yourCurrentRank: 'Your current rank',
     },
     player: 'the player',
     truthOrDare: {
