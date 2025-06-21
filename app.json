@@ -2,7 +2,7 @@
   "expo": {
     "name": "Nightly",
     "slug": "nightly",
-    "version": "1.2.1",
+    "version": "1.2.2",
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
     "scheme": "nightly",
@@ -33,7 +33,7 @@
       },
       "package": "com.emplica.nightly.android",
       "googleServicesFile": "./google-services.json",
-      "versionCode": 18,
+      "versionCode": 19,
       "permissions": [
         "INTERNET",
         "NOTIFICATIONS",
@@ -106,6 +106,6 @@
         "expo-channel-name": "production"
       }
     },
-    "runtimeVersion": "1.2.1"
+    "runtimeVersion": "1.2.2"
   }
 }
