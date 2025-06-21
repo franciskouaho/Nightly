@@ -3,11 +3,11 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, Dimensions,
 import { LinearGradient } from 'expo-linear-gradient';
 import { verifyWord } from './utils/wordVerification';
 import { doc, getFirestore, onSnapshot, updateDoc, getDoc } from '@react-native-firebase/firestore';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import GameResults from '@/components/game/GameResults';
 import { useAuth } from '@/contexts/AuthContext';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 
 // Define an interface for the styles
 interface ComponentStyles {
@@ -51,6 +51,7 @@ interface ComponentStyles {
     buttonText: TextStyle;
     roundNumberContainer: ViewStyle;
     roundNumberText: TextStyle;
+    quitButton: ViewStyle;
 }
 
 // Liste des thèmes possibles
@@ -149,6 +150,26 @@ export default function TwoLettersOneWord() {
     const { id } = useLocalSearchParams();
     const gameDocId = typeof id === 'string' ? id : Array.isArray(id) ? id[id.length - 1] : '';
     const { user } = useAuth();
+    const router = useRouter();
+
+    const handleQuit = () => {
+        Alert.alert(
+            t('game.quit.title', 'Quitter le jeu'),
+            t('game.quit.message', 'Êtes-vous sûr de vouloir quitter la partie ?'),
+            [
+                {
+                    text: t('game.quit.cancel', 'Annuler'),
+                    style: 'cancel',
+                },
+                {
+                    text: t('game.quit.confirm', 'Quitter'),
+                    onPress: () => router.push('/(tabs)'),
+                    style: 'destructive',
+                },
+            ],
+            { cancelable: true }
+        );
+    };
 
     // CORRECTION: Calcul du currentRound basé sur les vraies réponses
     const currentRound = useMemo(() => {
@@ -183,6 +204,11 @@ export default function TwoLettersOneWord() {
 
             const gameData = docSnap.data();
 
+            if (!gameData) {
+                Alert.alert('Erreur', 'Données de partie invalides');
+                return;
+            }
+
             // Initialisation des données de base
             setLetters(gameData.currentLetters || generateRandomLetters());
             setTheme(THEMES.includes(gameData.currentTheme) ? gameData.currentTheme : THEMES[0]);
@@ -211,11 +237,11 @@ export default function TwoLettersOneWord() {
             const updatedPlayers = await Promise.all(
                 (gameData.players || []).map(async (player: any) => {
                     const userDoc = await getDoc(doc(db, 'users', player.id));
-                    const userData = userDoc.exists() ? userDoc.data() : {};
+                    const userData = userDoc.data();
                     return {
                         ...player,
-                        pseudo: userData.pseudo || player.pseudo || 'Joueur Inconnu',
-                        avatar: userData.avatar || player.avatar,
+                        pseudo: userData?.pseudo || player.pseudo || 'Joueur Inconnu',
+                        avatar: userData?.avatar || player.avatar,
                         history: newGameHistory[player.id] || []
                     };
                 })
@@ -406,11 +432,18 @@ export default function TwoLettersOneWord() {
     // Affichage conditionnel du fond selon la phase du jeu
     if (gamePhase === 'results') {
         return (
-            <View style={{ flex: 1 }}>
+            <View style={{flex: 1}}>
+                <TouchableOpacity onPress={handleQuit} style={styles.quitButton}>
+                    <Ionicons name="close-circle" size={32} color="white" />
+                </TouchableOpacity>
                 <GameResults
                     players={players}
-                    scores={players.reduce((acc, player) => ({ ...acc, [player.id]: player.score }), {})}
+                    scores={players.reduce((acc, player) => {
+                        acc[player.id] = player.history.filter((s: number) => s > 0).length - player.history.filter((s: number) => s < 0).length;
+                        return acc;
+                    }, {} as { [key: string]: number })}
                     userId={user?.uid || ''}
+                    pointsConfig={{ firstPlace: 25, secondPlace: 15, thirdPlace: 10 }}
                 />
             </View>
         );
@@ -451,6 +484,9 @@ export default function TwoLettersOneWord() {
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 20}
             >
+                <TouchableOpacity onPress={handleQuit} style={styles.quitButton}>
+                    <Ionicons name="close-circle" size={32} color="white" />
+                </TouchableOpacity>
                 <ScrollView contentContainerStyle={styles.scrollContent}>
                     <View style={styles.content}>
 
@@ -879,5 +915,11 @@ const styles = StyleSheet.create<ComponentStyles>({
         fontSize: 16,
         color: '#fff',
         fontWeight: 'bold',
+    },
+    quitButton: {
+        position: 'absolute',
+        top: Platform.OS === 'android' ? 40 : 60,
+        right: 20,
+        zIndex: 1000,
     },
 });

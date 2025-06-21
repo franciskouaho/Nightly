@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Animated } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Animated, Platform, Alert } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -8,7 +8,7 @@ import { useGame } from '@/hooks/useGame';
 import { useAuth } from '@/contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useWordGuessingQuestions, WordGuessingQuestion } from './questions';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import GameResults from '@/components/game/GameResults';
 import { usePoints } from '@/hooks/usePoints';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -101,6 +101,25 @@ export default function WordGuessingGame() {
   const { awardGamePoints } = usePoints();
   const gameStartTime = useRef(Date.now());
   const { isRTL, language } = useLanguage();
+
+  const handleQuit = () => {
+    Alert.alert(
+      t('game.quit.title', 'Quitter le jeu'),
+      t('game.quit.message', 'Êtes-vous sûr de vouloir quitter la partie ?'),
+      [
+        {
+          text: t('game.quit.cancel', 'Annuler'),
+          style: 'cancel',
+        },
+        {
+          text: t('game.quit.confirm', 'Quitter'),
+          onPress: () => router.push('/(tabs)'),
+          style: 'destructive',
+        },
+      ],
+      { cancelable: true }
+    );
+  };
 
   // Timer pour la barre de temps (UI only)
   const TIMER_DURATION = 30; // secondes
@@ -461,43 +480,43 @@ export default function WordGuessingGame() {
 
   const isLoading = !gameState || !gameState.currentQuestion || questions.length === 0 || !currentQuestionText || currentForbiddenWords.length === 0;
 
-  if (!gameState || !user) {
+  if (!gameState) {
     return (
-      <LinearGradient
-        colors={['#1a2a6c', '#b21f1f', '#fdbb2d']} // Couleurs du dégradé, à ajuster si nécessaire
-        style={styles.loadingContainer}
-      >
-        <Text style={styles.loadingText}>{t('game.loading')}</Text>
-      </LinearGradient>
+      <View style={styles.loadingContainer}>
+        <Text style={styles.loadingText}>{t('game.loading', 'Chargement...')}</Text>
+      </View>
     );
   }
 
-  if (gameState?.phase === GamePhase.END) {
+  if (gameState.phase === GamePhase.END) {
     return (
-      <GameResults
-        players={gameState.players}
-        scores={gameState.scores}
-        userId={user?.uid || ''}
-        pointsConfig={{
-          firstPlace: 3,
-          secondPlace: 2,
-          thirdPlace: 1
-        }}
-      />
+      <View style={{flex: 1}}>
+        <TouchableOpacity onPress={handleQuit} style={styles.quitButton}>
+          <Ionicons name="close-circle" size={32} color="white" />
+        </TouchableOpacity>
+        <GameResults
+          players={gameState.players}
+          scores={gameState.scores}
+          userId={user?.uid || ''}
+          pointsConfig={{ firstPlace: 25, secondPlace: 15, thirdPlace: 10 }}
+        />
+      </View>
     );
   }
 
   return (
-    <LinearGradient
-      colors={["rgba(40, 90, 120, 0.8)", "rgba(60, 120, 160, 0.9)"]}
-      style={styles.container}
-    >
+    <LinearGradient colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]} style={styles.container}>
+      <TouchableOpacity onPress={handleQuit} style={styles.quitButton}>
+        <Ionicons name="close-circle" size={32} color="white" />
+      </TouchableOpacity>
       <View style={styles.header}>
-        <Text style={styles.roundText}>{t('game.round', { current: gameState?.currentRound || 1, total: gameState?.totalRounds || 5 })}</Text>
-        <TimerCircle timeLeft={timeLeft} totalTime={TIMER_DURATION} />
-        <View style={styles.scoreContainer}>
-          <MaterialCommunityIcons name="star-four-points" size={20} color="#FFD700" />
-          <Text style={styles.scoreText}>{getPlayerScore(user?.uid || '')}</Text>
+        <View style={styles.playerInfo}>
+          <Text style={styles.roundText}>{t('game.round', { current: gameState?.currentRound || 1, total: gameState?.totalRounds || 5 })}</Text>
+          <TimerCircle timeLeft={timeLeft} totalTime={TIMER_DURATION} />
+          <View style={styles.scoreContainer}>
+            <MaterialCommunityIcons name="star-four-points" size={20} color="#FFD700" />
+            <Text style={styles.scoreText}>{getPlayerScore(user?.uid || '')}</Text>
+          </View>
         </View>
       </View>
 
@@ -582,6 +601,12 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingHorizontal: 10,
     marginBottom: 30,
+  },
+  playerInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 10,
   },
   roundText: {
     color: '#fff',
@@ -698,5 +723,11 @@ const styles = StyleSheet.create({
   guesserInfo: {
     color: '#fff',
     fontSize: 16,
+  },
+  quitButton: {
+    position: 'absolute',
+    top: Platform.OS === 'android' ? 40 : 60,
+    right: 20,
+    zIndex: 10,
   },
 }); 

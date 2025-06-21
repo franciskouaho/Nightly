@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { View, Text, StyleSheet, Pressable, ActivityIndicator, Alert} from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { View, Text, StyleSheet, Pressable, ActivityIndicator, Alert, TouchableOpacity, Platform} from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import {  Question as GameQuestion, GamePhase, Player, GameMode } from '@/types/gameTypes';
 import { useGame } from '@/hooks/useGame';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -13,6 +13,7 @@ import GameResults from '@/components/game/GameResults';
 import { usePoints } from '@/hooks/usePoints';
 import { useNeverHaveIEverHotQuestions } from './questions';
 import NaughtyResults from '@/components/game/NaughtyResults';
+import { Ionicons } from '@expo/vector-icons';
 
 interface NeverHaveIEverHotGameState {
   phase: GamePhase;
@@ -88,6 +89,7 @@ export default function NeverHaveIEverHotGame() {
   const { getGameContent } = useLanguage();
   const { gameState, updateGameState } = useGame(gameId);
   const { user } = useAuth();
+  const router = useRouter();
   const { requestReview } = useInAppReview();
   const gameAnalytics = useNeverHaveIEverHotAnalytics();
   const { awardGamePoints } = usePoints();
@@ -426,6 +428,25 @@ export default function NeverHaveIEverHotGame() {
     latestNaughtyAnswers.current = gameState?.naughtyAnswers;
   }, [gameState?.scores, gameState?.naughtyAnswers]);
 
+  const handleQuit = () => {
+    Alert.alert(
+      t('game.quit.title', 'Quitter le jeu'),
+      t('game.quit.message', 'Êtes-vous sûr de vouloir quitter la partie ?'),
+      [
+        {
+          text: t('game.quit.cancel', 'Annuler'),
+          style: 'cancel',
+        },
+        {
+          text: t('game.quit.confirm', 'Quitter'),
+          onPress: () => router.push('/(tabs)'),
+          style: 'destructive',
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
   // Gestion des rendus conditionnels
   if (!gameState) {
     return (
@@ -433,6 +454,9 @@ export default function NeverHaveIEverHotGame() {
         colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
         style={styles.container}
       >
+        <TouchableOpacity onPress={handleQuit} style={styles.quitButton}>
+          <Ionicons name="exit-outline" size={32} color="white" />
+        </TouchableOpacity>
         <Text style={styles.loadingText}>{t('game.loading')}</Text>
       </LinearGradient>
     );
@@ -450,19 +474,24 @@ export default function NeverHaveIEverHotGame() {
     }
 
     return (
-      <GameResults
-        players={gameState.players || []}
-        scores={gameState.scores || {}}
-        userId={user?.uid || ''}
-        pointsConfig={{
-          firstPlace: 30,
-          secondPlace: 20,
-          thirdPlace: 10,
-        }}
-        secondaryScores={gameState.naughtyAnswers}
-        secondaryScoresTitle={t('game.results.naughty.title')}
-        colors={["#0E1117", "#661A59", "#21101C"]}
-      />
+      <View style={{flex: 1}}>
+        <TouchableOpacity onPress={handleQuit} style={styles.quitButton}>
+          <Ionicons name="exit-outline" size={32} color="white" />
+        </TouchableOpacity>
+        <GameResults
+          players={gameState.players || []}
+          scores={gameState.scores || {}}
+          userId={user?.uid || ''}
+          pointsConfig={{
+            firstPlace: 30,
+            secondPlace: 20,
+            thirdPlace: 10,
+          }}
+          secondaryScores={gameState.naughtyAnswers}
+          secondaryScoresTitle={t('game.results.naughty.title')}
+          colors={["#0E1117", "#661A59", "#21101C"]}
+        />
+      </View>
     );
   }
 
@@ -475,6 +504,9 @@ export default function NeverHaveIEverHotGame() {
       colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
       style={styles.container}
     >
+      <TouchableOpacity onPress={handleQuit} style={styles.quitButton}>
+        <Ionicons name="exit-outline" size={32} color="white" />
+      </TouchableOpacity>
       <View style={styles.header}>
         <Text style={styles.title}>JEU DE CARTES : {t('game.neverHaveIEverHot.never').toUpperCase()} {mode === 'ever' ? t('game.neverHaveIEverHot.ever').toUpperCase() : ''} 🔞</Text>
         <View style={styles.progressRow}>
@@ -881,5 +913,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#D81B60',
     fontWeight: 'bold',
+  },
+  quitButton: {
+    position: 'absolute',
+    top: Platform.OS === 'android' ? 40 : 60,
+    right: 20,
+    zIndex: 10,
   },
 }); 
