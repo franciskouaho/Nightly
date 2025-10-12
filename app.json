@@ -2,8 +2,7 @@
   "expo": {
     "name": "Nightly",
     "slug": "nightly",
-    "version": "1.2.2",
-    "orientation": "portrait",
+    "version": "1.2.4",
     "icon": "./assets/images/logo.png",
     "scheme": "nightly",
     "userInterfaceStyle": "automatic",
@@ -17,9 +16,7 @@
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true
         },
-        "UIBackgroundModes": [
-          "remote-notification"
-        ]
+        "UIBackgroundModes": ["remote-notification"]
       },
       "requireFullScreen": true
     },
@@ -30,11 +27,8 @@
       },
       "package": "com.emplica.nightly.android",
       "googleServicesFile": "./google-services.json",
-      "versionCode": 19,
-      "permissions": [
-        "INTERNET",
-        "NOTIFICATIONS"
-      ]
+      "versionCode": 20,
+      "permissions": ["INTERNET", "NOTIFICATIONS"]
     },
     "web": {
       "bundler": "metro",
@@ -52,9 +46,7 @@
             "useFrameworks": "static"
           },
           "android": {
-            "permissions": [
-              "com.android.vending.BILLING"
-            ],
+            "permissions": ["com.android.vending.BILLING"],
             "enableProguardInReleaseBuilds": true,
             "enableShrinkResourcesInReleaseBuilds": true,
             "compileSdkVersion": 35,
@@ -79,9 +71,7 @@
         }
       ]
     ],
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "experiments": {
       "typedRoutes": true
     },
@@ -103,6 +93,6 @@
         "expo-channel-name": "production"
       }
     },
-    "runtimeVersion": "1.2.2"
+    "runtimeVersion": "1.2.3"
   }
 }
