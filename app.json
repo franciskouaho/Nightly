@@ -54,7 +54,13 @@
           "android": {
             "permissions": [
               "com.android.vending.BILLING"
-            ]
+            ],
+            "enableProguardInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true,
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35,
+            "buildToolsVersion": "35.0.0",
+            "enablePageSize16K": true
           }
         }
       ],
