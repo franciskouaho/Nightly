@@ -59,7 +59,9 @@ export default function QuizHalloweenGameOptimized() {
   const [canAnswer, setCanAnswer] = useState(true);
   
   // Scores locaux - seulement mis à jour localement, sauvegardés à la fin
-  const [localScores, setLocalScores] = useState<Record<string, number>>({});
+  const [localScores, setLocalScores] = useState<Record<string, number>>(() => 
+    gameState?.scores || {}
+  );
 
   // Initialiser le jeu si nécessaire
   useEffect(() => {
@@ -85,12 +87,21 @@ export default function QuizHalloweenGameOptimized() {
     }
   }, [gameState, updateGameState]);
 
-  // Initialiser les scores locaux une seule fois
+  // Synchroniser les scores locaux avec gameState
   useEffect(() => {
-    if (gameState?.scores && Object.keys(localScores).length === 0) {
-      setLocalScores(gameState.scores);
+    if (gameState?.scores) {
+      setLocalScores(prevScores => {
+        // Fusionner les scores existants avec les nouveaux
+        const mergedScores = { ...gameState.scores };
+        Object.keys(prevScores).forEach(userId => {
+          if (!mergedScores[userId]) {
+            mergedScores[userId] = prevScores[userId] || 0;
+          }
+        });
+        return mergedScores;
+      });
     }
-  }, [gameState?.scores, localScores]);
+  }, [gameState?.scores]);
 
   // Fonction optimisée pour mettre à jour le score local
   const updateLocalScore = useCallback((userId: string, isCorrect: boolean) => {
@@ -266,7 +277,9 @@ export default function QuizHalloweenGameOptimized() {
 
   // Score actuel mémorisé
   const currentUserScore = useMemo(() => {
-    return localScores[user?.uid || ''] || 0;
+    const score = localScores[user?.uid || ''] || 0;
+    console.log('🎃 Score actuel calculé:', score, 'pour user:', user?.uid, 'localScores:', localScores);
+    return score;
   }, [localScores, user?.uid]);
 
   if (!gameState) {
