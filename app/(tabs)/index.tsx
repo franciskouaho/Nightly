@@ -550,36 +550,38 @@ export default function HomeScreen() {
           <TopBar />
         </View>
 
-        {/* Boutons de test pour les notifications */}
-        <View style={styles.notificationButtonsContainer}>
-          <TouchableOpacity
-            style={styles.simpleTestButton}
-            onPress={() => {
-              sendLocalNotification("Test", "Notification Expo OK !");
-            }}
-          >
-            <Text style={styles.simpleTestText}>🔔 Test</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity
-            style={styles.halloweenTestButton}
-            onPress={() => {
-              sendHalloweenQuizNotification("Quiz Halloween", "Une partie effrayante t'attend !");
-            }}
-          >
-            <Text style={styles.halloweenTestText}>🎃 Quiz</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity
-            style={styles.halloweenScheduleButton}
-            onPress={async () => {
-              await HalloweenNotificationScheduler.scheduleTestHalloweenNotification();
-              Alert.alert("🎃 Test", "Notification Halloween programmée dans 5 secondes !");
-            }}
-          >
-            <Text style={styles.halloweenScheduleText}>📅 Oct</Text>
-          </TouchableOpacity>
-        </View>
+        {/* Boutons de test pour les notifications - uniquement en mode dev */}
+        {__DEV__ && (
+          <View style={styles.notificationButtonsContainer}>
+            <TouchableOpacity
+              style={styles.simpleTestButton}
+              onPress={() => {
+                sendLocalNotification("Test", "Notification Expo OK !");
+              }}
+            >
+              <Text style={styles.simpleTestText}>🔔 Test</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={styles.halloweenTestButton}
+              onPress={() => {
+                sendHalloweenQuizNotification("Quiz Halloween", "Une partie effrayante t'attend !");
+              }}
+            >
+              <Text style={styles.halloweenTestText}>🎃 Quiz</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={styles.halloweenScheduleButton}
+              onPress={async () => {
+                await HalloweenNotificationScheduler.scheduleTestHalloweenNotification();
+                Alert.alert("🎃 Test", "Notification Halloween programmée dans 5 secondes !");
+              }}
+            >
+              <Text style={styles.halloweenScheduleText}>📅 Oct</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         <View style={[styles.codeRow, { zIndex: 15 }]}>
           <View style={styles.codeInputContainer}>

@@ -7,7 +7,6 @@ import { ExpoNotificationService } from '@/services/expoNotificationService';
 import HalloweenNotificationScheduler from '@/services/halloweenNotificationScheduler';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { useAppsFlyer } from "@/hooks/useAppsFlyer";
-import analytics from '@react-native-firebase/analytics';
 import { useIsHasUpdates } from "@/hooks/useIsHasUpdates";
 import { ModernStatusBar } from '@/utils/ModernStatusBar';
 

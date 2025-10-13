@@ -1188,9 +1188,9 @@ PODS:
     - abseil/meta/type_traits
     - abseil/xcprivacy
   - abseil/xcprivacy (1.20240722.0)
-  - AppsFlyerFramework (6.16.2):
-    - AppsFlyerFramework/Main (= 6.16.2)
-  - AppsFlyerFramework/Main (6.16.2)
+  - AppsFlyerFramework (6.17.5):
+    - AppsFlyerFramework/Main (= 6.17.5)
+  - AppsFlyerFramework/Main (6.17.5)
   - boost (1.84.0)
   - BoringSSL-GRPC (0.0.37):
     - BoringSSL-GRPC/Implementation (= 0.0.37)
@@ -1603,8 +1603,8 @@ PODS:
   - nanopb/decode (3.30910.0)
   - nanopb/encode (3.30910.0)
   - PromisesObjC (2.4.0)
-  - PurchasesHybridCommon (13.32.0):
-    - RevenueCat (= 5.24.0)
+  - PurchasesHybridCommon (14.3.0):
+    - RevenueCat (= 5.32.0)
   - RCT-Folly (2024.11.18.00):
     - boost
     - DoubleConversion
@@ -2930,10 +2930,10 @@ PODS:
     - React-jsiexecutor
     - React-RCTFBReactNativeSpec
     - ReactCommon/turbomodule/core
-  - react-native-appsflyer (6.16.2):
-    - AppsFlyerFramework (= 6.16.2)
+  - react-native-appsflyer (6.17.5):
+    - AppsFlyerFramework (= 6.17.5)
     - React
-  - react-native-in-app-review (4.3.5):
+  - react-native-in-app-review (4.4.2):
     - React-Core
   - react-native-netinfo (11.4.1):
     - React-Core
@@ -3335,7 +3335,7 @@ PODS:
     - React-perflogger (= 0.79.5)
     - React-utils (= 0.79.5)
   - RecaptchaInterop (101.0.0)
-  - RevenueCat (5.24.0)
+  - RevenueCat (5.32.0)
   - RNCAsyncStorage (2.1.2):
     - DoubleConversion
     - glog
@@ -3360,27 +3360,27 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNFBAnalytics (22.2.0):
+  - RNFBAnalytics (22.1.0):
     - Firebase/Analytics (= 11.12.0)
     - React-Core
     - RNFBApp
-  - RNFBApp (22.2.0):
+  - RNFBApp (22.1.0):
     - Firebase/CoreOnly (= 11.12.0)
     - React-Core
-  - RNFBAuth (22.2.0):
+  - RNFBAuth (22.1.0):
     - Firebase/Auth (= 11.12.0)
     - React-Core
     - RNFBApp
-  - RNFBFirestore (22.2.0):
+  - RNFBFirestore (22.1.0):
     - Firebase/Firestore (= 11.12.0)
     - React-Core
     - RNFBApp
-  - RNFBMessaging (22.2.0):
+  - RNFBMessaging (22.1.0):
     - Firebase/Messaging (= 11.12.0)
     - FirebaseCoreExtension
     - React-Core
     - RNFBApp
-  - RNFBStorage (22.2.0):
+  - RNFBStorage (22.1.0):
     - Firebase/Storage (= 11.12.0)
     - React-Core
     - RNFBApp
@@ -3409,8 +3409,8 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNPurchases (8.11.0):
-    - PurchasesHybridCommon (= 13.32.0)
+  - RNPurchases (8.12.0):
+    - PurchasesHybridCommon (= 14.3.0)
     - React-Core
   - RNReanimated (3.17.5):
     - DoubleConversion
@@ -4018,7 +4018,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   abseil: a05cc83bf02079535e17169a73c5be5ba47f714b
-  AppsFlyerFramework: fe5303bffcdfd941d5f570c2d21eaaea982e7bdc
+  AppsFlyerFramework: da52a40c07c9f81a7829952e0fd854b6eacf5a7d
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
   BoringSSL-GRPC: dded2a44897e45f28f08ae87a55ee4bcd19bc508
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
@@ -4076,7 +4076,7 @@ SPEC CHECKSUMS:
   leveldb-library: cc8b8f8e013647a295ad3f8cd2ddf49a6f19be19
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
-  PurchasesHybridCommon: 662aa1f4769ff4ef594e35adf1a5d0ad7b3d08b7
+  PurchasesHybridCommon: 7f0944cc5411bdcd1ea5d69affa6a6f9aaf87b13
   RCT-Folly: e78785aa9ba2ed998ea4151e314036f6c49e6d82
   RCTDeprecation: 5f638f65935e273753b1f31a365db6a8d6dc53b5
   RCTRequired: 8b46a520ea9071e2bc47d474aa9ca31b4a935bd8
@@ -4109,8 +4109,8 @@ SPEC CHECKSUMS:
   React-logger: 85fa3509931497c72ccd2547fcc91e7299d8591e
   React-Mapbuffer: 4141a0d94d47529afb85341b9c02baa3cc2a1fd5
   React-microtasksnativemodule: 4b0f5a344ca5ce6692650fae4fb67f7672bbd1b6
-  react-native-appsflyer: 4ac00a02833e9e81cc08da668728817fdc2a94e0
-  react-native-in-app-review: 668f4c80d7f95945e0ad7833e98c466cb40d6808
+  react-native-appsflyer: cb2aa89c14b28f70215afccab82fe6786a75739b
+  react-native-in-app-review: 1516ba69d60d58053b7eb3aaaf8d2a5a74af8b57
   react-native-netinfo: cec9c4e86083cb5b6aba0e0711f563e2fbbff187
   react-native-safe-area-context: 5928d84c879db2f9eb6969ca70e68f58623dbf25
   React-NativeModulesApple: 0f1cdafa0517926f47ff74dbd92a1c9bb767cc69
@@ -4145,16 +4145,16 @@ SPEC CHECKSUMS:
   ReactCodegen: 542dbcd3d677ed7c4fe69e28b7c492998f48c9db
   ReactCommon: 1aa48867a0fc71a2b4f9e8a1529f5673648354f3
   RecaptchaInterop: 11e0b637842dfb48308d242afc3f448062325aba
-  RevenueCat: 2d3639d30b8a71cbfe3d99cef8243c602793e0ec
+  RevenueCat: 7e1d0768fb287c9983173c9b28e39ccbeeb828a9
   RNCAsyncStorage: 646c1bf2ebfc78d6632a3b0399f471fba8101e73
-  RNFBAnalytics: c95efeb35d463b522b2734597f16114cb6ea0d1c
-  RNFBApp: 2b2bb0f17eb6732e2e90d9c57bfde443cd7fc681
-  RNFBAuth: b5e52895796572e99a9024ae0d601ef8b21588ac
-  RNFBFirestore: a51aa09176cd84817b6db165920889b813eeafdd
-  RNFBMessaging: 4627e84e9e363953357dd122543e4223c49e6bc1
-  RNFBStorage: 3786fb22c7a70ba3acf419a644a37495032b6e31
+  RNFBAnalytics: 6d2cf83992d34f2ce49c838af81a9b2d9a42d9e1
+  RNFBApp: cb46a0facdbd687c5379783d6dc35c5ae71e1c6d
+  RNFBAuth: a2219d06d829cfa03cba8465edb16f5068e3d7f6
+  RNFBFirestore: 3918061bc777c22b902df9e345fbb651daf4415d
+  RNFBMessaging: fef744ae75df2d990c5cfeb0ac895876c7a04bfc
+  RNFBStorage: b2f2deb7928e5732ff58b4895d75badc0aa4590a
   RNGestureHandler: 8ff2b1434b0ff8bab28c8242a656fb842990bbc8
-  RNPurchases: 4ddfd516e40b558dcb168625bddbea690ed8a81a
+  RNPurchases: 6070b60f5d8f525a58905df50773f7a3252f0cfa
   RNReanimated: a3f55346df73f35c38bf0b446294d3d0b1ac8cf9
   RNScreens: 90b905d545a5ebbe976985702b8a39e3475727b2
   RNSVG: 4470464e129f6bc58b78b961850b054dbbea8ef7

@@ -1,5 +1,7 @@
 "use client";
 
+import HalloweenDecorations from "@/components/HalloweenDecorations";
+import { analyticsInstance } from "@/config/firebase";
 import Colors from "@/constants/Colors";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAuthAnalytics } from "@/hooks/useAuthAnalytics";
@@ -8,7 +10,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import HalloweenDecorations from "@/components/HalloweenDecorations";
 import {
   Alert,
   Image,
@@ -74,6 +75,12 @@ export default function LoginScreen() {
       if (userExists) {
         // L'utilisateur existe déjà et a confirmé la connexion
         await authAnalytics.trackLogin("username", true);
+        // Tracking Google Analytics login event
+        await analyticsInstance().logEvent("login", {
+          method: "username",
+          success: true,
+        });
+        await analyticsInstance().setUserId(username);
         router.replace("/(tabs)");
         return;
       }
@@ -89,9 +96,20 @@ export default function LoginScreen() {
       // Continuer avec la connexion normale
       await signIn(username, selectedProfile);
       await authAnalytics.trackLogin("username", true);
+      // Tracking Google Analytics login event
+      await analyticsInstance().logEvent("login", {
+        method: "username",
+        success: true,
+      });
+      await analyticsInstance().setUserId(username);
       router.replace("/(tabs)");
     } catch (error: any) {
       await authAnalytics.trackLogin("username", false);
+      // Tracking Google Analytics failed login event
+      await analyticsInstance().logEvent("login", {
+        method: "username",
+        success: false,
+      });
       Alert.alert(t("errors.general"), error.message || t("errors.authError"));
     } finally {
       setIsLoading(false);
@@ -118,7 +136,7 @@ export default function LoginScreen() {
         <View style={styles.halloweenDecorationsContainer}>
           <HalloweenDecorations />
         </View>
-        
+
         {/* Effets de particules flottantes */}
         <View style={[styles.floatingParticles, { zIndex: 1, opacity: 0.2 }]}>
           <View style={[styles.particle, styles.particle1]} />
@@ -127,7 +145,7 @@ export default function LoginScreen() {
           <View style={[styles.particle, styles.particle4]} />
           <View style={[styles.particle, styles.particle5]} />
         </View>
-        
+
         <View style={[styles.content, { zIndex: 15 }]}>
           <View style={styles.header}>
             <Image
@@ -179,7 +197,10 @@ export default function LoginScreen() {
             ))}
 
             <TouchableOpacity
-              style={[styles.buttonContainer, isLoading && styles.buttonDisabled]}
+              style={[
+                styles.buttonContainer,
+                isLoading && styles.buttonDisabled,
+              ]}
               onPress={handleLogin}
               disabled={isLoading}
             >
@@ -190,7 +211,9 @@ export default function LoginScreen() {
                 style={styles.button}
               >
                 <Text style={styles.buttonText}>
-                  {isLoading ? t("auth.login.connecting") : t("auth.login.play")}
+                  {isLoading
+                    ? t("auth.login.connecting")
+                    : t("auth.login.play")}
                 </Text>
               </LinearGradient>
             </TouchableOpacity>
@@ -228,7 +251,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: Colors.text,
     marginTop: 10,
-    textShadowColor: 'rgba(0, 0, 0, 0.8)',
+    textShadowColor: "rgba(0, 0, 0, 0.8)",
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 4,
     letterSpacing: 1,
@@ -330,7 +353,7 @@ const styles = StyleSheet.create({
     color: Colors.text,
     fontSize: 16,
     fontWeight: "bold",
-    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowColor: "rgba(0, 0, 0, 0.5)",
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
   },

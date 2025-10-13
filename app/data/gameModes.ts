@@ -46,7 +46,7 @@ export const gameCategories: GameCategory[] = [
                     text: 'home.games.quiz-halloween.tags.premium',
                     color: '#D81B60'
                 }],
-                premium: false,
+                premium: true,
                 interactive: 'choice'
             }
         ]
