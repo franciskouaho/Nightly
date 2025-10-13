@@ -5,10 +5,12 @@ service cloud.firestore {
     
     // Règles pour les utilisateurs
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-      allow read: if request.auth != null; // Les autres utilisateurs peuvent lire les profils
-      // Permettre la création d'utilisateur sans authentification (inscription)
-      allow create: if true;
+      allow read, write, create, update, delete: if true; // Temporairement permissif pour debug
+    }
+    
+    // Règles pour les pseudos utilisateur
+    match /usernames/{username} {
+      allow read, write, create, update, delete: if true; // Temporairement permissif pour debug
     }
     
     // Règles pour les salles de jeu
