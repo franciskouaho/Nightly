@@ -3,6 +3,16 @@ import { TrapQuestion } from "@/types/types";
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useState, useEffect } from 'react';
 
+// Fonction pour mélanger un tableau (algorithme de Fisher-Yates)
+const shuffleArray = <T>(array: T[]): T[] => {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
+
 // Fonction pour transformer les données de Firebase en format TrapQuestion pour Halloween
 export const transformHalloweenQuestion = (question: any, index: number): TrapQuestion => ({
   id: `halloween_q_${index}`,
@@ -10,14 +20,14 @@ export const transformHalloweenQuestion = (question: any, index: number): TrapQu
   theme: 'Halloween',
   roundNumber: 1,
   question: question.question,
-  answers: [
+  answers: shuffleArray([
     { text: question.answer, isCorrect: true, isTrap: false },
     ...question.traps.map((trap: string) => ({
       text: trap,
       isCorrect: false,
       isTrap: true
     })),
-  ].sort(() => Math.random() - 0.5), // Mélanger les réponses
+  ]), // Vrai mélange aléatoire
 });
 
 // Hook personnalisé pour les questions de Quiz Halloween
@@ -84,12 +94,12 @@ function getDefaultHalloweenQuestions(): TrapQuestion[] {
       theme: 'Halloween',
       roundNumber: 1,
       question: 'Quel est le nom du personnage principal du film "Halloween" ?',
-      answers: [
+      answers: shuffleArray([
         { text: 'Michael Myers', isCorrect: true, isTrap: false },
         { text: 'Jason Voorhees', isCorrect: false, isTrap: true },
         { text: 'Freddy Krueger', isCorrect: false, isTrap: true },
         { text: 'Chucky', isCorrect: false, isTrap: true },
-      ]
+      ])
     },
     {
       id: 'halloween_default_2',
@@ -97,12 +107,12 @@ function getDefaultHalloweenQuestions(): TrapQuestion[] {
       theme: 'Halloween',
       roundNumber: 1,
       question: 'Dans quelle ville se déroule principalement le film "Halloween" ?',
-      answers: [
+      answers: shuffleArray([
         { text: 'Haddonfield', isCorrect: true, isTrap: false },
         { text: 'Springfield', isCorrect: false, isTrap: true },
         { text: 'Crystal Lake', isCorrect: false, isTrap: true },
         { text: 'Elm Street', isCorrect: false, isTrap: true },
-      ]
+      ])
     },
     {
       id: 'halloween_default_3',
@@ -110,12 +120,12 @@ function getDefaultHalloweenQuestions(): TrapQuestion[] {
       theme: 'Halloween',
       roundNumber: 1,
       question: 'Quel est l\'objet fétiche de Michael Myers ?',
-      answers: [
+      answers: shuffleArray([
         { text: 'Un couteau de cuisine', isCorrect: true, isTrap: false },
         { text: 'Une machette', isCorrect: false, isTrap: true },
         { text: 'Des griffes métalliques', isCorrect: false, isTrap: true },
         { text: 'Une hache', isCorrect: false, isTrap: true },
-      ]
+      ])
     },
     {
       id: 'halloween_default_4',
@@ -123,12 +133,12 @@ function getDefaultHalloweenQuestions(): TrapQuestion[] {
       theme: 'Halloween',
       roundNumber: 1,
       question: 'Quel est le vrai nom de la fête d\'Halloween ?',
-      answers: [
+      answers: shuffleArray([
         { text: 'Samhain', isCorrect: true, isTrap: false },
         { text: 'Beltane', isCorrect: false, isTrap: true },
         { text: 'Yule', isCorrect: false, isTrap: true },
         { text: 'Imbolc', isCorrect: false, isTrap: true },
-      ]
+      ])
     },
     {
       id: 'halloween_default_5',
@@ -136,12 +146,12 @@ function getDefaultHalloweenQuestions(): TrapQuestion[] {
       theme: 'Halloween',
       roundNumber: 1,
       question: 'Quel légume était traditionnellement utilisé pour les lanternes avant la citrouille ?',
-      answers: [
+      answers: shuffleArray([
         { text: 'Le navet', isCorrect: true, isTrap: false },
         { text: 'Le potiron', isCorrect: false, isTrap: true },
         { text: 'Le chou', isCorrect: false, isTrap: true },
         { text: 'La courge', isCorrect: false, isTrap: true },
-      ]
+      ])
     }
   ];
 }
