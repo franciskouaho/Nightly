@@ -216,14 +216,6 @@ export default function QuizHalloweenGameOptimized() {
     }
   }, [gameState, updateGameState, saveFinalScoresToFirebase, getRandomQuestion]);
 
-  // Effet pour démarrer la première question quand le jeu commence
-  useEffect(() => {
-    if (gameState && gameState.phase === GamePhase.QUESTION && !gameState.currentQuestion) {
-      console.log('🎃 Démarrage de la première question');
-      handleNextQuestion();
-    }
-  }, [gameState?.phase, gameState?.currentQuestion, handleNextQuestion]);
-
   // Effet pour passer à la question suivante quand tous ont répondu
   useEffect(() => {
     // Éviter le spam de logs
@@ -238,8 +230,9 @@ export default function QuizHalloweenGameOptimized() {
     }
   }, [allPlayersAnswered, gameState, handleNextQuestion]);
 
-  // Démarrer une nouvelle question
+  // Démarrer le jeu (première question)
   const startNewQuestion = useCallback(() => {
+    console.log('🎃 Démarrage du Quiz Halloween');
     const newQuestion = getRandomQuestion();
     if (newQuestion && gameState) {
       const updatedState = {
@@ -247,16 +240,16 @@ export default function QuizHalloweenGameOptimized() {
         currentQuestion: newQuestion,
         askedQuestionIds: [...gameState.askedQuestionIds, newQuestion.id],
         playerAnswers: {},
-        phase: 'playing' as GamePhase,
+        phase: GamePhase.QUESTION,
         _allAnswered: false,
-        // Préserver le currentRound mis à jour
-        currentRound: gameState.currentRound,
+        currentRound: 1, // Commencer à la question 1
       };
       updateGameState(updatedState);
       setSelectedAnswer(null);
       setShowResult(false);
       setCanAnswer(true);
       setTimer(15);
+      console.log('🎃 Première question démarrée:', newQuestion.question);
     }
   }, [gameState, getRandomQuestion, updateGameState]);
 

@@ -6,7 +6,7 @@ export function useGame<T extends GameState = GameState>(gameId: string) {
   const [gameState, setGameState] = useState<T | null>(() => {
     // Initialiser avec un état par défaut pour éviter les flashes
     return {
-      phase: 'LOADING',
+      phase: 'waiting',
       currentRound: 0,
       totalRounds: 3,
       targetPlayer: null,
