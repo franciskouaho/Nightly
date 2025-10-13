@@ -2,8 +2,128 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    
+    // Règles pour les utilisateurs
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth != null; // Les autres utilisateurs peuvent lire les profils
+    }
+    
+    // Règles pour les salles de jeu
+    match /rooms/{roomId} {
+      allow read, write: if request.auth != null;
+      allow create: if request.auth != null && 
+        request.resource.data.ownerId == request.auth.uid;
+      allow update: if request.auth != null && 
+        (request.auth.uid in resource.data.players || 
+         request.auth.uid == resource.data.ownerId);
+    }
+    
+    // Règles pour les parties de jeu
+    match /games/{gameId} {
+      allow read, write: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null && 
+        request.auth.uid in resource.data.players;
+    }
+    
+    // Règles pour les règles de jeu (lecture seule pour tous)
+    match /gameRules/{ruleId} {
+      allow read: if true; // Lecture publique des règles
+      allow write: if false; // Seuls les admins peuvent modifier (via Firebase Console)
+    }
+    
+    // Règles pour les questions de jeu (lecture seule pour tous)
+    match /questions/{questionId} {
+      allow read: if true; // Lecture publique des questions
+      allow write: if false; // Seuls les admins peuvent modifier (via Firebase Console)
+    }
+    
+    // Règles pour les statistiques utilisateur
+    match /userStats/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Règles pour les achats et transactions
+    match /purchases/{purchaseId} {
+      allow read, write: if request.auth != null && 
+        request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && 
+        request.resource.data.userId == request.auth.uid;
+    }
+    
+    // Règles pour les assets/skins
+    match /assets/{assetId} {
+      allow read: if true; // Lecture publique des assets
+      allow write: if false; // Seuls les admins peuvent modifier
+    }
+    
+    // Règles pour les collections d'assets utilisateur
+    match /userAssets/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Règles pour les notifications
+    match /notifications/{notificationId} {
+      allow read, write: if request.auth != null && 
+        request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && 
+        request.resource.data.userId == request.auth.uid;
+    }
+    
+    // Règles pour les tokens de notification
+    match /notificationTokens/{tokenId} {
+      allow read, write: if request.auth != null && 
+        request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && 
+        request.resource.data.userId == request.auth.uid;
+    }
+    
+    // Règles pour les scores et classements
+    match /leaderboards/{leaderboardId} {
+      allow read: if true; // Lecture publique des classements
+      allow write: if false; // Seuls les admins peuvent modifier
+    }
+    
+    // Règles pour les rapports de bugs
+    match /bugReports/{reportId} {
+      allow read, write: if request.auth != null;
+      allow create: if request.auth != null;
+    }
+    
+    // Règles pour les feedbacks utilisateur
+    match /feedbacks/{feedbackId} {
+      allow read, write: if request.auth != null;
+      allow create: if request.auth != null;
+    }
+    
+    // Règles pour les configurations de l'app
+    match /appConfig/{configId} {
+      allow read: if true; // Lecture publique de la config
+      allow write: if false; // Seuls les admins peuvent modifier
+    }
+    
+    // Règles pour les événements et promotions
+    match /events/{eventId} {
+      allow read: if true; // Lecture publique des événements
+      allow write: if false; // Seuls les admins peuvent modifier
+    }
+    
+    // Règles pour les traductions
+    match /translations/{language} {
+      allow read: if true; // Lecture publique des traductions
+      allow write: if false; // Seuls les admins peuvent modifier
+    }
+    
+    // Règles pour les logs de debug (développement uniquement)
+    match /debugLogs/{logId} {
+      allow read, write: if request.auth != null;
+      allow create: if request.auth != null;
+    }
+    
+    // Règles par défaut - refuser tout le reste
     match /{document=**} {
-      allow read, write: if true;
+      allow read, write: if false;
     }
   }
 }
