@@ -5,6 +5,7 @@ import { doc, getDoc, getFirestore } from '@react-native-firebase/firestore';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/contexts/LanguageContext';
+import HalloweenTheme from '@/constants/themes/Halloween';
 
 type RulesDrawerProps = {
   visible: boolean;
@@ -18,6 +19,11 @@ interface GameRule {
   title: string;
   description: string;
   emoji: string;
+  colors?: {
+    title: string;
+    description: string;
+    background: string;
+  };
 }
 
 const windowHeight = Dimensions.get('window').height;
@@ -28,6 +34,9 @@ const RulesDrawer = ({ visible, onClose, onConfirm, gameId, isStartingGame }: Ru
   const [loading, setLoading] = useState(true);
   const { t } = useTranslation();
   const { language } = useLanguage();
+  
+  // Vérifier si c'est le Quiz Halloween
+  const isHalloweenGame = gameId === 'quiz-halloween';
 
   useEffect(() => {
     if (visible && gameId) {
@@ -121,14 +130,28 @@ const RulesDrawer = ({ visible, onClose, onConfirm, gameId, isStartingGame }: Ru
         <Animated.View 
           style={[
             styles.container, 
-            { transform: [{ translateY }] }
+            { 
+              transform: [{ translateY }],
+              backgroundColor: isHalloweenGame ? HalloweenTheme.backgroundDarker : '#2B1845'
+            }
           ]}
         >
           <View style={styles.inner}>
             <View style={styles.header}>
-              <Text style={styles.title}>{t('rules.title')}</Text>
+              <Text 
+                style={[
+                  styles.title,
+                  isHalloweenGame && { color: HalloweenTheme.primary }
+                ]}
+              >
+                {t('rules.title')}
+              </Text>
               <TouchableOpacity onPress={onClose}>
-                <Ionicons name="close" size={24} color="#fff" />
+                <Ionicons 
+                  name="close" 
+                  size={24} 
+                  color={isHalloweenGame ? HalloweenTheme.primary : "#fff"} 
+                />
               </TouchableOpacity>
             </View>
 
@@ -137,11 +160,31 @@ const RulesDrawer = ({ visible, onClose, onConfirm, gameId, isStartingGame }: Ru
                 <Text style={styles.loadingText}>{t('rules.loading')}</Text>
               ) : (
                 rules.map((rule, index) => (
-                  <View key={index} style={styles.ruleCard}>
+                  <View 
+                    key={index} 
+                    style={[
+                      styles.ruleCard,
+                      rule.colors && { backgroundColor: rule.colors.background }
+                    ]}
+                  >
                     <Text style={styles.emoji}>{rule.emoji}</Text>
                     <View style={styles.ruleContent}>
-                      <Text style={styles.ruleTitle}>{rule.title}</Text>
-                      <Text style={styles.ruleText}>{rule.description}</Text>
+                      <Text 
+                        style={[
+                          styles.ruleTitle,
+                          rule.colors && { color: rule.colors.title }
+                        ]}
+                      >
+                        {rule.title}
+                      </Text>
+                      <Text 
+                        style={[
+                          styles.ruleText,
+                          rule.colors && { color: rule.colors.description }
+                        ]}
+                      >
+                        {rule.description}
+                      </Text>
                     </View>
                   </View>
                 ))
@@ -150,7 +193,10 @@ const RulesDrawer = ({ visible, onClose, onConfirm, gameId, isStartingGame }: Ru
 
             {onConfirm && (
               <TouchableOpacity 
-                style={styles.confirmButton}
+                style={[
+                  styles.confirmButton,
+                  isHalloweenGame && { backgroundColor: HalloweenTheme.primary }
+                ]}
                 onPress={onConfirm}
               >
                 <Text style={styles.confirmButtonText}>
