@@ -137,12 +137,8 @@ export default function QuizHalloweenGameOptimized() {
       const timerInterval = setInterval(() => {
         setTimer((prevTimer) => {
           if (prevTimer <= 1) {
-            console.log('🎃 Temps écoulé - passage automatique à la question suivante');
+            console.log('🎃 Temps écoulé');
             clearInterval(timerInterval);
-            // Passer automatiquement à la question suivante
-            setTimeout(() => {
-              handleNextQuestion();
-            }, 1000);
             return 0;
           }
           return prevTimer - 1;
