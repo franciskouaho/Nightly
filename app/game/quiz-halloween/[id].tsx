@@ -88,13 +88,13 @@ export default function QuizHalloweenGameOptimized() {
   }, [gameState, updateGameState]);
 
   // Synchroniser les scores locaux avec gameState
+  // Synchronisation des scores avec useMemo pour éviter les re-renders
+  const firebaseScores = useMemo(() => gameState?.scores || {}, [gameState?.scores]);
+  
   useEffect(() => {
-    if (gameState?.scores) {
+    if (Object.keys(firebaseScores).length > 0) {
       setLocalScores(prevScores => {
         // Utiliser les scores de Firebase comme source de vérité
-        const firebaseScores = { ...gameState.scores };
-        
-        // Garder les scores locaux seulement s'ils sont plus récents
         const mergedScores = { ...firebaseScores };
         Object.keys(prevScores).forEach(userId => {
           // Si le score local est plus élevé, le garder (cas où la mise à jour Firebase n'a pas encore eu lieu)
@@ -107,7 +107,7 @@ export default function QuizHalloweenGameOptimized() {
         return mergedScores;
       });
     }
-  }, [gameState?.scores]);
+  }, [firebaseScores]);
 
   // Fonction optimisée pour mettre à jour le score local
   const updateLocalScore = useCallback(async (userId: string, isCorrect: boolean) => {
@@ -158,10 +158,10 @@ export default function QuizHalloweenGameOptimized() {
     }
   }, [gameState, localScores, updateGameState, awardGamePoints, gameId]);
 
-  // Timer optimisé avec useCallback
+  // Timer optimisé avec useCallback - dépend seulement de l'ID de la question
   useEffect(() => {
-    if (gameState?.currentQuestion) {
-      console.log('🎃 Timer démarré pour nouvelle question');
+    if (gameState?.currentQuestion?.id) {
+      console.log('🎃 Timer démarré pour nouvelle question:', gameState.currentQuestion.id);
       setTimer(15);
       setCanAnswer(true);
       
@@ -181,7 +181,7 @@ export default function QuizHalloweenGameOptimized() {
       console.log('🎃 Timer arrêté car réponse donnée');
     }
     return undefined;
-  }, [gameState?.currentQuestion]);
+  }, [gameState?.currentQuestion?.id]); // Seulement l'ID, pas l'objet complet
 
   // Surveiller les réponses avec useMemo pour éviter les re-renders inutiles
   const allPlayersAnswered = useMemo(() => {
@@ -260,7 +260,7 @@ export default function QuizHalloweenGameOptimized() {
         console.log('🎃 Temps écoulé mais tous ont répondu - laisser la logique normale gérer');
       }
     }
-  }, [timer, allPlayersAnswered, gameState?.currentQuestion, handleNextQuestion]);
+  }, [timer, allPlayersAnswered, gameState?.currentQuestion?.id, handleNextQuestion]); // Seulement l'ID
 
   // Effet pour passer à la question suivante quand tous ont répondu (Cas 2)
   useEffect(() => {
