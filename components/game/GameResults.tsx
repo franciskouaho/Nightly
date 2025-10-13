@@ -124,7 +124,7 @@ export default function GameResults({
             title="Accueil"
             onPress={() => router.replace('/(tabs)')}
             icon={<Ionicons name="home" size={22} color="#fff" />}
-            gradientColors={["#7B2CBF", "#661A59"]}
+            gradientColors={["#8B0000", "#4B0082", "#2F1B69"]}
             style={styles.homeButton}
             textStyle={styles.homeButtonText}
           />
