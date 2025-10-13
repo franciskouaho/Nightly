@@ -115,12 +115,12 @@ export default function LoginScreen() {
         style={styles.background}
       >
         {/* Décorations Halloween */}
-        <View style={{ zIndex: 1 }}>
+        <View style={styles.halloweenDecorationsContainer}>
           <HalloweenDecorations />
         </View>
         
         {/* Effets de particules flottantes */}
-        <View style={[styles.floatingParticles, { zIndex: 1 }]}>
+        <View style={[styles.floatingParticles, { zIndex: 1, opacity: 0.2 }]}>
           <View style={[styles.particle, styles.particle1]} />
           <View style={[styles.particle, styles.particle2]} />
           <View style={[styles.particle, styles.particle3]} />
@@ -337,13 +337,25 @@ const styles = StyleSheet.create({
   background: {
     flex: 1,
   },
+  halloweenDecorationsContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: "100%",
+    height: "100%",
+    pointerEvents: "none",
+    zIndex: 5,
+    opacity: 0.3,
+  },
   floatingParticles: {
     position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 1,
+    zIndex: 0,
   },
   particle: {
     position: "absolute",
