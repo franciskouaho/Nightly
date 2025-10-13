@@ -247,7 +247,7 @@ export default function QuizHalloweenGameOptimized() {
   // Effet séparé pour gérer le timer avec allPlayersAnswered
   useEffect(() => {
     console.log('🎃 Effet timer - timer:', timer, 'allPlayersAnswered:', allPlayersAnswered, 'selectedAnswer:', selectedAnswer);
-    if (gameState?.currentQuestion && !selectedAnswer && timer === 0) {
+    if (gameState?.currentQuestion && timer === 0) {
       console.log('🎃 Timer à 0 - vérification des réponses');
       
       // Cas 1: Timer à 0 ET personne n'a répondu → passage automatique
@@ -260,7 +260,7 @@ export default function QuizHalloweenGameOptimized() {
         console.log('🎃 Temps écoulé mais tous ont répondu - laisser la logique normale gérer');
       }
     }
-  }, [timer, allPlayersAnswered, gameState?.currentQuestion, selectedAnswer, handleNextQuestion]);
+  }, [timer, allPlayersAnswered, gameState?.currentQuestion, handleNextQuestion]);
 
   // Effet pour passer à la question suivante quand tous ont répondu (Cas 2)
   useEffect(() => {

@@ -58,7 +58,26 @@ export function useGame<T extends GameState = GameState>(gameId: string) {
           ...newState
         });
       } else {
-        await updateDoc(gameRef, newState as { [key: string]: any });
+        // Fusionner les playerAnswers au lieu de les écraser
+        const currentData = snap.data() as T;
+        const mergedState = { ...newState };
+        
+        console.log('🔧 Fusion playerAnswers:', {
+          newPlayerAnswers: newState.playerAnswers,
+          currentPlayerAnswers: currentData.playerAnswers,
+          hasNew: !!newState.playerAnswers,
+          hasCurrent: !!currentData.playerAnswers
+        });
+        
+        if (newState.playerAnswers) {
+          mergedState.playerAnswers = {
+            ...(currentData.playerAnswers || {}),
+            ...newState.playerAnswers
+          };
+          console.log('🔧 Résultat fusion:', mergedState.playerAnswers);
+        }
+        
+        await updateDoc(gameRef, mergedState as { [key: string]: any });
       }
     } catch (error) {
       console.error('Error updating game state:', error);
