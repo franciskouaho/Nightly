@@ -185,7 +185,10 @@ export default function QuizHalloweenGameOptimized() {
 
   // Surveiller les réponses avec useMemo pour éviter les re-renders inutiles
   const allPlayersAnswered = useMemo(() => {
-    if (!gameState?.playerAnswers || !gameState?.players) return false;
+    if (!gameState?.playerAnswers || !gameState?.players) {
+      console.log('🎃 allPlayersAnswered: false - pas de données');
+      return false;
+    }
     const totalPlayers = gameState.players.length;
     const answeredPlayers = Object.keys(gameState.playerAnswers).length;
     const result = answeredPlayers >= totalPlayers && answeredPlayers > 0;
@@ -194,7 +197,8 @@ export default function QuizHalloweenGameOptimized() {
       answeredPlayers,
       playerAnswers: gameState.playerAnswers,
       result,
-      _allAnswered: (gameState as any)?._allAnswered
+      _allAnswered: (gameState as any)?._allAnswered,
+      players: gameState.players.map(p => p.id)
     });
     return result;
   }, [gameState?.playerAnswers, gameState?.players]);
@@ -242,6 +246,7 @@ export default function QuizHalloweenGameOptimized() {
 
   // Effet séparé pour gérer le timer avec allPlayersAnswered
   useEffect(() => {
+    console.log('🎃 Effet timer - timer:', timer, 'allPlayersAnswered:', allPlayersAnswered, 'selectedAnswer:', selectedAnswer);
     if (gameState?.currentQuestion && !selectedAnswer && timer === 0) {
       console.log('🎃 Timer à 0 - vérification des réponses');
       
@@ -259,6 +264,7 @@ export default function QuizHalloweenGameOptimized() {
 
   // Effet pour passer à la question suivante quand tous ont répondu (Cas 2)
   useEffect(() => {
+    console.log('🎃 Effet tous répondu - allPlayersAnswered:', allPlayersAnswered, '_allAnswered:', (gameState as any)?._allAnswered);
     // Éviter le spam de logs
     if (allPlayersAnswered && !(gameState as any)?._allAnswered) {
       console.log('🎃 Tous les joueurs ont répondu - passage à la question suivante après 3s');
