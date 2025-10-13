@@ -68,7 +68,7 @@ export default function QuizHalloweenGameOptimized() {
     if (!gameState) {
       const initialState: HalloweenQuizGameState = {
         phase: 'waiting' as GamePhase,
-        currentRound: 0,
+        currentRound: 1, // Commencer à la question 1
         totalRounds: 10,
         currentQuestion: null,
         questions: [],
@@ -191,23 +191,33 @@ export default function QuizHalloweenGameOptimized() {
   const handleNextQuestion = useCallback(() => {
     if (!gameState) return;
     
-    console.log('🎃 Passage à la question suivante - Round:', gameState.currentRound, '/', gameState.totalRounds);
+    const nextRound = gameState.currentRound + 1;
+    console.log('🎃 Passage à la question suivante - Round:', nextRound, '/', gameState.totalRounds);
     
-    if (gameState.currentRound < gameState.totalRounds) {
-      const nextRoundState = {
-        ...gameState,
-        currentRound: gameState.currentRound + 1,
-        playerAnswers: {}, // Reset pour la nouvelle question
-        _allAnswered: false,
-      };
-      updateGameState(nextRoundState);
-      startNewQuestion();
+    if (nextRound <= gameState.totalRounds) {
+      const newQuestion = getRandomQuestion();
+      if (newQuestion) {
+        const nextRoundState = {
+          ...gameState,
+          currentRound: nextRound,
+          currentQuestion: newQuestion,
+          askedQuestionIds: [...gameState.askedQuestionIds, newQuestion.id],
+          playerAnswers: {}, // Reset pour la nouvelle question
+          phase: 'playing' as GamePhase,
+          _allAnswered: false,
+        };
+        updateGameState(nextRoundState);
+        setSelectedAnswer(null);
+        setShowResult(false);
+        setCanAnswer(true);
+        setTimer(15);
+      }
     } else {
       // Fin du jeu - sauvegarder les scores finaux
       console.log('🎃 Fin du jeu - sauvegarde des scores');
       saveFinalScoresToFirebase();
     }
-  }, [gameState, updateGameState, saveFinalScoresToFirebase]);
+  }, [gameState, updateGameState, saveFinalScoresToFirebase, getRandomQuestion]);
 
   // Démarrer une nouvelle question
   const startNewQuestion = useCallback(() => {
@@ -220,6 +230,8 @@ export default function QuizHalloweenGameOptimized() {
         playerAnswers: {},
         phase: 'playing' as GamePhase,
         _allAnswered: false,
+        // Préserver le currentRound mis à jour
+        currentRound: gameState.currentRound,
       };
       updateGameState(updatedState);
       setSelectedAnswer(null);
