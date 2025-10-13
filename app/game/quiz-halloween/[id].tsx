@@ -246,15 +246,17 @@ export default function QuizHalloweenGameOptimized() {
       } else {
         console.log('🎃 Aucune nouvelle question disponible');
       }
-    } else {
-      // Fin du jeu - sauvegarder les scores finaux
+    } else if (gameState.phase === GamePhase.END && !gameEndHandled.current) {
+      // Fin du jeu - sauvegarder les scores finaux (une seule fois)
       console.log('🎃 Fin du jeu - sauvegarde des scores');
+      gameEndHandled.current = true;
       saveFinalScoresToFirebase();
     }
   }, [gameState, updateGameState, saveFinalScoresToFirebase, getRandomQuestion]);
 
   // Effet optimisé pour gérer le timer à 0 - évite le spam de logs
   const timerAtZeroHandled = useRef(false);
+  const gameEndHandled = useRef(false);
   
   useEffect(() => {
     if (gameState?.currentQuestion?.id && timer === 0 && !timerAtZeroHandled.current) {
@@ -301,6 +303,7 @@ export default function QuizHalloweenGameOptimized() {
   useEffect(() => {
     allAnsweredHandled.current = false;
     timerAtZeroHandled.current = false;
+    gameEndHandled.current = false; // Reset aussi le flag de fin de jeu
   }, [gameState?.currentQuestion?.id]);
 
   // Démarrer le jeu (première question)
