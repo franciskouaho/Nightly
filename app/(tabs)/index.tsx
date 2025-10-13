@@ -1,19 +1,40 @@
-"use client"
+"use client";
 
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Alert, TextInput, ImageBackground, Modal } from "react-native"
-import { LinearGradient } from "expo-linear-gradient"
-import { useAuth } from "@/contexts/AuthContext"
-import TopBar from "@/components/TopBar"
-import { useFirestore } from '@/hooks/useFirestore'
-import { useRouter } from 'expo-router'
-import NetInfo from '@react-native-community/netinfo'
-import { gameCategories, GameMode, GameCategory } from '@/app/data/gameModes'
-import { useEffect } from 'react'
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import React from 'react';
-import { collection, query, where, getDocs, getFirestore, doc, updateDoc } from '@react-native-firebase/firestore';
-import { useTranslation } from 'react-i18next';
-import PaywallModal from '@/components/PaywallModal';
+import { gameCategories, GameCategory, GameMode } from "@/app/data/gameModes";
+import PaywallModal from "@/components/PaywallModal";
+import TopBar from "@/components/TopBar";
+import { useAuth } from "@/contexts/AuthContext";
+import { useFirestore } from "@/hooks/useFirestore";
+import { useExpoNotifications } from "@/hooks/useExpoNotifications";
+import HalloweenNotificationScheduler from "@/services/halloweenNotificationScheduler";
+import Colors from "@/constants/Colors";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import HalloweenDecorations from "@/components/HalloweenDecorations";
+import NetInfo from "@react-native-community/netinfo";
+import {
+  collection,
+  doc,
+  getDocs,
+  getFirestore,
+  query,
+  updateDoc,
+  where,
+} from "@react-native-firebase/firestore";
+import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
+import React, { useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import {
+  Alert,
+  Image,
+  ImageBackground,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 interface Room {
   id?: string;
@@ -30,14 +51,14 @@ interface Room {
     avatar: string;
   }>;
   createdAt: string;
-  status: 'waiting' | 'playing' | 'finished';
+  status: "waiting" | "playing" | "finished";
   maxPlayers: number;
   code: string;
 }
 
 const generateRoomCode = (length = 6) => {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let code = '';
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "";
   for (let i = 0; i < length; i++) {
     code += chars.charAt(Math.floor(Math.random() * chars.length));
   }
@@ -47,15 +68,19 @@ const generateRoomCode = (length = 6) => {
 export default function HomeScreen() {
   const { user, setUser } = useAuth();
   const router = useRouter();
-  const { add: createRoom, loading: isCreatingRoom } = useFirestore<Room>('rooms');
-  const [partyCode, setPartyCode] = React.useState('');
+  const { add: createRoom, loading: isCreatingRoom } =
+    useFirestore<Room>("rooms");
+  const [partyCode, setPartyCode] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const { t } = useTranslation();
-  const [error, setError] = React.useState('');
+  const [error, setError] = React.useState("");
   const [paywallVisible, setPaywallVisible] = React.useState(false);
+  
+  // Hook pour les notifications Expo
+  const { expoPushToken, isPermissionGranted, sendLocalNotification, sendHalloweenQuizNotification } = useExpoNotifications();
 
   useEffect(() => {
-    console.log('🔄 État de création de salle:', isCreatingRoom);
+    console.log("🔄 État de création de salle:", isCreatingRoom);
   }, [isCreatingRoom]);
 
   useEffect(() => {
@@ -70,95 +95,99 @@ export default function HomeScreen() {
 
   const getUserDisplayName = (user: any) => {
     if (!user) return "Joueur";
-    
-    if (typeof user.pseudo === 'string' && user.pseudo.trim() !== '') {
+
+    if (typeof user.pseudo === "string" && user.pseudo.trim() !== "") {
       return user.pseudo;
     }
-    
+
     return "Joueur";
   };
 
   const createGameRoom = async (game: GameMode) => {
-    console.log('👉 Fonction createGameRoom appelée pour:', game.name);
-    
+    console.log("👉 Fonction createGameRoom appelée pour:", game.name);
+
     if (!user) {
-      console.log('❌ Utilisateur non connecté');
+      console.log("❌ Utilisateur non connecté");
       Alert.alert(
-        'Connexion requise',
-        'Vous devez être connecté pour créer une salle de jeu.',
-        [{ text: 'OK' }]
+        "Connexion requise",
+        "Vous devez être connecté pour créer une salle de jeu.",
+        [{ text: "OK" }],
       );
       return;
     }
 
-    console.log('👤 Informations utilisateur:', {
+    console.log("👤 Informations utilisateur:", {
       uid: user.uid,
       pseudo: user.pseudo,
       createdAt: user.createdAt,
-      avatar: user.avatar
+      avatar: user.avatar,
     });
 
     if (!user.uid) {
-      console.error('❌ UID utilisateur manquant');
+      console.error("❌ UID utilisateur manquant");
       Alert.alert(
-        'Erreur de connexion',
-        'Votre session utilisateur est invalide. Veuillez vous reconnecter.',
-        [{ text: 'OK' }]
+        "Erreur de connexion",
+        "Votre session utilisateur est invalide. Veuillez vous reconnecter.",
+        [{ text: "OK" }],
       );
       return;
     }
-    
-    console.log('⌛ Début du processus de création de salle...');
-    
+
+    console.log("⌛ Début du processus de création de salle...");
+
     try {
       const netInfo = await NetInfo.fetch();
-      console.log('📶 État de la connexion:', netInfo.isConnected);
-      
+      console.log("📶 État de la connexion:", netInfo.isConnected);
+
       if (!netInfo.isConnected) {
         Alert.alert(
-          'Erreur de connexion',
-          'Pas de connexion internet. Veuillez vérifier votre connexion et réessayer.'
+          "Erreur de connexion",
+          "Pas de connexion internet. Veuillez vérifier votre connexion et réessayer.",
         );
         return;
       }
-  
-      console.log('🎮 Création d\'une salle pour le mode:', game.id);
-      
+
+      console.log("🎮 Création d'une salle pour le mode:", game.id);
+
       const displayName = getUserDisplayName(user);
-      
+
       const shortCode = generateRoomCode(6);
-      
-      const roomData: Omit<Room, 'id'> & { code: string } = {
+
+      const roomData: Omit<Room, "id"> & { code: string } = {
         name: game.name,
         gameId: game.id,
         createdBy: user.uid,
         host: user.uid,
-        players: [{
-          id: user.uid,
-          username: displayName,
-          displayName: displayName,
-          isHost: true,
-          isReady: true,
-          avatar: user.avatar,
-        }],
+        players: [
+          {
+            id: user.uid,
+            username: displayName,
+            displayName: displayName,
+            isHost: true,
+            isReady: true,
+            avatar: user.avatar,
+          },
+        ],
         createdAt: new Date().toISOString(),
         status: "waiting",
-        maxPlayers: game.id === 'trap-answer' ? 4 : 20,
+        maxPlayers: game.id === "trap-answer" ? 4 : 20,
         code: shortCode,
       };
 
       const validateRoomData = (data: any): boolean => {
-        const checkValue = (value: any, path: string = ''): boolean => {
+        const checkValue = (value: any, path: string = ""): boolean => {
           if (value === undefined) {
             console.error(`❌ Valeur undefined trouvée dans ${path}`);
             return false;
           }
           if (Array.isArray(value)) {
-            return value.every((item, index) => checkValue(item, `${path}[${index}]`));
+            return value.every((item, index) =>
+              checkValue(item, `${path}[${index}]`),
+            );
           }
-          if (value && typeof value === 'object') {
-            return Object.entries(value).every(([key, val]) => 
-              checkValue(val, path ? `${path}.${key}` : key)
+          if (value && typeof value === "object") {
+            return Object.entries(value).every(([key, val]) =>
+              checkValue(val, path ? `${path}.${key}` : key),
             );
           }
           return true;
@@ -167,145 +196,170 @@ export default function HomeScreen() {
       };
 
       if (!validateRoomData(roomData)) {
-        throw new Error('Données de salle invalides : valeurs undefined détectées');
+        throw new Error(
+          "Données de salle invalides : valeurs undefined détectées",
+        );
       }
-  
-      console.log('📤 Enregistrement dans Firebase avec les données:', JSON.stringify(roomData, null, 2));
-      
+
+      console.log(
+        "📤 Enregistrement dans Firebase avec les données:",
+        JSON.stringify(roomData, null, 2),
+      );
+
       try {
         const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Délai d\'attente dépassé lors de la création de la salle')), 30000); // Augmenté à 30 secondes
+          setTimeout(
+            () =>
+              reject(
+                new Error(
+                  "Délai d'attente dépassé lors de la création de la salle",
+                ),
+              ),
+            30000,
+          ); // Augmenté à 30 secondes
         });
-        
+
         const createdRoomId = await Promise.race([
           createRoom(roomData),
-          timeoutPromise
+          timeoutPromise,
         ]);
-        
+
         if (!createdRoomId) {
-          throw new Error('La création de la salle a échoué : aucun ID retourné');
+          throw new Error(
+            "La création de la salle a échoué : aucun ID retourné",
+          );
         }
-        
-        console.log('✅ Salle créée avec succès dans Firebase:', createdRoomId);
-        
-        console.log('🔄 Tentative de redirection vers:', `/room/${createdRoomId}`);
+
+        console.log("✅ Salle créée avec succès dans Firebase:", createdRoomId);
+
+        console.log(
+          "🔄 Tentative de redirection vers:",
+          `/room/${createdRoomId}`,
+        );
 
         router.push(`/room/${createdRoomId}`);
-        
+
         return true;
       } catch (firebaseError) {
-        console.error('🔥 Erreur Firebase:', firebaseError);
-        
+        console.error("🔥 Erreur Firebase:", firebaseError);
+
         if (firebaseError instanceof Error) {
-          let errorMessage = 'Une erreur est survenue lors de la création de la salle.';
-          
-          if (firebaseError.message.includes('permission-denied')) {
-            errorMessage = 'Accès refusé : vérifiez les règles de sécurité Firestore';
-          } else if (firebaseError.message.includes('network-request-failed')) {
-            errorMessage = 'Erreur réseau : vérifiez votre connexion internet';
-          } else if (firebaseError.message.includes('Délai d\'attente dépassé')) {
-            errorMessage = 'Le serveur met trop de temps à répondre. Veuillez réessayer.';
+          let errorMessage =
+            "Une erreur est survenue lors de la création de la salle.";
+
+          if (firebaseError.message.includes("permission-denied")) {
+            errorMessage =
+              "Accès refusé : vérifiez les règles de sécurité Firestore";
+          } else if (firebaseError.message.includes("network-request-failed")) {
+            errorMessage = "Erreur réseau : vérifiez votre connexion internet";
+          } else if (
+            firebaseError.message.includes("Délai d'attente dépassé")
+          ) {
+            errorMessage =
+              "Le serveur met trop de temps à répondre. Veuillez réessayer.";
           }
-          
-          Alert.alert('Erreur lors de la création de la salle', errorMessage);
+
+          Alert.alert("Erreur lors de la création de la salle", errorMessage);
         }
         throw firebaseError;
       }
     } catch (error) {
-      console.error('❌ Erreur lors de la création de la salle:', error);
+      console.error("❌ Erreur lors de la création de la salle:", error);
       Alert.alert(
-        'Erreur',
-        error instanceof Error ? error.message : 'Impossible de créer la salle'
+        "Erreur",
+        error instanceof Error ? error.message : "Impossible de créer la salle",
       );
       return false;
     }
   };
-  
+
   const handleJoinGame = async () => {
     if (!partyCode.trim()) {
-      Alert.alert('Erreur', 'Veuillez entrer un code de partie');
+      Alert.alert("Erreur", "Veuillez entrer un code de partie");
       return;
     }
     setLoading(true);
     try {
       const db = getFirestore();
-      const roomsRef = collection(db, 'rooms');
-      const q = query(roomsRef, where('code', '==', partyCode.toUpperCase()));
+      const roomsRef = collection(db, "rooms");
+      const q = query(roomsRef, where("code", "==", partyCode.toUpperCase()));
       const querySnapshot = await getDocs(q);
       if (querySnapshot.empty) {
-        Alert.alert('Erreur', 'Code de partie invalide');
+        Alert.alert("Erreur", "Code de partie invalide");
         return;
       }
       const roomDoc = querySnapshot.docs[0];
       if (!roomDoc) {
-        Alert.alert('Erreur', 'Salle introuvable');
+        Alert.alert("Erreur", "Salle introuvable");
         return;
       }
       const room = roomDoc.data();
-      if (room.status !== 'waiting') {
-        Alert.alert('Erreur', 'Cette partie a déjà commencé');
+      if (room.status !== "waiting") {
+        Alert.alert("Erreur", "Cette partie a déjà commencé");
         return;
       }
       if (room.players.length >= room.maxPlayers) {
-        Alert.alert('Erreur', 'Cette partie est pleine');
+        Alert.alert("Erreur", "Cette partie est pleine");
         return;
       }
       if (!user) {
-        Alert.alert('Erreur', 'Utilisateur non authentifié');
+        Alert.alert("Erreur", "Utilisateur non authentifié");
         return;
       }
       if (room.players.some((p: any) => p.id === user.uid)) {
-        Alert.alert('Erreur', 'Vous êtes déjà dans cette partie');
+        Alert.alert("Erreur", "Vous êtes déjà dans cette partie");
         return;
       }
-      const roomRef = doc(db, 'rooms', roomDoc.id);
+      const roomRef = doc(db, "rooms", roomDoc.id);
       const newPlayer = {
         id: user.uid,
-        username: user.pseudo || 'Joueur',
-        displayName: user.pseudo || 'Joueur',
+        username: user.pseudo || "Joueur",
+        displayName: user.pseudo || "Joueur",
         isHost: false,
         isReady: false,
         avatar: user.avatar,
       };
       await updateDoc(roomRef, {
-        players: [...room.players, newPlayer]
+        players: [...room.players, newPlayer],
       });
       router.push(`/room/${roomDoc.id}`);
     } catch (error) {
-      console.error('Erreur lors de la jonction de la salle:', error);
-      Alert.alert('Erreur', 'Impossible de rejoindre la salle');
+      console.error("Erreur lors de la jonction de la salle:", error);
+      Alert.alert("Erreur", "Impossible de rejoindre la salle");
     } finally {
       setLoading(false);
     }
   };
-  
+
   const renderGameModeCard = (game: GameMode, isGridItem = false) => {
     const handlePress = async () => {
       if (game.premium && !user?.hasActiveSubscription) {
         setPaywallVisible(true);
         return;
       }
-      console.log('🖱️ Clic sur le mode de jeu:', game.name);
-      console.log('📊 État de création:', isCreatingRoom);
-      
+      console.log("🖱️ Clic sur le mode de jeu:", game.name);
+      console.log("📊 État de création:", isCreatingRoom);
+
       if (isCreatingRoom) {
-        console.log('⏳ Création de salle en cours, veuillez patienter...');
+        console.log("⏳ Création de salle en cours, veuillez patienter...");
         return;
       }
-      
+
       try {
         const result = await createGameRoom(game);
-        
+
         if (result) {
-          console.log('✅ Création de la salle réussie, redirection en cours...');
+          console.log(
+            "✅ Création de la salle réussie, redirection en cours...",
+          );
         } else {
-          console.log('❌ La création de la salle a échoué');
+          console.log("❌ La création de la salle a échoué");
         }
       } catch (error) {
-        console.error('❌ Erreur lors de la création de la salle:', error);
+        console.error("❌ Erreur lors de la création de la salle:", error);
       }
     };
-    
+
     if (isGridItem) {
       return (
         <TouchableOpacity
@@ -325,87 +379,102 @@ export default function HomeScreen() {
             {game.tags && game.tags.length > 0 && (
               <View style={styles.tagsContainer}>
                 {game.tags.map((tag, index) => (
-                  <View 
+                  <View
                     key={index}
                     style={[
-                      styles.modeTagContainer, 
-                      styles.gridModeTagContainer, 
-                      { backgroundColor: tag.color }
+                      styles.modeTagContainer,
+                      styles.gridModeTagContainer,
+                      { backgroundColor: tag.color },
                     ]}
-                  > 
+                  >
                     <Text style={styles.modeTagText}>{t(tag.text)}</Text>
                   </View>
                 ))}
               </View>
             )}
             <View style={styles.overlay}>
-              <Text style={styles.cardTitle}>{t(`home.games.${game.id}.name`)}</Text>
+              <Text style={styles.cardTitle}>
+                {t(`home.games.${game.id}.name`)}
+              </Text>
             </View>
           </ImageBackground>
         </TouchableOpacity>
       );
     }
-    
+
     return (
-      <TouchableOpacity 
+      <TouchableOpacity
         key={game.id}
         style={[
-          styles.modeCard, 
+          styles.modeCard,
           isGridItem && styles.gridModeCard,
-          isCreatingRoom && styles.disabledCard
-        ]} 
+          isCreatingRoom && styles.disabledCard,
+        ]}
         onPress={handlePress}
         activeOpacity={0.7}
         disabled={isCreatingRoom}
         testID={`game-mode-${game.id}`}
       >
         <LinearGradient
-          colors={[game.colors[0] || "#A259FF", game.colors[1] || "#C471F5"]}
+          colors={game.colors && game.colors.length >= 2 ? game.colors as [string, string, ...string[]] : [Colors.gradient.pumpkin.from, Colors.gradient.pumpkin.to]}
           style={[
-            styles.modeGradient, 
-            { 
-              borderColor: game.borderColor,
-              shadowColor: game.shadowColor
+            styles.modeGradient,
+            {
+              borderColor: game.borderColor || Colors.primary,
+              shadowColor: game.shadowColor || Colors.secondary,
             },
-            isGridItem && styles.gridModeGradient
+            isGridItem && styles.gridModeGradient,
           ]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
         >
-          <View style={[styles.modeContent, isGridItem && styles.gridModeContent]}>
+          <View
+            style={[styles.modeContent, isGridItem && styles.gridModeContent]}
+          >
             {!isGridItem && (
               <View style={styles.characterContainer}>
-                <Image 
+                <Image
                   source={game.image}
                   style={styles.characterImage}
                   resizeMode="contain"
                 />
               </View>
             )}
-            <View style={[styles.modeTextContainer, isGridItem && styles.gridModeTextContainer]}>
+            <View
+              style={[
+                styles.modeTextContainer,
+                isGridItem && styles.gridModeTextContainer,
+              ]}
+            >
               {isGridItem && (
-                <Image 
+                <Image
                   source={game.image}
                   style={styles.gridCharacterImage}
                   resizeMode="contain"
                 />
               )}
-              <Text style={[styles.modeName, isGridItem && styles.gridModeName]}>{t(`home.games.${game.id}.name`)}</Text>
+              <Text
+                style={[styles.modeName, isGridItem && styles.gridModeName]}
+              >
+                {t(`home.games.${game.id}.name`)}
+              </Text>
               {!isGridItem && (
-                <Text style={styles.modeDescription}>{t(`home.games.${game.id}.description`)}</Text>
+                <Text style={styles.modeDescription}>
+                  {t(`home.games.${game.id}.description`)}
+                </Text>
               )}
             </View>
             {game.tags && game.tags.length > 0 && (
               <View style={styles.tagsContainer}>
                 {game.tags.map((tag, index) => (
-                  <View 
+                  <View
                     key={index}
                     style={[
-                      styles.modeTagContainer, 
-                      styles.gridModeTagContainer, 
-                      { backgroundColor: tag.color }
+                      styles.modeTagContainer,
+                      styles.gridModeTagContainer,
+                      { backgroundColor: tag.color },
                     ]}
-                  > 
+                  >
                     <Text style={styles.modeTagText}>{t(tag.text)}</Text>
                   </View>
                 ))}
@@ -416,19 +485,23 @@ export default function HomeScreen() {
       </TouchableOpacity>
     );
   };
-  
+
   const renderGameCategory = (category: GameCategory) => (
     <View key={category.id} style={styles.categorySection}>
       <View style={styles.categoryHeader}>
         <View>
-          <Text style={styles.categoryTitle}>{t(`home.categories.${category.id}`)}</Text>
+          <Text style={styles.categoryTitle}>
+            {t(`home.categories.${category.id}`)}
+          </Text>
           {category.subtitle ? (
-            <Text style={styles.categorySubtitle}>{t(`home.subtitles.${category.id}`)}</Text>
+            <Text style={styles.categorySubtitle}>
+              {t(`home.subtitles.${category.id}`)}
+            </Text>
           ) : null}
         </View>
       </View>
-      
-      {['packs', 'same_room', 'online'].includes(category.id) ? (
+
+      {["packs", "same_room", "online"].includes(category.id) ? (
         <View style={styles.gridContainer}>
           {category.games.map((game: GameMode) => (
             <View key={game.id} style={styles.gridItem}>
@@ -443,21 +516,76 @@ export default function HomeScreen() {
       )}
     </View>
   );
-  
+
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
+        colors={[
+          Colors.gradient.midnight.from,
+          Colors.gradient.midnight.from,
+          Colors.gradient.midnight.middle,
+          Colors.gradient.midnight.from,
+          Colors.gradient.midnight.to,
+        ]}
         locations={[0, 0.2, 0.5, 0.8, 1]}
         style={styles.background}
       >
-        <TopBar />
+        {/* Décorations Halloween - Toilettes d'araignées géantes */}
+        <View style={{ 
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: '100%',
+          height: '100%',
+          zIndex: 5,
+          pointerEvents: 'none' // Permet le scroll et les interactions
+        }}>
+          <HalloweenDecorations />
+        </View>
+        
+        
+        <View style={{ zIndex: 20 }}>
+          <TopBar />
+        </View>
 
-        <View style={styles.codeRow}>
+        {/* Boutons de test pour les notifications */}
+        <View style={styles.notificationButtonsContainer}>
+          <TouchableOpacity
+            style={styles.simpleTestButton}
+            onPress={() => {
+              sendLocalNotification("Test", "Notification Expo OK !");
+            }}
+          >
+            <Text style={styles.simpleTestText}>🔔 Test</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            style={styles.halloweenTestButton}
+            onPress={() => {
+              sendHalloweenQuizNotification("Quiz Halloween", "Une partie effrayante t'attend !");
+            }}
+          >
+            <Text style={styles.halloweenTestText}>🎃 Quiz</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            style={styles.halloweenScheduleButton}
+            onPress={async () => {
+              await HalloweenNotificationScheduler.scheduleTestHalloweenNotification();
+              Alert.alert("🎃 Test", "Notification Halloween programmée dans 5 secondes !");
+            }}
+          >
+            <Text style={styles.halloweenScheduleText}>📅 Oct</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={[styles.codeRow, { zIndex: 15 }]}>
           <View style={styles.codeInputContainer}>
             <TextInput
               style={styles.codeInputText}
-              placeholder={t('home.codePlaceholder')}
+              placeholder={t("home.codePlaceholder")}
               placeholderTextColor="#C7B8F5"
               value={partyCode}
               onChangeText={setPartyCode}
@@ -483,9 +611,9 @@ export default function HomeScreen() {
             </LinearGradient>
           </TouchableOpacity>
         </View>
-        
-        <ScrollView 
-          style={styles.scrollView}
+
+        <ScrollView
+          style={[styles.scrollView, { zIndex: 15 }]}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollViewContent}
         >
@@ -494,16 +622,34 @@ export default function HomeScreen() {
           </View>
         </ScrollView>
       </LinearGradient>
-      <PaywallModal isVisible={paywallVisible} onClose={() => setPaywallVisible(false)} />
+      <PaywallModal
+        isVisible={paywallVisible}
+        onClose={() => setPaywallVisible(false)}
+      />
       {loading && (
-        <View style={{
-          position: 'absolute',
-          left: 0, right: 0, top: 0, bottom: 0,
-          backgroundColor: 'rgba(20,10,40,0.5)',
-          justifyContent: 'center', alignItems: 'center', zIndex: 1000
-        }}>
-          <View style={{ backgroundColor: 'rgba(0,0,0,0.7)', borderRadius: 16, padding: 24 }}>
-            <Text style={{ color: '#fff', fontSize: 18 }}>{t('home.loading')}</Text>
+        <View
+          style={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            top: 0,
+            bottom: 0,
+            backgroundColor: "rgba(20,10,40,0.5)",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000,
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: "rgba(0,0,0,0.7)",
+              borderRadius: 16,
+              padding: 24,
+            }}
+          >
+            <Text style={{ color: "#fff", fontSize: 18 }}>
+              {t("home.loading")}
+            </Text>
           </View>
         </View>
       )}
@@ -516,6 +662,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   background: {
+    flex: 1,
+  },
+  gradientOverlay: {
     flex: 1,
   },
   scrollView: {
@@ -532,82 +681,82 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   categoryHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: 16,
   },
   categoryTitle: {
-    color: 'white',
+    color: "white",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   categorySubtitle: {
-    color: '#CCCCCC',
+    color: Colors.textSecondary,
     fontSize: 12,
   },
   rulesButton: {
     borderWidth: 1,
-    borderColor: 'white',
+    borderColor: "white",
     borderRadius: 16,
     paddingHorizontal: 10,
     paddingVertical: 3,
     marginLeft: 8,
   },
   rulesText: {
-    color: 'white',
+    color: "white",
     fontSize: 10,
   },
   gameModesColumn: {
-    width: '100%',
+    width: "100%",
   },
   modeCard: {
-    width: '100%',
+    width: "100%",
     marginBottom: 16,
     borderRadius: 20,
-    overflow: 'hidden',
+    overflow: "hidden",
     height: 120,
   },
   modeGradient: {
     borderRadius: 20,
-    height: '100%',
+    height: "100%",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 5,
     elevation: 5,
   },
   modeContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 20,
     paddingVertical: 10,
-    height: '100%',
+    height: "100%",
   },
   characterContainer: {
     width: 90,
     height: 90,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: 16,
   },
   characterImage: {
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
   },
   modeTextContainer: {
     flex: 1,
     paddingRight: 10,
   },
   modeName: {
-    color: 'white',
+    color: "white",
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 4,
-    fontFamily: 'System',
+    fontFamily: "System",
     letterSpacing: 0.5,
   },
   modeDescription: {
-    color: 'white',
+    color: "white",
     fontSize: 12,
     lineHeight: 14,
   },
@@ -615,45 +764,45 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 4,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     minWidth: 50,
   },
   modeTagText: {
-    color: 'white',
+    color: "white",
     fontSize: 8,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
   },
   gridContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
   },
   gridItem: {
-    width: '48%',
+    width: "48%",
     marginBottom: 16,
   },
   gridModeCard: {
     height: 140,
   },
   gridModeGradient: {
-    height: '100%',
+    height: "100%",
   },
   gridModeContent: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
     padding: 12,
   },
   gridModeTextContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingRight: 0,
   },
   gridModeName: {
     fontSize: 12,
     marginTop: 8,
-    textAlign: 'center',
+    textAlign: "center",
   },
   gridCharacterImage: {
     width: 70,
@@ -667,45 +816,45 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   codeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     marginTop: 24,
     marginBottom: 16,
     paddingHorizontal: 20,
   },
   codeInputContainer: {
     flex: 1,
-    backgroundColor: 'rgba(20, 10, 40, 0.96)',
+    backgroundColor: Colors.backgroundLighter,
     borderRadius: 12,
     borderWidth: 1.5,
-    borderColor: '#3D2956',
+    borderColor: Colors.secondary,
     height: 45,
-    justifyContent: 'center',
+    justifyContent: "center",
     paddingHorizontal: 24,
     marginRight: 16,
-    shadowColor: '#A259FF',
+    shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.12,
     shadowRadius: 12,
     elevation: 6,
   },
   codeInputText: {
-    color: '#E5DFFB',
+    color: Colors.text,
     fontSize: 14,
-    fontWeight: '400',
+    fontWeight: "400",
     letterSpacing: 0.2,
-    fontFamily: 'System',
+    fontFamily: "System",
     padding: 0,
   },
   qrButton: {
     width: 40,
     height: 40,
     borderRadius: 12,
-    overflow: 'hidden',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#A259FF',
+    overflow: "hidden",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.18,
     shadowRadius: 8,
@@ -714,60 +863,102 @@ const styles = StyleSheet.create({
   qrGradient: {
     flex: 1,
     borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 7,
   },
   cardImageBackground: {
     flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
+    justifyContent: "flex-end",
+    alignItems: "center",
     height: 140,
     borderRadius: 20,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   overlay: {
-    width: '100%',
-    backgroundColor: 'rgba(0,0,0,0.35)',
+    width: "100%",
+    backgroundColor: "rgba(0,0,0,0.35)",
     paddingVertical: 12,
-    alignItems: 'center',
+    alignItems: "center",
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
   },
   cardTitle: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
     fontSize: 14,
-    textShadowColor: 'rgba(0,0,0,0.5)',
+    textShadowColor: "rgba(0,0,0,0.5)",
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
   },
   headerRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginRight: 16,
   },
   headerPointsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.2)",
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: 'rgba(255, 215, 0, 0.3)',
+    borderColor: "rgba(255, 215, 0, 0.3)",
   },
   headerPointsText: {
-    color: '#FFD700',
+    color: Colors.tertiary,
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginLeft: 4,
   },
   tagsContainer: {
-    position: 'absolute',
+    position: "absolute",
     top: 8,
     right: 8,
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 4,
+  },
+  // Styles pour les boutons de test de notifications
+  notificationButtonsContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 10,
+    marginVertical: 8,
+    zIndex: 15,
+  },
+  simpleTestButton: {
+    backgroundColor: "#FF6F00",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 15,
+  },
+  simpleTestText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 12,
+  },
+  halloweenTestButton: {
+    backgroundColor: "#DC143C",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 15,
+  },
+  halloweenTestText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 12,
+  },
+  halloweenScheduleButton: {
+    backgroundColor: "#4B1E00",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 15,
+  },
+  halloweenScheduleText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 12,
   },
 });

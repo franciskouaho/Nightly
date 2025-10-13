@@ -8,15 +8,13 @@ import Colors from "../../constants/Colors"
 
 export default function TabLayout() {
   const { user } = useAuth();
-  const colorScheme = useColorScheme() ?? "dark"
-  const colors = Colors[colorScheme]
   
   return (
     <Tabs 
       screenOptions={{ 
         headerShown: false,
         contentStyle: {
-          backgroundColor: colors.gradient.purple.from
+          backgroundColor: Colors.background
         },
         tabBarStyle: { display: 'none' }
       }}

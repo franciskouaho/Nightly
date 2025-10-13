@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, Linking, Modal, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, Linking, Modal, Platform, ImageBackground, Image } from 'react-native';
 import { ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,6 +10,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import { getFirestore, doc, updateDoc } from '@react-native-firebase/firestore';
 import { useAuth } from '@/contexts/AuthContext';
+import HalloweenDecorations from './HalloweenDecorations';
+import HalloweenTheme from '@/constants/themes/Halloween';
 
 interface PaywallModalProps {
   isVisible: boolean;
@@ -120,19 +122,35 @@ export default function PaywallModal({ isVisible, onClose }: PaywallModalProps) 
       visible={isVisible}
       onRequestClose={onClose}
     >
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { zIndex: 10 }]}>
         <StatusBar style="light" />
-        <LinearGradient
-          colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
-          locations={[0, 0.2, 0.5, 0.8, 1]}
+        <ImageBackground
+          source={require("@/assets/halloween/logo.png")}
           style={styles.background}
-        />
+          resizeMode="repeat"
+          imageStyle={{ opacity: 0.3 }}
+        >
+          <LinearGradient
+            colors={[
+              HalloweenTheme.backgroundDarker,
+              HalloweenTheme.secondary,
+              HalloweenTheme.primary,
+              HalloweenTheme.secondary,
+              HalloweenTheme.backgroundDarker,
+            ]}
+            locations={[0, 0.2, 0.5, 0.8, 1]}
+            style={styles.gradientOverlay}
+          >
+            {/* Décorations Halloween */}
+            <View style={styles.halloweenDecorations}>
+              <HalloweenDecorations />
+            </View>
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.contentContainer}
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.header}>
+          <View style={[styles.header, { zIndex: 15 }]}>
             {showCloseButton && (
               <TouchableOpacity style={styles.backButton} onPress={onClose}>
                 <Ionicons name="close" size={24} color="#ffffff" />
@@ -262,6 +280,8 @@ export default function PaywallModal({ isVisible, onClose }: PaywallModalProps) 
             </TouchableOpacity>
           </View>
         </ScrollView>
+          </LinearGradient>
+        </ImageBackground>
       </SafeAreaView>
     </Modal>
   );
@@ -278,6 +298,9 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
   },
+  gradientOverlay: {
+    flex: 1,
+  },
   scrollView: {
     flex: 1,
   },
@@ -291,6 +314,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingTop: 25,
     paddingBottom: 5,
     justifyContent: 'flex-end',
   },
@@ -350,7 +374,7 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: '#694ED6',
+    backgroundColor: HalloweenTheme.secondary,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 6,
@@ -381,9 +405,9 @@ const styles = StyleSheet.create({
     minWidth: 80,
   },
   selectedPlan: {
-    borderColor: '#694ED6',
+    borderColor: '#8B4513',
     borderWidth: 2,
-    backgroundColor: 'rgba(105, 78, 214, 0.1)',
+    backgroundColor: 'rgba(139, 69, 19, 0.1)',
   },
   planBadge: {
     position: 'absolute',
@@ -394,13 +418,13 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   weeklyBadge: {
-    backgroundColor: '#FFD700',
+    backgroundColor: HalloweenTheme.primary,
   },
   monthlyBadge: {
-    backgroundColor: '#9370DB',
+    backgroundColor: HalloweenTheme.secondary,
   },
   annualBadge: {
-    backgroundColor: '#32CD32',
+    backgroundColor: HalloweenTheme.error,
   },
   badgeText: {
     color: '#000',
@@ -437,7 +461,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginVertical: 10,
     overflow: 'hidden',
-    backgroundColor: '#694ED6',
+    backgroundColor: HalloweenTheme.secondary,
   },
   gradientButton: {
     paddingVertical: 6,
@@ -461,5 +485,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     textDecorationLine: 'underline',
+  },
+  halloweenDecorations: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
+    height: '100%',
+    zIndex: 1,
+    pointerEvents: 'none',
   },
 }); 

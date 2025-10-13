@@ -76,6 +76,11 @@ export default function GameRouter() {
         return;
       }
 
+      if (mode === 'quiz-halloween') {
+        router.replace(`/game/quiz-halloween/${id}`);
+        return;
+      }
+
       console.log("[DEBUG GameRouter] Unknown game mode:", mode, "Showing unknownMode alert.");
       Alert.alert(t('game.error'), t('game.unknownMode', { mode }));
     };

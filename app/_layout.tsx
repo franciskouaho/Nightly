@@ -3,8 +3,8 @@ import { Stack } from 'expo-router';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { PaperProvider } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import '@/config/firebase';
-import NotificationService from '@/services/notifications';
+import { ExpoNotificationService } from '@/services/expoNotificationService';
+import HalloweenNotificationScheduler from '@/services/halloweenNotificationScheduler';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { useAppsFlyer } from "@/hooks/useAppsFlyer";
 import analytics from '@react-native-firebase/analytics';
@@ -15,18 +15,12 @@ export default function RootLayout() {
   useIsHasUpdates();
 
   useEffect(() => {
-    NotificationService.initialize();
+    // Initialiser les services de notifications
+    const notificationService = ExpoNotificationService.getInstance();
+    notificationService.initialize();
     
-    // Initialiser Firebase Analytics
-    const initAnalytics = async () => {
-      try {
-        await analytics().setAnalyticsCollectionEnabled(true);
-      } catch (error) {
-        console.error('Erreur lors de l\'initialisation de Firebase Analytics:', error);
-      }
-    };
-    
-    initAnalytics();
+    // Programmer les notifications Halloween pour octobre
+    HalloweenNotificationScheduler.scheduleHalloweenNotifications();
   }, []);
 
   return (

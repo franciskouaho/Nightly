@@ -16,6 +16,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { transformQuestion as transformTrapAnswerQuestion } from '../game/trap-answer/questions';
 import { transformQuestion as transformWordGuessingQuestion } from '../game/word-guessing/questions';
 import { transformQuestion as transformNeverHaveIEverHotQuestion } from '../game/never-have-i-ever-hot/questions';
+import HalloweenDecorations from '@/components/HalloweenDecorations';
+import HalloweenTheme from '@/constants/themes/Halloween';
 
 // Liste des thèmes possibles pour 2 Lettres 1 Mot
 const TWO_LETTERS_ONE_WORD_THEMES = [
@@ -331,6 +333,8 @@ export default function RoomScreen() {
                         router.replace(`/game/two-letters-one-word/${roomData.gameDocId}`);
                     } else if (roomData.gameMode === 'word-guessing') {
                         router.replace(`/game/word-guessing/${roomData.gameDocId}`);
+                    } else if (roomData.gameMode === 'quiz-halloween') {
+                        router.replace(`/game/quiz-halloween/${roomData.gameDocId}`);
                     }
                     return;
                 }
@@ -699,15 +703,28 @@ export default function RoomScreen() {
     }
 
     const minPlayersForGame = room.gameId ? getMinPlayersForGame(room.gameId) : -1; // Calculate minimum players
+    
+    // Fonction pour déterminer si c'est le Quiz Halloween
+    const isHalloweenGame = room?.gameId === 'quiz-halloween';
 
     return (
         <View style={styles.container}>
             <StatusBar style="light" />
             <LinearGradient
-                colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
+                colors={isHalloweenGame ? 
+                    [HalloweenTheme.backgroundDarker, HalloweenTheme.secondary, HalloweenTheme.primary, HalloweenTheme.secondary, HalloweenTheme.backgroundDarker] : // Couleurs Halloween
+                    ["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"] // Couleurs normales
+                }
                 locations={[0, 0.2, 0.5, 0.8, 1]}
                 style={styles.background}
             >
+                {/* Décorations Halloween pour le Quiz Halloween */}
+                {isHalloweenGame && (
+                    <View style={styles.halloweenDecorations}>
+                        <HalloweenDecorations />
+                    </View>
+                )}
+                
                 <View style={styles.topBar}>
                     <View style={styles.topBarRow}>
                         <TouchableOpacity onPress={handleLeaveRoom} style={styles.backButton}>
@@ -720,7 +737,7 @@ export default function RoomScreen() {
                                 onPress={handleInviteFriend}
                             >
                                 <LinearGradient
-                                    colors={["#A259FF", "#C471F5"]}
+                                    colors={isHalloweenGame ? [HalloweenTheme.primary, HalloweenTheme.error] : ["#A259FF", "#C471F5"]}
                                     start={{ x: 0, y: 0 }}
                                     end={{ x: 1, y: 1 }}
                                     style={{ borderRadius: 12, padding: 7 }}
@@ -818,7 +835,7 @@ export default function RoomScreen() {
                                         onPress={() => setShowRoundSelector(!showRoundSelector)}
                                     >
                                         <LinearGradient
-                                            colors={["#7B3FE4", "#8345E6"]}
+                                            colors={isHalloweenGame ? [HalloweenTheme.primary, HalloweenTheme.error] : ["#7B3FE4", "#8345E6"]}
                                             start={{ x: 0, y: 0 }}
                                             end={{ x: 1, y: 0 }}
                                             style={styles.roundSelectorGradient}
@@ -935,6 +952,10 @@ export default function RoomScreen() {
                                     room.players.length < getMinPlayersForGame(room.gameId) && styles.disabledButton
                                 ]}
                                 textStyle={styles.startButtonText}
+                                gradientColors={isHalloweenGame ? 
+                                    [HalloweenTheme.primary, HalloweenTheme.error, HalloweenTheme.backgroundDarker, HalloweenTheme.secondary] : // Couleurs Halloween
+                                    ["#D80B96", "#B707A7", "#A90BB2", "#8E08C1"] // Couleurs normales
+                                }
                             />
                         </View>
                     </>
@@ -949,7 +970,7 @@ export default function RoomScreen() {
                         }}
                     >
                         <LinearGradient
-                            colors={["#A259FF", "#C471F5"]}
+                            colors={isHalloweenGame ? [HalloweenTheme.primary, HalloweenTheme.error] : ["#A259FF", "#C471F5"]}
                             start={{ x: 0, y: 0 }}
                             end={{ x: 1, y: 0 }}
                             style={styles.readyButtonGradient}
@@ -1300,5 +1321,16 @@ const styles = StyleSheet.create<RoomScreenStyles>({
         fontSize: 14,
         marginTop: 5,
         textAlign: 'center',
+    },
+    halloweenDecorations: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: 1,
+        pointerEvents: 'none',
     },
 });

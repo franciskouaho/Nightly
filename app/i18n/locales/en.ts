@@ -147,11 +147,13 @@ const en = {
     codePlaceholder: "Enter the game code",
     loading: "Connecting to the game...",
     categories: {
+      events: "EVENTS",
       nightly_modes: "SUGGESTION OF THE WEEK",
       same_room: "IN THE SAME ROOM",
       online: "REMOTE"
     },
     subtitles: {
+      events: "Special games for special occasions",
       same_room: "To be played in the same room, together!",
       online: "To play even when you are not together"
     },
@@ -198,6 +200,14 @@ const en = {
           free: "FREE"
         }
       },
+      "quiz-halloween": {
+        name: "HALLOWEEN QUIZ 🎃",
+        description: "Test your knowledge about Halloween with scary questions!",
+        tags: {
+          halloween: "HALLOWEEN",
+          premium: "PREMIUM"
+        }
+      },
       "two-letters-one-word": {
         name: "2 Letters 1 Word",
         description: "Find a word that contains the two given letters and matches the theme.",
@@ -237,7 +247,7 @@ const en = {
         name: 'GUESS THE WORD',
         description: 'Have someone guess a word without using the forbidden words... A game of words and speed!',
         tags: {
-          free: 'FREE'
+          premium: 'PREMIUM'
         },
       },
     }
@@ -673,9 +683,9 @@ const en = {
 
   // Paywall
   paywall: {
-    title: 'Nightly Premium',
-    subtitle: 'UNLIMITED ACCESS',
-    tagline: 'PLAY WITHOUT LIMITS',
+    title: '🎃 Nightly Premium 🎃',
+    subtitle: 'HALLOWEEN SPECIAL',
+    tagline: 'PLAY WITHOUT LIMITS IN THE DARKNESS',
     features: {
       unlimited: 'Unlimited access to all modes',
       weekly: 'New cards every week',

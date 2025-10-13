@@ -1,4 +1,6 @@
 // Définition des interfaces
+import HalloweenTheme from '@/constants/themes/Halloween';
+
 export interface GameMode {
     id: string;
     name: string;
@@ -25,6 +27,31 @@ export interface GameCategory {
 // Configuration des catégories de jeu
 export const gameCategories: GameCategory[] = [
     {
+        id: 'events',
+        title: 'ÉVÉNEMENTS',
+        subtitle: 'Jeux spéciaux pour les occasions particulières',
+        games: [
+            {
+                id: 'quiz-halloween',
+                name: 'QUIZ HALLOWEEN 🎃',
+                description: 'Testez vos connaissances sur Halloween avec des questions effrayantes !',
+                image: require('@/assets/jeux/quiz-halloween.png'),
+                colors: [HalloweenTheme.primary, HalloweenTheme.error], // Couleurs Halloween du thème
+                borderColor: HalloweenTheme.primary,
+                shadowColor: HalloweenTheme.error,
+                tags: [{
+                    text: 'home.games.quiz-halloween.tags.halloween',
+                    color: HalloweenTheme.primary
+                }, {
+                    text: 'home.games.quiz-halloween.tags.premium',
+                    color: '#D81B60'
+                }],
+                premium: false,
+                interactive: 'choice'
+            }
+        ]
+    },
+    {
         id: 'nightly_modes',
         title: 'SUGGESTION DE LA SEMAINE',
         subtitle: '',
@@ -47,16 +74,16 @@ export const gameCategories: GameCategory[] = [
             {
                 id: 'listen-but-don-t-judge',
                 name: 'ON ÉCOUTE MAIS ON NE JUGE PAS',
-                description: 'Un mode gratuit pour rigoler tranquillement entre potes.',
+                description: 'Un mode premium pour rigoler tranquillement entre potes.',
                 image: require('@/assets/jeux/on-ecoute-mais-on-juge-pas.png'),
                 colors: ["rgba(17, 34, 78, 0.8)", "rgba(38, 56, 120, 0.9)"],
                 borderColor: "#3B5FD9",
                 shadowColor: "#3B5FD9",
                 tags: [{
-                    text: 'home.games.listen-but-don-t-judge.tags.free',
-                    color: "#8E24AA"
+                    text: 'home.games.listen-but-don-t-judge.tags.premium',
+                    color: "#D81B60"
                 }],
-                premium: false,
+                premium: true,
                 interactive: 'write'
             },
             {
@@ -64,7 +91,7 @@ export const gameCategories: GameCategory[] = [
                 name: '2 Lettres 1 Mot',
                 description: 'Trouvez un mot qui commence par les deux lettres données et correspond au thème.',
                 image: require('@/assets/jeux/two-letters-one-word.png'),
-                colors: ["rgba(26,26,46,0.8)", "rgba(15,52,96,0.9)"],
+                colors: ["rgba(50, 90, 150, 0.8)", "rgba(80, 120, 200, 0.9)"], // Bleu plus clair et visible
                 borderColor: "#1a1a2e",
                 shadowColor: "#0f3460",
                 tags: [{
@@ -74,7 +101,7 @@ export const gameCategories: GameCategory[] = [
                     text: 'home.games.two-letters-one-word.tags.premium',
                     color: '#D81B60'
                 }],
-                premium: false,
+                premium: true,
                 interactive: 'write'
             }
         ]
@@ -123,10 +150,10 @@ export const gameCategories: GameCategory[] = [
                 borderColor: "#2C7A9C",
                 shadowColor: "#2C7A9C",
                 tags: [{
-                    text: 'home.games.word-guessing.tags.free',
-                    color: "#8E24AA"
+                    text: 'home.games.word-guessing.tags.premium',
+                    color: "#D81B60"
                 }],
-                premium: false,
+                premium: true,
                 interactive: 'write'
             }
         ]

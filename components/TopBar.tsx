@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Text, Alert } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Text, Alert, Image } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
@@ -73,6 +73,7 @@ export default function TopBar({
             <Feather name="settings" size={22} color="#FFFFFF" />
           </LinearGradient>
         </TouchableOpacity>
+        
       </View>
     </View>
   );
@@ -88,8 +89,6 @@ const styles = StyleSheet.create({
     marginTop: 50,
     height: 48,
     width: '100%',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(93, 109, 255, 0.3)',
   },
   leftContainer: {
     flexDirection: 'row',
@@ -151,5 +150,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
     textAlign: 'center',
-  }
+  },
 });

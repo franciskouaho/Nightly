@@ -22,8 +22,8 @@
     "preset": "jest-expo"
   },
   "dependencies": {
-    "@expo/vector-icons": "^14.0.2",
-    "@react-native-async-storage/async-storage": "^1.21.0",
+    "@expo/vector-icons": "~14.0.4",
+    "@react-native-async-storage/async-storage": "1.23.1",
     "@react-native-community/netinfo": "^11.3.1",
     "@react-native-firebase/analytics": "^22.1.0",
     "@react-native-firebase/app": "^22.1.0",
@@ -33,7 +33,7 @@
     "@react-native-firebase/storage": "^22.1.0",
     "@react-navigation/bottom-tabs": "^7.2.0",
     "@react-navigation/native": "^7.0.14",
-    "expo": "~52.0.43",
+    "expo": "~52.0.47",
     "expo-application": "~6.0.2",
     "expo-blur": "~14.0.3",
     "expo-build-properties": "~0.13.2",
@@ -73,7 +73,7 @@
     "react-native-reanimated": "~3.16.1",
     "react-native-safe-area-context": "4.12.0",
     "react-native-screens": "~4.4.0",
-    "react-native-svg": "^15.12.0",
+    "react-native-svg": "15.8.0",
     "react-native-web": "~0.19.13"
   },
   "devDependencies": {

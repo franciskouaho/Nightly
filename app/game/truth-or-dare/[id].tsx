@@ -17,6 +17,7 @@ import { usePoints } from '@/hooks/usePoints';
 import GameResults from '@/components/game/GameResults';
 import SkewedButton from '@/app/components/game/SkewedButton';
 import Colors from '@/constants/Colors';
+import HalloweenDecorations from '@/components/HalloweenDecorations';
 
 interface TruthOrDareQuestion { text: string; type: string; }
 
@@ -523,7 +524,11 @@ export default function TruthOrDareGameScreen() {
             colors={["#00B7FF", "#FF6600"]}
             locations={[0, 1]}
             style={StyleSheet.absoluteFillObject}
-          />
+          >
+            {/* Décorations Halloween */}
+            <HalloweenDecorations />
+            
+          </LinearGradient>
           <View style={styles.topContentContainer}>
             <Text style={styles.playerText}>{player?.name || t('game.player', 'Joueur')}</Text>
             <Text style={styles.chooseTaskText}>{t('game.truthOrDare.chooseTask')}</Text>

@@ -1,7 +1,13 @@
-import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import Colors from '@/constants/Colors';
+import { LinearGradient } from "expo-linear-gradient";
+import React from "react";
+import {
+  ActivityIndicator,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 interface RoundedButtonProps {
   title: string;
@@ -19,14 +25,14 @@ interface RoundedButtonProps {
 const RoundedButton: React.FC<RoundedButtonProps> = ({
   title,
   onPress,
-  color = '#5D6DFF',
-  textColor = 'white',
+  color = "#5D6DFF",
+  textColor = "white",
   isLoading = false,
   disabled = false,
   style,
   textStyle,
   icon,
-  gradientColors = ['#D80B96', '#B707A7', '#A90BB2', '#8E08C1']
+  gradientColors = ["#D80B96", "#B707A7", "#A90BB2", "#8E08C1"],
 }) => {
   return (
     <TouchableOpacity
@@ -36,7 +42,7 @@ const RoundedButton: React.FC<RoundedButtonProps> = ({
       activeOpacity={0.8}
     >
       <LinearGradient
-        colors={gradientColors} 
+        colors={gradientColors}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
         style={styles.button}
@@ -61,29 +67,29 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingVertical: 12,
     paddingHorizontal: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     minWidth: 180,
-    alignSelf: 'center',
-    width: '100%',
+    alignSelf: "center",
+    width: "100%",
   },
   disabledButton: {
     opacity: 0.5,
   },
   buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
     fontSize: 16,
-    textAlign: 'center',
+    textAlign: "center",
   },
   contentContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
   },
   iconContainer: {
     marginRight: 8,
-  }
+  },
 });
 
-export default RoundedButton; 
+export default RoundedButton;

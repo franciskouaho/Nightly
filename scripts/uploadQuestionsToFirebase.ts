@@ -7162,6 +7162,286 @@ const questions = {
         }
       ]
     }
+  },
+  'quiz-halloween': {
+    translations: {
+      fr: [
+        {
+          type: "Halloween",
+          question: "Quel est le nom du personnage principal du film 'Halloween' ?",
+          answer: "Michael Myers",
+          traps: ["Jason Voorhees", "Freddy Krueger", "Chucky"]
+        },
+        {
+          type: "Halloween",
+          question: "Dans quelle ville se déroule principalement le film 'Halloween' ?",
+          answer: "Haddonfield",
+          traps: ["Springfield", "Crystal Lake", "Elm Street"]
+        },
+        {
+          type: "Halloween",
+          question: "Quel est l'objet fétiche de Michael Myers ?",
+          answer: "Un couteau de cuisine",
+          traps: ["Une machette", "Des griffes métalliques", "Une hache"]
+        },
+        {
+          type: "Halloween",
+          question: "Quel est le vrai nom de la fête d'Halloween ?",
+          answer: "Samhain",
+          traps: ["Beltane", "Yule", "Imbolc"]
+        },
+        {
+          type: "Halloween",
+          question: "Quel légume était traditionnellement utilisé pour les lanternes avant la citrouille ?",
+          answer: "Le navet",
+          traps: ["Le potiron", "Le chou", "La courge"]
+        },
+        {
+          type: "Halloween",
+          question: "Quel est le nom de la sorcière la plus célèbre d'Halloween ?",
+          answer: "La sorcière de l'Ouest",
+          traps: ["Maléfique", "Cendrillon", "Blanche-Neige"]
+        },
+        {
+          type: "Halloween",
+          question: "Quelle couleur est traditionnellement associée à Halloween ?",
+          answer: "Orange et noir",
+          traps: ["Rouge et noir", "Vert et noir", "Violet et noir"]
+        },
+        {
+          type: "Halloween",
+          question: "Quel animal est souvent associé aux sorcières ?",
+          answer: "Le chat noir",
+          traps: ["La chauve-souris", "L'araignée", "Le hibou"]
+        },
+        {
+          type: "Halloween",
+          question: "Quelle est l'origine celtique d'Halloween ?",
+          answer: "Samhain",
+          traps: ["Beltane", "Lughnasadh", "Imbolc"]
+        },
+        {
+          type: "Halloween",
+          question: "Quel est le nom de la pratique consistant à sculpter des légumes à Halloween ?",
+          answer: "Jack-o'-lantern",
+          traps: ["Pumpkin carving", "Vegetable art", "Halloween sculpture"]
+        },
+        {
+          type: "Halloween",
+          question: "Quel est le nom de la pratique de demander des bonbons le soir d'Halloween ?",
+          answer: "Trick or treat",
+          traps: ["Candy hunt", "Sweet seeking", "Treat begging"]
+        },
+        {
+          type: "Halloween",
+          question: "Quel est le nom du fantôme le plus célèbre de la littérature ?",
+          answer: "Le fantôme de Hamlet",
+          traps: ["Casper", "Le fantôme de Canterville", "Le fantôme de l'Opéra"]
+        },
+        {
+          type: "Halloween",
+          question: "Quelle créature mythique est souvent représentée à Halloween ?",
+          answer: "Le vampire",
+          traps: ["Le loup-garou", "Le zombie", "Le fantôme"]
+        },
+        {
+          type: "Halloween",
+          question: "Quel est le nom de la pratique consistant à se déguiser à Halloween ?",
+          answer: "Costume",
+          traps: ["Déguisement", "Masque", "Travestissement"]
+        },
+        {
+          type: "Halloween",
+          question: "Quelle est la date traditionnelle d'Halloween ?",
+          answer: "31 octobre",
+          traps: ["30 octobre", "1er novembre", "2 novembre"]
+        }
+      ],
+      en: [
+        {
+          type: "Halloween",
+          question: "What is the name of the main character in the 'Halloween' movie?",
+          answer: "Michael Myers",
+          traps: ["Jason Voorhees", "Freddy Krueger", "Chucky"]
+        },
+        {
+          type: "Halloween",
+          question: "In which city does the 'Halloween' movie mainly take place?",
+          answer: "Haddonfield",
+          traps: ["Springfield", "Crystal Lake", "Elm Street"]
+        },
+        {
+          type: "Halloween",
+          question: "What is Michael Myers' signature weapon?",
+          answer: "A kitchen knife",
+          traps: ["A machete", "Metal claws", "An axe"]
+        },
+        {
+          type: "Halloween",
+          question: "What is the real name of the Halloween holiday?",
+          answer: "Samhain",
+          traps: ["Beltane", "Yule", "Imbolc"]
+        },
+        {
+          type: "Halloween",
+          question: "What vegetable was traditionally used for lanterns before the pumpkin?",
+          answer: "Turnip",
+          traps: ["Pumpkin", "Cabbage", "Squash"]
+        },
+        {
+          type: "Halloween",
+          question: "What is the name of the most famous Halloween witch?",
+          answer: "The Wicked Witch of the West",
+          traps: ["Maleficent", "Cinderella", "Snow White"]
+        },
+        {
+          type: "Halloween",
+          question: "What colors are traditionally associated with Halloween?",
+          answer: "Orange and black",
+          traps: ["Red and black", "Green and black", "Purple and black"]
+        },
+        {
+          type: "Halloween",
+          question: "What animal is often associated with witches?",
+          answer: "Black cat",
+          traps: ["Bat", "Spider", "Owl"]
+        },
+        {
+          type: "Halloween",
+          question: "What is the Celtic origin of Halloween?",
+          answer: "Samhain",
+          traps: ["Beltane", "Lughnasadh", "Imbolc"]
+        },
+        {
+          type: "Halloween",
+          question: "What is the name of the practice of carving vegetables at Halloween?",
+          answer: "Jack-o'-lantern",
+          traps: ["Pumpkin carving", "Vegetable art", "Halloween sculpture"]
+        },
+        {
+          type: "Halloween",
+          question: "What is the name of the practice of asking for candy on Halloween night?",
+          answer: "Trick or treat",
+          traps: ["Candy hunt", "Sweet seeking", "Treat begging"]
+        },
+        {
+          type: "Halloween",
+          question: "What is the name of the most famous ghost in literature?",
+          answer: "Hamlet's ghost",
+          traps: ["Casper", "The Canterville Ghost", "The Phantom of the Opera"]
+        },
+        {
+          type: "Halloween",
+          question: "What mythical creature is often represented at Halloween?",
+          answer: "Vampire",
+          traps: ["Werewolf", "Zombie", "Ghost"]
+        },
+        {
+          type: "Halloween",
+          question: "What is the name of the practice of dressing up at Halloween?",
+          answer: "Costume",
+          traps: ["Disguise", "Mask", "Cross-dressing"]
+        },
+        {
+          type: "Halloween",
+          question: "What is the traditional date of Halloween?",
+          answer: "October 31st",
+          traps: ["October 30th", "November 1st", "November 2nd"]
+        }
+      ],
+      es: [
+        {
+          type: "Halloween",
+          question: "¿Cuál es el nombre del personaje principal de la película 'Halloween'?",
+          answer: "Michael Myers",
+          traps: ["Jason Voorhees", "Freddy Krueger", "Chucky"]
+        },
+        {
+          type: "Halloween",
+          question: "¿En qué ciudad se desarrolla principalmente la película 'Halloween'?",
+          answer: "Haddonfield",
+          traps: ["Springfield", "Crystal Lake", "Elm Street"]
+        },
+        {
+          type: "Halloween",
+          question: "¿Cuál es el arma característica de Michael Myers?",
+          answer: "Un cuchillo de cocina",
+          traps: ["Un machete", "Garras metálicas", "Un hacha"]
+        },
+        {
+          type: "Halloween",
+          question: "¿Cuál es el verdadero nombre de la fiesta de Halloween?",
+          answer: "Samhain",
+          traps: ["Beltane", "Yule", "Imbolc"]
+        },
+        {
+          type: "Halloween",
+          question: "¿Qué verdura se usaba tradicionalmente para las linternas antes de la calabaza?",
+          answer: "El nabo",
+          traps: ["La calabaza", "El repollo", "La calabaza de verano"]
+        },
+        {
+          type: "Halloween",
+          question: "¿Cuál es el nombre de la bruja más famosa de Halloween?",
+          answer: "La Bruja Mala del Oeste",
+          traps: ["Maléfica", "Cenicienta", "Blancanieves"]
+        },
+        {
+          type: "Halloween",
+          question: "¿Qué colores se asocian tradicionalmente con Halloween?",
+          answer: "Naranja y negro",
+          traps: ["Rojo y negro", "Verde y negro", "Púrpura y negro"]
+        },
+        {
+          type: "Halloween",
+          question: "¿Qué animal se asocia a menudo con las brujas?",
+          answer: "Gato negro",
+          traps: ["Murciélago", "Araña", "Búho"]
+        },
+        {
+          type: "Halloween",
+          question: "¿Cuál es el origen celta de Halloween?",
+          answer: "Samhain",
+          traps: ["Beltane", "Lughnasadh", "Imbolc"]
+        },
+        {
+          type: "Halloween",
+          question: "¿Cuál es el nombre de la práctica de tallar verduras en Halloween?",
+          answer: "Jack-o'-lantern",
+          traps: ["Tallado de calabaza", "Arte vegetal", "Escultura de Halloween"]
+        },
+        {
+          type: "Halloween",
+          question: "¿Cuál es el nombre de la práctica de pedir dulces en la noche de Halloween?",
+          answer: "Truco o trato",
+          traps: ["Caza de dulces", "Búsqueda de dulces", "Mendigar dulces"]
+        },
+        {
+          type: "Halloween",
+          question: "¿Cuál es el nombre del fantasma más famoso de la literatura?",
+          answer: "El fantasma de Hamlet",
+          traps: ["Casper", "El fantasma de Canterville", "El fantasma de la ópera"]
+        },
+        {
+          type: "Halloween",
+          question: "¿Qué criatura mítica se representa a menudo en Halloween?",
+          answer: "Vampiro",
+          traps: ["Hombre lobo", "Zombie", "Fantasma"]
+        },
+        {
+          type: "Halloween",
+          question: "¿Cuál es el nombre de la práctica de disfrazarse en Halloween?",
+          answer: "Disfraz",
+          traps: ["Disfraz", "Máscara", "Travestismo"]
+        },
+        {
+          type: "Halloween",
+          question: "¿Cuál es la fecha tradicional de Halloween?",
+          answer: "31 de octubre",
+          traps: ["30 de octubre", "1 de noviembre", "2 de noviembre"]
+        }
+      ]
+    }
   }
 };
 

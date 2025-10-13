@@ -147,20 +147,22 @@ const fr = {
     codePlaceholder: "Entre le code de la partie",
     loading: "Connexion à la partie...",
     categories: {
+      events: "ÉVÉNEMENTS",
       nightly_modes: "SUGGESTION DE LA SEMAINE",
       same_room: "DANS LA MÊME PIÈCE",
       online: "À DISTANCE"
     },
     subtitles: {
+      events: "Jeux spéciaux pour les occasions particulières",
       same_room: "À jouer dans la même pièce, ensemble !",
       online: "Pour jouer même quand on n'est pas ensemble"
     },
     games: {
       "listen-but-don-t-judge": {
         name: "ON ÉCOUTE MAIS ON NE JUGE PAS",
-        description: "Un mode gratuit pour rigoler tranquillement entre potes.",
+        description: "Un mode premium pour rigoler tranquillement entre potes.",
         tags: {
-          free: "GRATUIT"
+          premium: "PREMIUM"
         }
       },
       "truth-or-dare": {
@@ -196,6 +198,14 @@ const fr = {
         description: "Un quiz où une mauvaise réponse te fait perdre des points... Pourras-tu éviter les pièges ?",
         tags: {
           free: "GRATUIT"
+        }
+      },
+      "quiz-halloween": {
+        name: "QUIZ HALLOWEEN 🎃",
+        description: "Testez vos connaissances sur Halloween avec des questions effrayantes !",
+        tags: {
+          halloween: "HALLOWEEN",
+          premium: "PREMIUM"
         }
       },
       "two-letters-one-word": {
@@ -237,7 +247,7 @@ const fr = {
         name: 'DEVINE LE MOT',
         description: 'Faites deviner un mot sans utiliser les mots interdits... Un jeu de mots et de rapidité !',
         tags: {
-          free: 'GRATUIT'
+          premium: 'PREMIUM'
         },
       },
     }
@@ -673,9 +683,9 @@ const fr = {
 
   // Paywall
   paywall: {
-    title: 'Nightly Premium',
-    subtitle: 'UNLIMITED ACCESS',
-    tagline: 'JOUEZ SANS LIMITES',
+    title: '🎃 Nightly Premium 🎃',
+    subtitle: 'HALLOWEEN SPECIAL',
+    tagline: 'JOUEZ SANS LIMITES DANS L\'OBSCURITÉ',
     features: {
       unlimited: 'Accès illimité à tous les modes',
       weekly: 'Nouvelles cartes chaque semaine',
