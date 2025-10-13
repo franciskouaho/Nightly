@@ -43,7 +43,7 @@ export default function QuizHalloweenGameOptimized() {
   const { id } = useLocalSearchParams();
   const gameId = typeof id === 'string' ? id : id?.[0] || '';
   const { user } = useAuth();
-  const { gameState, updateGameState } = useGame<HalloweenQuizGameState>(gameId);
+  const { gameState, updateGameState, updatePlayerAnswers } = useGame<HalloweenQuizGameState>(gameId);
   const { awardGamePoints } = usePoints();
   const { isRTL, language } = useLanguage();
 
@@ -333,32 +333,26 @@ export default function QuizHalloweenGameOptimized() {
       }),
     ]).start();
 
-    // Mettre à jour seulement les réponses dans Firebase (pas les scores)
-    const updatedState = {
-      ...gameState,
-      playerAnswers: {
-        ...gameState.playerAnswers,
-        [user.uid]: {
-          answer: answerText,
-          isCorrect,
-          isTrap: !isCorrect,
-          timestamp: Date.now(),
-        },
-      },
+    // Mettre à jour les réponses avec transaction atomique
+    const playerAnswer = {
+      answer: answerText,
+      isCorrect,
+      isTrap: !isCorrect,
+      timestamp: Date.now(),
     };
 
-    console.log('🎃 Mise à jour playerAnswers:', {
+    console.log('🎃 Mise à jour playerAnswers avec transaction:', {
       userId: user.uid,
       answer: answerText,
       isCorrect,
-      currentPlayerAnswers: gameState.playerAnswers,
-      newPlayerAnswers: updatedState.playerAnswers
+      playerAnswer
     });
 
-    updateGameState(updatedState);
+    // Utiliser la fonction transaction atomique
+    updatePlayerAnswers(user.uid, playerAnswer);
     setShowResult(true);
     console.log('🎃 Réponse enregistrée, en attente des autres joueurs...');
-  }, [gameState, user, canAnswer, selectedAnswer, updateLocalScore, updateGameState]);
+  }, [gameState, user, canAnswer, selectedAnswer, updateLocalScore, updatePlayerAnswers]);
 
   // Score actuel mémorisé
   const currentUserScore = useMemo(() => {

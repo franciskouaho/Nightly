@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getFirestore, doc, onSnapshot, updateDoc, getDoc, setDoc } from '@react-native-firebase/firestore';
+import { getFirestore, doc, onSnapshot, updateDoc, getDoc, setDoc, runTransaction } from '@react-native-firebase/firestore';
 import { GameState } from '@/types/gameTypes';
 
 export function useGame<T extends GameState = GameState>(gameId: string) {
@@ -84,5 +84,48 @@ export function useGame<T extends GameState = GameState>(gameId: string) {
     }
   };
 
-  return { gameState, updateGameState };
+  // Fonction spéciale pour mettre à jour playerAnswers avec transaction atomique
+  const updatePlayerAnswers = async (userId: string, answer: any) => {
+    if (!gameId) return;
+    
+    try {
+      const gameRef = doc(db, 'games', gameId);
+      
+      await runTransaction(db, async (transaction) => {
+        const gameSnap = await transaction.get(gameRef);
+        
+        if (!gameSnap.exists()) {
+          throw new Error('Game document does not exist');
+        }
+        
+        const currentData = gameSnap.data() as T;
+        const currentPlayerAnswers = currentData.playerAnswers || {};
+        
+        // Ajouter la nouvelle réponse
+        const updatedPlayerAnswers = {
+          ...currentPlayerAnswers,
+          [userId]: answer
+        };
+        
+        console.log('🔧 Transaction playerAnswers:', {
+          userId,
+          answer,
+          currentPlayerAnswers,
+          updatedPlayerAnswers,
+          totalAnswers: Object.keys(updatedPlayerAnswers).length
+        });
+        
+        // Mettre à jour avec la transaction
+        transaction.update(gameRef, {
+          playerAnswers: updatedPlayerAnswers
+        });
+      });
+      
+      console.log('🔧 Transaction playerAnswers réussie');
+    } catch (error) {
+      console.error('🔧 Erreur transaction playerAnswers:', error);
+    }
+  };
+
+  return { gameState, updateGameState, updatePlayerAnswers };
 } 
