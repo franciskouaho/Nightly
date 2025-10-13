@@ -265,10 +265,7 @@ export default function QuizHalloweenGameOptimized() {
       }
     }
     
-    // Reset le flag quand on change de question
-    if (gameState?.currentQuestion?.id && timer > 0) {
-      timerAtZeroHandled.current = false;
-    }
+    return undefined;
   }, [timer, allPlayersAnswered, gameState?.currentQuestion?.id, handleNextQuestion]);
 
   // Effet optimisé pour passer à la question suivante quand tous ont répondu (Cas 2)
@@ -291,12 +288,13 @@ export default function QuizHalloweenGameOptimized() {
         handleNextQuestion();
       }, 3000);
     }
-    
-    // Reset le flag quand on change de question
-    if (gameState?.currentQuestion?.id && !allPlayersAnswered) {
-      allAnsweredHandled.current = false;
-    }
   }, [allPlayersAnswered, gameState, handleNextQuestion, updateGameState]);
+
+  // Reset les flags quand on change de question
+  useEffect(() => {
+    allAnsweredHandled.current = false;
+    timerAtZeroHandled.current = false;
+  }, [gameState?.currentQuestion?.id]);
 
   // Démarrer le jeu (première question)
   const startNewQuestion = useCallback(() => {
