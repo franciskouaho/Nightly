@@ -186,20 +186,22 @@ export default function QuizHalloweenGameOptimized() {
   // Surveiller les réponses avec useMemo pour éviter les re-renders inutiles
   const allPlayersAnswered = useMemo(() => {
     if (!gameState?.playerAnswers || !gameState?.players) {
-      console.log('🎃 allPlayersAnswered: false - pas de données');
       return false;
     }
     const totalPlayers = gameState.players.length;
     const answeredPlayers = Object.keys(gameState.playerAnswers).length;
     const result = answeredPlayers >= totalPlayers && answeredPlayers > 0;
-    console.log('🎃 Vérification allPlayersAnswered:', {
-      totalPlayers,
-      answeredPlayers,
-      playerAnswers: gameState.playerAnswers,
-      result,
-      _allAnswered: (gameState as any)?._allAnswered,
-      players: gameState.players.map(p => p.id)
-    });
+    
+    // Log seulement quand ça change vraiment
+    if (result && answeredPlayers === totalPlayers) {
+      console.log('🎃 ✅ Tous les joueurs ont répondu:', {
+        totalPlayers,
+        answeredPlayers,
+        playerAnswers: gameState.playerAnswers,
+        players: gameState.players.map(p => p.id)
+      });
+    }
+    
     return result;
   }, [gameState?.playerAnswers, gameState?.players]);
 
@@ -244,11 +246,13 @@ export default function QuizHalloweenGameOptimized() {
     }
   }, [gameState, updateGameState, saveFinalScoresToFirebase, getRandomQuestion]);
 
-  // Effet séparé pour gérer le timer avec allPlayersAnswered
+  // Effet optimisé pour gérer le timer à 0 - évite le spam de logs
+  const timerAtZeroHandled = useRef(false);
+  
   useEffect(() => {
-    console.log('🎃 Effet timer - timer:', timer, 'allPlayersAnswered:', allPlayersAnswered, 'selectedAnswer:', selectedAnswer);
-    if (gameState?.currentQuestion && timer === 0) {
+    if (gameState?.currentQuestion?.id && timer === 0 && !timerAtZeroHandled.current) {
       console.log('🎃 Timer à 0 - vérification des réponses');
+      timerAtZeroHandled.current = true;
       
       // Cas 1: Timer à 0 ET personne n'a répondu → passage automatique
       if (!allPlayersAnswered) {
@@ -260,14 +264,20 @@ export default function QuizHalloweenGameOptimized() {
         console.log('🎃 Temps écoulé mais tous ont répondu - laisser la logique normale gérer');
       }
     }
-  }, [timer, allPlayersAnswered, gameState?.currentQuestion?.id, handleNextQuestion]); // Seulement l'ID
+    
+    // Reset le flag quand on change de question
+    if (gameState?.currentQuestion?.id && timer > 0) {
+      timerAtZeroHandled.current = false;
+    }
+  }, [timer, allPlayersAnswered, gameState?.currentQuestion?.id, handleNextQuestion]);
 
-  // Effet pour passer à la question suivante quand tous ont répondu (Cas 2)
+  // Effet optimisé pour passer à la question suivante quand tous ont répondu (Cas 2)
+  const allAnsweredHandled = useRef(false);
+  
   useEffect(() => {
-    console.log('🎃 Effet tous répondu - allPlayersAnswered:', allPlayersAnswered, '_allAnswered:', (gameState as any)?._allAnswered);
-    // Éviter le spam de logs
-    if (allPlayersAnswered && !(gameState as any)?._allAnswered) {
+    if (allPlayersAnswered && !(gameState as any)?._allAnswered && !allAnsweredHandled.current) {
       console.log('🎃 Tous les joueurs ont répondu - passage à la question suivante après 3s');
+      allAnsweredHandled.current = true;
       
       // Mettre à jour Firebase avec _allAnswered = true
       const updatedState = {
@@ -280,6 +290,11 @@ export default function QuizHalloweenGameOptimized() {
         console.log('🎃 Appel de handleNextQuestion après délai de 3s');
         handleNextQuestion();
       }, 3000);
+    }
+    
+    // Reset le flag quand on change de question
+    if (gameState?.currentQuestion?.id && !allPlayersAnswered) {
+      allAnsweredHandled.current = false;
     }
   }, [allPlayersAnswered, gameState, handleNextQuestion, updateGameState]);
 
