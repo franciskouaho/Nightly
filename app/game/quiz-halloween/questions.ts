@@ -69,13 +69,14 @@ export function useQuizHalloweenQuestions(askedQuestionIdsFromGame: string[]) {
             const transformedQuestions = langData.questions.map((q: any, index: number) => 
               transformHalloweenQuestion(q, index)
             );
-            setQuestions(transformedQuestions);
+            // Mélanger les questions pour éviter le même ordre
+            setQuestions(shuffleArray(transformedQuestions));
           }
         }
       } catch (error) {
         console.error('Erreur lors du chargement des questions Halloween:', error);
         // Questions par défaut si Firebase échoue
-        setQuestions(getDefaultHalloweenQuestions());
+        setQuestions(shuffleArray(getDefaultHalloweenQuestions()));
       }
     };
 
