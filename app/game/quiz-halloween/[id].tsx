@@ -332,10 +332,10 @@ export default function QuizHalloweenGameOptimized() {
             <Text style={styles.subtitle}>Testez vos connaissances effrayantes !</Text>
             <TouchableOpacity style={styles.startButton} onPress={startNewQuestion}>
               <LinearGradient
-                colors={['#FF8C00', '#FF4500', '#DC143C']}
+                colors={['#8B0000', '#4B0082', '#2F1B69']}
                 style={styles.startButtonGradient}
               >
-                <Text style={styles.startButtonText}>Commencer le Quiz 🕷️</Text>
+                <Text style={styles.startButtonText}>🕷️ Commencer le Quiz 🕷️</Text>
               </LinearGradient>
             </TouchableOpacity>
           </View>
@@ -527,22 +527,27 @@ const styles = StyleSheet.create({
   startButton: {
     borderRadius: 25,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    shadowColor: '#8B0000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.6,
+    shadowRadius: 12,
+    elevation: 12,
+    borderWidth: 2,
+    borderColor: '#4B0082',
   },
   startButtonGradient: {
-    paddingVertical: 15,
-    paddingHorizontal: 30,
+    paddingVertical: 18,
+    paddingHorizontal: 35,
     borderRadius: 25,
   },
   startButtonText: {
     color: '#FFF',
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
     textAlign: 'center',
+    textShadowColor: '#000',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
   },
   header: {
     flexDirection: 'row',
