@@ -192,7 +192,15 @@ export default function QuizHalloweenGameOptimized() {
     if (!gameState?.playerAnswers || !gameState?.players) return false;
     const totalPlayers = gameState.players.length;
     const answeredPlayers = Object.keys(gameState.playerAnswers).length;
-    return answeredPlayers >= totalPlayers && answeredPlayers > 0;
+    const result = answeredPlayers >= totalPlayers && answeredPlayers > 0;
+    console.log('🎃 Vérification allPlayersAnswered:', {
+      totalPlayers,
+      answeredPlayers,
+      playerAnswers: gameState.playerAnswers,
+      result,
+      _allAnswered: (gameState as any)?._allAnswered
+    });
+    return result;
   }, [gameState?.playerAnswers, gameState?.players]);
 
   // Fonction optimisée pour passer à la question suivante
@@ -241,14 +249,20 @@ export default function QuizHalloweenGameOptimized() {
     // Éviter le spam de logs
     if (allPlayersAnswered && !(gameState as any)?._allAnswered) {
       console.log('🎃 Tous les joueurs ont répondu - passage à la question suivante');
-      (gameState as any)._allAnswered = true;
+      
+      // Mettre à jour Firebase avec _allAnswered = true
+      const updatedState = {
+        ...gameState,
+        _allAnswered: true,
+      };
+      updateGameState(updatedState);
       
       setTimeout(() => {
         console.log('🎃 Appel de handleNextQuestion après délai de 3s');
         handleNextQuestion();
       }, 3000);
     }
-  }, [allPlayersAnswered, gameState, handleNextQuestion]);
+  }, [allPlayersAnswered, gameState, handleNextQuestion, updateGameState]);
 
   // Démarrer le jeu (première question)
   const startNewQuestion = useCallback(() => {
