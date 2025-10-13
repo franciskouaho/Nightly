@@ -74,19 +74,6 @@ export default function SplashScreen() {
               },
             ]}
           >
-            {/* Toile d'araignée Halloween */}
-            <Image
-              source={require("@/assets/halloween/logo.png")}
-              style={{
-                position: "absolute",
-                top: 10,
-                right: 10,
-                width: 48,
-                height: 48,
-                opacity: 0.7,
-                zIndex: 10,
-              }}
-            />
             <View style={styles.topContent}>
               <View style={styles.mascoContainer}>
                 <Image
