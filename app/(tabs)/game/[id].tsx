@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { goToNextQuestion } from '@/utils/goToNextQuestion';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Alert } from 'react-native';
 import { getFirestore, doc, getDoc } from '@react-native-firebase/firestore';
@@ -14,9 +15,18 @@ export default function GameRouter() {
   const { t } = useTranslation();
   const { language } = useLanguage();
 
+
   useEffect(() => {
     console.log("[DEBUG GameRouter] useEffect triggered. gameRoomId:", gameRoomId, "gameId:", gameId);
     console.log("[DEBUG GameRouter] Current room data (from useGame hook, if available):");
+
+    // Contrôle pour ne pas afficher de nouvelle question si la limite est atteinte
+    // Remplacez gameState par la source réelle si disponible
+    // if (gameState && gameState.currentRound >= gameState.totalRounds) {
+    //   console.log("[DEBUG GameRouter] Limite de questions atteinte, affichage des résultats ou fin de jeu");
+    //   // Ajoutez ici la navigation ou l'affichage de l'écran de fin
+    //   return;
+    // }
 
     const redirect = async () => {
       let mode = gameId;

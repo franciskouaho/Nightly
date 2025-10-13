@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Animated } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -46,6 +47,19 @@ export default function QuizHalloweenGameOptimized() {
   const { gameState, updateGameState, updatePlayerAnswers } = useGame<HalloweenQuizGameState>(gameId);
   const { awardGamePoints } = usePoints();
   const { isRTL, language } = useLanguage();
+
+  // Contrôle pour AppReview persistant
+  const { requestReview } = useInAppReview();
+  useEffect(() => {
+    const checkAndAskReview = async () => {
+      const alreadyAsked = await AsyncStorage.getItem('hasAskedReview');
+      if (gameState?.phase === 'end' && !alreadyAsked) {
+        await requestReview();
+        await AsyncStorage.setItem('hasAskedReview', 'true');
+      }
+    };
+    checkAndAskReview();
+  }, [gameState?.phase, requestReview]);
 
   // Utiliser le hook pour gérer les questions Halloween
   const { questions, getRandomQuestion } = useQuizHalloweenQuestions(gameState?.askedQuestionIds || []);
@@ -212,49 +226,54 @@ export default function QuizHalloweenGameOptimized() {
     return result;
   }, [gameState?.playerAnswers, gameState?.players]);
 
-  // Fonction optimisée pour passer à la question suivante
+  // Correction : Seul l'hôte choisit et enregistre la prochaine question
+  const isHost = user?.uid === gameState?.players[0]?.id;
   const handleNextQuestion = useCallback(() => {
-    console.log('🎃 handleNextQuestion appelé - gameState:', !!gameState);
+    console.log('🎃 handleNextQuestion appelé - gameState:', !!gameState, 'isHost:', isHost);
     if (!gameState || nextQuestionHandled.current) {
       console.log('🎃 handleNextQuestion annulé - pas de gameState ou déjà traité');
       return;
     }
-    
     nextQuestionHandled.current = true;
-    
+
     const nextRound = gameState.currentRound + 1;
     console.log('🎃 Passage à la question suivante - Round:', nextRound, '/', gameState.totalRounds);
-    
+
     if (nextRound <= gameState.totalRounds) {
-      const newQuestion = getRandomQuestion();
-      console.log('🎃 Nouvelle question trouvée:', !!newQuestion);
-      if (newQuestion) {
-        const nextRoundState = {
-          ...gameState,
-          currentRound: nextRound,
-          currentQuestion: newQuestion,
-          askedQuestionIds: [...gameState.askedQuestionIds, newQuestion.id],
-          playerAnswers: {}, // Reset pour la nouvelle question
-          phase: GamePhase.QUESTION,
-          _allAnswered: false,
-        };
-        console.log('🎃 Mise à jour du gameState avec nextRoundState');
-        updateGameState(nextRoundState);
-        setSelectedAnswer(null);
-        setShowResult(false);
-        setCanAnswer(true);
-        setTimer(15);
-        console.log('🎃 Nouvelle question démarrée');
+      if (isHost) {
+        const newQuestion = getRandomQuestion();
+        console.log('🎃 Nouvelle question choisie par l\'hôte:', !!newQuestion);
+        if (newQuestion) {
+          const nextRoundState = {
+            ...gameState,
+            currentRound: nextRound,
+            currentQuestion: newQuestion,
+            askedQuestionIds: [...gameState.askedQuestionIds, newQuestion.id],
+            playerAnswers: {}, // Reset pour la nouvelle question
+            phase: GamePhase.QUESTION,
+            _allAnswered: false,
+          };
+          console.log('🎃 Mise à jour du gameState avec nextRoundState (hôte)');
+          updateGameState(nextRoundState);
+        } else {
+          console.log('🎃 Aucune nouvelle question disponible (hôte)');
+        }
       } else {
-        console.log('🎃 Aucune nouvelle question disponible');
+        console.log('🎃 Ce client n\'est pas l\'hôte, il attend la question depuis Firebase');
       }
-    } else if (gameState.phase === GamePhase.END && !gameEndHandled.current) {
+      setSelectedAnswer(null);
+      setShowResult(false);
+      setCanAnswer(true);
+      setTimer(15);
+    } else {
       // Fin du jeu - sauvegarder les scores finaux (une seule fois)
-      console.log('🎃 Fin du jeu - sauvegarde des scores');
-      gameEndHandled.current = true;
-      saveFinalScoresToFirebase();
+      if (!gameEndHandled.current) {
+        console.log('🎃 Fin du jeu - sauvegarde des scores');
+        gameEndHandled.current = true;
+        saveFinalScoresToFirebase();
+      }
     }
-  }, [gameState, updateGameState, saveFinalScoresToFirebase, getRandomQuestion]);
+  }, [gameState, updateGameState, saveFinalScoresToFirebase, getRandomQuestion, isHost]);
 
   // Effet optimisé pour gérer le timer à 0 - évite le spam de logs
   const timerAtZeroHandled = useRef(false);
@@ -471,7 +490,7 @@ export default function QuizHalloweenGameOptimized() {
           </View>
           <View style={styles.roundContainer}>
             <Text style={styles.roundText}>
-              Question {gameState.currentRound + 1}/{gameState.totalRounds}
+              Question {Math.min(gameState.currentRound, gameState.totalRounds)}/{gameState.totalRounds}
             </Text>
           </View>
         </View>
