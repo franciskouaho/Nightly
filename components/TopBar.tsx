@@ -60,6 +60,23 @@ export default function TopBar({
       
       <View style={styles.rightContainer}>
         <PointsDisplay size="medium" />
+        
+        {/* Bouton d'achat de skins */}
+        <TouchableOpacity
+          style={styles.iconButton}
+          onPress={() => router.push('/(tabs)/settings/buy-assets')}
+        >
+          <LinearGradient
+            colors={["#FFD700", "#FFA500"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{ borderRadius: 12, padding: 7 }}
+          >
+            <Feather name="shopping-bag" size={22} color="#FFFFFF" />
+          </LinearGradient>
+        </TouchableOpacity>
+        
+        {/* Bouton settings */}
         <TouchableOpacity
           style={styles.iconButton}
           onPress={() => router.push('/(tabs)/profil')}

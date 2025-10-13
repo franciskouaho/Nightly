@@ -3,7 +3,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { usePoints } from "@/hooks/usePoints";
 import { Asset, useUnlockedAssets } from "@/hooks/useUnlockedAssets";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { doc, getFirestore, updateDoc } from "@react-native-firebase/firestore";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "@/config/firebase";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -189,7 +190,6 @@ export default function BuyAssetsScreen() {
     if (!user) return;
 
     try {
-      const db = getFirestore();
       const userRef = doc(db, "users", user.uid);
 
       // Mettre à jour l'avatar de l'utilisateur

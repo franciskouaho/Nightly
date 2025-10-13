@@ -185,25 +185,6 @@ export default function ProfileScreen() {
             />
           </TouchableOpacity>
 
-          {/* Nouveau bouton pour acheter des assets */}
-          <TouchableOpacity
-            style={styles.settingItem}
-            onPress={() => router.push("../settings/buy-assets")}
-          >
-            <MaterialCommunityIcons
-              name="shopping"
-              size={24}
-              color="rgba(255,255,255,0.9)"
-            />
-            <Text style={styles.settingText}>
-              {t("profile.buyAssetsTitle")}
-            </Text>
-            <MaterialCommunityIcons
-              name="chevron-right"
-              size={24}
-              color="rgba(255,255,255,0.7)"
-            />
-          </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.settingItem}
