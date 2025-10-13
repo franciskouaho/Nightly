@@ -196,7 +196,7 @@ export default function QuizHalloweenGameOptimized() {
           currentQuestion: newQuestion,
           askedQuestionIds: [...gameState.askedQuestionIds, newQuestion.id],
           playerAnswers: {}, // Reset pour la nouvelle question
-          phase: 'playing' as GamePhase,
+          phase: GamePhase.QUESTION,
           _allAnswered: false,
         };
         console.log('🎃 Mise à jour du gameState avec nextRoundState');
@@ -216,11 +216,18 @@ export default function QuizHalloweenGameOptimized() {
     }
   }, [gameState, updateGameState, saveFinalScoresToFirebase, getRandomQuestion]);
 
+  // Effet pour démarrer la première question quand le jeu commence
+  useEffect(() => {
+    if (gameState && gameState.phase === GamePhase.QUESTION && !gameState.currentQuestion) {
+      console.log('🎃 Démarrage de la première question');
+      handleNextQuestion();
+    }
+  }, [gameState?.phase, gameState?.currentQuestion, handleNextQuestion]);
+
   // Effet pour passer à la question suivante quand tous ont répondu
   useEffect(() => {
-    console.log('🎃 Vérification allPlayersAnswered:', allPlayersAnswered, '_allAnswered:', (gameState as any)?._allAnswered);
-    
-    if (allPlayersAnswered && !(gameState as any)._allAnswered) {
+    // Éviter le spam de logs
+    if (allPlayersAnswered && !(gameState as any)?._allAnswered) {
       console.log('🎃 Tous les joueurs ont répondu - passage à la question suivante');
       (gameState as any)._allAnswered = true;
       
