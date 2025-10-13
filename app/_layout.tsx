@@ -9,12 +9,16 @@ import { LanguageProvider } from '@/contexts/LanguageContext';
 import { useAppsFlyer } from "@/hooks/useAppsFlyer";
 import analytics from '@react-native-firebase/analytics';
 import { useIsHasUpdates } from "@/hooks/useIsHasUpdates";
+import { ModernStatusBar } from '@/utils/ModernStatusBar';
 
 export default function RootLayout() {
   useAppsFlyer();
   useIsHasUpdates();
 
   useEffect(() => {
+    // Configuration Android 15 - StatusBar moderne
+    ModernStatusBar.configureForAndroid15();
+    
     // Initialiser les services de notifications
     const notificationService = ExpoNotificationService.getInstance();
     notificationService.initialize();
