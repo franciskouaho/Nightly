@@ -448,6 +448,9 @@ export default function RoomScreen() {
             // CORRECTION: Initialiser l'historique des joueurs avec des tableaux vides au lieu de pré-remplir avec des 0
             const initialPlayersHistory: { [playerId: string]: number[] } = {};
 
+            // Logique spéciale pour Quiz Halloween - commence en phase waiting
+            const isQuizHalloween = room.gameId === 'quiz-halloween';
+
             // Logique spécifique au jeu "Two Letters One Word"
             if (room.gameId === 'two-letters-one-word') {
                 console.log('[DEBUG] Démarrage du jeu Two Letters One Word');
@@ -542,9 +545,6 @@ export default function RoomScreen() {
                 console.log('[DEBUG ROOM] transformedFirstQuestion:', transformedFirstQuestion);
 
                 console.log(`[DEBUG] Démarrage du jeu ${room.gameId} - Phase Question/Action`);
-                
-                // Logique spéciale pour Quiz Halloween - commence en phase waiting
-                const isQuizHalloween = room.gameId === 'quiz-halloween';
                 
                 gameDataToSet = {
                     gameMode: room.gameId,
