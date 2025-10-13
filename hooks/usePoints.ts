@@ -1,23 +1,20 @@
+import { db } from "@/config/firebase";
 import { useAuth } from "@/contexts/AuthContext";
+import { GameMode, Player } from "@/types/gameTypes";
 import {
-  getFirestore,
-  doc,
-  getDoc,
-  updateDoc,
-  collection,
-  query,
-  orderBy,
-  getDocs,
-  limit as firestoreLimit,
-  increment,
-  writeBatch,
-  serverTimestamp,
   addDoc,
-  where
+  collection,
+  doc,
+  limit as firestoreLimit,
+  getDoc,
+  getDocs,
+  orderBy,
+  query,
+  serverTimestamp,
+  updateDoc,
+  where,
 } from "@react-native-firebase/firestore";
-import { getFunctions, httpsCallable } from 'firebase/functions';
-import { Player, GameMode } from "@/types/gameTypes";
-import { PointsTransaction } from "@/types/types";
+import { httpsCallable } from "firebase/functions";
 
 // Types pour la configuration des points
 type PointsConfig = {
@@ -30,54 +27,58 @@ type PointsConfig = {
 
 // Configuration des points pour chaque jeu
 export const GAME_POINTS_CONFIG: PointsConfig = {
-  'genius-or-liar': {
+  "genius-or-liar": {
     firstPlace: 25,
     secondPlace: 15,
     thirdPlace: 10,
   },
-  'never-have-i-ever-hot': {
+  "never-have-i-ever-hot": {
     firstPlace: 30,
     secondPlace: 20,
     thirdPlace: 10,
   },
-  'truth-or-dare': {
+  "truth-or-dare": {
     firstPlace: 20,
     secondPlace: 10,
     thirdPlace: 5,
   },
-  'the-hidden-village': {
+  "the-hidden-village": {
     firstPlace: 50,
     secondPlace: 30,
     thirdPlace: 15,
   },
-  'trap-answer': {
+  "trap-answer": {
     firstPlace: 25,
     secondPlace: 15,
     thirdPlace: 10,
   },
-  'listen-but-don-t-judge': {
+  "listen-but-don-t-judge": {
     firstPlace: 30,
     secondPlace: 20,
     thirdPlace: 10,
   },
-  'word-guessing': {
+  "word-guessing": {
     firstPlace: 3,
     secondPlace: 2,
-    thirdPlace: 1
+    thirdPlace: 1,
   },
-  'quiz-halloween': {
+  "quiz-halloween": {
     firstPlace: 30,
     secondPlace: 20,
     thirdPlace: 10,
-  }
+  },
 };
 
 export const usePoints = () => {
   const { user } = useAuth();
-  const db = getFirestore();
-  const functions = getFunctions();
+  // db is imported from config/firebase
+  // cloudFunctions est l'instance native des fonctions Firebase
 
-  const addPointsToUser = async (userId: string, pointsToAdd: number, reason?: string) => {
+  const addPointsToUser = async (
+    userId: string,
+    pointsToAdd: number,
+    reason?: string,
+  ) => {
     if (!userId) {
       console.error("User ID is required to add points.");
       return;
@@ -109,7 +110,9 @@ export const usePoints = () => {
           timestamp: serverTimestamp(),
         });
 
-        console.log(`Successfully added ${pointsToAdd} points to user ${userId}. New total: ${newPoints}`);
+        console.log(
+          `Successfully added ${pointsToAdd} points to user ${userId}. New total: ${newPoints}`,
+        );
         return newPoints;
       } else {
         console.error(`User document with ID ${userId} not found.`);
@@ -158,13 +161,13 @@ export const usePoints = () => {
         transactionsRef,
         where("userId", "==", userId),
         orderBy("timestamp", "desc"),
-        firestoreLimit(limit)
+        firestoreLimit(limit),
       );
-      
+
       const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
+      return snapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       }));
     } catch (error) {
       console.error("Error getting point transactions:", error);
@@ -172,9 +175,14 @@ export const usePoints = () => {
     }
   };
 
-  const awardLumiCoins = async (userId: string, amount: number, reason: string, rank_name: string) => {
+  const awardLumiCoins = async (
+    userId: string,
+    amount: number,
+    reason: string,
+    rank_name: string,
+  ) => {
     try {
-      const awardLumiCoinsFn = httpsCallable(functions, 'awardLumiCoins');
+      const awardLumiCoinsFn = httpsCallable(cloudFunctions, "awardLumiCoins");
       await awardLumiCoinsFn({ userId, amount, reason, rank_name });
     } catch (error) {
       console.error("Erreur lors de l'attribution des LumiCoins:", error);
@@ -182,7 +190,12 @@ export const usePoints = () => {
   };
 
   // Nouvelle fonction pour attribuer les points de fin de partie
-  const awardGamePoints = async (gameId: string, gameMode: GameMode, players: Player[], scores: Record<string, number>) => {
+  const awardGamePoints = async (
+    gameId: string,
+    gameMode: GameMode,
+    players: Player[],
+    scores: Record<string, number>,
+  ) => {
     if (!gameId || !gameMode || !players || !scores) {
       console.error("Missing required parameters for awarding game points");
       return;
@@ -195,21 +208,26 @@ export const usePoints = () => {
     }
 
     // Trier les joueurs par score
-    const sortedPlayers = [...players].sort((a, b) => (scores[b.id] || 0) - (scores[a.id] || 0));
+    const sortedPlayers = [...players].sort(
+      (a, b) => (scores[b.id] || 0) - (scores[a.id] || 0),
+    );
 
     // Attribuer les points aux 3 premiers
     for (let i = 0; i < Math.min(3, sortedPlayers.length); i++) {
       const player = sortedPlayers[i];
       if (!player) continue;
 
-      const points = i === 0 ? gameConfig.firstPlace : 
-                    i === 1 ? gameConfig.secondPlace : 
-                    gameConfig.thirdPlace;
+      const points =
+        i === 0
+          ? gameConfig.firstPlace
+          : i === 1
+            ? gameConfig.secondPlace
+            : gameConfig.thirdPlace;
 
       await addPointsToUser(
         player.id,
         points,
-        `${gameMode} - ${i + 1}${i === 0 ? 'er' : 'ème'} place`
+        `${gameMode} - ${i + 1}${i === 0 ? "er" : "ème"} place`,
       );
     }
   };
@@ -221,6 +239,6 @@ export const usePoints = () => {
     getPointTransactions,
     awardGamePoints,
     awardLumiCoins,
-    GAME_POINTS_CONFIG
+    GAME_POINTS_CONFIG,
   };
-}; 
+};
