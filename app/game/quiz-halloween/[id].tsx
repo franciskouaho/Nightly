@@ -90,9 +90,13 @@ export default function QuizHalloweenGameOptimized() {
   // Synchroniser les scores locaux avec gameState
   // Synchronisation des scores avec useMemo pour éviter les re-renders
   const firebaseScores = useMemo(() => gameState?.scores || {}, [gameState?.scores]);
+  const lastSyncedScores = useRef<string>('');
   
   useEffect(() => {
-    if (Object.keys(firebaseScores).length > 0) {
+    const scoresKey = JSON.stringify(firebaseScores);
+    if (Object.keys(firebaseScores).length > 0 && scoresKey !== lastSyncedScores.current) {
+      lastSyncedScores.current = scoresKey;
+      
       setLocalScores(prevScores => {
         // Utiliser les scores de Firebase comme source de vérité
         const mergedScores = { ...firebaseScores };
@@ -114,7 +118,10 @@ export default function QuizHalloweenGameOptimized() {
     setLocalScores(prevScores => {
       const currentScore = prevScores[userId] || 0;
       const newScore = isCorrect ? currentScore + 1 : currentScore;
-      console.log('🎃 Score local mis à jour:', userId, 'de', currentScore, 'à', newScore);
+      // Log seulement si le score change vraiment
+      if (newScore !== currentScore) {
+        console.log('🎃 Score local mis à jour:', userId, 'de', currentScore, 'à', newScore);
+      }
       
       // Synchroniser immédiatement avec Firebase
       const updatedScores = {
@@ -370,7 +377,8 @@ export default function QuizHalloweenGameOptimized() {
   // Score actuel mémorisé
   const currentUserScore = useMemo(() => {
     const score = localScores[user?.uid || ''] || 0;
-    console.log('🎃 Score actuel calculé:', score, 'pour user:', user?.uid, 'localScores:', localScores);
+    // Log seulement en mode debug si nécessaire
+    // console.log('🎃 Score actuel calculé:', score, 'pour user:', user?.uid, 'localScores:', localScores);
     return score;
   }, [localScores, user?.uid]);
 
