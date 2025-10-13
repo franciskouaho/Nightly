@@ -88,7 +88,7 @@ export const gameCategories: GameCategory[] = [
             },
             {
                 id: 'two-letters-one-word',
-                name: '2 Lettres 1 Mot',
+                name: '2 LETTRES 1 MOT',
                 description: 'Trouvez un mot qui commence par les deux lettres données et correspond au thème.',
                 image: require('@/assets/jeux/two-letters-one-word.png'),
                 colors: ["rgba(50, 90, 150, 0.8)", "rgba(80, 120, 200, 0.9)"], // Bleu plus clair et visible

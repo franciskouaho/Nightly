@@ -194,7 +194,7 @@ const fr = {
         }
       },
       "trap-answer": {
-        name: "Question Piège",
+        name: "QUESTION PIÈGE",
         description: "Un quiz où une mauvaise réponse te fait perdre des points... Pourras-tu éviter les pièges ?",
         tags: {
           free: "GRATUIT"
@@ -209,7 +209,7 @@ const fr = {
         }
       },
       "two-letters-one-word": {
-        name: "2 Lettres 1 Mot",
+        name: "2 LETTRES 1 MOT",
         description: "Trouvez un mot qui contient les deux lettres données et correspond au thème.",
         tags: {
           free: "GRATUIT",
