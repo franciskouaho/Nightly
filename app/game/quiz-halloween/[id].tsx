@@ -215,10 +215,12 @@ export default function QuizHalloweenGameOptimized() {
   // Fonction optimisée pour passer à la question suivante
   const handleNextQuestion = useCallback(() => {
     console.log('🎃 handleNextQuestion appelé - gameState:', !!gameState);
-    if (!gameState) {
-      console.log('🎃 handleNextQuestion annulé - pas de gameState');
+    if (!gameState || nextQuestionHandled.current) {
+      console.log('🎃 handleNextQuestion annulé - pas de gameState ou déjà traité');
       return;
     }
+    
+    nextQuestionHandled.current = true;
     
     const nextRound = gameState.currentRound + 1;
     console.log('🎃 Passage à la question suivante - Round:', nextRound, '/', gameState.totalRounds);
@@ -257,6 +259,8 @@ export default function QuizHalloweenGameOptimized() {
   // Effet optimisé pour gérer le timer à 0 - évite le spam de logs
   const timerAtZeroHandled = useRef(false);
   const gameEndHandled = useRef(false);
+  const questionChangeHandled = useRef(false);
+  const nextQuestionHandled = useRef(false);
   
   useEffect(() => {
     if (gameState?.currentQuestion?.id && timer === 0 && !timerAtZeroHandled.current) {
@@ -304,6 +308,7 @@ export default function QuizHalloweenGameOptimized() {
     allAnsweredHandled.current = false;
     timerAtZeroHandled.current = false;
     gameEndHandled.current = false; // Reset aussi le flag de fin de jeu
+    nextQuestionHandled.current = false; // Reset le flag de passage à la question suivante
   }, [gameState?.currentQuestion?.id]);
 
   // Démarrer le jeu (première question)
