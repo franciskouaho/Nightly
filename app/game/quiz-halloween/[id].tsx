@@ -160,7 +160,7 @@ export default function QuizHalloweenGameOptimized() {
 
   // Timer optimisé avec useCallback
   useEffect(() => {
-    if (gameState?.currentQuestion && !selectedAnswer) {
+    if (gameState?.currentQuestion) {
       console.log('🎃 Timer démarré pour nouvelle question');
       setTimer(15);
       setCanAnswer(true);
@@ -181,7 +181,7 @@ export default function QuizHalloweenGameOptimized() {
       console.log('🎃 Timer arrêté car réponse donnée');
     }
     return undefined;
-  }, [gameState?.currentQuestion, selectedAnswer]);
+  }, [gameState?.currentQuestion]);
 
   // Surveiller les réponses avec useMemo pour éviter les re-renders inutiles
   const allPlayersAnswered = useMemo(() => {
@@ -346,6 +346,14 @@ export default function QuizHalloweenGameOptimized() {
         },
       },
     };
+
+    console.log('🎃 Mise à jour playerAnswers:', {
+      userId: user.uid,
+      answer: answerText,
+      isCorrect,
+      currentPlayerAnswers: gameState.playerAnswers,
+      newPlayerAnswers: updatedState.playerAnswers
+    });
 
     updateGameState(updatedState);
     setShowResult(true);
