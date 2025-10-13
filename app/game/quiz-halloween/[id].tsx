@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Animated } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -37,7 +37,7 @@ interface HalloweenQuizGameState {
   timer: number | null;
 }
 
-export default function QuizHalloweenGame() {
+export default function QuizHalloweenGameOptimized() {
   const { t } = useTranslation();
   const router = useRouter();
   const { id } = useLocalSearchParams();
@@ -50,13 +50,16 @@ export default function QuizHalloweenGame() {
   // Utiliser le hook pour gérer les questions Halloween
   const { questions, getRandomQuestion } = useQuizHalloweenQuestions(gameState?.askedQuestionIds || []);
 
+  // États locaux optimisés
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [isAnswerCorrect, setIsAnswerCorrect] = useState(false);
   const [animationValue] = useState(new Animated.Value(0));
-  const [timer, setTimer] = useState(15); // Timer de 15 secondes pour répondre
-  const [canAnswer, setCanAnswer] = useState(true); // Peut répondre immédiatement
-  const [currentScores, setCurrentScores] = useState<Record<string, number>>({});
+  const [timer, setTimer] = useState(15);
+  const [canAnswer, setCanAnswer] = useState(true);
+  
+  // Scores locaux - seulement mis à jour localement, sauvegardés à la fin
+  const [localScores, setLocalScores] = useState<Record<string, number>>({});
 
   // Initialiser le jeu si nécessaire
   useEffect(() => {
@@ -82,7 +85,49 @@ export default function QuizHalloweenGame() {
     }
   }, [gameState, updateGameState]);
 
-  // Timer pour répondre à la question
+  // Initialiser les scores locaux une seule fois
+  useEffect(() => {
+    if (gameState?.scores && Object.keys(localScores).length === 0) {
+      setLocalScores(gameState.scores);
+    }
+  }, [gameState?.scores, localScores]);
+
+  // Fonction optimisée pour mettre à jour le score local
+  const updateLocalScore = useCallback((userId: string, isCorrect: boolean) => {
+    setLocalScores(prevScores => {
+      const currentScore = prevScores[userId] || 0;
+      const newScore = isCorrect ? currentScore + 1 : currentScore;
+      console.log('🎃 Score local mis à jour:', userId, 'de', currentScore, 'à', newScore);
+      return {
+        ...prevScores,
+        [userId]: newScore,
+      };
+    });
+  }, []);
+
+  // Fonction pour sauvegarder les scores finaux dans Firebase
+  const saveFinalScoresToFirebase = useCallback(async () => {
+    if (!gameState || Object.keys(localScores).length === 0) return;
+    
+    try {
+      console.log('🎃 Sauvegarde des scores finaux:', localScores);
+      
+      const finalState = {
+        ...gameState,
+        scores: localScores,
+        phase: 'end' as GamePhase,
+      };
+      
+      await updateGameState(finalState);
+      await awardGamePoints(gameId, 'quiz-halloween', gameState.players, localScores);
+      
+      console.log('✅ Scores finaux sauvegardés avec succès');
+    } catch (error) {
+      console.error('❌ Erreur lors de la sauvegarde des scores:', error);
+    }
+  }, [gameState, localScores, updateGameState, awardGamePoints, gameId]);
+
+  // Timer optimisé avec useCallback
   useEffect(() => {
     if (gameState?.currentQuestion && !selectedAnswer) {
       console.log('🎃 Timer démarré pour nouvelle question');
@@ -92,10 +137,8 @@ export default function QuizHalloweenGame() {
       const timerInterval = setInterval(() => {
         setTimer((prevTimer) => {
           if (prevTimer <= 1) {
-            // Temps écoulé, vérifier si tous les joueurs ont répondu
-            console.log('🎃 Temps écoulé - vérification des réponses');
+            console.log('🎃 Temps écoulé');
             clearInterval(timerInterval);
-            // Ne pas passer automatiquement, attendre que tous répondent
             return 0;
           }
           return prevTimer - 1;
@@ -109,85 +152,50 @@ export default function QuizHalloweenGame() {
     return undefined;
   }, [gameState?.currentQuestion, selectedAnswer]);
 
-  // Surveiller les changements dans playerAnswers pour vérifier si tous ont répondu
+  // Surveiller les réponses avec useMemo pour éviter les re-renders inutiles
+  const allPlayersAnswered = useMemo(() => {
+    if (!gameState?.playerAnswers || !gameState?.players) return false;
+    const totalPlayers = gameState.players.length;
+    const answeredPlayers = Object.keys(gameState.playerAnswers).length;
+    return answeredPlayers >= totalPlayers && answeredPlayers > 0;
+  }, [gameState?.playerAnswers, gameState?.players]);
+
+  // Effet pour passer à la question suivante quand tous ont répondu
   useEffect(() => {
-    if (gameState?.playerAnswers && gameState?.players && gameState?.currentQuestion) {
-      const totalPlayers = gameState.players.length;
-      const answeredPlayers = Object.keys(gameState.playerAnswers).length;
-      
-      // Éviter le spam - seulement log si le nombre de réponses change
-      if (answeredPlayers !== (gameState as any)._lastAnsweredCount) {
-        console.log('🎃 Surveillance des réponses - Joueurs:', totalPlayers, 'Réponses:', answeredPlayers);
-        (gameState as any)._lastAnsweredCount = answeredPlayers;
-      }
-      
-      if (answeredPlayers >= totalPlayers && answeredPlayers > 0 && !(gameState as any)._allAnswered) {
-        console.log('🎃 Tous les joueurs ont répondu - passage automatique à la question suivante');
-        (gameState as any)._allAnswered = true;
-        // Attendre 3 secondes pour que tout le monde voie le résultat
-        setTimeout(() => {
-          handleNextQuestion(gameState.scores);
-        }, 3000);
-      }
-    }
-  }, [gameState?.playerAnswers]);
-
-  // Fonction pour vérifier si tous les joueurs ont répondu
-  const checkAllPlayersAnswered = (currentState: any) => {
-    if (!currentState || !currentState.players || !currentState.playerAnswers) return;
-    
-    const totalPlayers = currentState.players.length;
-    const answeredPlayers = Object.keys(currentState.playerAnswers).length;
-    
-    console.log('🎃 Vérification des réponses - Joueurs:', totalPlayers, 'Réponses:', answeredPlayers);
-    
-    if (answeredPlayers >= totalPlayers) {
+    if (allPlayersAnswered && !(gameState as any)._allAnswered) {
       console.log('🎃 Tous les joueurs ont répondu - passage à la question suivante');
-      // Attendre 3 secondes pour que tout le monde voie le résultat
+      (gameState as any)._allAnswered = true;
+      
       setTimeout(() => {
-        handleNextQuestion(currentState.scores);
+        handleNextQuestion();
       }, 3000);
-    } else {
-      console.log('🎃 En attente des autres joueurs...');
     }
-  };
+  }, [allPlayersAnswered, gameState]);
 
-  // Fonction pour passer à la question suivante
-  const handleNextQuestion = (updatedScores?: Record<string, number>) => {
+  // Fonction optimisée pour passer à la question suivante
+  const handleNextQuestion = useCallback(() => {
     if (!gameState) return;
     
-    const scoresToUse = updatedScores || gameState.scores;
-    console.log('🎃 handleNextQuestion - currentRound:', gameState.currentRound, 'totalRounds:', gameState.totalRounds);
-    console.log('🎃 Scores reçus:', updatedScores);
-    console.log('🎃 Scores gameState:', gameState.scores);
-    console.log('🎃 Scores utilisés:', scoresToUse);
+    console.log('🎃 Passage à la question suivante - Round:', gameState.currentRound, '/', gameState.totalRounds);
     
     if (gameState.currentRound < gameState.totalRounds) {
       const nextRoundState = {
         ...gameState,
         currentRound: gameState.currentRound + 1,
-        scores: scoresToUse,
+        playerAnswers: {}, // Reset pour la nouvelle question
+        _allAnswered: false,
       };
-      console.log('🎃 Passage à la question suivante - nouveau round:', nextRoundState.currentRound);
       updateGameState(nextRoundState);
       startNewQuestion();
     } else {
-      // Fin du jeu
-      console.log('🎃 Fin du jeu atteinte');
-      const finalState = {
-        ...gameState,
-        phase: 'end' as GamePhase,
-        scores: scoresToUse,
-      };
-      updateGameState(finalState);
-      
-      // Attribuer des points
-      awardGamePoints(gameId, 'quiz-halloween', gameState.players, scoresToUse);
+      // Fin du jeu - sauvegarder les scores finaux
+      console.log('🎃 Fin du jeu - sauvegarde des scores');
+      saveFinalScoresToFirebase();
     }
-  };
+  }, [gameState, updateGameState, saveFinalScoresToFirebase]);
 
   // Démarrer une nouvelle question
-  const startNewQuestion = () => {
+  const startNewQuestion = useCallback(() => {
     const newQuestion = getRandomQuestion();
     if (newQuestion && gameState) {
       const updatedState = {
@@ -196,7 +204,7 @@ export default function QuizHalloweenGame() {
         askedQuestionIds: [...gameState.askedQuestionIds, newQuestion.id],
         playerAnswers: {},
         phase: 'playing' as GamePhase,
-        _allAnswered: false, // Réinitialiser le flag pour la nouvelle question
+        _allAnswered: false,
       };
       updateGameState(updatedState);
       setSelectedAnswer(null);
@@ -204,16 +212,20 @@ export default function QuizHalloweenGame() {
       setCanAnswer(true);
       setTimer(15);
     }
-  };
+  }, [gameState, getRandomQuestion, updateGameState]);
 
-  // Soumettre une réponse
-  const submitAnswer = (answerText: string) => {
+  // Soumettre une réponse - optimisé
+  const submitAnswer = useCallback((answerText: string) => {
     if (!gameState?.currentQuestion || !user || !gameState.currentQuestion.answers || !canAnswer || selectedAnswer) return;
 
     console.log('🎃 Réponse soumise:', answerText);
     setSelectedAnswer(answerText);
+    
     const isCorrect = gameState.currentQuestion.answers.find(a => a.text === answerText)?.isCorrect || false;
     setIsAnswerCorrect(isCorrect);
+
+    // Mettre à jour le score local (pas Firebase)
+    updateLocalScore(user.uid, isCorrect);
 
     // Animation Halloween
     Animated.sequence([
@@ -229,18 +241,9 @@ export default function QuizHalloweenGame() {
       }),
     ]).start();
 
-    // Mettre à jour le score
-    const currentScore = gameState.scores[user.uid] || 0;
-    const newScore = isCorrect ? currentScore + 1 : currentScore;
-    
-    console.log('🎃 Score - Réponse correcte:', isCorrect, 'Score actuel:', currentScore, 'Nouveau score:', newScore);
-
+    // Mettre à jour seulement les réponses dans Firebase (pas les scores)
     const updatedState = {
       ...gameState,
-      scores: {
-        ...gameState.scores,
-        [user.uid]: newScore,
-      },
       playerAnswers: {
         ...gameState.playerAnswers,
         [user.uid]: {
@@ -254,9 +257,13 @@ export default function QuizHalloweenGame() {
 
     updateGameState(updatedState);
     setShowResult(true);
-
     console.log('🎃 Réponse enregistrée, en attente des autres joueurs...');
-  };
+  }, [gameState, user, canAnswer, selectedAnswer, updateLocalScore, updateGameState]);
+
+  // Score actuel mémorisé
+  const currentUserScore = useMemo(() => {
+    return localScores[user?.uid || ''] || 0;
+  }, [localScores, user?.uid]);
 
   if (!gameState) {
     return (
@@ -300,7 +307,7 @@ export default function QuizHalloweenGame() {
     return (
       <GameResults
         players={gameState.players}
-        scores={gameState.scores}
+        scores={localScores} // Utiliser les scores locaux
         userId={user?.uid || ''}
         colors={['#2D1810', '#8B4513', '#D2691E']}
       />
@@ -334,7 +341,7 @@ export default function QuizHalloweenGame() {
           <View style={styles.scoreContainer}>
             <Text style={styles.scoreLabel}>Score</Text>
             <Text style={styles.scoreValue}>
-              {gameState.scores[user?.uid || ''] || 0} 🎃
+              {currentUserScore} 🎃
             </Text>
           </View>
           <View style={styles.roundContainer}>
