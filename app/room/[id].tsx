@@ -338,6 +338,11 @@ export default function RoomScreen() {
                     }
                     return;
                 }
+                // Redirection spéciale pour Quiz Halloween en phase waiting
+                else if (roomData.status === 'waiting' && roomData.gameDocId && roomData.gameMode === 'quiz-halloween') {
+                    router.replace(`/game/quiz-halloween/${roomData.gameDocId}`);
+                    return;
+                }
             } else {
                 Alert.alert('Erreur', 'Salle introuvable');
                 router.back();
@@ -537,10 +542,14 @@ export default function RoomScreen() {
                 console.log('[DEBUG ROOM] transformedFirstQuestion:', transformedFirstQuestion);
 
                 console.log(`[DEBUG] Démarrage du jeu ${room.gameId} - Phase Question/Action`);
+                
+                // Logique spéciale pour Quiz Halloween - commence en phase waiting
+                const isQuizHalloween = room.gameId === 'quiz-halloween';
+                
                 gameDataToSet = {
                     gameMode: room.gameId,
                     players: playersForGameDoc,
-                    status: 'playing',
+                    status: isQuizHalloween ? 'waiting' : 'playing',
                     currentRound: 1,
                     totalRounds: selectedRounds,
                     createdAt: new Date().toISOString(),
@@ -551,9 +560,9 @@ export default function RoomScreen() {
                     naughtyAnswers: {}, // Peut être spécifique à certains jeux, laisser pour l'instant si c'était là
                     targetPlayer: initialTargetPlayer, // Définir le premier joueur comme cible initiale
                     currentPlayerId: initialCurrentPlayerId, // Initialiser currentPlayerId de manière sécurisée
-                    currentQuestion: transformedFirstQuestion, // Utiliser la question transformée
-                    askedQuestionIds: [transformedFirstQuestion.id], // Ajouter l'ID de la première question à la liste des questions posées
-                    phase: GamePhase.QUESTION, // Commence en phase de question/action (nom ajusté pour clarté)
+                    currentQuestion: isQuizHalloween ? null : transformedFirstQuestion, // Pas de question initiale pour Quiz Halloween
+                    askedQuestionIds: isQuizHalloween ? [] : [transformedFirstQuestion.id], // Pas de questions posées pour Quiz Halloween
+                    phase: isQuizHalloween ? 'waiting' : GamePhase.QUESTION, // Phase waiting pour Quiz Halloween
                 };
             }
 
@@ -569,7 +578,7 @@ export default function RoomScreen() {
 
             // Mettre à jour la salle avec l'ID du document de jeu et le mode de jeu
             await updateDoc(doc(db, 'rooms', room.id), {
-                status: 'playing',
+                status: isQuizHalloween ? 'waiting' : 'playing',
                 gameDocId: gameDocId,
                 gameMode: room.gameId
             });
