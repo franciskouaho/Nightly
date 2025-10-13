@@ -306,7 +306,7 @@ export default function QuizHalloweenGameOptimized() {
     return score;
   }, [localScores, user?.uid]);
 
-  if (!gameState) {
+  if (!gameState || gameState.phase === GamePhase.LOADING) {
     return (
       <View style={styles.container}>
         <LinearGradient

@@ -3,7 +3,24 @@ import { getFirestore, doc, onSnapshot, updateDoc, getDoc, setDoc } from '@react
 import { GameState } from '@/types/gameTypes';
 
 export function useGame<T extends GameState = GameState>(gameId: string) {
-  const [gameState, setGameState] = useState<T | null>(null);
+  const [gameState, setGameState] = useState<T | null>(() => {
+    // Initialiser avec un état par défaut pour éviter les flashes
+    return {
+      phase: 'LOADING',
+      currentRound: 0,
+      totalRounds: 3,
+      targetPlayer: null,
+      currentQuestion: null,
+      answers: [],
+      players: [],
+      scores: {},
+      theme: '',
+      timer: null,
+      questions: [],
+      askedQuestionIds: [],
+      history: {},
+    } as T;
+  });
   const db = getFirestore();
 
   useEffect(() => {

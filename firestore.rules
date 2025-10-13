@@ -2,11 +2,6 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // RÈGLES TEMPORAIREMENT PERMISSIVES POUR DEBUG
-    // TODO: Sécuriser après résolution des problèmes
-    
-    // Règles pour TOUTES les collections - accès complet temporaire
     match /{document=**} {
       allow read, write, create, update, delete: if true;
     }
