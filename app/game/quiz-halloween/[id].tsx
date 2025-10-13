@@ -168,12 +168,8 @@ export default function QuizHalloweenGameOptimized() {
       const timerInterval = setInterval(() => {
         setTimer((prevTimer) => {
           if (prevTimer <= 1) {
-            console.log('🎃 Temps écoulé - passage automatique à la question suivante');
+            console.log('🎃 Temps écoulé - arrêt du timer');
             clearInterval(timerInterval);
-            // Passer automatiquement à la question suivante
-            setTimeout(() => {
-              handleNextQuestion();
-            }, 1000);
             return 0;
           }
           return prevTimer - 1;
@@ -243,6 +239,23 @@ export default function QuizHalloweenGameOptimized() {
       saveFinalScoresToFirebase();
     }
   }, [gameState, updateGameState, saveFinalScoresToFirebase, getRandomQuestion]);
+
+  // Effet séparé pour gérer le timer avec allPlayersAnswered
+  useEffect(() => {
+    if (gameState?.currentQuestion && !selectedAnswer && timer === 0) {
+      console.log('🎃 Timer à 0 - vérification si tous ont répondu');
+      
+      // Vérifier si tous les joueurs ont répondu avant de passer à la question suivante
+      if (!allPlayersAnswered) {
+        console.log('🎃 Temps écoulé et pas tous répondu - passage automatique');
+        setTimeout(() => {
+          handleNextQuestion();
+        }, 1000);
+      } else {
+        console.log('🎃 Temps écoulé mais tous ont répondu - laisser la logique normale gérer');
+      }
+    }
+  }, [timer, allPlayersAnswered, gameState?.currentQuestion, selectedAnswer, handleNextQuestion]);
 
   // Effet pour passer à la question suivante quand tous ont répondu
   useEffect(() => {
