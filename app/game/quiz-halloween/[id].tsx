@@ -175,27 +175,20 @@ export default function QuizHalloweenGameOptimized() {
     return answeredPlayers >= totalPlayers && answeredPlayers > 0;
   }, [gameState?.playerAnswers, gameState?.players]);
 
-  // Effet pour passer à la question suivante quand tous ont répondu
-  useEffect(() => {
-    if (allPlayersAnswered && !(gameState as any)._allAnswered) {
-      console.log('🎃 Tous les joueurs ont répondu - passage à la question suivante');
-      (gameState as any)._allAnswered = true;
-      
-      setTimeout(() => {
-        handleNextQuestion();
-      }, 3000);
-    }
-  }, [allPlayersAnswered, gameState]);
-
   // Fonction optimisée pour passer à la question suivante
   const handleNextQuestion = useCallback(() => {
-    if (!gameState) return;
+    console.log('🎃 handleNextQuestion appelé - gameState:', !!gameState);
+    if (!gameState) {
+      console.log('🎃 handleNextQuestion annulé - pas de gameState');
+      return;
+    }
     
     const nextRound = gameState.currentRound + 1;
     console.log('🎃 Passage à la question suivante - Round:', nextRound, '/', gameState.totalRounds);
     
     if (nextRound <= gameState.totalRounds) {
       const newQuestion = getRandomQuestion();
+      console.log('🎃 Nouvelle question trouvée:', !!newQuestion);
       if (newQuestion) {
         const nextRoundState = {
           ...gameState,
@@ -206,11 +199,15 @@ export default function QuizHalloweenGameOptimized() {
           phase: 'playing' as GamePhase,
           _allAnswered: false,
         };
+        console.log('🎃 Mise à jour du gameState avec nextRoundState');
         updateGameState(nextRoundState);
         setSelectedAnswer(null);
         setShowResult(false);
         setCanAnswer(true);
         setTimer(15);
+        console.log('🎃 Nouvelle question démarrée');
+      } else {
+        console.log('🎃 Aucune nouvelle question disponible');
       }
     } else {
       // Fin du jeu - sauvegarder les scores finaux
@@ -218,6 +215,21 @@ export default function QuizHalloweenGameOptimized() {
       saveFinalScoresToFirebase();
     }
   }, [gameState, updateGameState, saveFinalScoresToFirebase, getRandomQuestion]);
+
+  // Effet pour passer à la question suivante quand tous ont répondu
+  useEffect(() => {
+    console.log('🎃 Vérification allPlayersAnswered:', allPlayersAnswered, '_allAnswered:', (gameState as any)?._allAnswered);
+    
+    if (allPlayersAnswered && !(gameState as any)._allAnswered) {
+      console.log('🎃 Tous les joueurs ont répondu - passage à la question suivante');
+      (gameState as any)._allAnswered = true;
+      
+      setTimeout(() => {
+        console.log('🎃 Appel de handleNextQuestion après délai de 3s');
+        handleNextQuestion();
+      }, 3000);
+    }
+  }, [allPlayersAnswered, gameState, handleNextQuestion]);
 
   // Démarrer une nouvelle question
   const startNewQuestion = useCallback(() => {
