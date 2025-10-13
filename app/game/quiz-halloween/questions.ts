@@ -153,6 +153,71 @@ function getDefaultHalloweenQuestions(): TrapQuestion[] {
         { text: 'Le chou', isCorrect: false, isTrap: true },
         { text: 'La courge', isCorrect: false, isTrap: true },
       ])
+    },
+    {
+      id: 'halloween_default_6',
+      text: 'Quel est le nom de la sorcière dans "Blanche-Neige" ?',
+      theme: 'Halloween',
+      roundNumber: 1,
+      question: 'Quel est le nom de la sorcière dans "Blanche-Neige" ?',
+      answers: shuffleArray([
+        { text: 'La Reine Maléfique', isCorrect: true, isTrap: false },
+        { text: 'Maléfique', isCorrect: false, isTrap: true },
+        { text: 'La Sorcière Blanche', isCorrect: false, isTrap: true },
+        { text: 'Cruella', isCorrect: false, isTrap: true },
+      ])
+    },
+    {
+      id: 'halloween_default_7',
+      text: 'Dans quel pays est née la tradition d\'Halloween ?',
+      theme: 'Halloween',
+      roundNumber: 1,
+      question: 'Dans quel pays est née la tradition d\'Halloween ?',
+      answers: shuffleArray([
+        { text: 'L\'Irlande', isCorrect: true, isTrap: false },
+        { text: 'Les États-Unis', isCorrect: false, isTrap: true },
+        { text: 'L\'Angleterre', isCorrect: false, isTrap: true },
+        { text: 'L\'Écosse', isCorrect: false, isTrap: true },
+      ])
+    },
+    {
+      id: 'halloween_default_8',
+      text: 'Quel animal est associé aux sorcières ?',
+      theme: 'Halloween',
+      roundNumber: 1,
+      question: 'Quel animal est associé aux sorcières ?',
+      answers: shuffleArray([
+        { text: 'Le chat noir', isCorrect: true, isTrap: false },
+        { text: 'La chouette', isCorrect: false, isTrap: true },
+        { text: 'Le corbeau', isCorrect: false, isTrap: true },
+        { text: 'Le hibou', isCorrect: false, isTrap: true },
+      ])
+    },
+    {
+      id: 'halloween_default_9',
+      text: 'Quel est le nom du fantôme dans "Casper" ?',
+      theme: 'Halloween',
+      roundNumber: 1,
+      question: 'Quel est le nom du fantôme dans "Casper" ?',
+      answers: shuffleArray([
+        { text: 'Casper', isCorrect: true, isTrap: false },
+        { text: 'Slimer', isCorrect: false, isTrap: true },
+        { text: 'Boo', isCorrect: false, isTrap: true },
+        { text: 'Ghost', isCorrect: false, isTrap: true },
+      ])
+    },
+    {
+      id: 'halloween_default_10',
+      text: 'Quelle couleur est traditionnellement associée à Halloween ?',
+      theme: 'Halloween',
+      roundNumber: 1,
+      question: 'Quelle couleur est traditionnellement associée à Halloween ?',
+      answers: shuffleArray([
+        { text: 'Orange et noir', isCorrect: true, isTrap: false },
+        { text: 'Rouge et noir', isCorrect: false, isTrap: true },
+        { text: 'Violet et vert', isCorrect: false, isTrap: true },
+        { text: 'Jaune et orange', isCorrect: false, isTrap: true },
+      ])
     }
   ];
 }
