@@ -14,6 +14,7 @@ import GameResults from '@/components/game/GameResults';
 import { usePoints } from '@/hooks/usePoints';
 import { useLanguage } from '@/contexts/LanguageContext';
 import HalloweenDecorations from '@/components/HalloweenDecorations';
+import { useInAppReview } from '@/hooks/useInAppReview';
 
 interface HalloweenQuizGameState {
   phase: GamePhase;
