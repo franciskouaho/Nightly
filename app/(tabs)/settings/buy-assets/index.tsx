@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   marketplaceTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
     color: "white",
     marginBottom: 15,
@@ -376,18 +376,18 @@ const styles = StyleSheet.create({
   },
   assetCardName: {
     color: "white",
-    fontSize: 14,
+    fontSize: 11,
     fontWeight: "bold",
     textAlign: "center",
   },
   assetCardCost: {
     color: "#FFD700",
-    fontSize: 12,
+    fontSize: 10,
     marginTop: 2,
   },
   assetCardOwned: {
     color: "#A0EEB5",
-    fontSize: 12,
+    fontSize: 10,
     marginTop: 2,
     fontWeight: "bold",
   },
@@ -402,7 +402,7 @@ const styles = StyleSheet.create({
   buyButtonText: {
     color: "white",
     fontWeight: "bold",
-    fontSize: 12,
+    fontSize: 10,
   },
   buyButtonDisabled: {
     backgroundColor: "#2D283B",
@@ -419,7 +419,7 @@ const styles = StyleSheet.create({
   equipButtonText: {
     color: "#0E1117",
     fontWeight: "bold",
-    fontSize: 12,
+    fontSize: 10,
   },
   ownedButtonPlaceholder: {
     height: 30, // Adjust height to match button height
