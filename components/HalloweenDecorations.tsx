@@ -272,14 +272,14 @@ const styles = StyleSheet.create({
     position: 'absolute',
     justifyContent: 'center',
     alignItems: 'center',
-    opacity: 0.5, // Augmenté pour être bien visibles sur les cartes de jeux
+    opacity: 0.2, // Réduit pour être moins visible et ne pas gêner la lisibilité
   },
   webRay: {
     position: 'absolute',
     width: 1,
     height: '50%',
     backgroundColor: '#E0E0E0',
-    opacity: 0.8,
+    opacity: 0.4, // Réduit pour être moins visible
     transformOrigin: 'bottom center',
   },
   ray1: { transform: [{ rotate: '0deg' }] },
@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: '#E0E0E0',
     borderRadius: 50,
-    opacity: 0.6,
+    opacity: 0.3, // Réduit pour être moins visible
   },
   circle1: {
     width: '60%',

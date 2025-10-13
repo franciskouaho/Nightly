@@ -54,6 +54,9 @@ export default function QuizHalloweenGame() {
   const [showResult, setShowResult] = useState(false);
   const [isAnswerCorrect, setIsAnswerCorrect] = useState(false);
   const [animationValue] = useState(new Animated.Value(0));
+  const [timer, setTimer] = useState(15); // Timer de 15 secondes pour répondre
+  const [canAnswer, setCanAnswer] = useState(true); // Peut répondre immédiatement
+  const [currentScores, setCurrentScores] = useState<Record<string, number>>({});
 
   // Initialiser le jeu si nécessaire
   useEffect(() => {
@@ -79,6 +82,110 @@ export default function QuizHalloweenGame() {
     }
   }, [gameState, updateGameState]);
 
+  // Timer pour répondre à la question
+  useEffect(() => {
+    if (gameState?.currentQuestion && !selectedAnswer) {
+      console.log('🎃 Timer démarré pour nouvelle question');
+      setTimer(15);
+      setCanAnswer(true);
+      
+      const timerInterval = setInterval(() => {
+        setTimer((prevTimer) => {
+          if (prevTimer <= 1) {
+            // Temps écoulé, vérifier si tous les joueurs ont répondu
+            console.log('🎃 Temps écoulé - vérification des réponses');
+            clearInterval(timerInterval);
+            // Ne pas passer automatiquement, attendre que tous répondent
+            return 0;
+          }
+          return prevTimer - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(timerInterval);
+    } else if (selectedAnswer) {
+      console.log('🎃 Timer arrêté car réponse donnée');
+    }
+    return undefined;
+  }, [gameState?.currentQuestion, selectedAnswer]);
+
+  // Surveiller les changements dans playerAnswers pour vérifier si tous ont répondu
+  useEffect(() => {
+    if (gameState?.playerAnswers && gameState?.players && gameState?.currentQuestion) {
+      const totalPlayers = gameState.players.length;
+      const answeredPlayers = Object.keys(gameState.playerAnswers).length;
+      
+      // Éviter le spam - seulement log si le nombre de réponses change
+      if (answeredPlayers !== (gameState as any)._lastAnsweredCount) {
+        console.log('🎃 Surveillance des réponses - Joueurs:', totalPlayers, 'Réponses:', answeredPlayers);
+        (gameState as any)._lastAnsweredCount = answeredPlayers;
+      }
+      
+      if (answeredPlayers >= totalPlayers && answeredPlayers > 0 && !(gameState as any)._allAnswered) {
+        console.log('🎃 Tous les joueurs ont répondu - passage automatique à la question suivante');
+        (gameState as any)._allAnswered = true;
+        // Attendre 3 secondes pour que tout le monde voie le résultat
+        setTimeout(() => {
+          handleNextQuestion(gameState.scores);
+        }, 3000);
+      }
+    }
+  }, [gameState?.playerAnswers]);
+
+  // Fonction pour vérifier si tous les joueurs ont répondu
+  const checkAllPlayersAnswered = (currentState: any) => {
+    if (!currentState || !currentState.players || !currentState.playerAnswers) return;
+    
+    const totalPlayers = currentState.players.length;
+    const answeredPlayers = Object.keys(currentState.playerAnswers).length;
+    
+    console.log('🎃 Vérification des réponses - Joueurs:', totalPlayers, 'Réponses:', answeredPlayers);
+    
+    if (answeredPlayers >= totalPlayers) {
+      console.log('🎃 Tous les joueurs ont répondu - passage à la question suivante');
+      // Attendre 3 secondes pour que tout le monde voie le résultat
+      setTimeout(() => {
+        handleNextQuestion(currentState.scores);
+      }, 3000);
+    } else {
+      console.log('🎃 En attente des autres joueurs...');
+    }
+  };
+
+  // Fonction pour passer à la question suivante
+  const handleNextQuestion = (updatedScores?: Record<string, number>) => {
+    if (!gameState) return;
+    
+    const scoresToUse = updatedScores || gameState.scores;
+    console.log('🎃 handleNextQuestion - currentRound:', gameState.currentRound, 'totalRounds:', gameState.totalRounds);
+    console.log('🎃 Scores reçus:', updatedScores);
+    console.log('🎃 Scores gameState:', gameState.scores);
+    console.log('🎃 Scores utilisés:', scoresToUse);
+    
+    if (gameState.currentRound < gameState.totalRounds) {
+      const nextRoundState = {
+        ...gameState,
+        currentRound: gameState.currentRound + 1,
+        scores: scoresToUse,
+      };
+      console.log('🎃 Passage à la question suivante - nouveau round:', nextRoundState.currentRound);
+      updateGameState(nextRoundState);
+      startNewQuestion();
+    } else {
+      // Fin du jeu
+      console.log('🎃 Fin du jeu atteinte');
+      const finalState = {
+        ...gameState,
+        phase: 'end' as GamePhase,
+        scores: scoresToUse,
+      };
+      updateGameState(finalState);
+      
+      // Attribuer des points
+      awardGamePoints(gameId, 'quiz-halloween', gameState.players, scoresToUse);
+    }
+  };
+
   // Démarrer une nouvelle question
   const startNewQuestion = () => {
     const newQuestion = getRandomQuestion();
@@ -89,17 +196,21 @@ export default function QuizHalloweenGame() {
         askedQuestionIds: [...gameState.askedQuestionIds, newQuestion.id],
         playerAnswers: {},
         phase: 'playing' as GamePhase,
+        _allAnswered: false, // Réinitialiser le flag pour la nouvelle question
       };
       updateGameState(updatedState);
       setSelectedAnswer(null);
       setShowResult(false);
+      setCanAnswer(true);
+      setTimer(15);
     }
   };
 
   // Soumettre une réponse
   const submitAnswer = (answerText: string) => {
-    if (!gameState?.currentQuestion || !user) return;
+    if (!gameState?.currentQuestion || !user || !gameState.currentQuestion.answers || !canAnswer || selectedAnswer) return;
 
+    console.log('🎃 Réponse soumise:', answerText);
     setSelectedAnswer(answerText);
     const isCorrect = gameState.currentQuestion.answers.find(a => a.text === answerText)?.isCorrect || false;
     setIsAnswerCorrect(isCorrect);
@@ -121,6 +232,8 @@ export default function QuizHalloweenGame() {
     // Mettre à jour le score
     const currentScore = gameState.scores[user.uid] || 0;
     const newScore = isCorrect ? currentScore + 1 : currentScore;
+    
+    console.log('🎃 Score - Réponse correcte:', isCorrect, 'Score actuel:', currentScore, 'Nouveau score:', newScore);
 
     const updatedState = {
       ...gameState,
@@ -133,6 +246,7 @@ export default function QuizHalloweenGame() {
         [user.uid]: {
           answer: answerText,
           isCorrect,
+          isTrap: !isCorrect,
           timestamp: Date.now(),
         },
       },
@@ -141,27 +255,7 @@ export default function QuizHalloweenGame() {
     updateGameState(updatedState);
     setShowResult(true);
 
-    // Passer à la question suivante après 3 secondes
-    setTimeout(() => {
-      if (gameState.currentRound < gameState.totalRounds) {
-        const nextRoundState = {
-          ...updatedState,
-          currentRound: gameState.currentRound + 1,
-        };
-        updateGameState(nextRoundState);
-        startNewQuestion();
-      } else {
-        // Fin du jeu
-        const finalState = {
-          ...updatedState,
-          phase: 'finished' as GamePhase,
-        };
-        updateGameState(finalState);
-        
-        // Attribuer des points
-        awardGamePoints(user.uid, newScore * 10);
-      }
-    }, 3000);
+    console.log('🎃 Réponse enregistrée, en attente des autres joueurs...');
   };
 
   if (!gameState) {
@@ -202,13 +296,13 @@ export default function QuizHalloweenGame() {
     );
   }
 
-  if (gameState.phase === 'finished') {
+  if (gameState.phase === 'end') {
     return (
       <GameResults
-        gameId={gameId}
-        gameMode="quiz-halloween"
         players={gameState.players}
         scores={gameState.scores}
+        userId={user?.uid || ''}
+        colors={['#2D1810', '#8B4513', '#D2691E']}
       />
     );
   }
@@ -267,9 +361,19 @@ export default function QuizHalloweenGame() {
           <Text style={styles.questionText}>{currentQuestion.question}</Text>
         </Animated.View>
 
+        {/* Timer pour répondre */}
+        {!selectedAnswer && (
+          <View style={styles.timerContainer}>
+            <View style={styles.timerCircle}>
+              <Text style={styles.timerText}>{timer}</Text>
+            </View>
+            <Text style={styles.timerLabel}>Temps pour répondre</Text>
+          </View>
+        )}
+
         {/* Réponses */}
         <View style={styles.answersContainer}>
-          {currentQuestion.answers.map((answer, index) => {
+          {currentQuestion.answers && currentQuestion.answers.length > 0 ? currentQuestion.answers.map((answer, index) => {
             const isSelected = selectedAnswer === answer.text;
             const showCorrectness = showResult && isSelected;
             
@@ -294,7 +398,7 @@ export default function QuizHalloweenGame() {
                 disabled={!!selectedAnswer}
               >
                 <LinearGradient
-                  colors={buttonColors}
+                  colors={buttonColors as [string, string, ...string[]]}
                   style={styles.answerButtonGradient}
                 >
                   <Text style={styles.answerText}>{answer.text}</Text>
@@ -309,7 +413,11 @@ export default function QuizHalloweenGame() {
                 </LinearGradient>
               </TouchableOpacity>
             );
-          })}
+          }) : (
+            <View style={styles.noAnswersContainer}>
+              <Text style={styles.noAnswersText}>🎃 Aucune réponse disponible 🎃</Text>
+            </View>
+          )}
         </View>
 
         {/* Message de résultat */}
@@ -484,6 +592,55 @@ const styles = StyleSheet.create({
   resultSubtext: {
     color: '#FFD700',
     fontSize: 14,
+    textAlign: 'center',
+    fontStyle: 'italic',
+  },
+  noAnswersContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    borderRadius: 15,
+  },
+  noAnswersText: {
+    color: '#FFF',
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  timerContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 20,
+    paddingVertical: 20,
+  },
+  timerCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(255, 140, 0, 0.2)',
+    borderWidth: 3,
+    borderColor: '#FF8C00',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#FF8C00',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  timerText: {
+    color: '#FF8C00',
+    fontSize: 32,
+    fontWeight: 'bold',
+    textShadowColor: '#000',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 4,
+  },
+  timerLabel: {
+    color: '#FFD700',
+    fontSize: 16,
+    fontWeight: '600',
+    marginTop: 10,
     textAlign: 'center',
     fontStyle: 'italic',
   },

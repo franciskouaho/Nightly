@@ -64,6 +64,11 @@ export const GAME_POINTS_CONFIG: PointsConfig = {
     firstPlace: 3,
     secondPlace: 2,
     thirdPlace: 1
+  },
+  'quiz-halloween': {
+    firstPlace: 30,
+    secondPlace: 20,
+    thirdPlace: 10,
   }
 };
 

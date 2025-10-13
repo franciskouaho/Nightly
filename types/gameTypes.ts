@@ -40,7 +40,8 @@ export type GameMode =
   | 'genius-or-liar'
   | 'the-hidden-village'
   | 'trap-answer'
-  | 'listen-but-don-t-judge';
+  | 'listen-but-don-t-judge'
+  | 'quiz-halloween';
 
 export interface GameState {
   phase: GamePhase;

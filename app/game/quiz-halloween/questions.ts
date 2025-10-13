@@ -22,7 +22,7 @@ export const transformHalloweenQuestion = (question: any, index: number): TrapQu
 
 // Hook personnalisé pour les questions de Quiz Halloween
 export function useQuizHalloweenQuestions(askedQuestionIdsFromGame: string[]) {
-  const [questions, setQuestions] = useState<TrapQuestion[]>([]);
+  const [questions, setQuestions] = useState<TrapQuestion[]>(getDefaultHalloweenQuestions());
   const { isRTL, language } = useLanguage();
 
   // Fonction pour obtenir une question aléatoire non posée

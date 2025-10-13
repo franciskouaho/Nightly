@@ -586,6 +586,7 @@ export default function RoomScreen() {
                 case 'genius-or-liar':
                 case 'two-letters-one-word':
                 case 'word-guessing':
+                case 'quiz-halloween':
                     router.replace(`/game/${room.gameId}/${gameDocId}`);
                     break;
                 default:
