@@ -243,9 +243,9 @@ export default function QuizHalloweenGameOptimized() {
   // Effet séparé pour gérer le timer avec allPlayersAnswered
   useEffect(() => {
     if (gameState?.currentQuestion && !selectedAnswer && timer === 0) {
-      console.log('🎃 Timer à 0 - vérification si tous ont répondu');
+      console.log('🎃 Timer à 0 - vérification des réponses');
       
-      // Vérifier si tous les joueurs ont répondu avant de passer à la question suivante
+      // Cas 1: Timer à 0 ET personne n'a répondu → passage automatique
       if (!allPlayersAnswered) {
         console.log('🎃 Temps écoulé et pas tous répondu - passage automatique');
         setTimeout(() => {
@@ -257,11 +257,11 @@ export default function QuizHalloweenGameOptimized() {
     }
   }, [timer, allPlayersAnswered, gameState?.currentQuestion, selectedAnswer, handleNextQuestion]);
 
-  // Effet pour passer à la question suivante quand tous ont répondu
+  // Effet pour passer à la question suivante quand tous ont répondu (Cas 2)
   useEffect(() => {
     // Éviter le spam de logs
     if (allPlayersAnswered && !(gameState as any)?._allAnswered) {
-      console.log('🎃 Tous les joueurs ont répondu - passage à la question suivante');
+      console.log('🎃 Tous les joueurs ont répondu - passage à la question suivante après 3s');
       
       // Mettre à jour Firebase avec _allAnswered = true
       const updatedState = {
