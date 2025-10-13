@@ -91,30 +91,50 @@ export default function QuizHalloweenGameOptimized() {
   useEffect(() => {
     if (gameState?.scores) {
       setLocalScores(prevScores => {
-        // Fusionner les scores existants avec les nouveaux
-        const mergedScores = { ...gameState.scores };
+        // Utiliser les scores de Firebase comme source de vérité
+        const firebaseScores = { ...gameState.scores };
+        
+        // Garder les scores locaux seulement s'ils sont plus récents
+        const mergedScores = { ...firebaseScores };
         Object.keys(prevScores).forEach(userId => {
-          if (!mergedScores[userId]) {
+          // Si le score local est plus élevé, le garder (cas où la mise à jour Firebase n'a pas encore eu lieu)
+          if ((prevScores[userId] || 0) > (firebaseScores[userId] || 0)) {
             mergedScores[userId] = prevScores[userId] || 0;
           }
         });
+        
+        console.log('🎃 Synchronisation scores:', { firebaseScores, prevScores, mergedScores });
         return mergedScores;
       });
     }
   }, [gameState?.scores]);
 
   // Fonction optimisée pour mettre à jour le score local
-  const updateLocalScore = useCallback((userId: string, isCorrect: boolean) => {
+  const updateLocalScore = useCallback(async (userId: string, isCorrect: boolean) => {
     setLocalScores(prevScores => {
       const currentScore = prevScores[userId] || 0;
       const newScore = isCorrect ? currentScore + 1 : currentScore;
       console.log('🎃 Score local mis à jour:', userId, 'de', currentScore, 'à', newScore);
-      return {
+      
+      // Synchroniser immédiatement avec Firebase
+      const updatedScores = {
         ...prevScores,
         [userId]: newScore,
       };
+      
+      // Mettre à jour Firebase en arrière-plan
+      if (gameState) {
+        updateGameState({
+          ...gameState,
+          scores: updatedScores,
+        }).catch(error => {
+          console.error('❌ Erreur synchronisation score:', error);
+        });
+      }
+      
+      return updatedScores;
     });
-  }, []);
+  }, [gameState, updateGameState]);
 
   // Fonction pour sauvegarder les scores finaux dans Firebase
   const saveFinalScoresToFirebase = useCallback(async () => {
