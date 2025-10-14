@@ -1,27 +1,23 @@
-import { useEffect } from 'react';
-import { Stack } from 'expo-router';
-import { AuthProvider } from '@/contexts/AuthContext';
-import { PaperProvider } from 'react-native-paper';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { ExpoNotificationService } from '@/services/expoNotificationService';
-import HalloweenNotificationScheduler from '@/services/halloweenNotificationScheduler';
-import { LanguageProvider } from '@/contexts/LanguageContext';
+import { AuthProvider } from "@/contexts/AuthContext";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 import { useAppsFlyer } from "@/hooks/useAppsFlyer";
 import { useIsHasUpdates } from "@/hooks/useIsHasUpdates";
-import { ModernStatusBar } from '@/utils/ModernStatusBar';
+import { ExpoNotificationService } from "@/services/expoNotificationService";
+import HalloweenNotificationScheduler from "@/services/halloweenNotificationScheduler";
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { useEffect } from "react";
+import { PaperProvider } from "react-native-paper";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 export default function RootLayout() {
   useAppsFlyer();
   useIsHasUpdates();
 
   useEffect(() => {
-    // Configuration Android 15 - StatusBar moderne
-    ModernStatusBar.configureForAndroid15();
-    
     // Initialiser les services de notifications
     const notificationService = ExpoNotificationService.getInstance();
     notificationService.initialize();
-    
     // Programmer les notifications Halloween pour octobre
     HalloweenNotificationScheduler.scheduleHalloweenNotifications();
   }, []);
@@ -31,6 +27,7 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <PaperProvider>
           <AuthProvider>
+            <StatusBar style="light" />
             <Stack screenOptions={{ headerShown: false }}>
               <Stack.Screen name="(tabs)" />
               <Stack.Screen name="(auth)" />
