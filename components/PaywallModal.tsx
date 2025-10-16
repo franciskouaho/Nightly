@@ -418,13 +418,13 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   weeklyBadge: {
-    backgroundColor: HalloweenTheme.primary,
+    backgroundColor: HalloweenTheme.light?.primary || '#FF6F00',
   },
   monthlyBadge: {
     backgroundColor: HalloweenTheme.light?.secondary || '#4B1E00',
   },
   annualBadge: {
-    backgroundColor: HalloweenTheme.error,
+    backgroundColor: HalloweenTheme.light?.error || '#FF1744',
   },
   badgeText: {
     color: '#000',

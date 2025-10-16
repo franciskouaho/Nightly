@@ -6,12 +6,12 @@ import TopBar from "@/components/TopBar";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFirestore } from "@/hooks/useFirestore";
 import { useExpoNotifications } from "@/hooks/useExpoNotifications";
-import { usePostHog } from "@/hooks/usePostHog";
 import HalloweenNotificationScheduler from "@/services/halloweenNotificationScheduler";
 import Colors from "@/constants/Colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import HalloweenDecorations from "@/components/HalloweenDecorations";
 import NetInfo from "@react-native-community/netinfo";
+import { usePostHog } from 'posthog-react-native'
 import {
   collection,
   doc,
@@ -81,14 +81,9 @@ export default function HomeScreen() {
   // Hook pour les notifications Expo
   const { expoPushToken, isPermissionGranted, sendLocalNotification, sendHalloweenQuizNotification } = useExpoNotifications();
 
-  // Test PostHog
-  useEffect(() => {
-    posthog.capture("HomeScreen loaded", { 
-      foo: "bar",
-      userId: user?.uid || "anonymous",
-      timestamp: new Date().toISOString()
-    });
-  }, []);
+   useEffect(() => {
+        posthog.capture("MyComponent loaded", { foo: "bar" })
+    }, [])
 
   useEffect(() => {
     console.log("🔄 État de création de salle:", isCreatingRoom);

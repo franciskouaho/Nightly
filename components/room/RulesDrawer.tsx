@@ -132,7 +132,7 @@ const RulesDrawer = ({ visible, onClose, onConfirm, gameId, isStartingGame }: Ru
             styles.container, 
             { 
               transform: [{ translateY }],
-              backgroundColor: isHalloweenGame ? HalloweenTheme.backgroundDarker : '#2B1845'
+              backgroundColor: isHalloweenGame ? (HalloweenTheme.light?.backgroundDarker || '#120F1C') : '#2B1845'
             }
           ]}
         >
@@ -141,7 +141,7 @@ const RulesDrawer = ({ visible, onClose, onConfirm, gameId, isStartingGame }: Ru
               <Text 
                 style={[
                   styles.title,
-                  isHalloweenGame && { color: HalloweenTheme.primary }
+                  isHalloweenGame && { color: HalloweenTheme.light?.primary || '#FF6F00' }
                 ]}
               >
                 {t('rules.title')}
@@ -150,7 +150,7 @@ const RulesDrawer = ({ visible, onClose, onConfirm, gameId, isStartingGame }: Ru
                 <Ionicons 
                   name="close" 
                   size={24} 
-                  color={isHalloweenGame ? HalloweenTheme.primary : "#fff"} 
+                  color={isHalloweenGame ? (HalloweenTheme.light?.primary || '#FF6F00') : "#fff"} 
                 />
               </TouchableOpacity>
             </View>
@@ -195,7 +195,7 @@ const RulesDrawer = ({ visible, onClose, onConfirm, gameId, isStartingGame }: Ru
               <TouchableOpacity 
                 style={[
                   styles.confirmButton,
-                  isHalloweenGame && { backgroundColor: HalloweenTheme.primary }
+                  isHalloweenGame && { backgroundColor: HalloweenTheme.light?.primary || '#FF6F00' }
                 ]}
                 onPress={onConfirm}
               >
