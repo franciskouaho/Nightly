@@ -398,7 +398,14 @@ const de = {
       targetAnswers: '{{name}} antwortet!',
       error: 'Ein Fehler ist aufgetreten',
       noQuestions: 'Keine Fragen verfügbar',
-      errorNext: 'Beim Wechsel zur nächsten Runde ist ein Fehler aufgetreten'
+      errorNext: 'Ein Fehler ist beim Wechsel zur nächsten Runde aufgetreten',
+      waiting: 'Warten auf andere Spieler...',
+      answerPlaceholder: 'Schreiben Sie Ihre Antwort hier...',
+      submit: 'Absenden',
+      errorSubmit: 'Fehler beim Absenden der Antwort',
+      waitingForOthers: 'Warten auf andere Stimmen...',
+      waitingVote: 'Warten auf die Stimme des Zielspielers...',
+      voteTitle: 'Wählen Sie die beste Antwort',
     },
     neverHaveIEverHot: {
       never: "Ich habe noch nie",

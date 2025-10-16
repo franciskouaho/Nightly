@@ -398,7 +398,14 @@ const es = {
       targetAnswers: '¡{{name}} responde!',
       error: 'Ocurrió un error',
       noQuestions: 'No hay preguntas disponibles',
-      errorNext: 'Ocurrió un error al pasar a la siguiente ronda'
+      errorNext: 'Ocurrió un error al pasar a la siguiente ronda',
+      waiting: 'Esperando a otros jugadores...',
+      answerPlaceholder: 'Escribe tu respuesta aquí...',
+      submit: 'Enviar',
+      errorSubmit: 'Error al enviar la respuesta',
+      waitingForOthers: 'Esperando otros votos...',
+      waitingVote: 'Esperando el voto del jugador objetivo...',
+      voteTitle: 'Elige la mejor respuesta',
     },
     neverHaveIEverHot: {
       never: "Yo nunca he",

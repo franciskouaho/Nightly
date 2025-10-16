@@ -117,9 +117,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         // Essayer d'obtenir les questions dans la langue actuelle, sinon utiliser le français
         questions = questionsData.translations[currentLanguage] || questionsData.translations['fr'] || [];
         
-        // Ne plus générer d'IDs ici, laissons le code du jeu s'en charger
+        // Les questions sont transformées avec des IDs par les hooks spécifiques à chaque jeu
         console.log(`[DEBUG LanguageContext] Loaded ${questions.length} questions for ${gameId}`);
-        console.log(`[DEBUG LanguageContext] Question IDs:`, questions.map((q: any) => q.id));
       } else {
         console.warn(`[DEBUG LanguageContext] No questions found for game ${gameId}`);
       }

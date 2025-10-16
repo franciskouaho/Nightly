@@ -398,7 +398,14 @@ const it = {
       targetAnswers: '{{name}} risponde!',
       error: 'Si è verificato un errore',
       noQuestions: 'Nessuna domanda disponibile',
-      errorNext: 'Si è verificato un errore durante il passaggio al round successivo'
+      errorNext: 'Si è verificato un errore nel passare al turno successivo',
+      waiting: 'In attesa degli altri giocatori...',
+      answerPlaceholder: 'Scrivi la tua risposta qui...',
+      submit: 'Invia',
+      errorSubmit: 'Errore nell\'invio della risposta',
+      waitingForOthers: 'In attesa degli altri voti...',
+      waitingVote: 'In attesa del voto del giocatore bersaglio...',
+      voteTitle: 'Scegli la migliore risposta',
     },
     neverHaveIEverHot: {
       never: "Non ho mai",

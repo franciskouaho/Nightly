@@ -409,7 +409,14 @@ const en = {
       targetAnswers: '{{name}} answers!',
       error: 'An error occurred',
       noQuestions: 'No questions available',
-      errorNext: 'An error occurred while moving to the next round'
+      errorNext: 'An error occurred while moving to the next round',
+      waiting: 'Waiting for other players...',
+      answerPlaceholder: 'Write your answer here...',
+      submit: 'Submit',
+      errorSubmit: 'Error submitting answer',
+      waitingForOthers: 'Waiting for other votes...',
+      waitingVote: 'Waiting for target player vote...',
+      voteTitle: 'Choose the best answer',
     },
     neverHaveIEverHot: {
       never: "I have never",

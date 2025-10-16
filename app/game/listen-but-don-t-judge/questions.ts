@@ -1,169 +1,136 @@
-import { Question } from '@/types/gameTypes';
-import { getFirestore, doc, getDoc } from '@react-native-firebase/firestore';
-import { useState, useEffect } from 'react';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { Question } from "@/types/gameTypes";
+import { useState, useEffect } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
-// Fonction pour transformer les données de Firebase en format Question
-// Accepte soit un objet (pour des structures futures) soit une chaîne (pour la structure actuelle)
-const transformQuestion = (questionData: any, index: number): Question => {
-  if (typeof questionData === 'string') {
-    // Si c'est une chaîne, utilisez-la comme texte
+// Fonction simple pour transformer les données de Firebase en format Question
+export const transformQuestion = (questionData: any, index: number): Question => {
+  // Si c'est une chaîne simple
+  if (typeof questionData === "string") {
     return {
-      id: (index + 1).toString(), // Générer un ID basé sur l'index si pas d'ID
+      id: `q_${index}`,
       text: questionData,
-      theme: 'general', // Thème par défaut pour les questions en chaîne
-      roundNumber: index + 1, // Numéro de round basé sur l'index si pas de numéro
+      theme: "general",
+      roundNumber: index + 1,
     };
-  } else if (typeof questionData === 'object' && questionData !== null) {
-    // Si c'est un objet, essayez d'extraire les propriétés
-    return {
-      id: questionData.id ? String(questionData.id) : (index + 1).toString(),
-      text: questionData.text || 'Aucun texte disponible', // Utilisez la propriété text
-      theme: questionData.type || questionData.theme || 'general', // Utilisez type ou theme
-      roundNumber: questionData.roundNumber !== undefined ? questionData.roundNumber : index + 1,
-    };
-  } else {
-    // Cas inattendu
-     console.warn('Format de question inattendu:', questionData);
-     return {
-        id: (index + 1).toString(),
-        text: 'Aucun texte disponible - Format invalide',
-        theme: 'error',
-        roundNumber: index + 1
-     };
   }
+
+  // Si c'est un objet
+  if (typeof questionData === "object" && questionData !== null) {
+    let text = "";
+    
+    // Vérifier si c'est un objet avec des clés numériques (caractères stockés individuellement)
+    const keys = Object.keys(questionData);
+    const numericKeys = keys.filter(key => !isNaN(Number(key)));
+    
+    if (numericKeys.length > 0) {
+      // Reconstruire le texte à partir des caractères
+      text = numericKeys
+        .sort((a, b) => Number(a) - Number(b))
+        .map(key => questionData[key])
+        .join('');
+    } else if (questionData.text) {
+      text = questionData.text;
+    } else {
+      text = "Question non disponible";
+    }
+    
+    return {
+      id: questionData.id || `q_${index}`,
+      text: text,
+      theme: questionData.theme || questionData.type || "general",
+      roundNumber: questionData.roundNumber || index + 1,
+    };
+  }
+
+  // Fallback
+  return {
+    id: `q_${index}`,
+    text: "Question non disponible",
+    theme: "error",
+    roundNumber: index + 1,
+  };
 };
 
 // Hook personnalisé pour les questions de Listen But Don't Judge
 export function useListenButDontJudgeQuestions() {
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [askedQuestions, setAskedQuestions] = useState<string[]>([]);
-  const [availableQuestions, setAvailableQuestions] = useState<Question[]>([]);
-  const { isRTL, language } = useLanguage();
+  const [askedQuestions, setAskedQuestions] = useState<Set<string>>(new Set());
+  const { getGameContent, language } = useLanguage();
 
-  // Charger les questions depuis Firebase
+  // Charger les questions via getGameContent du LanguageContext
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        console.log('[DEBUG] Fetching questions for language:', isRTL ? 'ar' : (language || 'fr'));
-        const db = getFirestore();
-        const questionsRef = doc(db, 'gameQuestions', 'listen-but-don-t-judge');
-        const questionsDoc = await getDoc(questionsRef);
-        
-        if (questionsDoc.exists()) {
-          const questionsData = questionsDoc.data();
-          console.log('[DEBUG] Questions data from Firebase:', questionsData);
-          const currentLanguage = isRTL ? 'ar' : (language || 'fr');
-          const rawQuestionsArray = questionsData?.translations?.[currentLanguage];
-          console.log('[DEBUG] Raw questions array for language', currentLanguage, ':', rawQuestionsArray);
-          
-          let transformedQuestions: Question[] = [];
-          if (Array.isArray(rawQuestionsArray)) {
-            transformedQuestions = rawQuestionsArray.map((q: any, index: number) => transformQuestion(q, index));
-            console.log('[DEBUG] Transformed questions:', transformedQuestions);
-          } else {
-            console.error('[DEBUG] No questions array found for language', currentLanguage);
-          }
-          
+        const gameContent = await getGameContent('listen-but-don-t-judge');
+        const rawQuestions = gameContent.questions;
+
+        if (Array.isArray(rawQuestions)) {
+          const transformedQuestions = rawQuestions.map(
+            (q: any, index: number) => transformQuestion(q, index),
+          );
+          console.log(`[DEBUG useListenButDontJudgeQuestions] Transformed ${transformedQuestions.length} questions with IDs:`, transformedQuestions.map(q => q.id));
           setQuestions(transformedQuestions);
-          setAvailableQuestions(transformedQuestions);
-        } else {
-          console.error('[DEBUG] No questions document found in Firebase');
         }
       } catch (error) {
-        console.error('[DEBUG] Error loading questions:', error);
+        console.error("Error loading questions:", error);
       }
     };
 
     fetchQuestions();
-  }, [isRTL, language]);
+  }, [getGameContent, language]);
 
   // Obtenir une question aléatoire qui n'a pas encore été posée
   const getRandomQuestion = (): Question | null => {
-    console.log('[DEBUG] getRandomQuestion called');
-    console.log('[DEBUG] Available questions count:', availableQuestions.length);
-    console.log('[DEBUG] Total questions count:', questions.length);
-    console.log('[DEBUG] Asked questions count:', askedQuestions.length);
-
-    if (availableQuestions.length === 0) {
-      console.log('[DEBUG] No available questions, resetting with all questions');
-      // Si toutes les questions ont été posées, réinitialiser avec toutes les questions mélangées
-      const shuffledQuestions = [...questions].sort(() => Math.random() - 0.5);
-      console.log('[DEBUG] Shuffled questions count:', shuffledQuestions.length);
-      setAvailableQuestions(shuffledQuestions);
-      setAskedQuestions([]);
-      // Tenter de prendre une question de la liste nouvellement mélangée
-      const randomIndex = Math.floor(Math.random() * shuffledQuestions.length);
-      const selectedQuestion = shuffledQuestions[randomIndex];
-      if (!selectedQuestion) {
-        console.log('[DEBUG] No question selected after shuffle');
-        return null;
-      }
-
-      console.log('[DEBUG] Selected question after reset:', selectedQuestion);
-      // Ajouter la question à la liste des questions posées
-      setAskedQuestions((prev: string[]) => [...prev, selectedQuestion.id]);
-      return selectedQuestion;
-    }
-
-    // Sélectionner une question aléatoire parmi les questions disponibles
-    const randomIndex = Math.floor(Math.random() * availableQuestions.length);
-    const selectedQuestion = availableQuestions[randomIndex];
-
-    if (!selectedQuestion) {
-      console.log('[DEBUG] No question selected from available questions');
+    if (questions.length === 0) {
       return null;
     }
 
-    console.log('[DEBUG] Selected question from available:', selectedQuestion);
-    // Retirer la question sélectionnée des questions disponibles
-    const newAvailableQuestions = availableQuestions.filter((_, index) => index !== randomIndex);
-    setAvailableQuestions(newAvailableQuestions);
+    // Filtrer les questions non encore posées
+    const availableQuestions = questions.filter(q => !askedQuestions.has(q.id));
+    
+    // Si toutes les questions ont été posées, réinitialiser
+    if (availableQuestions.length === 0) {
+      setAskedQuestions(new Set());
+      const randomIndex = Math.floor(Math.random() * questions.length);
+      const selectedQuestion = questions[randomIndex];
+      if (selectedQuestion) {
+        setAskedQuestions(new Set([selectedQuestion.id]));
+        return selectedQuestion;
+      }
+      return null;
+    }
 
-    // Ajouter la question à la liste des questions posées
-    setAskedQuestions((prev: string[]) => [...prev, selectedQuestion.id]);
-
-    return selectedQuestion;
+    // Sélectionner une question aléatoire parmi les disponibles
+    const randomIndex = Math.floor(Math.random() * availableQuestions.length);
+    const selectedQuestion = availableQuestions[randomIndex];
+    
+    if (selectedQuestion) {
+      // Marquer comme posée
+      setAskedQuestions(prev => new Set([...prev, selectedQuestion.id]));
+      return selectedQuestion;
+    }
+    
+    return null;
   };
 
-  // Réinitialiser l'historique des questions posées et mélanger à nouveau
+  // Réinitialiser l'historique des questions posées
   const resetAskedQuestions = () => {
-    setAskedQuestions([]);
-    const shuffledQuestions = [...questions].sort(() => Math.random() - 0.5);
-    setAvailableQuestions(shuffledQuestions);
+    setAskedQuestions(new Set());
   };
 
   return {
     questions,
     getRandomQuestion,
     resetAskedQuestions,
-    askedQuestions
+    askedQuestions: Array.from(askedQuestions),
   };
 }
 
 // Fonction de compatibilité pour le code existant
-export const getQuestions = async (currentLanguage: string = 'fr'): Promise<Question[]> => {
-  try {
-    const db = getFirestore();
-    const questionsRef = doc(db, 'gameQuestions', 'listen-but-don-t-judge');
-    const questionsDoc = await getDoc(questionsRef);
-
-    if (questionsDoc.exists()) {
-      const questionsData = questionsDoc.data();
-      const rawQuestionsArray = questionsData?.translations?.[currentLanguage];
-      if (Array.isArray(rawQuestionsArray)) {
-        // Utiliser transformQuestion pour chaque élément du tableau
-        return rawQuestionsArray.map((q: any, index: number) => transformQuestion(q, index));
-      } else {
-         console.error("No questions array found for language", currentLanguage);
-        return [];
-      }
-    } else {
-      console.error("No questions found in Firebase");
-      return [];
-    }
-  } catch (error) {
-    console.error("Error fetching questions:", error);
-    return [];
-  }
-}; 
+export const getQuestions = async (
+  currentLanguage: string = "fr",
+): Promise<Question[]> => {
+  // Cette fonction n'est plus utilisée, mais on la garde pour la compatibilité
+  // Le hook useListenButDontJudgeQuestions utilise maintenant getGameContent
+  return [];
+};

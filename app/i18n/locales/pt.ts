@@ -417,7 +417,14 @@ export default {
       targetAnswers: '{{name}} responde!',
       error: 'Ocorreu um erro',
       noQuestions: 'Nenhuma pergunta disponível',
-      errorNext: 'Ocorreu um erro ao avançar para a próxima rodada'
+      errorNext: 'Ocorreu um erro ao passar para a próxima rodada',
+      waiting: 'Aguardando outros jogadores...',
+      answerPlaceholder: 'Escreva sua resposta aqui...',
+      submit: 'Enviar',
+      errorSubmit: 'Erro ao enviar resposta',
+      waitingForOthers: 'Aguardando outros votos...',
+      waitingVote: 'Aguardando voto do jogador alvo...',
+      voteTitle: 'Escolha a melhor resposta',
     },
     neverHaveIEverHot: {
       never: "Nunca nunca",
