@@ -49,6 +49,10 @@ const fr = {
       selectCharacter: "Choisissez votre personnage",
       characterDescription:
         "Sélectionnez un personnage qui vous représente pour la partie",
+      subtitle: "Connectez-vous pour commencer à jouer",
+      onboardingInfo: "Informations de votre profil",
+      signInWithGoogle: "Se connecter avec Google",
+      startOnboarding: "Commencer l'onboarding",
     },
     register: {
       title: "Inscription",
@@ -432,6 +436,43 @@ const fr = {
       waitingForOthers: "En attente des autres votes...",
       waitingVote: "En attente du vote du joueur cible...",
       voteTitle: "Choisissez la meilleure réponse",
+    },
+
+    // Onboarding
+    onboarding: {
+      welcome: {
+        title: "Bienvenue sur Nightly",
+        description: "Découvrez une nouvelle façon de jouer en ligne avec vos amis",
+      },
+      games: {
+        title: "Jeux Multi-joueurs",
+        description: "Profitez de dizaines de jeux amusants à jouer ensemble",
+      },
+      social: {
+        title: "Connectez-vous",
+        description: "Créez des salles privées et invitez vos amis à jouer",
+      },
+      ready: {
+        title: "Prêt à jouer ?",
+        description: "Commencez votre aventure gaming dès maintenant !",
+      },
+      username: {
+        title: "Choisissez votre pseudo",
+        description: "Comment voulez-vous que vos amis vous appellent ?",
+        hint: "Votre pseudo sera visible par tous les joueurs",
+      },
+      character: {
+        title: "Choisissez votre personnage",
+        description: "Sélectionnez un avatar qui vous représente !",
+        yourUsername: "Votre pseudo",
+        preview: "Aperçu",
+      },
+      skip: "Passer",
+      previous: "Précédent",
+      next: "Suivant",
+      start: "Commencer",
+      finish: "Terminer",
+      getStarted: "Commencer l'aventure",
     },
     neverHaveIEverHot: {
       never: "Je n'ai jamais",

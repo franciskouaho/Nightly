@@ -7,7 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAuthAnalytics } from "@/hooks/useAuthAnalytics";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -17,35 +17,35 @@ import {
   Platform,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import * as WebBrowser from 'expo-web-browser';
+import * as Google from 'expo-auth-session/providers/google';
+import { GOOGLE_AUTH_CONFIG } from '@/config/googleAuth';
 
-const profils: string[] = [
-  "https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/profils%2Frenard.png?alt=media&token=139ed01b-46f2-4f3e-9305-459841f2a893",
-  "https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/profils%2Fchat.png?alt=media&token=0c852d5b-1a14-4b8a-8926-78a7c88c0695",
-  "https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/profils%2Fgrenouille.png?alt=media&token=8257acb0-bcf7-4e30-a7cf-5ddf44e6da01",
-  "https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/profils%2Foiseau.png?alt=media&token=5a9a9e36-1651-4461-8702-d7bc8d516423",
-];
-
-function chunkArray<T>(array: T[], size: number): T[][] {
-  const result: T[][] = [];
-  for (let i = 0; i < array.length; i += size) {
-    result.push(array.slice(i, i + size));
-  }
-  return result;
-}
+// Configuration pour Google Auth
+WebBrowser.maybeCompleteAuthSession();
 
 export default function LoginScreen() {
-  const [username, setUsername] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedProfile, setSelectedProfile] = useState(profils[0] as string);
-  const { signIn, restoreSession, user, firstLogin, checkExistingUser } =
-    useAuth();
+  const { user } = useAuth();
   const router = useRouter();
   const authAnalytics = useAuthAnalytics();
   const { t } = useTranslation();
+  const { username, selectedProfile } = useLocalSearchParams<{
+    username?: string;
+    selectedProfile?: string;
+  }>();
+
+  // Configuration Google Auth
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    expoClientId: GOOGLE_AUTH_CONFIG.expoClientId,
+    iosClientId: GOOGLE_AUTH_CONFIG.iosClientId,
+    androidClientId: GOOGLE_AUTH_CONFIG.androidClientId,
+    webClientId: GOOGLE_AUTH_CONFIG.webClientId,
+    scopes: GOOGLE_AUTH_CONFIG.scopes,
+  });
 
   useEffect(() => {
     if (user) {
@@ -53,67 +53,55 @@ export default function LoginScreen() {
     }
   }, [user]);
 
-  const handleLogin = async () => {
-    if (!username) {
-      Alert.alert(t("errors.general"), t("auth.login.usernameRequired"));
-      return;
+  useEffect(() => {
+    if (response?.type === 'success') {
+      const { authentication } = response;
+      handleGoogleSignIn(authentication?.accessToken);
     }
+  }, [response]);
 
-    if (username.length < 3) {
-      Alert.alert(t("errors.general"), t("auth.login.usernameLength"));
+  const handleGoogleSignIn = async (accessToken?: string) => {
+    if (!accessToken) {
+      Alert.alert(t("errors.general"), "Erreur lors de l'authentification Google");
       return;
     }
 
     setIsLoading(true);
 
     try {
-      if (!selectedProfile) return;
+      // Récupérer les informations de l'utilisateur Google
+      const response = await fetch(`https://www.googleapis.com/oauth2/v2/userinfo?access_token=${accessToken}`);
+      const userInfo = await response.json();
 
-      // Vérifier si l'utilisateur existe déjà
-      const userExists = await checkExistingUser(username);
+      // Utiliser le pseudo de l'onboarding ou l'email Google
+      const finalUsername = username || userInfo.email?.split('@')[0] || 'User';
+      const finalProfile = selectedProfile || 'https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/profils%2Frenard.png?alt=media&token=139ed01b-46f2-4f3e-9305-459841f2a893';
 
-      if (userExists) {
-        // L'utilisateur existe déjà et a confirmé la connexion
-        await authAnalytics.trackLogin("username", true);
-        // Tracking Google Analytics login event
-        await analyticsInstance().logEvent("login", {
-          method: "username",
-          success: true,
-        });
-        await analyticsInstance().setUserId(username);
-        router.replace("/(tabs)");
-        return;
-      }
-
-      // Si l'utilisateur n'existe pas ou n'a pas confirmé la connexion
-      try {
-        await restoreSession();
-      } catch (error) {
-        // Si aucune session n'existe, créer une nouvelle session
-        await firstLogin(username);
-      }
-
-      // Continuer avec la connexion normale
-      await signIn(username, selectedProfile);
-      await authAnalytics.trackLogin("username", true);
-      // Tracking Google Analytics login event
+      // Créer ou connecter l'utilisateur
+      await signIn(finalUsername, finalProfile);
+      
+      await authAnalytics.trackLogin("google", true);
       await analyticsInstance().logEvent("login", {
-        method: "username",
+        method: "google",
         success: true,
       });
-      await analyticsInstance().setUserId(username);
+      await analyticsInstance().setUserId(finalUsername);
+      
       router.replace("/(tabs)");
     } catch (error: any) {
-      await authAnalytics.trackLogin("username", false);
-      // Tracking Google Analytics failed login event
+      await authAnalytics.trackLogin("google", false);
       await analyticsInstance().logEvent("login", {
-        method: "username",
+        method: "google",
         success: false,
       });
       Alert.alert(t("errors.general"), error.message || t("errors.authError"));
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleStartOnboarding = () => {
+    router.push('/onboarding/username');
   };
 
   return (
@@ -148,75 +136,72 @@ export default function LoginScreen() {
 
         <View style={[styles.content, { zIndex: 15 }]}>
           <View style={styles.header}>
-            <Image
-              source={{ uri: selectedProfile }}
-              style={styles.selectedProfileImage}
-            />
             <Text style={styles.title}>{t("app.name")}</Text>
-            <Text style={styles.subtitle}>{t("auth.login.enterUsername")}</Text>
+            <Text style={styles.subtitle}>
+              {t("auth.login.subtitle", "Connectez-vous pour commencer à jouer")}
+            </Text>
           </View>
 
-          <View style={styles.form}>
-            <View style={styles.inputContainer}>
-              <Ionicons name="person-outline" size={24} color="#fff" />
-              <TextInput
-                style={styles.input}
-                placeholder={t("auth.login.username")}
-                placeholderTextColor="rgba(255,255,255,0.5)"
-                value={username}
-                onChangeText={setUsername}
-                autoCapitalize="none"
-                maxLength={20}
-              />
+          {/* Affichage des informations de l'onboarding si disponibles */}
+          {(username || selectedProfile) && (
+            <View style={styles.onboardingInfo}>
+              <Text style={styles.onboardingTitle}>
+                {t("auth.login.onboardingInfo", "Informations de votre profil")}
+              </Text>
+              {username && (
+                <View style={styles.infoRow}>
+                  <Ionicons name="person-outline" size={20} color="#fff" />
+                  <Text style={styles.infoText}>{username}</Text>
+                </View>
+              )}
+              {selectedProfile && (
+                <View style={styles.avatarPreview}>
+                  <Image
+                    source={{ uri: selectedProfile }}
+                    style={styles.avatarImage}
+                  />
+                </View>
+              )}
             </View>
+          )}
 
-            <Text style={styles.profileSelectionTitle}>
-              {t("auth.login.selectCharacter")}
-            </Text>
-            <Text style={styles.profileSelectionSubtitle}>
-              {t("auth.login.characterDescription")}
-            </Text>
-
-            {chunkArray(profils, 4).map((row: any[], rowIdx: number) => (
-              <View style={styles.profilesRow} key={rowIdx}>
-                {row.map((img: any, idx: number) => (
-                  <TouchableOpacity
-                    key={idx}
-                    onPress={() => setSelectedProfile(img)}
-                  >
-                    <Image
-                      source={{ uri: img }}
-                      style={[
-                        styles.profileImg,
-                        selectedProfile === img && styles.profileImgSelected,
-                      ]}
-                    />
-                  </TouchableOpacity>
-                ))}
-              </View>
-            ))}
-
+          <View style={styles.loginOptions}>
+            {/* Bouton Google Sign In */}
             <TouchableOpacity
               style={[
-                styles.buttonContainer,
+                styles.googleButton,
                 isLoading && styles.buttonDisabled,
               ]}
-              onPress={handleLogin}
-              disabled={isLoading}
+              onPress={() => promptAsync()}
+              disabled={isLoading || !request}
             >
               <LinearGradient
-                colors={[Colors.primary, Colors.secondary, Colors.tertiary]}
+                colors={["#4285F4", "#34A853", "#FBBC05", "#EA4335"]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.button}
               >
+                <Ionicons name="logo-google" size={24} color="#fff" />
                 <Text style={styles.buttonText}>
                   {isLoading
                     ? t("auth.login.connecting")
-                    : t("auth.login.play")}
+                    : t("auth.login.signInWithGoogle", "Se connecter avec Google")}
                 </Text>
               </LinearGradient>
             </TouchableOpacity>
+
+            {/* Bouton pour recommencer l'onboarding */}
+            {!username && (
+              <TouchableOpacity
+                style={styles.onboardingButton}
+                onPress={handleStartOnboarding}
+              >
+                <Text style={styles.onboardingButtonText}>
+                  {t("auth.login.startOnboarding", "Commencer l'onboarding")}
+                </Text>
+                <Ionicons name="arrow-forward" size={20} color="#fff" />
+              </TouchableOpacity>
+            )}
           </View>
         </View>
       </LinearGradient>
@@ -237,15 +222,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 40,
   },
-  selectedProfileImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    marginBottom: 10,
-    borderWidth: 3,
-    borderColor: Colors.primary,
-    backgroundColor: Colors.backgroundLighter,
-  },
   title: {
     fontSize: 32,
     fontWeight: "bold",
@@ -260,77 +236,52 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: Colors.textSecondary,
     marginTop: 5,
+    textAlign: "center",
   },
-  profileSelectionTitle: {
-    fontSize: 18,
+  onboardingInfo: {
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 30,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.2)",
+  },
+  onboardingTitle: {
+    fontSize: 16,
     fontWeight: "bold",
     color: Colors.text,
-    marginTop: 20,
-    marginBottom: 8,
-  },
-  profileSelectionSubtitle: {
-    fontSize: 14,
-    color: Colors.textSecondary,
     marginBottom: 15,
+    textAlign: "center",
   },
-  form: {
-    width: "100%",
-  },
-  inputContainer: {
+  infoRow: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.backgroundLighter,
-    borderRadius: 12,
-    paddingHorizontal: 15,
-    marginBottom: 20,
-    borderWidth: 2,
-    borderColor: Colors.primary,
-    shadowColor: Colors.primary,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
-    zIndex: 20,
+    marginBottom: 10,
   },
-  input: {
-    flex: 1,
-    height: 50,
-    color: Colors.text,
+  infoText: {
     fontSize: 16,
+    color: Colors.text,
     marginLeft: 10,
+    fontWeight: "600",
   },
-  profilesRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 15,
+  avatarPreview: {
+    alignItems: "center",
+    marginTop: 10,
   },
-  profileImg: {
+  avatarImage: {
     width: 60,
     height: 60,
     borderRadius: 30,
     borderWidth: 2,
-    borderColor: "transparent",
-  },
-  profileImgSelected: {
     borderColor: Colors.primary,
-    borderWidth: 3,
-    transform: [{ scale: 1.1 }],
-    shadowColor: Colors.primary,
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
-    shadowOpacity: 0.4,
-    shadowRadius: 6,
-    elevation: 6,
   },
-  buttonContainer: {
-    marginTop: 20,
+  loginOptions: {
+    width: "100%",
+  },
+  googleButton: {
+    marginBottom: 20,
     borderRadius: 12,
-    shadowColor: Colors.primary,
+    shadowColor: "#4285F4",
     shadowOffset: {
       width: 0,
       height: 4,
@@ -342,9 +293,10 @@ const styles = StyleSheet.create({
   button: {
     borderRadius: 12,
     height: 50,
+    flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    position: "relative",
+    paddingHorizontal: 20,
   },
   buttonDisabled: {
     opacity: 0.7,
@@ -353,9 +305,27 @@ const styles = StyleSheet.create({
     color: Colors.text,
     fontSize: 16,
     fontWeight: "bold",
+    marginLeft: 10,
     textShadowColor: "rgba(0, 0, 0, 0.5)",
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
+  },
+  onboardingButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.3)",
+  },
+  onboardingButtonText: {
+    color: Colors.text,
+    fontSize: 16,
+    fontWeight: "600",
+    marginRight: 8,
   },
   background: {
     flex: 1,
