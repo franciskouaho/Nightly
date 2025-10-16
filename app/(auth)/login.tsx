@@ -114,11 +114,6 @@ export default function LoginScreen() {
     }
   };
 
-  const handleStartOnboarding = () => {
-    // Track PostHog onboarding start event
-    track.onboardingStart();
-    router.push('/onboarding/username');
-  };
 
   return (
     <KeyboardAvoidingView
@@ -152,7 +147,10 @@ export default function LoginScreen() {
 
         <View style={[styles.content, { zIndex: 15 }]}>
           <View style={styles.header}>
-            <Text style={styles.title}>{t("app.name")}</Text>
+            <View style={styles.logoContainer}>
+              <Text style={styles.title}>{t("app.name")}</Text>
+              <View style={styles.titleAccent} />
+            </View>
             <Text style={styles.subtitle}>
               {t("auth.login.subtitle", "Connectez-vous pour commencer à jouer")}
             </Text>
@@ -197,7 +195,9 @@ export default function LoginScreen() {
                 end={{ x: 1, y: 0 }}
                 style={styles.button}
               >
-                <Ionicons name="logo-google" size={24} color="#fff" />
+                <View style={styles.googleIconContainer}>
+                  <Ionicons name="logo-google" size={24} color="#fff" />
+                </View>
                 <Text style={styles.buttonText}>
                   {isLoading
                     ? t("auth.login.connecting")
@@ -206,18 +206,21 @@ export default function LoginScreen() {
               </LinearGradient>
             </TouchableOpacity>
 
-            {/* Bouton pour recommencer l'onboarding */}
-            {!username && (
-              <TouchableOpacity
-                style={styles.onboardingButton}
-                onPress={handleStartOnboarding}
-              >
-                <Text style={styles.onboardingButtonText}>
-                  {t("auth.login.startOnboarding")}
-                </Text>
-                <Ionicons name="arrow-forward" size={20} color="#fff" />
-              </TouchableOpacity>
-            )}
+            {/* Séparateur */}
+            <View style={styles.separator}>
+              <View style={styles.separatorLine} />
+              <Text style={styles.separatorText}>ou</Text>
+              <View style={styles.separatorLine} />
+            </View>
+
+            {/* Texte informatif */}
+            <View style={styles.infoContainer}>
+              <Ionicons name="information-circle-outline" size={20} color={Colors.light?.textSecondary || "#FFB347"} />
+              <Text style={styles.infoText}>
+                Connectez-vous pour accéder à tous les jeux et fonctionnalités
+              </Text>
+            </View>
+
           </View>
         </View>
       </LinearGradient>
@@ -236,23 +239,40 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: "center",
-    marginBottom: 40,
+    marginBottom: 50,
+  },
+  logoContainer: {
+    alignItems: "center",
+    marginBottom: 20,
   },
   title: {
-    fontSize: 32,
+    fontSize: 42,
     fontWeight: "bold",
-    color: Colors.text,
-    marginTop: 10,
+    color: Colors.light?.text || "#FFFAF0",
     textShadowColor: "rgba(0, 0, 0, 0.8)",
     textShadowOffset: { width: 2, height: 2 },
-    textShadowRadius: 4,
-    letterSpacing: 1,
+    textShadowRadius: 6,
+    letterSpacing: 2,
+    marginBottom: 8,
+  },
+  titleAccent: {
+    width: 60,
+    height: 4,
+    backgroundColor: Colors.light?.primary || "#FF6F00",
+    borderRadius: 2,
+    shadowColor: Colors.light?.primary || "#FF6F00",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 8,
+    elevation: 4,
   },
   subtitle: {
-    fontSize: 16,
-    color: Colors.textSecondary,
-    marginTop: 5,
+    fontSize: 18,
+    color: Colors.light?.textSecondary || "#FFB347",
     textAlign: "center",
+    fontWeight: "500",
+    lineHeight: 24,
+    paddingHorizontal: 20,
   },
   onboardingInfo: {
     backgroundColor: "rgba(255, 255, 255, 0.1)",
@@ -307,41 +327,64 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   button: {
-    borderRadius: 12,
-    height: 50,
+    borderRadius: 16,
+    height: 56,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
   },
   buttonDisabled: {
     opacity: 0.7,
   },
+  googleIconContainer: {
+    marginRight: 12,
+    padding: 4,
+    borderRadius: 8,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+  },
   buttonText: {
-    color: Colors.text,
-    fontSize: 16,
+    color: Colors.light?.text || "#FFFAF0",
+    fontSize: 18,
     fontWeight: "bold",
-    marginLeft: 10,
     textShadowColor: "rgba(0, 0, 0, 0.5)",
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
   },
-  onboardingButton: {
+  separator: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 30,
+    paddingHorizontal: 20,
+  },
+  separatorLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+  },
+  separatorText: {
+    color: Colors.light?.textSecondary || "#FFB347",
+    fontSize: 14,
+    fontWeight: "500",
+    marginHorizontal: 16,
+    textTransform: "uppercase",
+    letterSpacing: 1,
+  },
+  infoContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
     borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.3)",
+    padding: 16,
+    marginTop: 10,
   },
-  onboardingButtonText: {
-    color: Colors.text,
-    fontSize: 16,
-    fontWeight: "600",
-    marginRight: 8,
+  infoText: {
+    color: Colors.light?.textSecondary || "#FFB347",
+    fontSize: 14,
+    marginLeft: 8,
+    textAlign: "center",
+    lineHeight: 20,
   },
   background: {
     flex: 1,
