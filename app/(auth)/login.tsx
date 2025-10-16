@@ -189,12 +189,7 @@ export default function LoginScreen() {
               onPress={() => promptAsync()}
               disabled={isLoading || !request}
             >
-              <LinearGradient
-                colors={["#4285F4", "#34A853", "#FBBC05", "#EA4335"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.button}
-              >
+              <View style={[styles.button, { backgroundColor: Colors.light?.primary || "#FF6F00" }]}>
                 <View style={styles.googleIconContainer}>
                   <Ionicons name="logo-google" size={24} color="#fff" />
                 </View>
@@ -203,7 +198,7 @@ export default function LoginScreen() {
                     ? t("auth.login.connecting")
                     : t("auth.login.signInWithGoogle")}
                 </Text>
-              </LinearGradient>
+              </View>
             </TouchableOpacity>
 
             {/* Séparateur */}
@@ -215,7 +210,6 @@ export default function LoginScreen() {
 
             {/* Texte informatif */}
             <View style={styles.infoContainer}>
-              <Ionicons name="information-circle-outline" size={20} color={Colors.light?.textSecondary || "#FFB347"} />
               <Text style={styles.infoText}>
                 Connectez-vous pour accéder à tous les jeux et fonctionnalités
               </Text>
@@ -333,6 +327,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 24,
+    shadowColor: Colors.light?.primary || "#FF6F00",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
   buttonDisabled: {
     opacity: 0.7,
