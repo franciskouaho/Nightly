@@ -3,81 +3,134 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
     
-    // Règles pour les avatars utilisateur
+    // Fonction helper pour vérifier si l'utilisateur est admin
+    function isAdmin() {
+      return request.auth != null && 
+        request.auth.token.admin == true;
+    }
+    
+    // Fonction helper pour vérifier la propriété
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Fonction helper pour valider les types de fichiers
+    function isValidImageType() {
+      return resource.contentType.matches('image/.*');
+    }
+    
+    // Fonction helper pour valider la taille des fichiers
+    function isValidSize(maxSize) {
+      return resource.size <= maxSize;
+    }
+    
+    // Règles pour les avatars utilisateur - STRICT
     match /avatars/{userId}/{fileName} {
       allow read: if true; // Lecture publique des avatars
-      allow write: if request.auth != null && request.auth.uid == userId;
-      allow delete: if request.auth != null && request.auth.uid == userId;
+      allow write: if isOwner(userId) && 
+        isValidImageType() && 
+        isValidSize(5 * 1024 * 1024) && // Max 5MB
+        fileName.matches('.*\\.(jpg|jpeg|png|webp)$');
+      allow delete: if isOwner(userId) || isAdmin();
     }
     
-    // Règles pour les images de profil
+    // Règles pour les images de profil - STRICT
     match /profiles/{userId}/{fileName} {
       allow read: if true; // Lecture publique des profils
-      allow write: if request.auth != null && request.auth.uid == userId;
-      allow delete: if request.auth != null && request.auth.uid == userId;
+      allow write: if isOwner(userId) && 
+        isValidImageType() && 
+        isValidSize(3 * 1024 * 1024) && // Max 3MB
+        fileName.matches('.*\\.(jpg|jpeg|png|webp)$');
+      allow delete: if isOwner(userId) || isAdmin();
     }
     
-    // Règles pour les assets/skins du jeu
+    // Règles pour les assets/skins du jeu - ADMIN ONLY
     match /gameAssets/{assetId}/{fileName} {
-      allow read: if true; // Lecture publique des assets
-      allow write: if false; // Seuls les admins peuvent uploader
-      allow delete: if false; // Seuls les admins peuvent supprimer
+      allow read: if request.auth != null; // Lecture pour utilisateurs connectés
+      allow write: if false; // Seuls les admins via console
+      allow delete: if false; // Seuls les admins via console
     }
     
-    // Règles pour les images de jeux
+    // Règles pour les images de jeux - ADMIN ONLY
     match /gameImages/{gameId}/{fileName} {
-      allow read: if true; // Lecture publique des images de jeux
-      allow write: if false; // Seuls les admins peuvent uploader
-      allow delete: if false; // Seuls les admins peuvent supprimer
+      allow read: if request.auth != null; // Lecture pour utilisateurs connectés
+      allow write: if false; // Seuls les admins via console
+      allow delete: if false; // Seuls les admins via console
     }
     
-    // Règles pour les images d'événements
+    // Règles pour les images d'événements - ADMIN ONLY
     match /events/{eventId}/{fileName} {
-      allow read: if true; // Lecture publique des images d'événements
-      allow write: if false; // Seuls les admins peuvent uploader
-      allow delete: if false; // Seuls les admins peuvent supprimer
+      allow read: if request.auth != null; // Lecture pour utilisateurs connectés
+      allow write: if false; // Seuls les admins via console
+      allow delete: if false; // Seuls les admins via console
     }
     
-    // Règles pour les captures d'écran de jeu
+    // Règles pour les captures d'écran de jeu - STRICT
     match /screenshots/{userId}/{fileName} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == userId;
-      allow delete: if request.auth != null && request.auth.uid == userId;
+      allow read: if isOwner(userId);
+      allow write: if isOwner(userId) && 
+        isValidImageType() && 
+        isValidSize(10 * 1024 * 1024) && // Max 10MB
+        fileName.matches('.*\\.(jpg|jpeg|png|webp)$');
+      allow delete: if isOwner(userId) || isAdmin();
     }
     
-    // Règles pour les fichiers de debug/logs
+    // Règles pour les fichiers de debug/logs - TEMPORAIRES
     match /debug/{userId}/{fileName} {
-      allow read, write, delete: if request.auth != null && request.auth.uid == userId;
+      allow read, write, delete: if isOwner(userId);
     }
     
-    // Règles pour les fichiers temporaires
+    // Règles pour les fichiers temporaires - TEMPORAIRES
     match /temp/{userId}/{fileName} {
-      allow read, write, delete: if request.auth != null && request.auth.uid == userId;
+      allow read, write, delete: if isOwner(userId) && 
+        isValidSize(50 * 1024 * 1024); // Max 50MB pour les fichiers temporaires
     }
     
-    // Règles pour les fichiers de sauvegarde
+    // Règles pour les fichiers de sauvegarde - PRIVÉES
     match /backups/{userId}/{fileName} {
-      allow read, write, delete: if request.auth != null && request.auth.uid == userId;
+      allow read, write, delete: if isOwner(userId) && 
+        isValidSize(100 * 1024 * 1024); // Max 100MB pour les sauvegardes
     }
     
-    // Règles pour les fichiers de configuration
+    // Règles pour les fichiers de configuration - ADMIN ONLY
     match /config/{fileName} {
-      allow read: if true; // Lecture publique de la config
-      allow write, delete: if false; // Seuls les admins peuvent modifier
+      allow read: if request.auth != null; // Lecture pour utilisateurs connectés
+      allow write, delete: if false; // Seuls les admins via console
     }
     
-    // Règles pour les fichiers de traduction
+    // Règles pour les fichiers de traduction - ADMIN ONLY
     match /translations/{language}/{fileName} {
-      allow read: if true; // Lecture publique des traductions
-      allow write, delete: if false; // Seuls les admins peuvent modifier
+      allow read: if request.auth != null; // Lecture pour utilisateurs connectés
+      allow write, delete: if false; // Seuls les admins via console
     }
     
-    // Règles pour les fichiers de notification
+    // Règles pour les fichiers de notification - PRIVÉES
     match /notifications/{userId}/{fileName} {
-      allow read, write, delete: if request.auth != null && request.auth.uid == userId;
+      allow read, write, delete: if isOwner(userId);
     }
     
-    // Règles par défaut - refuser tout le reste
+    // Règles pour les fichiers de cache - TEMPORAIRES
+    match /cache/{userId}/{fileName} {
+      allow read, write, delete: if isOwner(userId) && 
+        isValidSize(20 * 1024 * 1024); // Max 20MB pour le cache
+    }
+    
+    // Règles pour les fichiers de téléchargement - PRIVÉES
+    match /downloads/{userId}/{fileName} {
+      allow read, write, delete: if isOwner(userId) && 
+        isValidSize(100 * 1024 * 1024); // Max 100MB pour les téléchargements
+    }
+    
+    // Règles pour les fichiers de média partagés - STRICT
+    match /shared/{userId}/{fileName} {
+      allow read: if request.auth != null; // Lecture pour utilisateurs connectés
+      allow write: if isOwner(userId) && 
+        isValidSize(25 * 1024 * 1024) && // Max 25MB
+        fileName.matches('.*\\.(jpg|jpeg|png|webp|mp4|mov|pdf|txt)$');
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+    
+    // Règles par défaut - REFUSER TOUT
     match /{allPaths=**} {
       allow read, write, delete: if false;
     }
