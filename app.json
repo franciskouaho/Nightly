@@ -16,7 +16,9 @@
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true
         },
-        "UIBackgroundModes": ["remote-notification"]
+        "UIBackgroundModes": [
+          "remote-notification"
+        ]
       },
       "requireFullScreen": true
     },
@@ -28,7 +30,10 @@
       "package": "com.emplica.nightly.android",
       "googleServicesFile": "./google-services.json",
       "versionCode": 26,
-      "permissions": ["INTERNET", "NOTIFICATIONS"],
+      "permissions": [
+        "INTERNET",
+        "NOTIFICATIONS"
+      ],
       "edgeToEdgeEnabled": true
     },
     "web": {
@@ -48,7 +53,9 @@
             "useFrameworks": "static"
           },
           "android": {
-            "permissions": ["com.android.vending.BILLING"],
+            "permissions": [
+              "com.android.vending.BILLING"
+            ],
             "enableProguardInReleaseBuilds": true,
             "enableShrinkResourcesInReleaseBuilds": true,
             "compileSdkVersion": 35,
@@ -75,9 +82,12 @@
           "icon": "./assets/halloween/logo.png",
           "color": "#4b277d"
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "experiments": {
       "typedRoutes": true
     },

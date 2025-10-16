@@ -38,14 +38,18 @@ export default function LoginScreen() {
     selectedProfile?: string;
   }>();
 
-  // Configuration Google Auth
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    expoClientId: GOOGLE_AUTH_CONFIG.expoClientId,
-    iosClientId: GOOGLE_AUTH_CONFIG.iosClientId,
-    androidClientId: GOOGLE_AUTH_CONFIG.androidClientId,
-    webClientId: GOOGLE_AUTH_CONFIG.webClientId,
-    scopes: GOOGLE_AUTH_CONFIG.scopes,
-  });
+  // Configuration Google Auth (seulement si configuré)
+  const [request, response, promptAsync] = Google.useAuthRequest(
+    GOOGLE_AUTH_CONFIG.isDevelopment && GOOGLE_AUTH_CONFIG.expoClientId === 'YOUR_EXPO_CLIENT_ID.apps.googleusercontent.com'
+      ? null // Désactive Google Auth en mode développement non configuré
+      : {
+          expoClientId: GOOGLE_AUTH_CONFIG.expoClientId,
+          iosClientId: GOOGLE_AUTH_CONFIG.iosClientId,
+          androidClientId: GOOGLE_AUTH_CONFIG.androidClientId,
+          webClientId: GOOGLE_AUTH_CONFIG.webClientId,
+          scopes: GOOGLE_AUTH_CONFIG.scopes,
+        }
+  );
 
   useEffect(() => {
     if (user) {
@@ -170,7 +174,7 @@ export default function LoginScreen() {
             <TouchableOpacity
               style={[
                 styles.googleButton,
-                isLoading && styles.buttonDisabled,
+                (isLoading || !request) && styles.buttonDisabled,
               ]}
               onPress={() => promptAsync()}
               disabled={isLoading || !request}
@@ -185,6 +189,8 @@ export default function LoginScreen() {
                 <Text style={styles.buttonText}>
                   {isLoading
                     ? t("auth.login.connecting")
+                    : !request
+                    ? "Google Auth non configuré"
                     : t("auth.login.signInWithGoogle", "Se connecter avec Google")}
                 </Text>
               </LinearGradient>
