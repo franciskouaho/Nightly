@@ -27,7 +27,7 @@
       },
       "package": "com.emplica.nightly.android",
       "googleServicesFile": "./google-services.json",
-      "versionCode": 25,
+      "versionCode": 26,
       "permissions": ["INTERNET", "NOTIFICATIONS"],
       "edgeToEdgeEnabled": true
     },

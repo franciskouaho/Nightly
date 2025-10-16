@@ -1,5 +1,5 @@
 pluginManagement {
-  def nodeBinary = "/Users/francis/.nvm/versions/node/v22.20.0/bin/node"
+  def nodeBinary = "/opt/homebrew/bin/node"
   
   def reactNativeGradlePlugin = new File(
     providers.exec {
