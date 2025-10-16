@@ -420,7 +420,7 @@
 					"FB_SONARKIT_ENABLED=1",
 				);
 				INFOPLIST_FILE = Nightly/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Nightly - Jeux de soirée";
+				INFOPLIST_KEY_CFBundleDisplayName = "Nightly – Party Games";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.board-games";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -458,7 +458,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = NAN7MFNMT7;
 				INFOPLIST_FILE = Nightly/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Nightly - Jeux de soirée";
+				INFOPLIST_KEY_CFBundleDisplayName = "Nightly – Party Games";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.board-games";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
