@@ -14,6 +14,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
+import { usePostHog } from '@/hooks/usePostHog';
 
 const { width, height } = Dimensions.get('window');
 
@@ -28,6 +29,7 @@ interface OnboardingSlide {
 export default function OnboardingScreen() {
   const { t } = useTranslation();
   const router = useRouter();
+  const { track } = usePostHog();
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollX = useRef(new Animated.Value(0)).current;
   const slidesRef = useRef<FlatList>(null);
@@ -78,11 +80,18 @@ export default function OnboardingScreen() {
   };
 
   const handleFinish = () => {
+    // Track PostHog onboarding completion
+    track.onboardingComplete(onboardingSlides.length);
     // Navigation vers l'écran principal ou de connexion
     router.replace('/(auth)/login');
   };
 
   const handleSkip = () => {
+    // Track PostHog onboarding skip
+    track.custom('onboarding_skipped', {
+      current_slide: currentIndex + 1,
+      total_slides: onboardingSlides.length,
+    });
     handleFinish();
   };
 

@@ -1,0 +1,120 @@
+// Configuration PostHog pour Nightly
+import { PostHog } from 'posthog-react-native';
+
+// Configuration PostHog EU
+export const POSTHOG_CONFIG = {
+  apiKey: 'phc_gdnE960X8pH4DWUkU3lBmZ7jTbaY0zuVM2oeAqe1J3t',
+  host: 'https://eu.i.posthog.com',
+  options: {
+    // Configuration pour React Native
+    enableFeatureFlags: true,
+    enableSessionRecording: false, // Désactivé pour les performances
+    enableAutocapture: true,
+    capturePageViews: true,
+    capturePageLeave: true,
+    
+    // Configuration spécifique mobile
+    disableGeoip: false,
+    disableSessionRecording: true,
+    
+    // Personnalisation
+    appVersion: '1.3.5', // Version de l'app depuis app.json
+    appBuild: '26', // Version code depuis app.json
+    
+    // Debug (désactiver en production)
+    debug: __DEV__,
+    
+    // Configuration des événements
+    autocapture: {
+      dom_event_allowlist: ['click', 'change', 'submit'],
+      url_allowlist: ['nightly.app', 'localhost'],
+    },
+  },
+};
+
+// Instance PostHog globale
+let posthogInstance: PostHog | null = null;
+
+export const getPostHogInstance = (): PostHog | null => {
+  return posthogInstance;
+};
+
+export const setPostHogInstance = (instance: PostHog): void => {
+  posthogInstance = instance;
+};
+
+// Fonctions utilitaires pour l'analytics
+export const posthogEvents = {
+  // Événements d'authentification
+  login: (method: string, success: boolean) => ({
+    event: 'user_login',
+    properties: {
+      method,
+      success,
+      timestamp: new Date().toISOString(),
+    },
+  }),
+  
+  logout: () => ({
+    event: 'user_logout',
+    properties: {
+      timestamp: new Date().toISOString(),
+    },
+  }),
+  
+  // Événements de jeu
+  gameStart: (gameType: string, playerCount: number) => ({
+    event: 'game_started',
+    properties: {
+      game_type: gameType,
+      player_count: playerCount,
+      timestamp: new Date().toISOString(),
+    },
+  }),
+  
+  gameEnd: (gameType: string, duration: number, score?: number) => ({
+    event: 'game_ended',
+    properties: {
+      game_type: gameType,
+      duration_seconds: duration,
+      final_score: score,
+      timestamp: new Date().toISOString(),
+    },
+  }),
+  
+  // Événements d'onboarding
+  onboardingStart: () => ({
+    event: 'onboarding_started',
+    properties: {
+      timestamp: new Date().toISOString(),
+    },
+  }),
+  
+  onboardingComplete: (steps: number) => ({
+    event: 'onboarding_completed',
+    properties: {
+      steps_completed: steps,
+      timestamp: new Date().toISOString(),
+    },
+  }),
+  
+  // Événements de navigation
+  screenView: (screenName: string) => ({
+    event: 'screen_viewed',
+    properties: {
+      screen_name: screenName,
+      timestamp: new Date().toISOString(),
+    },
+  }),
+  
+  // Événements d'erreur
+  error: (errorType: string, errorMessage: string, context?: any) => ({
+    event: 'app_error',
+    properties: {
+      error_type: errorType,
+      error_message: errorMessage,
+      context,
+      timestamp: new Date().toISOString(),
+    },
+  }),
+};

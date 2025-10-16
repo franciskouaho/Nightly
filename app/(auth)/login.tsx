@@ -5,6 +5,7 @@ import { analyticsInstance } from "@/config/firebase";
 import Colors from "@/constants/Colors";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAuthAnalytics } from "@/hooks/useAuthAnalytics";
+import { usePostHog } from "@/hooks/usePostHog";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -32,6 +33,7 @@ export default function LoginScreen() {
   const { user, signIn } = useAuth();
   const router = useRouter();
   const authAnalytics = useAuthAnalytics();
+  const { track } = usePostHog();
   const { t } = useTranslation();
   const { username, selectedProfile } = useLocalSearchParams<{
     username?: string;
@@ -87,6 +89,9 @@ export default function LoginScreen() {
       });
       await analyticsInstance().setUserId(finalUsername);
       
+      // Track PostHog Google login event
+      track.login("google", true);
+      
       router.replace("/(tabs)");
     } catch (error: any) {
       await authAnalytics.trackLogin("google", false);
@@ -94,6 +99,15 @@ export default function LoginScreen() {
         method: "google",
         success: false,
       });
+      
+      // Track PostHog Google login error
+      track.login("google", false);
+      track.error("google_auth_error", error.message || "Unknown error", {
+        method: "google",
+        hasUsername: !!username,
+        hasProfile: !!selectedProfile,
+      });
+      
       Alert.alert(t("errors.general"), error.message || t("errors.authError"));
     } finally {
       setIsLoading(false);
@@ -101,6 +115,8 @@ export default function LoginScreen() {
   };
 
   const handleStartOnboarding = () => {
+    // Track PostHog onboarding start event
+    track.onboardingStart();
     router.push('/onboarding/username');
   };
 
@@ -185,7 +201,7 @@ export default function LoginScreen() {
                 <Text style={styles.buttonText}>
                   {isLoading
                     ? t("auth.login.connecting")
-                    : t("auth.login.signInWithGoogle", "Se connecter avec Google")}
+                    : t("auth.login.signInWithGoogle")}
                 </Text>
               </LinearGradient>
             </TouchableOpacity>
@@ -197,7 +213,7 @@ export default function LoginScreen() {
                 onPress={handleStartOnboarding}
               >
                 <Text style={styles.onboardingButtonText}>
-                  {t("auth.login.startOnboarding", "Commencer l'onboarding")}
+                  {t("auth.login.startOnboarding")}
                 </Text>
                 <Ionicons name="arrow-forward" size={20} color="#fff" />
               </TouchableOpacity>

@@ -9,6 +9,8 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { PaperProvider } from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { PostHogProvider } from 'posthog-react-native';
+import { POSTHOG_CONFIG } from '@/config/posthog';
 
 export default function RootLayout() {
   useAppsFlyer();
@@ -23,19 +25,24 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <LanguageProvider>
-      <SafeAreaProvider>
-        <PaperProvider>
-          <AuthProvider>
-            <StatusBar style="light" />
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="(tabs)" />
-              <Stack.Screen name="(auth)" />
-              <Stack.Screen name="room/[id]" />
-            </Stack>
-          </AuthProvider>
-        </PaperProvider>
-      </SafeAreaProvider>
-    </LanguageProvider>
+    <PostHogProvider 
+      apiKey={POSTHOG_CONFIG.apiKey} 
+      options={POSTHOG_CONFIG.options}
+    >
+      <LanguageProvider>
+        <SafeAreaProvider>
+          <PaperProvider>
+            <AuthProvider>
+              <StatusBar style="light" />
+              <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="(tabs)" />
+                <Stack.Screen name="(auth)" />
+                <Stack.Screen name="room/[id]" />
+              </Stack>
+            </AuthProvider>
+          </PaperProvider>
+        </SafeAreaProvider>
+      </LanguageProvider>
+    </PostHogProvider>
   );
 }

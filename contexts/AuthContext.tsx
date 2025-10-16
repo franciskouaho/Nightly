@@ -1,6 +1,7 @@
 "use client";
 
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { usePostHog } from "@/hooks/usePostHog";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   getAuth,
@@ -54,6 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const { identifyUser, resetUser, trackEvent } = useAnalytics();
+  const { track, identify } = usePostHog();
 
   const saveUserUid = async (uid: string) => {
     try {
@@ -208,6 +210,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         uid,
         avatar,
       });
+      
+      // Track PostHog login event
+      track.login("anonymous", true);
+      identify(uid, {
+        username: pseudo,
+        avatar,
+        created_at: new Date().toISOString(),
+      });
     } catch (err) {
       setError(err as Error);
       throw err;
@@ -230,6 +240,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null);
       resetUser();
       trackEvent("user_signed_out");
+      
+      // Track PostHog logout event
+      track.logout();
     } catch (err) {
       console.error("Erreur lors de la déconnexion :", err);
       setError(err as Error);
