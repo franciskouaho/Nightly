@@ -1,5 +1,5 @@
 pluginManagement {
-  def nodeBinary = "/opt/homebrew/bin/node"
+  def nodeBinary = "/Users/francis/.nvm/versions/node/v22.20.0/bin/node"
   
   def reactNativeGradlePlugin = new File(
     providers.exec {
@@ -8,7 +8,7 @@ pluginManagement {
     }.standardOutput.asText.get().trim()
   ).getParentFile().absolutePath
   includeBuild(reactNativeGradlePlugin)
-
+  
   def expoPluginsPath = new File(
     providers.exec {
       workingDir(rootDir)

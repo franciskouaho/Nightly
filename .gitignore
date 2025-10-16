@@ -47,5 +47,7 @@ app-example
 /.idea/*
 
 # Android
-android/app/release/app-release.aabandroid/.kotlin/
-android/.kotlin/
+android/
+
+# iOS
+ios/
