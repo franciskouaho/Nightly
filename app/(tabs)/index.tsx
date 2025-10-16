@@ -6,6 +6,7 @@ import TopBar from "@/components/TopBar";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFirestore } from "@/hooks/useFirestore";
 import { useExpoNotifications } from "@/hooks/useExpoNotifications";
+import { usePostHog } from "@/hooks/usePostHog";
 import HalloweenNotificationScheduler from "@/services/halloweenNotificationScheduler";
 import Colors from "@/constants/Colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -75,9 +76,19 @@ export default function HomeScreen() {
   const { t } = useTranslation();
   const [error, setError] = React.useState("");
   const [paywallVisible, setPaywallVisible] = React.useState(false);
+  const posthog = usePostHog();
   
   // Hook pour les notifications Expo
   const { expoPushToken, isPermissionGranted, sendLocalNotification, sendHalloweenQuizNotification } = useExpoNotifications();
+
+  // Test PostHog
+  useEffect(() => {
+    posthog.capture("HomeScreen loaded", { 
+      foo: "bar",
+      userId: user?.uid || "anonymous",
+      timestamp: new Date().toISOString()
+    });
+  }, []);
 
   useEffect(() => {
     console.log("🔄 État de création de salle:", isCreatingRoom);
@@ -416,7 +427,7 @@ export default function HomeScreen() {
         testID={`game-mode-${game.id}`}
       >
         <LinearGradient
-          colors={game.colors && game.colors.length >= 2 ? game.colors as [string, string, ...string[]] : [Colors.light.gradient.pumpkin.from, Colors.light.gradient.pumpkin.to]}
+          colors={game.colors && game.colors.length >= 2 ? game.colors as [string, string, ...string[]] : [Colors.light?.gradient?.pumpkin?.from || "#FF6F00", Colors.light?.gradient?.pumpkin?.to || "#FFD700"]}
           style={[
             styles.modeGradient,
             {
@@ -517,15 +528,22 @@ export default function HomeScreen() {
     </View>
   );
 
+  // Vérification de sécurité pour les couleurs
+  const midnightGradient = Colors.light?.gradient?.midnight || {
+    from: "#1A1A2E",
+    to: "#120F1C", 
+    middle: "#4B1E00"
+  };
+
   return (
     <View style={styles.container}>
       <LinearGradient
         colors={[
-          Colors.light.gradient.midnight.from,
-          Colors.light.gradient.midnight.from,
-          Colors.light.gradient.midnight.middle,
-          Colors.light.gradient.midnight.from,
-          Colors.light.gradient.midnight.to,
+          midnightGradient.from,
+          midnightGradient.from,
+          midnightGradient.middle,
+          midnightGradient.from,
+          midnightGradient.to,
         ]}
         locations={[0, 0.2, 0.5, 0.8, 1]}
         style={styles.background}

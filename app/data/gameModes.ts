@@ -36,12 +36,12 @@ export const gameCategories: GameCategory[] = [
                 name: 'QUIZ HALLOWEEN 🎃',
                 description: 'Testez vos connaissances sur Halloween avec des questions effrayantes !',
                 image: require('@/assets/jeux/quiz-halloween.png'),
-                colors: [HalloweenTheme.primary, HalloweenTheme.error], // Couleurs Halloween du thème
-                borderColor: HalloweenTheme.primary,
-                shadowColor: HalloweenTheme.error,
+                colors: [HalloweenTheme.light?.primary || '#FF6F00', HalloweenTheme.light?.error || '#FF1744'], // Couleurs Halloween du thème
+                borderColor: HalloweenTheme.light?.primary || '#FF6F00',
+                shadowColor: HalloweenTheme.light?.error || '#FF1744',
                 tags: [{
                     text: 'home.games.quiz-halloween.tags.halloween',
-                    color: HalloweenTheme.primary
+                    color: HalloweenTheme.light?.primary || '#FF6F00'
                 }, {
                     text: 'home.games.quiz-halloween.tags.premium',
                     color: '#D81B60'

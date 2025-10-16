@@ -13,9 +13,9 @@ import HalloweenDecorations from '@/components/HalloweenDecorations';
 import { useTranslation } from 'react-i18next';
 
 export default function RoomScreen() {
-  const { id } = useLocalSearchParams();
-  const { user } = useAuth();
-  const { t } = useTranslation();
+    const { id } = useLocalSearchParams();
+    const { user } = useAuth();
+    const { t } = useTranslation();
   const {
     room,
     loading,
@@ -30,8 +30,8 @@ export default function RoomScreen() {
   const [showRules, setShowRules] = useState(false);
   const [showInvite, setShowInvite] = useState(false);
 
-  if (loading) {
-    return (
+    if (loading) {
+        return (
       <View style={styles.container}>
         <StatusBar barStyle="light-content" />
         <LinearGradient
@@ -44,25 +44,25 @@ export default function RoomScreen() {
             {t('room.loading', 'Chargement de la salle...')}
           </Text>
         </View>
-      </View>
-    );
-  }
+            </View>
+        );
+    }
 
   if (!room) {
     return (
-      <View style={styles.container}>
+        <View style={styles.container}>
         <StatusBar barStyle="light-content" />
-        <LinearGradient
+            <LinearGradient
           colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
-          locations={[0, 0.2, 0.5, 0.8, 1]}
+                locations={[0, 0.2, 0.5, 0.8, 1]}
           style={StyleSheet.absoluteFillObject}
         />
         <View style={styles.loadingOverlay}>
           <Text style={styles.loadingText}>
             {t('room.error', 'Salle introuvable')}
-          </Text>
-        </View>
-      </View>
+                        </Text>
+                    </View>
+                </View>
     );
   }
 
@@ -93,10 +93,10 @@ export default function RoomScreen() {
           canStartGame={canStartGame(room.gameId)}
           onToggleReady={togglePlayerReady}
           onStartGame={startGame}
-        />
-      </View>
+                    />
+                </View>
 
-      <RulesDrawer
+                <RulesDrawer
         visible={showRules}
         onClose={() => setShowRules(false)}
         gameId={room.gameId}
@@ -109,26 +109,26 @@ export default function RoomScreen() {
         onCopyCode={() => {}}
         onShareCode={() => {}}
       />
-    </View>
-  );
+        </View>
+    );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+    container: {
+        flex: 1,
+    },
   content: {
-    flex: 1,
+        flex: 1,
     paddingHorizontal: 20,
-  },
+    },
   loadingOverlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    color: '#fff',
-    fontSize: 18,
-    textAlign: 'center',
-  },
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    loadingText: {
+        color: '#fff',
+        fontSize: 18,
+        textAlign: 'center',
+    },
 });

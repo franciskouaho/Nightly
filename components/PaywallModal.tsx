@@ -132,11 +132,11 @@ export default function PaywallModal({ isVisible, onClose }: PaywallModalProps) 
         >
           <LinearGradient
             colors={[
-              HalloweenTheme.backgroundDarker,
-              HalloweenTheme.secondary,
-              HalloweenTheme.primary,
-              HalloweenTheme.secondary,
-              HalloweenTheme.backgroundDarker,
+              HalloweenTheme.light?.backgroundDarker || '#120F1C',
+              HalloweenTheme.light?.secondary || '#4B1E00',
+              HalloweenTheme.light?.primary || '#FF6F00',
+              HalloweenTheme.light?.secondary || '#4B1E00',
+              HalloweenTheme.light?.backgroundDarker || '#120F1C',
             ]}
             locations={[0, 0.2, 0.5, 0.8, 1]}
             style={styles.gradientOverlay}
@@ -374,7 +374,7 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: HalloweenTheme.secondary,
+    backgroundColor: HalloweenTheme.light?.secondary || '#4B1E00',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 6,
@@ -421,7 +421,7 @@ const styles = StyleSheet.create({
     backgroundColor: HalloweenTheme.primary,
   },
   monthlyBadge: {
-    backgroundColor: HalloweenTheme.secondary,
+    backgroundColor: HalloweenTheme.light?.secondary || '#4B1E00',
   },
   annualBadge: {
     backgroundColor: HalloweenTheme.error,
@@ -461,7 +461,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginVertical: 10,
     overflow: 'hidden',
-    backgroundColor: HalloweenTheme.secondary,
+    backgroundColor: HalloweenTheme.light?.secondary || '#4B1E00',
   },
   gradientButton: {
     paddingVertical: 6,

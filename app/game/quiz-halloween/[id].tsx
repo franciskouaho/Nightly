@@ -15,6 +15,7 @@ import { usePoints } from '@/hooks/usePoints';
 import { useLanguage } from '@/contexts/LanguageContext';
 import HalloweenDecorations from '@/components/HalloweenDecorations';
 import { useInAppReview } from '@/hooks/useInAppReview';
+import Colors from '@/constants/Colors';
 
 interface HalloweenQuizGameState {
   phase: GamePhase;
@@ -414,7 +415,11 @@ export default function QuizHalloweenGameOptimized() {
     return (
       <View style={styles.container}>
         <LinearGradient
-          colors={['#2D1810', '#8B4513', '#D2691E']}
+          colors={[
+            Colors.light?.backgroundDarker || '#120F1C',
+            Colors.light?.background || '#1A1A2E', 
+            Colors.light?.backgroundLighter || '#2D223A'
+          ]}
           style={styles.background}
         >
           <Text style={styles.loadingText}>🎃 Chargement du Quiz Halloween... 🎃</Text>
@@ -427,7 +432,11 @@ export default function QuizHalloweenGameOptimized() {
     return (
       <View style={styles.container}>
         <LinearGradient
-          colors={['#2D1810', '#8B4513', '#D2691E']}
+          colors={[
+            Colors.light?.backgroundDarker || '#120F1C',
+            Colors.light?.background || '#1A1A2E', 
+            Colors.light?.backgroundLighter || '#2D223A'
+          ]}
           style={styles.background}
         >
           <HalloweenDecorations />
@@ -436,7 +445,11 @@ export default function QuizHalloweenGameOptimized() {
             <Text style={styles.subtitle}>Testez vos connaissances effrayantes !</Text>
             <TouchableOpacity style={styles.startButton} onPress={startNewQuestion}>
               <LinearGradient
-                colors={['#8B0000', '#4B0082', '#2F1B69']}
+                colors={[
+                  Colors.light?.primary || '#FF6F00',
+                  Colors.light?.secondary || '#4B1E00',
+                  Colors.light?.tertiary || '#FFD700'
+                ]}
                 style={styles.startButtonGradient}
               >
                 <Text style={styles.startButtonText}>🕷️ Commencer le Quiz 🕷️</Text>
@@ -464,7 +477,11 @@ export default function QuizHalloweenGameOptimized() {
     return (
       <View style={styles.container}>
         <LinearGradient
-          colors={['#2D1810', '#8B4513', '#D2691E']}
+          colors={[
+            Colors.light?.backgroundDarker || '#120F1C',
+            Colors.light?.background || '#1A1A2E', 
+            Colors.light?.backgroundLighter || '#2D223A'
+          ]}
           style={styles.background}
         >
           <Text style={styles.loadingText}>🎃 Plus de questions disponibles... 🎃</Text>

@@ -4,6 +4,32 @@ import { posthogEvents } from '@/config/posthog';
 // Hook personnalisé pour PostHog avec des fonctions utilitaires
 export function usePostHog() {
   const posthog = usePostHogOriginal();
+  
+  // Vérification de sécurité pour éviter les erreurs si PostHog n'est pas initialisé
+  if (!posthog) {
+    console.warn('PostHog not initialized yet');
+    return {
+      posthog: null,
+      track: {
+        login: () => {},
+        logout: () => {},
+        gameStart: () => {},
+        gameEnd: () => {},
+        onboardingStart: () => {},
+        onboardingComplete: () => {},
+        screenView: () => {},
+        error: () => {},
+        custom: () => {},
+      },
+      identify: () => {},
+      setUserProperties: () => {},
+      getFeatureFlag: () => undefined,
+      isFeatureEnabled: () => false,
+      capture: () => {},
+      alias: () => {},
+      reset: () => {},
+    };
+  }
 
   // Fonctions utilitaires pour l'analytics
   const track = {
