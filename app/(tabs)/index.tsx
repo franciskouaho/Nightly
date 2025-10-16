@@ -416,12 +416,12 @@ export default function HomeScreen() {
         testID={`game-mode-${game.id}`}
       >
         <LinearGradient
-          colors={game.colors && game.colors.length >= 2 ? game.colors as [string, string, ...string[]] : [Colors.gradient.pumpkin.from, Colors.gradient.pumpkin.to]}
+          colors={game.colors && game.colors.length >= 2 ? game.colors as [string, string, ...string[]] : [Colors.light.gradient.pumpkin.from, Colors.light.gradient.pumpkin.to]}
           style={[
             styles.modeGradient,
             {
-              borderColor: game.borderColor || Colors.primary,
-              shadowColor: game.shadowColor || Colors.secondary,
+              borderColor: game.borderColor || Colors.light.primary,
+              shadowColor: game.shadowColor || Colors.light.secondary,
             },
             isGridItem && styles.gridModeGradient,
           ]}
@@ -521,11 +521,11 @@ export default function HomeScreen() {
     <View style={styles.container}>
       <LinearGradient
         colors={[
-          Colors.gradient.midnight.from,
-          Colors.gradient.midnight.from,
-          Colors.gradient.midnight.middle,
-          Colors.gradient.midnight.from,
-          Colors.gradient.midnight.to,
+          Colors.light.gradient.midnight.from,
+          Colors.light.gradient.midnight.from,
+          Colors.light.gradient.midnight.middle,
+          Colors.light.gradient.midnight.from,
+          Colors.light.gradient.midnight.to,
         ]}
         locations={[0, 0.2, 0.5, 0.8, 1]}
         style={styles.background}
@@ -694,7 +694,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   categorySubtitle: {
-    color: Colors.textSecondary,
+    color: Colors.light.textSecondary,
     fontSize: 12,
   },
   rulesButton: {
@@ -827,22 +827,22 @@ const styles = StyleSheet.create({
   },
   codeInputContainer: {
     flex: 1,
-    backgroundColor: Colors.backgroundLighter,
+    backgroundColor: Colors.light.backgroundLighter,
     borderRadius: 12,
     borderWidth: 1.5,
-    borderColor: Colors.secondary,
+    borderColor: Colors.light.secondary,
     height: 45,
     justifyContent: "center",
     paddingHorizontal: 24,
     marginRight: 16,
-    shadowColor: Colors.primary,
+    shadowColor: Colors.light.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.12,
     shadowRadius: 12,
     elevation: 6,
   },
   codeInputText: {
-    color: Colors.text,
+    color: Colors.light.text,
     fontSize: 14,
     fontWeight: "400",
     letterSpacing: 0.2,
@@ -856,7 +856,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: Colors.primary,
+    shadowColor: Colors.light.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.18,
     shadowRadius: 8,
