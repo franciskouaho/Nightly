@@ -1,32 +1,17 @@
 // Configuration pour Google Authentication
 export const GOOGLE_AUTH_CONFIG = {
-  // Configuration temporaire pour le développement
-  // Remplacez ces valeurs par vos vraies clés Google OAuth
-  expoClientId: 'YOUR_EXPO_CLIENT_ID.apps.googleusercontent.com',
-  iosClientId: 'YOUR_IOS_CLIENT_ID.apps.googleusercontent.com', 
-  androidClientId: 'YOUR_ANDROID_CLIENT_ID.apps.googleusercontent.com',
-  webClientId: 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com',
+  // Clés récupérées depuis google-services.json et GoogleService-Info.plist
+  expoClientId: '939461087699-rjimn8st7pb69lcgc98f8bni50qeufpj.apps.googleusercontent.com', // Android Web Client
+  iosClientId: '939461087699-r50qjj71i1jiau3jjep078ki03taugb5.apps.googleusercontent.com', // iOS Client
+  androidClientId: '939461087699-rjimn8st7pb69lcgc98f8bni50qeufpj.apps.googleusercontent.com', // Android Client
+  webClientId: '939461087699-rjimn8st7pb69lcgc98f8bni50qeufpj.apps.googleusercontent.com', // Web Client
   
   // Scopes requis pour l'authentification
   scopes: ['openid', 'profile', 'email'],
   
-  // URL de redirection temporaire
-  redirectUri: 'https://auth.expo.io/@your-username/your-app-slug',
+  // URL de redirection Expo
+  redirectUri: 'https://auth.expo.io/@iamfrancisco/nightly',
   
   // Mode développement (désactive Google Auth si pas configuré)
-  isDevelopment: true,
+  isDevelopment: false, // Activé maintenant que nous avons les vraies clés
 };
-
-// Instructions pour configurer Google Auth :
-/*
-1. Allez sur https://console.developers.google.com/
-2. Créez un nouveau projet ou sélectionnez un projet existant
-3. Activez l'API Google+ API
-4. Créez des identifiants OAuth 2.0 :
-   - Application type: Web application (pour webClientId)
-   - Application type: iOS (pour iosClientId)
-   - Application type: Android (pour androidClientId)
-5. Pour Expo, créez aussi un client OAuth pour Expo
-6. Configurez les URI de redirection autorisés
-7. Remplacez les valeurs ci-dessus par vos vraies clés
-*/
