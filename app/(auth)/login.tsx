@@ -122,11 +122,11 @@ export default function LoginScreen() {
     >
       <LinearGradient
         colors={[
-          "rgba(0, 0, 0, 0.95)",
-          "rgba(80, 40, 20, 0.9)",
-          "rgba(120, 60, 30, 0.9)",
-          "rgba(80, 40, 20, 0.9)",
-          "rgba(0, 0, 0, 0.95)",
+          Colors.light?.gradient?.midnight?.from || "#1A1A2E",
+          Colors.light?.gradient?.midnight?.from || "#1A1A2E",
+          Colors.light?.gradient?.midnight?.middle || "#4B1E00",
+          Colors.light?.gradient?.midnight?.from || "#1A1A2E",
+          Colors.light?.gradient?.midnight?.to || "#120F1C",
         ]}
         locations={[0, 0.2, 0.5, 0.8, 1]}
         style={styles.background}
