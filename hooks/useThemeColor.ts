@@ -16,6 +16,12 @@ export function useThemeColor(
   if (colorFromProps) {
     return colorFromProps;
   } else {
-    return Colors[theme][colorName];
+    // Vérification de sécurité pour éviter les erreurs
+    const themeColors = Colors[theme];
+    if (themeColors && themeColors[colorName]) {
+      return themeColors[colorName];
+    }
+    // Fallback vers une couleur par défaut
+    return themeColors?.primary || '#FF6F00';
   }
 }

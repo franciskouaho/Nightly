@@ -2,7 +2,8 @@
 
 const tintColor = "#FF6F00";
 
-export default {
+// Structure compatible avec useThemeColor
+const halloweenTheme = {
   primary: "#FF6F00", // orange vif
   secondary: "#4B1E00", // brun foncé
   tertiary: "#FFD700", // doré
@@ -18,6 +19,10 @@ export default {
   tint: tintColor,
   tabIconDefault: "#FFB347",
   tabIconSelected: tintColor,
+  // Propriétés requises par useThemeColor
+  foreground: "#FFFAF0", // ivoire
+  muted: "#FFB347", // orange pâle
+  accent: "#FFD700", // doré
   gradient: {
     pumpkin: {
       from: "#FF6F00",
@@ -42,4 +47,10 @@ export default {
     },
   },
   // Ajoutez ici des icônes ou assets spécifiques si besoin
+};
+
+// Export avec la structure attendue par useThemeColor
+export default {
+  light: halloweenTheme,
+  dark: halloweenTheme,
 };
