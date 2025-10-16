@@ -1,17 +1,21 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
-import { useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import RoundedButton from '@/components/RoundedButton';
-import { usePoints } from '@/hooks/usePoints';
-import { Player } from '@/types/gameTypes';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useInAppReview } from '@/hooks/useInAppReview';
-import { useTranslation } from 'react-i18next';
+import RoundedButton from "@/components/RoundedButton";
+import { useInAppReview } from "@/hooks/useInAppReview";
+import { usePoints } from "@/hooks/usePoints";
+import { Player } from "@/types/gameTypes";
+import { Ionicons } from "@expo/vector-icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
+import React, { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const PlayerRankDisplay: React.FC<{ player: Player; rank: number; score: number }> = ({ player, rank, score }) => {
+const PlayerRankDisplay: React.FC<{
+  player: Player;
+  rank: number;
+  score: number;
+}> = ({ player, rank, score }) => {
   const containerStyle = [
     styles.playerRankContainer,
     rank === 1 ? styles.rank1Container : styles.rank2PlusContainer,
@@ -20,14 +24,28 @@ const PlayerRankDisplay: React.FC<{ player: Player; rank: number; score: number 
 
   return (
     <View style={containerStyle}>
-      <View style={[styles.avatarWrapper, { width: avatarSize, height: avatarSize, borderRadius: avatarSize / 2 }]}>
-        <Image source={{ uri: player.avatar || 'https://via.placeholder.com/100' }} style={styles.avatar} />
+      <View
+        style={[
+          styles.avatarWrapper,
+          {
+            width: avatarSize,
+            height: avatarSize,
+            borderRadius: avatarSize / 2,
+          },
+        ]}
+      >
+        <Image
+          source={{ uri: player.avatar || "https://via.placeholder.com/100" }}
+          style={styles.avatar}
+        />
         {rank === 1 && <Text style={styles.crown}>👑</Text>}
         <View style={styles.rankBadge}>
           <Text style={styles.rankBadgeText}>{rank}</Text>
         </View>
       </View>
-      <Text style={styles.playerName} numberOfLines={1}>{player.name}</Text>
+      <Text style={styles.playerName} numberOfLines={1}>
+        {player.name}
+      </Text>
       <Text style={styles.playerScore}>{score} pts</Text>
     </View>
   );
@@ -52,7 +70,7 @@ export default function GameResults({
   scores,
   userId,
   pointsConfig = {},
-  colors = ['#21101C', '#21101C'],
+  colors = ["#21101C", "#21101C"],
   secondaryScores,
   secondaryScoresTitle,
 }: GameResultsProps) {
@@ -62,9 +80,10 @@ export default function GameResults({
   const { requestReview } = useInAppReview();
   const { t } = useTranslation();
 
-  const sortedPlayers = useMemo(() =>
-    [...players].sort((a, b) => (scores[b.id] || 0) - (scores[a.id] || 0)),
-    [players, scores]
+  const sortedPlayers = useMemo(
+    () =>
+      [...players].sort((a, b) => (scores[b.id] || 0) - (scores[a.id] || 0)),
+    [players, scores],
   );
 
   const topThree = useMemo(() => sortedPlayers.slice(0, 3), [sortedPlayers]);
@@ -72,7 +91,10 @@ export default function GameResults({
   const player2 = topThree.find((p, i) => i === 1);
   const player3 = topThree.find((p, i) => i === 2);
 
-  const currentUserRank = useMemo(() => sortedPlayers.findIndex((p) => p.id === userId) + 1, [sortedPlayers, userId]);
+  const currentUserRank = useMemo(
+    () => sortedPlayers.findIndex((p) => p.id === userId) + 1,
+    [sortedPlayers, userId],
+  );
 
   const lumicoinsReward = useMemo(() => {
     if (currentUserRank === 1) return 30;
@@ -83,33 +105,69 @@ export default function GameResults({
 
   const rank_name = `rang ${currentUserRank}`;
 
-  useEffect(() => {
-    if (currentUserRank === 1) {
-      requestReview();
-    }
-  }, [currentUserRank, requestReview]);
+  // Flag local pour éviter le spam de requestReview
+  const [reviewRequested, setReviewRequested] = useState(false);
 
+  useEffect(() => {
+    if (currentUserRank === 1 && !reviewRequested) {
+      requestReview();
+      setReviewRequested(true);
+    }
+  }, [currentUserRank, requestReview, reviewRequested]);
 
   return (
     <LinearGradient colors={colors} style={styles.resultsBg}>
-      <View style={[styles.container, { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 10 }]}>
+      <View
+        style={[
+          styles.container,
+          { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 10 },
+        ]}
+      >
         <View style={styles.topPlayersContainer}>
-          {player2 && <PlayerRankDisplay player={player2} rank={2} score={scores[player2.id] || 0} />}
-          {player1 && <PlayerRankDisplay player={player1} rank={1} score={scores[player1.id] || 0} />}
-          {player3 && <PlayerRankDisplay player={player3} rank={3} score={scores[player3.id] || 0} />}
+          {player2 && (
+            <PlayerRankDisplay
+              player={player2}
+              rank={2}
+              score={scores[player2.id] || 0}
+            />
+          )}
+          {player1 && (
+            <PlayerRankDisplay
+              player={player1}
+              rank={1}
+              score={scores[player1.id] || 0}
+            />
+          )}
+          {player3 && (
+            <PlayerRankDisplay
+              player={player3}
+              rank={3}
+              score={scores[player3.id] || 0}
+            />
+          )}
         </View>
 
         <Pressable
-          onPress={() => awardLumiCoins(userId, lumicoinsReward, 'game_reward', rank_name)}
+          onPress={() =>
+            awardLumiCoins(userId, lumicoinsReward, "game_reward", rank_name)
+          }
           style={styles.lumicoinsButton}
         >
-          <MaterialCommunityIcons name="currency-btc" size={22} color="#FDD835" />
-          <Text style={styles.lumicoinsButtonText}>+{lumicoinsReward} {t('common.lumicoins', 'Lumicoins')}</Text>
+          <MaterialCommunityIcons
+            name="currency-btc"
+            size={22}
+            color="#FDD835"
+          />
+          <Text style={styles.lumicoinsButtonText}>
+            +{lumicoinsReward} {t("common.lumicoins", "Lumicoins")}
+          </Text>
         </Pressable>
 
         {currentUserRank > 0 && (
           <View style={styles.currentUserRankContainer}>
-            <Text style={styles.currentUserRankText}>{t('game.results.yourCurrentRank', 'Votre rang actuel')}</Text>
+            <Text style={styles.currentUserRankText}>
+              {t("game.results.yourCurrentRank", "Votre rang actuel")}
+            </Text>
             <View style={styles.rankInfo}>
               <Text style={styles.rankNumber}>{currentUserRank}</Text>
               <Ionicons name="arrow-up" size={24} color="#00E676" />
@@ -117,12 +175,12 @@ export default function GameResults({
           </View>
         )}
 
-        <View style={{flex: 1}} />
+        <View style={{ flex: 1 }} />
 
         <View style={styles.footer}>
           <RoundedButton
             title="Accueil"
-            onPress={() => router.replace('/(tabs)')}
+            onPress={() => router.replace("/(tabs)")}
             icon={<Ionicons name="home" size={22} color="#fff" />}
             gradientColors={["#8B0000", "#4B0082", "#2F1B69"]}
             style={styles.homeButton}
@@ -141,17 +199,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 20,
-    alignItems: 'center',
+    alignItems: "center",
   },
   topPlayersContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'flex-end',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "flex-end",
     height: 220,
     marginBottom: 30,
   },
   playerRankContainer: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   rank1Container: {
     zIndex: 1,
@@ -162,113 +220,113 @@ const styles = StyleSheet.create({
   },
   avatarWrapper: {
     borderWidth: 4,
-    borderColor: '#FFD700',
-    backgroundColor: '#3a2d4f',
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'relative',
+    borderColor: "#FFD700",
+    backgroundColor: "#3a2d4f",
+    justifyContent: "center",
+    alignItems: "center",
+    position: "relative",
     marginBottom: 8,
   },
   avatar: {
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
     borderRadius: 50,
   },
   crown: {
-    position: 'absolute',
+    position: "absolute",
     top: -25,
     fontSize: 24,
   },
   rankBadge: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     right: 0,
-    backgroundColor: '#FFD700',
+    backgroundColor: "#FFD700",
     width: 28,
     height: 28,
     borderRadius: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     borderWidth: 2,
-    borderColor: '#21101C',
+    borderColor: "#21101C",
   },
   rankBadgeText: {
-    color: '#21101C',
-    fontWeight: 'bold',
+    color: "#21101C",
+    fontWeight: "bold",
     fontSize: 16,
   },
   playerName: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
     fontSize: 16,
-    textAlign: 'center',
+    textAlign: "center",
   },
   playerScore: {
-    color: 'rgba(255,255,255,0.7)',
+    color: "rgba(255,255,255,0.7)",
     fontSize: 14,
   },
   lumicoinsButton: {
-    backgroundColor: '#3D2E27',
-    borderColor: '#FDD835',
+    backgroundColor: "#3D2E27",
+    borderColor: "#FDD835",
     borderWidth: 2,
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 25,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 20,
-    width: '80%',
-    shadowColor: '#FDD835',
+    width: "80%",
+    shadowColor: "#FDD835",
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.5,
     shadowRadius: 5,
     elevation: 8,
   },
   lumicoinsButtonText: {
-    color: '#FDD835',
-    fontWeight: 'bold',
+    color: "#FDD835",
+    fontWeight: "bold",
     marginLeft: 10,
     fontSize: 18,
   },
   currentUserRankContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
     borderRadius: 12,
     paddingVertical: 15,
     paddingHorizontal: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
   },
   currentUserRankText: {
-    color: 'white',
+    color: "white",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   rankInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   rankNumber: {
-    color: 'white',
+    color: "white",
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginRight: 8,
   },
   footer: {
-    width: '100%',
+    width: "100%",
     paddingBottom: 10,
   },
   homeButton: {
     paddingVertical: 16,
     borderRadius: 25,
-    width: '100%',
+    width: "100%",
   },
   homeButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
   },
-}); 
+});

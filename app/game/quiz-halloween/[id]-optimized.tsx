@@ -41,6 +41,8 @@ interface HalloweenQuizGameState {
   }>;
   theme: string;
   timer: number | null;
+  timerStartedAt?: number | null;
+  _nextQuestionTriggered?: boolean;
 }
 
 export default function QuizHalloweenGameOptimized() {
@@ -64,10 +66,17 @@ export default function QuizHalloweenGameOptimized() {
   const [showResult, setShowResult] = useState(false);
   const [isAnswerCorrect, setIsAnswerCorrect] = useState(false);
   const [animationValue] = useState(new Animated.Value(0));
-  const [timer, setTimer] = useState(15);
+  // Le timer local est supprimé, on utilisera gameState.timer
   const [canAnswer, setCanAnswer] = useState(true);
 
   // Scores locaux - seulement mis à jour localement, sauvegardés à la fin
+
+  // À chaque nouvelle question, on remet selectedAnswer à null pour chaque joueur
+  useEffect(() => {
+    setSelectedAnswer(null);
+    setShowResult(false);
+    setCanAnswer(true);
+  }, [gameState?.currentQuestion]);
   const [localScores, setLocalScores] = useState<Record<string, number>>({});
 
   // Initialiser le jeu si nécessaire
@@ -148,30 +157,41 @@ export default function QuizHalloweenGameOptimized() {
     }
   }, [gameState, localScores, updateGameState, awardGamePoints, gameId]);
 
-  // Timer optimisé avec useCallback
+  // Timer global synchronisé via gameState
   useEffect(() => {
-    if (gameState?.currentQuestion && !selectedAnswer) {
-      console.log("🎃 Timer démarré pour nouvelle question");
-      setTimer(15);
-      setCanAnswer(true);
+    // Seul l'hôte démarre et met à jour le timer dans gameState
+    if (
+      user?.uid === gameState?.host &&
+      gameState?.currentQuestion &&
+      gameState?.timer === null
+    ) {
+      // Timer démarré pour tous
+      const startTimestamp = Date.now();
+      updateGameState({
+        ...gameState,
+        timer: 15,
+        timerStartedAt: startTimestamp,
+      });
 
       const timerInterval = setInterval(() => {
-        setTimer((prevTimer) => {
-          if (prevTimer <= 1) {
-            console.log("🎃 Temps écoulé");
-            clearInterval(timerInterval);
-            return 0;
-          }
-          return prevTimer - 1;
-        });
+        const elapsed = Math.floor((Date.now() - startTimestamp) / 1000);
+        const remaining = Math.max(15 - elapsed, 0);
+        updateGameState({ ...gameState, timer: remaining });
+        if (remaining <= 0) {
+          clearInterval(timerInterval);
+        }
       }, 1000);
 
       return () => clearInterval(timerInterval);
-    } else if (selectedAnswer) {
-      console.log("🎃 Timer arrêté car réponse donnée");
     }
     return undefined;
-  }, [gameState?.currentQuestion, selectedAnswer]);
+  }, [
+    gameState?.currentQuestion,
+    gameState?.timer,
+    user?.uid,
+    gameState?.host,
+    updateGameState,
+  ]);
 
   // Calculer si tous les joueurs ont répondu
   const allPlayersAnswered = useMemo(() => {
@@ -184,24 +204,19 @@ export default function QuizHalloweenGameOptimized() {
   useEffect(() => {
     const totalPlayers = gameState?.players?.length || 0;
     const answeredPlayers = Object.keys(gameState?.playerAnswers || {}).length;
-    console.log(
-      "CHECK: totalPlayers",
-      totalPlayers,
-      "answeredPlayers",
-      answeredPlayers,
-      "allPlayersAnswered",
-      allPlayersAnswered,
-      "_allAnswered",
-      gameState?._allAnswered,
-    );
+    const timerEnded = gameState?.timer === 0;
 
-    // Passage à la question suivante uniquement si tous ont répondu et que ce n'est pas déjà traité
+    // Passage à la question suivante si tous ont répondu OU si le timer est fini (même si _allAnswered est déjà true)
     if (
       totalPlayers > 0 &&
-      answeredPlayers >= totalPlayers &&
-      !gameState._allAnswered
+      ((answeredPlayers >= totalPlayers && !gameState._nextQuestionTriggered) ||
+        (timerEnded && !gameState._nextQuestionTriggered))
     ) {
-      updateGameState({ ...gameState, _allAnswered: true });
+      updateGameState({
+        ...gameState,
+        _allAnswered: true,
+        _nextQuestionTriggered: true,
+      });
       setTimeout(() => {
         handleNextQuestion();
       }, 3000);
@@ -251,6 +266,7 @@ export default function QuizHalloweenGameOptimized() {
         playerAnswers: {}, // On vide bien les réponses à chaque nouvelle question
         phase: "playing" as GamePhase,
         _allAnswered: false,
+        _nextQuestionTriggered: false,
       };
       console.log(
         "DEBUG: Nouvelle question démarrée, playerAnswers doit être vide:",
@@ -260,7 +276,7 @@ export default function QuizHalloweenGameOptimized() {
       setSelectedAnswer(null);
       setShowResult(false);
       setCanAnswer(true);
-      setTimer(15);
+      // Le timer est maintenant géré globalement, ne pas setTimer localement
     }
   }, [gameState, getRandomQuestion, updateGameState]);
 
@@ -341,6 +357,16 @@ export default function QuizHalloweenGameOptimized() {
           colors={["#2D1810", "#8B4513", "#D2691E"]}
           style={styles.background}
         >
+          {/* Timer global synchronisé */}
+          <View style={{ alignItems: "center", marginTop: 16 }}>
+            <Text
+              style={{ fontSize: 24, color: "#FFD700", fontWeight: "bold" }}
+            >
+              {gameState?.timer !== null
+                ? `⏰ Temps restant : ${gameState.timer}s`
+                : ""}
+            </Text>
+          </View>
           <Text style={styles.loadingText}>
             🎃 Chargement du Quiz Halloween... 🎃
           </Text>
