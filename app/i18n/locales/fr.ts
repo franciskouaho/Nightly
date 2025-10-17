@@ -107,6 +107,12 @@ const fr = {
         cancel: "Résiliable à tout moment",
       },
     },
+    notificationsEnabled: "Notifications activées",
+    notificationsEnabledMessage: "Vous recevrez maintenant des notifications de Nightly",
+    notificationsDisabled: "Notifications désactivées",
+    notificationsDisabledMessage: "Vous ne recevrez plus de notifications de Nightly",
+    notificationsError: "Erreur",
+    notificationsErrorMessage: "Impossible d'activer les notifications. Vérifiez les permissions dans les paramètres.",
   },
 
   // Accueil

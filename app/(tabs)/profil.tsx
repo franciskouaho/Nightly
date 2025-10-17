@@ -32,21 +32,61 @@ export default function ProfileScreen() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
   useEffect(() => {
-    const notificationService = ExpoNotificationService.getInstance();
-    notificationService.getToken().then((token) => {
-      setNotificationsEnabled(!!token);
-    });
+    const checkNotificationStatus = async () => {
+      try {
+        const notificationService = ExpoNotificationService.getInstance();
+        const enabled = await notificationService.areNotificationsEnabled();
+        setNotificationsEnabled(enabled);
+      } catch (error) {
+        console.error('Erreur lors de la vérification du statut des notifications:', error);
+        setNotificationsEnabled(false);
+      }
+    };
+
+    checkNotificationStatus();
   }, []);
 
   const handleToggleNotifications = async (value: boolean) => {
-    setNotificationsEnabled(value);
-    if (value) {
-      const notificationService = ExpoNotificationService.getInstance();
-      await notificationService.initialize();
-    } else {
-      // Optionnel : annuler toutes les notifications programmées
-      const notificationService = ExpoNotificationService.getInstance();
-      await notificationService.cancelAllNotifications();
+    try {
+      if (value) {
+        // Activer les notifications
+        const notificationService = ExpoNotificationService.getInstance();
+        await notificationService.initialize();
+        
+        // Vérifier si l'initialisation a réussi
+        const token = await notificationService.getToken();
+        setNotificationsEnabled(!!token);
+        
+        if (token) {
+          Alert.alert(
+            t("profile.notificationsEnabled", "Notifications activées"),
+            t("profile.notificationsEnabledMessage", "Vous recevrez maintenant des notifications de Nightly")
+          );
+        } else {
+          Alert.alert(
+            t("profile.notificationsError", "Erreur"),
+            t("profile.notificationsErrorMessage", "Impossible d'activer les notifications. Vérifiez les permissions dans les paramètres.")
+          );
+          setNotificationsEnabled(false);
+        }
+      } else {
+        // Désactiver les notifications
+        const notificationService = ExpoNotificationService.getInstance();
+        await notificationService.disableNotifications();
+        setNotificationsEnabled(false);
+        
+        Alert.alert(
+          t("profile.notificationsDisabled", "Notifications désactivées"),
+          t("profile.notificationsDisabledMessage", "Vous ne recevrez plus de notifications de Nightly")
+        );
+      }
+    } catch (error) {
+      console.error('Erreur lors de la gestion des notifications:', error);
+      setNotificationsEnabled(false);
+      Alert.alert(
+        t("profile.notificationsError", "Erreur"),
+        t("profile.notificationsErrorMessage", "Une erreur est survenue lors de la gestion des notifications")
+      );
     }
   };
 

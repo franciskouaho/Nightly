@@ -145,6 +145,34 @@ export class ExpoNotificationService {
     return this.token;
   }
 
+  // Vérifier si les notifications sont activées
+  async areNotificationsEnabled(): Promise<boolean> {
+    try {
+      const { status } = await Notifications.getPermissionsAsync();
+      const token = await this.getToken();
+      return status === 'granted' && !!token;
+    } catch (error) {
+      console.error('Erreur lors de la vérification des permissions:', error);
+      return false;
+    }
+  }
+
+  // Désactiver complètement les notifications
+  async disableNotifications(): Promise<void> {
+    try {
+      // Annuler toutes les notifications programmées
+      await this.cancelAllNotifications();
+      
+      // Supprimer le token du stockage local
+      await AsyncStorage.removeItem(NOTIFICATION_TOKEN_KEY);
+      this.token = null;
+      
+      console.log('🔕 Notifications désactivées');
+    } catch (error) {
+      console.error('Erreur lors de la désactivation des notifications:', error);
+    }
+  }
+
   // Méthode pour envoyer une notification locale avec thème Halloween
   async scheduleLocalNotification(title: string, body: string, data?: any) {
     await Notifications.scheduleNotificationAsync({
