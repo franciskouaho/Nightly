@@ -46,7 +46,7 @@ export const gameCategories: GameCategory[] = [
                     text: 'home.games.quiz-halloween.tags.premium',
                     color: '#D81B60'
                 }],
-                premium: false,
+                premium: true,
                 interactive: 'choice'
             }
         ]
@@ -83,7 +83,7 @@ export const gameCategories: GameCategory[] = [
                     text: 'home.games.listen-but-don-t-judge.tags.premium',
                     color: "#D81B60"
                 }],
-                premium: false,
+                premium: true,
                 interactive: 'write'
             },
             {
@@ -101,7 +101,7 @@ export const gameCategories: GameCategory[] = [
                     text: 'home.games.two-letters-one-word.tags.premium',
                     color: '#D81B60'
                 }],
-                premium: false,
+                premium: true,
                 interactive: 'write'
             }
         ]
@@ -123,7 +123,7 @@ export const gameCategories: GameCategory[] = [
                     text: 'home.games.truth-or-dare.tags.premium',
                     color: '#D81B60'
                 }],
-                premium: false,
+                premium: true,
                 interactive: 'action'
             },
             {
@@ -138,7 +138,7 @@ export const gameCategories: GameCategory[] = [
                     text: 'home.games.never-have-i-ever-hot.tags.premium',
                     color: "#D81B60"
                 }],
-                premium: false,
+                premium: true,
                 interactive: 'write'
             },
             {
@@ -153,7 +153,7 @@ export const gameCategories: GameCategory[] = [
                     text: 'home.games.word-guessing.tags.premium',
                     color: "#D81B60"
                 }],
-                premium: false,
+                premium: true,
                 interactive: 'write'
             }
         ]
@@ -175,7 +175,7 @@ export const gameCategories: GameCategory[] = [
                     text: 'home.games.genius-or-liar.tags.premium',
                     color: "#D81B60"
                 }],
-                premium: false,
+                premium: true,
                 interactive: 'write'
             },
             {
@@ -190,7 +190,7 @@ export const gameCategories: GameCategory[] = [
                     text: 'home.games.the-hidden-village.tags.premium',
                     color: "#D81B60"
                 }],
-                premium: false,
+                premium: true,
                 interactive: 'choice'
             },
         ]

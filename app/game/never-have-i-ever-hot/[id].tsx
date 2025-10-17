@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/contexts/LanguageContext';
 import GameResults from '@/components/game/GameResults';
 import { usePoints } from '@/hooks/usePoints';
-import { useNeverHaveIEverHotQuestions } from '../data/never-have-i-ever-hot-questions';
+import { useNeverHaveIEverHotQuestions } from '@/hooks/never-have-i-ever-hot-questions';
 import NaughtyResults from '@/components/game/NaughtyResults';
 import { Ionicons } from '@expo/vector-icons';
 

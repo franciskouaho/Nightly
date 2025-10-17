@@ -7,7 +7,7 @@ import { GamePhase, Player, GameState, GameMode } from '@/types/gameTypes';
 import { useGame } from '@/hooks/useGame';
 import { useAuth } from '@/contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useWordGuessingQuestions, WordGuessingQuestion } from '../data/word-guessing-questions';
+import { useWordGuessingQuestions, WordGuessingQuestion } from '@/hooks/word-guessing-questions';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import GameResults from '@/components/game/GameResults';
 import { usePoints } from '@/hooks/usePoints';

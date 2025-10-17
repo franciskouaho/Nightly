@@ -15,10 +15,10 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { GAME_CONFIG } from '@/constants/room';
 import { Room, LocalPlayer } from '@/types/room';
 import { GamePhase } from '@/types/gameTypes';
-import { transformQuestion as transformTrapAnswerQuestion } from '@/app/game/data/trap-answer-questions';
-import { transformQuestion as transformWordGuessingQuestion } from '@/app/game/data/word-guessing-questions';
-import { transformQuestion as transformNeverHaveIEverHotQuestion } from '@/app/game/data/never-have-i-ever-hot-questions';
-import { transformQuestion as transformListenButDontJudgeQuestion } from '@/app/game/data/listen-but-don-t-judge-questions';
+import { transformQuestion as transformTrapAnswerQuestion } from '@/hooks/trap-answer-questions';
+import { transformQuestion as transformWordGuessingQuestion } from '@/hooks/word-guessing-questions';
+import { transformQuestion as transformNeverHaveIEverHotQuestion } from '@/hooks/never-have-i-ever-hot-questions';
+import { transformQuestion as transformListenButDontJudgeQuestion } from '@/hooks/listen-but-don-t-judge-questions';
 
 export function useRoom(roomId: string) {
   const { user } = useAuth();

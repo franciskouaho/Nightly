@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, Dimensions, Image, Modal, KeyboardAvoidingView, Platform, ViewStyle, TextStyle, ImageStyle, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { verifyWord } from '../data/word-verification';
+import { verifyWord } from '@/hooks/word-verification';
 import { doc, getFirestore, onSnapshot, updateDoc, getDoc } from '@react-native-firebase/firestore';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
