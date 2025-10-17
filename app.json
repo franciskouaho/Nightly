@@ -2,7 +2,7 @@
   "expo": {
     "name": "Nightly",
     "slug": "nightly",
-    "version": "1.4.0",
+    "version": "1.4.1",
     "icon": "./assets/halloween/logo.png",
     "scheme": "nightly",
     "userInterfaceStyle": "automatic",
@@ -16,9 +16,7 @@
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true
         },
-        "UIBackgroundModes": [
-          "remote-notification"
-        ]
+        "UIBackgroundModes": ["remote-notification"]
       },
       "requireFullScreen": true
     },
@@ -30,10 +28,7 @@
       "package": "com.emplica.nightly.android",
       "googleServicesFile": "./google-services.json",
       "versionCode": 27,
-      "permissions": [
-        "INTERNET",
-        "NOTIFICATIONS"
-      ],
+      "permissions": ["INTERNET", "NOTIFICATIONS"],
       "edgeToEdgeEnabled": true
     },
     "web": {
@@ -53,14 +48,12 @@
             "useFrameworks": "static"
           },
           "android": {
-            "permissions": [
-              "com.android.vending.BILLING"
-            ],
+            "permissions": ["com.android.vending.BILLING"],
             "enableProguardInReleaseBuilds": true,
             "enableShrinkResourcesInReleaseBuilds": true,
             "compileSdkVersion": 35,
             "targetSdkVersion": 35,
-            "versionCode": 24,
+            "versionCode": 28,
             "buildToolsVersion": "35.0.0",
             "enablePageSize16K": true,
             "enableEdgeToEdge": true,
@@ -85,9 +78,7 @@
       ],
       "expo-web-browser"
     ],
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "experiments": {
       "typedRoutes": true
     },

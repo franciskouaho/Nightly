@@ -1,18 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, Linking, Modal, Platform, ImageBackground } from 'react-native';
-import { ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import useRevenueCat from '@/hooks/useRevenueCat';
-import usePricing from '@/hooks/usePricing';
-import { StatusBar } from 'expo-status-bar';
-import Purchases from 'react-native-purchases';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useTranslation } from 'react-i18next';
-import { getFirestore, doc, updateDoc } from '@react-native-firebase/firestore';
-import { useAuth } from '@/contexts/AuthContext';
-import HalloweenDecorations from './HalloweenDecorations';
-import HalloweenTheme from '@/constants/themes/Halloween';
+import HalloweenTheme from "@/constants/themes/Halloween";
+import { useAuth } from "@/contexts/AuthContext";
+import usePricing from "@/hooks/usePricing";
+import useRevenueCat from "@/hooks/useRevenueCat";
+import { Ionicons } from "@expo/vector-icons";
+import { doc, getFirestore, updateDoc } from "@react-native-firebase/firestore";
+import { LinearGradient } from "expo-linear-gradient";
+import { StatusBar } from "expo-status-bar";
+import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import {
+  ActivityIndicator,
+  Alert,
+  ImageBackground,
+  Linking,
+  Modal,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import Purchases from "react-native-purchases";
+import { SafeAreaView } from "react-native-safe-area-context";
+import HalloweenDecorations from "./HalloweenDecorations";
 
 interface PaywallModalBProps {
   isVisible: boolean;
@@ -21,7 +32,12 @@ interface PaywallModalBProps {
   discountedPrice?: number; // Prix réduit
 }
 
-export default function PaywallModalB({ isVisible, onClose, originalPrice, discountedPrice }: PaywallModalBProps) {
+export default function PaywallModalB({
+  isVisible,
+  onClose,
+  originalPrice,
+  discountedPrice,
+}: PaywallModalBProps) {
   const { currentOffering, isProMember } = useRevenueCat();
   const { pricing, getFormattedPrice, calculateAnnualSavings } = usePricing();
   const [loading, setLoading] = useState(false);
@@ -32,7 +48,7 @@ export default function PaywallModalB({ isVisible, onClose, originalPrice, disco
   // Calculer la réduction en pourcentage depuis RevenueCat
   useEffect(() => {
     const savings = calculateAnnualSavings();
-    
+
     if (savings) {
       setDiscountPercentage(savings.percentage);
     } else {
@@ -41,15 +57,15 @@ export default function PaywallModalB({ isVisible, onClose, originalPrice, disco
     }
   }, [calculateAnnualSavings, discountPercentage]);
 
-  const packageToUse = currentOffering?.availablePackages?.find((pkg: any) =>
-    pkg.packageType === 'ANNUAL'
+  const packageToUse = currentOffering?.availablePackages?.find(
+    (pkg: any) => pkg.packageType === "ANNUAL",
   );
 
   const handleSubscribe = async () => {
     if (!packageToUse) {
       Alert.alert(
-        t('paywall.alerts.productUnavailable.title'),
-        t('paywall.alerts.productUnavailable.message')
+        t("paywall.alerts.productUnavailable.title"),
+        t("paywall.alerts.productUnavailable.message"),
       );
       return;
     }
@@ -59,28 +75,28 @@ export default function PaywallModalB({ isVisible, onClose, originalPrice, disco
       if (purchaseInfo?.customerInfo?.entitlements?.active) {
         if (user?.uid) {
           const db = getFirestore();
-          await updateDoc(doc(db, 'users', user.uid), {
+          await updateDoc(doc(db, "users", user.uid), {
             hasActiveSubscription: true,
-            subscriptionType: 'annual',
+            subscriptionType: "annual",
             subscriptionUpdatedAt: new Date().toISOString(),
           });
           setUser(user ? { ...user, hasActiveSubscription: true } : null);
         }
         Alert.alert(
-          t('paywall.alerts.success.title'),
-          t('paywall.alerts.success.message')
+          t("paywall.alerts.success.title"),
+          t("paywall.alerts.success.message"),
         );
         onClose();
       } else {
         Alert.alert(
-          t('paywall.alerts.pending.title'),
-          t('paywall.alerts.pending.message')
+          t("paywall.alerts.pending.title"),
+          t("paywall.alerts.pending.message"),
         );
       }
     } catch (e: any) {
       Alert.alert(
-        t('paywall.alerts.error.title'),
-        e?.message || t('paywall.alerts.error.message')
+        t("paywall.alerts.error.title"),
+        e?.message || t("paywall.alerts.error.message"),
       );
     } finally {
       setLoading(false);
@@ -92,14 +108,14 @@ export default function PaywallModalB({ isVisible, onClose, originalPrice, disco
       setLoading(true);
       await Purchases.restorePurchases();
       Alert.alert(
-        t('paywall.alerts.restoreSuccess.title'),
-        t('paywall.alerts.restoreSuccess.message')
+        t("paywall.alerts.restoreSuccess.title"),
+        t("paywall.alerts.restoreSuccess.message"),
       );
       onClose();
     } catch (e) {
       Alert.alert(
-        t('paywall.alerts.restoreError.title'),
-        t('paywall.alerts.restoreError.message')
+        t("paywall.alerts.restoreError.title"),
+        t("paywall.alerts.restoreError.message"),
       );
     } finally {
       setLoading(false);
@@ -107,21 +123,21 @@ export default function PaywallModalB({ isVisible, onClose, originalPrice, disco
   };
 
   const handleTermsPress = async () => {
-    const termsUrl = 'https://emplica.fr/privacy-policy';
+    const termsUrl = "https://emplica.fr/privacy-policy";
     try {
       const canOpen = await Linking.canOpenURL(termsUrl);
       if (canOpen) {
         await Linking.openURL(termsUrl);
       } else {
         Alert.alert(
-          t('paywall.alerts.termsError.title'),
-          t('paywall.alerts.termsError.message')
+          t("paywall.alerts.termsError.title"),
+          t("paywall.alerts.termsError.message"),
         );
       }
     } catch (error) {
       Alert.alert(
-        t('paywall.alerts.termsError.title'),
-        t('paywall.alerts.termsError.message')
+        t("paywall.alerts.termsError.title"),
+        t("paywall.alerts.termsError.message"),
       );
     }
   };
@@ -143,11 +159,11 @@ export default function PaywallModalB({ isVisible, onClose, originalPrice, disco
         >
           <LinearGradient
             colors={[
-              HalloweenTheme.light?.backgroundDarker || '#120F1C',
-              HalloweenTheme.light?.secondary || '#4B1E00',
-              HalloweenTheme.light?.primary || '#FF6F00',
-              HalloweenTheme.light?.secondary || '#4B1E00',
-              HalloweenTheme.light?.backgroundDarker || '#120F1C',
+              HalloweenTheme.light?.backgroundDarker || "#120F1C",
+              HalloweenTheme.light?.secondary || "#4B1E00",
+              HalloweenTheme.light?.primary || "#FF6F00",
+              HalloweenTheme.light?.secondary || "#4B1E00",
+              HalloweenTheme.light?.backgroundDarker || "#120F1C",
             ]}
             locations={[0, 0.2, 0.5, 0.8, 1]}
             style={styles.gradientOverlay}
@@ -155,7 +171,7 @@ export default function PaywallModalB({ isVisible, onClose, originalPrice, disco
             <View style={styles.halloweenDecorations}>
               <HalloweenDecorations />
             </View>
-            
+
             <ScrollView
               style={styles.scrollView}
               contentContainerStyle={styles.contentContainer}
@@ -169,9 +185,15 @@ export default function PaywallModalB({ isVisible, onClose, originalPrice, disco
 
               <View style={styles.heroSection}>
                 <View style={styles.heroContent}>
-                  <Text style={styles.heroTitle}>{t('paywall.annual.title')}</Text>
-                  <Text style={styles.heroSubtitle}>{t('paywall.annual.subtitle')}</Text>
-                  <Text style={styles.tagline}>{t('paywall.annual.tagline')}</Text>
+                  <Text style={styles.heroTitle}>
+                    {t("paywall.annual.title")}
+                  </Text>
+                  <Text style={styles.heroSubtitle}>
+                    {t("paywall.annual.subtitle")}
+                  </Text>
+                  <Text style={styles.tagline}>
+                    {t("paywall.annual.tagline")}
+                  </Text>
                 </View>
               </View>
 
@@ -179,7 +201,7 @@ export default function PaywallModalB({ isVisible, onClose, originalPrice, disco
               {discountPercentage > 0 && (
                 <View style={styles.discountBadge}>
                   <Text style={styles.discountText}>
-                    -{discountPercentage}% {t('paywall.annual.discount')}
+                    -{discountPercentage}% {t("paywall.annual.discount")}
                   </Text>
                 </View>
               )}
@@ -189,99 +211,135 @@ export default function PaywallModalB({ isVisible, onClose, originalPrice, disco
                   <View style={styles.checkContainer}>
                     <Ionicons name="checkmark" size={16} color="#ffffff" />
                   </View>
-                  <Text style={styles.featureText}>{t('paywall.features.unlimited')}</Text>
-                  <Ionicons name="game-controller" size={16} color="#ffffff" style={styles.featureIcon} />
+                  <Text style={styles.featureText}>
+                    {t("paywall.features.unlimited")}
+                  </Text>
+                  <Ionicons
+                    name="game-controller"
+                    size={16}
+                    color="#ffffff"
+                    style={styles.featureIcon}
+                  />
                 </View>
                 <View style={styles.featureRow}>
                   <View style={styles.checkContainer}>
                     <Ionicons name="checkmark" size={16} color="#ffffff" />
                   </View>
-                  <Text style={styles.featureText}>{t('paywall.features.weekly')}</Text>
-                  <Ionicons name="refresh" size={16} color="#ffffff" style={styles.featureIcon} />
+                  <Text style={styles.featureText}>
+                    {t("paywall.features.weekly")}
+                  </Text>
+                  <Ionicons
+                    name="refresh"
+                    size={16}
+                    color="#ffffff"
+                    style={styles.featureIcon}
+                  />
                 </View>
                 <View style={styles.featureRow}>
                   <View style={styles.checkContainer}>
                     <Ionicons name="checkmark" size={16} color="#ffffff" />
                   </View>
-                  <Text style={styles.featureText}>{t('paywall.features.visuals')}</Text>
-                  <Ionicons name="color-palette" size={16} color="#ffffff" style={styles.featureIcon} />
+                  <Text style={styles.featureText}>
+                    {t("paywall.features.visuals")}
+                  </Text>
+                  <Ionicons
+                    name="color-palette"
+                    size={16}
+                    color="#ffffff"
+                    style={styles.featureIcon}
+                  />
                 </View>
                 <View style={styles.featureRow}>
                   <View style={styles.checkContainer}>
                     <Ionicons name="checkmark" size={16} color="#ffffff" />
                   </View>
-                  <Text style={styles.featureText}>{t('paywall.features.characters')}</Text>
-                  <Ionicons name="person" size={16} color="#ffffff" style={styles.featureIcon} />
+                  <Text style={styles.featureText}>
+                    {t("paywall.features.characters")}
+                  </Text>
+                  <Ionicons
+                    name="person"
+                    size={16}
+                    color="#ffffff"
+                    style={styles.featureIcon}
+                  />
                 </View>
                 <View style={styles.featureRow}>
                   <View style={styles.checkContainer}>
                     <Ionicons name="checkmark" size={16} color="#ffffff" />
                   </View>
-                  <Text style={styles.featureText}>{t('paywall.features.updates')}</Text>
-                  <Ionicons name="star" size={16} color="#ffffff" style={styles.featureIcon} />
+                  <Text style={styles.featureText}>
+                    {t("paywall.features.updates")}
+                  </Text>
+                  <Ionicons
+                    name="star"
+                    size={16}
+                    color="#ffffff"
+                    style={styles.featureIcon}
+                  />
                 </View>
                 <View style={styles.featureRow}>
                   <View style={styles.checkContainer}>
                     <Ionicons name="checkmark" size={16} color="#ffffff" />
                   </View>
-                  <Text style={styles.featureText}>{t('paywall.annual.features.savings')}</Text>
-                  <Ionicons name="trending-down" size={16} color="#ffffff" style={styles.featureIcon} />
+                  <Text style={styles.featureText}>
+                    {t("paywall.annual.features.savings")}
+                  </Text>
+                  <Ionicons
+                    name="trending-down"
+                    size={16}
+                    color="#ffffff"
+                    style={styles.featureIcon}
+                  />
                 </View>
               </View>
 
               <View style={styles.annualPlanContainer}>
                 <View style={styles.annualPlanCard}>
                   <View style={styles.annualBadge}>
-                    <Text style={styles.annualBadgeText}>{t('paywall.plans.annual.badge')}</Text>
+                    <Text style={styles.annualBadgeText}>
+                      {t("paywall.plans.annual.badge")}
+                    </Text>
                   </View>
-                  
-                  <Text style={styles.annualTitle}>{t('paywall.plans.annual.title')}</Text>
-                  
+
+                  <Text style={styles.annualTitle}>
+                    {t("paywall.plans.annual.title")}
+                  </Text>
+
                   <View style={styles.priceContainer}>
                     {pricing.monthly && (
                       <Text style={styles.originalPrice}>
-                        {(pricing.monthly.priceNumber * 12).toFixed(2)} {pricing.monthly.currency}
+                        {(pricing.monthly.priceNumber * 12).toFixed(2)}{" "}
+                        {pricing.monthly.currency}
                       </Text>
                     )}
                     <Text style={styles.discountedPrice}>
-                      {getFormattedPrice('annual')}
+                      {getFormattedPrice("annual")}
                     </Text>
                   </View>
-                  
-                  <Text style={styles.annualPeriod}>{t('paywall.plans.annual.period')}</Text>
-                  <Text style={styles.annualDescription}>{t('paywall.plans.annual.description')}</Text>
-                  
+
+                  <Text style={styles.annualPeriod}>
+                    {t("paywall.plans.annual.period")}
+                  </Text>
+                  <Text style={styles.annualDescription}>
+                    {t("paywall.plans.annual.description")}
+                  </Text>
+
                   {true && (
                     <View style={styles.savingsContainer}>
-                      <Ionicons name="trending-down" size={16} color="#4CAF50" />
+                      <Ionicons
+                        name="trending-down"
+                        size={16}
+                        color="#4CAF50"
+                      />
                       <Text style={styles.savingsText}>
-                        {(() => {
-                          const savings = calculateAnnualSavings();
-                          
-                          if (savings) {
-                            return t('paywall.annual.savingsText', { 
-                              amount: savings.amount.toFixed(2),
-                              currency: savings.currency
-                            });
-                          } else {
-                            // Récupérer la devise depuis les données disponibles
-                            const currency = pricing.annual?.currency || 
-                                           pricing.monthly?.currency || 
-                                           pricing.weekly?.currency || 
-                                           'USD';
-                            
-                            
-                            // Calculer des économies approximatives si les données ne sont pas complètes
-                            const monthlyPrice = pricing.monthly?.priceNumber || 6.99;
-                            const annualPrice = pricing.annual?.priceNumber || 24.99;
-                            const estimatedSavings = (monthlyPrice * 12) - annualPrice;
-                            
-                            return t('paywall.annual.savingsText', { 
-                              amount: estimatedSavings.toFixed(2),
-                              currency: currency
-                            });
-                          }
-                        })()}
+                        {t("paywall.annual.savingsText", {
+                          amount: "40",
+                          currency:
+                            pricing.annual?.currency ||
+                            pricing.monthly?.currency ||
+                            pricing.weekly?.currency ||
+                            "€",
+                        })}
                       </Text>
                     </View>
                   )}
@@ -298,7 +356,7 @@ export default function PaywallModalB({ isVisible, onClose, originalPrice, disco
                     <ActivityIndicator color="#E66F50" size="small" />
                   ) : (
                     <Text style={styles.ctaButtonText}>
-                      {t('paywall.annual.cta')}
+                      {t("paywall.annual.cta")}
                     </Text>
                   )}
                 </View>
@@ -306,10 +364,14 @@ export default function PaywallModalB({ isVisible, onClose, originalPrice, disco
 
               <View style={styles.footerLinks}>
                 <TouchableOpacity onPress={handleRestore} disabled={loading}>
-                  <Text style={styles.footerText}>{t('paywall.footer.restore')}</Text>
+                  <Text style={styles.footerText}>
+                    {t("paywall.footer.restore")}
+                  </Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={handleTermsPress}>
-                  <Text style={styles.footerText}>{t('paywall.footer.terms')}</Text>
+                  <Text style={styles.footerText}>
+                    {t("paywall.footer.terms")}
+                  </Text>
                 </TouchableOpacity>
               </View>
             </ScrollView>
@@ -325,7 +387,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   background: {
-    position: 'absolute',
+    position: "absolute",
     left: 0,
     right: 0,
     top: 0,
@@ -339,219 +401,219 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
     paddingHorizontal: 10,
     paddingTop: 0,
     paddingBottom: 10,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingTop: 25,
     paddingBottom: 5,
-    justifyContent: 'flex-end',
+    justifyContent: "flex-end",
   },
   backButton: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderColor: '#000',
-    shadowColor: '#000',
-    marginTop: Platform.OS === 'ios' ? 30 : 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    justifyContent: "center",
+    alignItems: "center",
+    borderColor: "#000",
+    shadowColor: "#000",
+    marginTop: Platform.OS === "ios" ? 30 : 20,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
     borderRadius: 20,
     padding: 8,
   },
   heroSection: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 8,
   },
   heroContent: {
-    width: '100%',
-    alignItems: 'center',
+    width: "100%",
+    alignItems: "center",
   },
   heroTitle: {
     fontSize: 26,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    textAlign: 'center',
+    fontWeight: "bold",
+    color: "#ffffff",
+    textAlign: "center",
   },
   heroSubtitle: {
     fontSize: 20,
-    color: '#ffffff',
-    fontWeight: 'bold',
-    textAlign: 'center',
+    color: "#ffffff",
+    fontWeight: "bold",
+    textAlign: "center",
     marginTop: 4,
   },
   tagline: {
     fontSize: 15,
-    color: '#ffffff',
-    textAlign: 'center',
+    color: "#ffffff",
+    textAlign: "center",
     marginTop: 8,
   },
   discountBadge: {
-    backgroundColor: '#FF1744',
+    backgroundColor: "#FF1744",
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 8,
-    alignSelf: 'center',
+    alignSelf: "center",
     marginBottom: 16,
   },
   discountText: {
-    color: '#ffffff',
+    color: "#ffffff",
     fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
   },
   featuresContainer: {
-    width: '100%',
+    width: "100%",
     marginBottom: 8,
   },
   featureRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
     borderRadius: 12,
     padding: 10,
     marginBottom: 6,
-    width: '100%',
+    width: "100%",
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: "rgba(255, 255, 255, 0.2)",
   },
   checkContainer: {
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: HalloweenTheme.light?.secondary || '#4B1E00',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: HalloweenTheme.light?.secondary || "#4B1E00",
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: 6,
   },
   featureText: {
     fontSize: 15,
-    color: '#ffffff',
-    fontWeight: '600',
+    color: "#ffffff",
+    fontWeight: "600",
     flex: 1,
   },
   featureIcon: {
     marginLeft: 4,
   },
   annualPlanContainer: {
-    width: '100%',
+    width: "100%",
     marginBottom: 16,
   },
   annualPlanCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: "rgba(255, 255, 255, 0.15)",
     borderRadius: 20,
     padding: 20,
     borderWidth: 2,
-    borderColor: '#FFD700',
-    position: 'relative',
-    alignItems: 'center',
+    borderColor: "#FFD700",
+    position: "relative",
+    alignItems: "center",
   },
   annualBadge: {
-    position: 'absolute',
+    position: "absolute",
     top: -12,
-    backgroundColor: '#FF6F00',
+    backgroundColor: "#FF6F00",
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 6,
   },
   annualBadgeText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
+    color: "#FFFFFF",
+    fontWeight: "bold",
     fontSize: 12,
   },
   annualTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#ffffff',
+    fontWeight: "bold",
+    color: "#ffffff",
     marginTop: 12,
     marginBottom: 12,
-    textAlign: 'center',
+    textAlign: "center",
   },
   priceContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 8,
   },
   originalPrice: {
     fontSize: 18,
-    color: '#B0B0B0',
-    textDecorationLine: 'line-through',
+    color: "#B0B0B0",
+    textDecorationLine: "line-through",
     marginRight: 12,
   },
   discountedPrice: {
     fontSize: 28,
-    fontWeight: 'bold',
-    color: '#FFD700',
+    fontWeight: "bold",
+    color: "#FFD700",
   },
   annualPeriod: {
     fontSize: 14,
-    color: '#ffffff',
+    color: "#ffffff",
     opacity: 0.9,
     marginBottom: 8,
   },
   annualDescription: {
     fontSize: 13,
-    color: '#ffffff',
+    color: "#ffffff",
     opacity: 0.8,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 12,
   },
   savingsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(76, 175, 80, 0.2)',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(76, 175, 80, 0.2)",
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 6,
   },
   savingsText: {
-    color: '#4CAF50',
+    color: "#4CAF50",
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginLeft: 4,
   },
   ctaButton: {
-    width: '100%',
+    width: "100%",
     borderRadius: 12,
     marginVertical: 10,
-    overflow: 'hidden',
-    backgroundColor: '#FF6F00',
+    overflow: "hidden",
+    backgroundColor: "#FF6F00",
   },
   gradientButton: {
     paddingVertical: 16,
     paddingHorizontal: 10,
-    alignItems: 'center',
+    alignItems: "center",
   },
   ctaButtonText: {
     fontSize: 22,
-    fontWeight: '800',
-    color: '#FFFFFF',
+    fontWeight: "800",
+    color: "#FFFFFF",
   },
   footerLinks: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
     marginTop: 4,
     marginBottom: 10,
   },
   footerText: {
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: "rgba(255, 255, 255, 0.9)",
     fontSize: 14,
-    fontWeight: '600',
-    textDecorationLine: 'underline',
+    fontWeight: "600",
+    textDecorationLine: "underline",
   },
   halloweenDecorations: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
     zIndex: 1,
-    pointerEvents: 'none',
+    pointerEvents: "none",
   },
 });

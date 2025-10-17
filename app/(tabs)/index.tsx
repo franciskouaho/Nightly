@@ -1,17 +1,17 @@
 "use client";
 
 import { gameCategories, GameCategory, GameMode } from "@/app/data/gameModes";
-import { usePaywall } from "@/contexts/PaywallContext";
-import TopBar from "@/components/TopBar";
-import { useAuth } from "@/contexts/AuthContext";
-import { useFirestore } from "@/hooks/useFirestore";
-import { useExpoNotifications } from "@/hooks/useExpoNotifications";
-import HalloweenNotificationScheduler from "@/services/halloweenNotificationScheduler";
-import Colors from "@/constants/Colors";
-import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import HalloweenDecorations from "@/components/HalloweenDecorations";
+import TopBar from "@/components/TopBar";
+import Colors from "@/constants/Colors";
+import { useAuth } from "@/contexts/AuthContext";
+import { usePaywall } from "@/contexts/PaywallContext";
+import { useExpoNotifications } from "@/hooks/useExpoNotifications";
+import { useFirestore } from "@/hooks/useFirestore";
+import useLeaderboard from "@/hooks/useLeaderboard";
+import HalloweenNotificationScheduler from "@/services/halloweenNotificationScheduler";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import NetInfo from "@react-native-community/netinfo";
-import { usePostHog } from 'posthog-react-native'
 import {
   collection,
   doc,
@@ -23,7 +23,7 @@ import {
 } from "@react-native-firebase/firestore";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import useLeaderboard from "@/hooks/useLeaderboard";
+import { usePostHog } from "posthog-react-native";
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -77,52 +77,67 @@ export default function HomeScreen() {
   const { t } = useTranslation();
   const [error, setError] = React.useState("");
   const posthog = usePostHog();
-  const { showPaywallA, showPaywallB, closePaywallB, setInActiveGame, paywallState } = usePaywall();
+  const {
+    showPaywallA,
+    showPaywallB,
+    closePaywallB,
+    setInActiveGame,
+    paywallState,
+    isProMember,
+  } = usePaywall();
   const { getTopPlayers } = useLeaderboard();
-  
+
   // Fonction de test pour forcer l'affichage du PaywallModalB
   const testShowPaywallB = async () => {
-    console.log('🧪 Test PaywallB - État actuel:', paywallState);
-    console.log('🧪 Test PaywallB - Tentative d\'affichage...');
-    
+    console.log("🧪 Test PaywallB - État actuel:", paywallState);
+    console.log("🧪 Test PaywallB - Tentative d'affichage...");
+
     try {
       // Essayer d'abord la fonction normale
       await showPaywallB();
-      console.log('🧪 Test PaywallB - Fonction appelée avec succès');
+      console.log("🧪 Test PaywallB - Fonction appelée avec succès");
     } catch (error: any) {
-      console.error('🧪 Test PaywallB - Erreur avec fonction normale:', error);
-      
+      console.error("🧪 Test PaywallB - Erreur avec fonction normale:", error);
+
       // Si ça ne marche pas, essayer de fermer puis rouvrir
-      console.log('🧪 Test PaywallB - Tentative alternative...');
+      console.log("🧪 Test PaywallB - Tentative alternative...");
       closePaywallB();
       setTimeout(async () => {
         try {
           await showPaywallB();
-          console.log('🧪 Test PaywallB - Fonction alternative réussie');
+          console.log("🧪 Test PaywallB - Fonction alternative réussie");
         } catch (err: any) {
-          console.error('🧪 Test PaywallB - Erreur alternative:', err);
+          console.error("🧪 Test PaywallB - Erreur alternative:", err);
         }
       }, 100);
     }
   };
-  
-  // Hook pour les notifications Expo
-  const { expoPushToken, isPermissionGranted, sendLocalNotification, sendHalloweenQuizNotification } = useExpoNotifications();
 
-   useEffect(() => {
-        posthog.capture("MyComponent loaded", { foo: "bar" })
-    }, [])
+  // Hook pour les notifications Expo
+  const {
+    expoPushToken,
+    isPermissionGranted,
+    sendLocalNotification,
+    sendHalloweenQuizNotification,
+  } = useExpoNotifications();
+
+  useEffect(() => {
+    posthog.capture("MyComponent loaded", { foo: "bar" });
+  }, []);
 
   useEffect(() => {
     console.log("🔄 État de création de salle:", isCreatingRoom);
   }, [isCreatingRoom]);
 
   useEffect(() => {
-    // Afficher le paywall A si l'utilisateur n'a pas d'abonnement actif
-    if (!user?.hasActiveSubscription) {
-      showPaywallA();
+    // Afficher le paywall A 2 secondes après l'arrivée sur la home si l'utilisateur n'a pas d'abonnement actif et n'est pas pro
+    if (!user?.hasActiveSubscription && !isProMember) {
+      const timer = setTimeout(() => {
+        showPaywallA();
+      }, 2500);
+      return () => clearTimeout(timer);
     }
-  }, [user?.hasActiveSubscription, showPaywallA]);
+  }, [user?.hasActiveSubscription, isProMember, showPaywallA]);
 
   const getUserDisplayName = (user: any) => {
     if (!user) return "Joueur";
@@ -447,7 +462,14 @@ export default function HomeScreen() {
         testID={`game-mode-${game.id}`}
       >
         <LinearGradient
-          colors={game.colors && game.colors.length >= 2 ? game.colors as [string, string, ...string[]] : [Colors.light?.gradient?.pumpkin?.from || "#FF6F00", Colors.light?.gradient?.pumpkin?.to || "#FFD700"]}
+          colors={
+            game.colors && game.colors.length >= 2
+              ? (game.colors as [string, string, ...string[]])
+              : [
+                  Colors.light?.gradient?.pumpkin?.from || "#FF6F00",
+                  Colors.light?.gradient?.pumpkin?.to || "#FFD700",
+                ]
+          }
           style={[
             styles.modeGradient,
             {
@@ -551,8 +573,8 @@ export default function HomeScreen() {
   // Vérification de sécurité pour les couleurs
   const midnightGradient = Colors.light?.gradient?.midnight || {
     from: "#1A1A2E",
-    to: "#120F1C", 
-    middle: "#4B1E00"
+    to: "#120F1C",
+    middle: "#4B1E00",
   };
 
   return (
@@ -569,25 +591,25 @@ export default function HomeScreen() {
         style={styles.background}
       >
         {/* Décorations Halloween - Toilettes d'araignées géantes */}
-        <View style={{ 
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          width: '100%',
-          height: '100%',
-          zIndex: 5,
-          pointerEvents: 'none' // Permet le scroll et les interactions
-        }}>
+        <View
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: "100%",
+            height: "100%",
+            zIndex: 5,
+            pointerEvents: "none", // Permet le scroll et les interactions
+          }}
+        >
           <HalloweenDecorations />
         </View>
-        
-        
+
         <View style={{ zIndex: 20 }}>
           <TopBar />
         </View>
-
 
         {/* Boutons de test pour les notifications - uniquement en mode dev */}
         {__DEV__ && (
@@ -600,26 +622,32 @@ export default function HomeScreen() {
             >
               <Text style={styles.simpleTestText}>🔔 Test</Text>
             </TouchableOpacity>
-            
+
             <TouchableOpacity
               style={styles.halloweenTestButton}
               onPress={() => {
-                sendHalloweenQuizNotification("Quiz Halloween", "Une partie effrayante t'attend !");
+                sendHalloweenQuizNotification(
+                  "Quiz Halloween",
+                  "Une partie effrayante t'attend !",
+                );
               }}
             >
               <Text style={styles.halloweenTestText}>🎃 Quiz</Text>
             </TouchableOpacity>
-            
+
             <TouchableOpacity
               style={styles.halloweenScheduleButton}
               onPress={async () => {
                 await HalloweenNotificationScheduler.scheduleTestHalloweenNotification();
-                Alert.alert("🎃 Test", "Notification Halloween programmée dans 5 secondes !");
+                Alert.alert(
+                  "🎃 Test",
+                  "Notification Halloween programmée dans 5 secondes !",
+                );
               }}
             >
               <Text style={styles.halloweenScheduleText}>📅 Oct</Text>
             </TouchableOpacity>
-            
+
             <TouchableOpacity
               style={styles.paywallTestButton}
               onPress={testShowPaywallB}
