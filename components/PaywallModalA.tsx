@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, Linking, Modal, Platform, ImageBackground, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, Linking, Modal, Platform, ImageBackground } from 'react-native';
 import { ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -13,25 +13,23 @@ import { useAuth } from '@/contexts/AuthContext';
 import HalloweenDecorations from './HalloweenDecorations';
 import HalloweenTheme from '@/constants/themes/Halloween';
 
-interface PaywallModalProps {
+interface PaywallModalAProps {
   isVisible: boolean;
   onClose: () => void;
+  onUpgradeToAnnual?: () => void; // Callback pour suggérer l'annuel
 }
 
-export default function PaywallModal({ isVisible, onClose }: PaywallModalProps) {
+export default function PaywallModalA({ isVisible, onClose, onUpgradeToAnnual }: PaywallModalAProps) {
   const [selectedPlan, setSelectedPlan] = useState('monthly');
   const { currentOffering, isProMember } = useRevenueCat();
   const [loading, setLoading] = useState(false);
-  const [showCloseButton, setShowCloseButton] = useState(true);
   const { t } = useTranslation();
   const { user, setUser } = useAuth();
 
   const packageToUse = currentOffering?.availablePackages?.find((pkg: any) =>
     selectedPlan === 'weekly'
       ? pkg.packageType === 'WEEKLY'
-      : selectedPlan === 'monthly'
-      ? pkg.packageType === 'MONTHLY'
-      : pkg.packageType === 'ANNUAL'
+      : pkg.packageType === 'MONTHLY'
   );
 
   const handleSubscribe = async () => {
@@ -115,12 +113,20 @@ export default function PaywallModal({ isVisible, onClose }: PaywallModalProps) 
     }
   };
 
+  const handleClose = () => {
+    // Si l'utilisateur ferme sans acheter, on peut suggérer l'annuel
+    if (onUpgradeToAnnual) {
+      onUpgradeToAnnual();
+    }
+    onClose();
+  };
+
   return (
     <Modal
       animationType="slide"
       transparent={false}
       visible={isVisible}
-      onRequestClose={onClose}
+      onRequestClose={handleClose}
     >
       <SafeAreaView style={[styles.container, { zIndex: 10 }]}>
         <StatusBar style="light" />
@@ -141,145 +147,127 @@ export default function PaywallModal({ isVisible, onClose }: PaywallModalProps) 
             locations={[0, 0.2, 0.5, 0.8, 1]}
             style={styles.gradientOverlay}
           >
-            {/* Décorations Halloween */}
             <View style={styles.halloweenDecorations}>
               <HalloweenDecorations />
             </View>
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.contentContainer}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={[styles.header, { zIndex: 15 }]}>
-            {showCloseButton && (
-              <TouchableOpacity style={styles.backButton} onPress={onClose}>
-                <Ionicons name="close" size={24} color="#ffffff" />
+            
+            <ScrollView
+              style={styles.scrollView}
+              contentContainerStyle={styles.contentContainer}
+              showsVerticalScrollIndicator={false}
+            >
+              <View style={[styles.header, { zIndex: 15 }]}>
+                <TouchableOpacity style={styles.backButton} onPress={handleClose}>
+                  <Ionicons name="close" size={24} color="#ffffff" />
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.heroSection}>
+                <View style={styles.heroContent}>
+                  <Text style={styles.heroTitle}>{t('paywall.title')}</Text>
+                  <Text style={styles.heroSubtitle}>{t('paywall.subtitle')}</Text>
+                  <Text style={styles.tagline}>{t('paywall.tagline')}</Text>
+                </View>
+              </View>
+
+              <View style={styles.featuresContainer}>
+                <View style={styles.featureRow}>
+                  <View style={styles.checkContainer}>
+                    <Ionicons name="checkmark" size={16} color="#ffffff" />
+                  </View>
+                  <Text style={styles.featureText}>{t('paywall.features.unlimited')}</Text>
+                  <Ionicons name="game-controller" size={16} color="#ffffff" style={styles.featureIcon} />
+                </View>
+                <View style={styles.featureRow}>
+                  <View style={styles.checkContainer}>
+                    <Ionicons name="checkmark" size={16} color="#ffffff" />
+                  </View>
+                  <Text style={styles.featureText}>{t('paywall.features.weekly')}</Text>
+                  <Ionicons name="refresh" size={16} color="#ffffff" style={styles.featureIcon} />
+                </View>
+                <View style={styles.featureRow}>
+                  <View style={styles.checkContainer}>
+                    <Ionicons name="checkmark" size={16} color="#ffffff" />
+                  </View>
+                  <Text style={styles.featureText}>{t('paywall.features.visuals')}</Text>
+                  <Ionicons name="color-palette" size={16} color="#ffffff" style={styles.featureIcon} />
+                </View>
+                <View style={styles.featureRow}>
+                  <View style={styles.checkContainer}>
+                    <Ionicons name="checkmark" size={16} color="#ffffff" />
+                  </View>
+                  <Text style={styles.featureText}>{t('paywall.features.characters')}</Text>
+                  <Ionicons name="person" size={16} color="#ffffff" style={styles.featureIcon} />
+                </View>
+                <View style={styles.featureRow}>
+                  <View style={styles.checkContainer}>
+                    <Ionicons name="checkmark" size={16} color="#ffffff" />
+                  </View>
+                  <Text style={styles.featureText}>{t('paywall.features.updates')}</Text>
+                  <Ionicons name="star" size={16} color="#ffffff" style={styles.featureIcon} />
+                </View>
+              </View>
+
+              <View style={styles.subscriptionOptions}>
+                <TouchableOpacity
+                  style={[
+                    styles.planOption,
+                    selectedPlan === 'weekly' && styles.selectedPlan
+                  ]}
+                  onPress={() => setSelectedPlan('weekly')}
+                >
+                  <View style={[styles.planBadge, styles.weeklyBadge]}>
+                    <Text style={styles.badgeText}>{t('paywall.plans.weekly.badge')}</Text>
+                    <Text style={{color: '#111', fontWeight: 'bold', fontSize: 9, marginTop: 1, textAlign: 'center'}}>{t('paywall.freeTrial')}</Text>
+                  </View>
+                  <Text style={[styles.planTitle, {marginTop: 18}]}>{t('paywall.plans.weekly.title')}</Text>
+                  <Text style={styles.planPrice}>{t('paywall.prices.weekly')} {t('paywall.prices.currency')}</Text>
+                  <Text style={styles.planPeriod}>{t('paywall.plans.weekly.period')}</Text>
+                  <Text style={styles.planDescription}>{t('paywall.plans.weekly.description')}</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.planOption,
+                    selectedPlan === 'monthly' && styles.selectedPlan
+                  ]}
+                  onPress={() => setSelectedPlan('monthly')}
+                >
+                  <View style={[styles.planBadge, styles.monthlyBadge]}>
+                    <Text style={styles.badgeText}>{t('paywall.plans.monthly.badge')}</Text>
+                  </View>
+                  <Text style={styles.planTitle}>{t('paywall.plans.monthly.title')}</Text>
+                  <Text style={styles.planPrice}>{t('paywall.prices.monthly')} {t('paywall.prices.currency')}</Text>
+                  <Text style={styles.planPeriod}>{t('paywall.plans.monthly.period')}</Text>
+                  <Text style={styles.planDescription}>{t('paywall.plans.monthly.description')}</Text>
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity
+                style={styles.ctaButton}
+                onPress={handleSubscribe}
+                disabled={loading}
+              >
+                <View style={styles.gradientButton}>
+                  {loading ? (
+                    <ActivityIndicator color="#E66F50" size="small" />
+                  ) : (
+                    <Text style={styles.ctaButtonText}>
+                      {t('paywall.cta')}
+                    </Text>
+                  )}
+                </View>
               </TouchableOpacity>
-            )}
-          </View>
 
-          <View style={styles.heroSection}>
-            <View style={styles.heroContent}>
-              <Text style={styles.heroTitle}>{t('paywall.title')}</Text>
-              <Text style={styles.heroSubtitle}>{t('paywall.subtitle')}</Text>
-              <Text style={styles.tagline}>{t('paywall.tagline')}</Text>
-            </View>
-          </View>
-
-          <View style={styles.featuresContainer}>
-            <View style={styles.featureRow}>
-              <View style={styles.checkContainer}>
-                <Ionicons name="checkmark" size={16} color="#ffffff" />
+              <View style={styles.footerLinks}>
+                <TouchableOpacity onPress={handleRestore} disabled={loading}>
+                  <Text style={styles.footerText}>{t('paywall.footer.restore')}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleTermsPress}>
+                  <Text style={styles.footerText}>{t('paywall.footer.terms')}</Text>
+                </TouchableOpacity>
               </View>
-              <Text style={styles.featureText}>{t('paywall.features.unlimited')}</Text>
-              <Ionicons name="game-controller" size={16} color="#ffffff" style={styles.featureIcon} />
-            </View>
-            <View style={styles.featureRow}>
-              <View style={styles.checkContainer}>
-                <Ionicons name="checkmark" size={16} color="#ffffff" />
-              </View>
-              <Text style={styles.featureText}>{t('paywall.features.weekly')}</Text>
-              <Ionicons name="refresh" size={16} color="#ffffff" style={styles.featureIcon} />
-            </View>
-            <View style={styles.featureRow}>
-              <View style={styles.checkContainer}>
-                <Ionicons name="checkmark" size={16} color="#ffffff" />
-              </View>
-              <Text style={styles.featureText}>{t('paywall.features.visuals')}</Text>
-              <Ionicons name="color-palette" size={16} color="#ffffff" style={styles.featureIcon} />
-            </View>
-            <View style={styles.featureRow}>
-              <View style={styles.checkContainer}>
-                <Ionicons name="checkmark" size={16} color="#ffffff" />
-              </View>
-              <Text style={styles.featureText}>{t('paywall.features.characters')}</Text>
-              <Ionicons name="person" size={16} color="#ffffff" style={styles.featureIcon} />
-            </View>
-            <View style={styles.featureRow}>
-              <View style={styles.checkContainer}>
-                <Ionicons name="checkmark" size={16} color="#ffffff" />
-              </View>
-              <Text style={styles.featureText}>{t('paywall.features.updates')}</Text>
-              <Ionicons name="star" size={16} color="#ffffff" style={styles.featureIcon} />
-            </View>
-          </View>
-
-          <View style={styles.subscriptionOptions}>
-            <TouchableOpacity
-              style={[
-                styles.planOption,
-                selectedPlan === 'weekly' && styles.selectedPlan
-              ]}
-              onPress={() => setSelectedPlan('weekly')}
-            >
-              <View style={[styles.planBadge, styles.weeklyBadge]}>
-                <Text style={styles.badgeText}>{t('paywall.plans.weekly.badge')}</Text>
-                <Text style={{color: '#111', fontWeight: 'bold', fontSize: 9, marginTop: 1, textAlign: 'center'}}>{t('paywall.freeTrial')}</Text>
-              </View>
-              <Text style={[styles.planTitle, {marginTop: 18}]}>{t('paywall.plans.weekly.title')}</Text>
-              <Text style={styles.planPrice}>{t('paywall.prices.weekly')} {t('paywall.prices.currency')}</Text>
-              <Text style={styles.planPeriod}>{t('paywall.plans.weekly.period')}</Text>
-              <Text style={styles.planDescription}>{t('paywall.plans.weekly.description')}</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.planOption,
-                selectedPlan === 'monthly' && styles.selectedPlan
-              ]}
-              onPress={() => setSelectedPlan('monthly')}
-            >
-              <View style={[styles.planBadge, styles.monthlyBadge]}>
-                <Text style={styles.badgeText}>{t('paywall.plans.monthly.badge')}</Text>
-              </View>
-              <Text style={styles.planTitle}>{t('paywall.plans.monthly.title')}</Text>
-              <Text style={styles.planPrice}>{t('paywall.prices.monthly')} {t('paywall.prices.currency')}</Text>
-              <Text style={styles.planPeriod}>{t('paywall.plans.monthly.period')}</Text>
-              <Text style={styles.planDescription}>{t('paywall.plans.monthly.description')}</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.planOption,
-                selectedPlan === 'annual' && styles.selectedPlan
-              ]}
-              onPress={() => setSelectedPlan('annual')}
-            >
-              <View style={[styles.planBadge, styles.annualBadge]}>
-                <Text style={styles.badgeText}>{t('paywall.plans.annual.badge')}</Text>
-              </View>
-              <Text style={styles.planTitle}>{t('paywall.plans.annual.title')}</Text>
-              <Text style={styles.planPrice}>{t('paywall.prices.annual')} {t('paywall.prices.currency')}</Text>
-              <Text style={styles.planPeriod}>{t('paywall.plans.annual.period')}</Text>
-              <Text style={styles.planDescription}>{t('paywall.plans.annual.description')}</Text>
-            </TouchableOpacity>
-          </View>
-
-          <TouchableOpacity
-            style={styles.ctaButton}
-            onPress={handleSubscribe}
-            disabled={loading}
-          >
-            <View style={styles.gradientButton}>
-              {loading ? (
-                <ActivityIndicator color="#E66F50" size="small" />
-              ) : (
-                <Text style={styles.ctaButtonText}>
-                  {t('paywall.cta')}
-                </Text>
-              )}
-            </View>
-          </TouchableOpacity>
-
-          <View style={styles.footerLinks}>
-            <TouchableOpacity onPress={handleRestore} disabled={loading}>
-              <Text style={styles.footerText}>{t('paywall.footer.restore')}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={handleTermsPress}>
-              <Text style={styles.footerText}>{t('paywall.footer.terms')}</Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
+            </ScrollView>
           </LinearGradient>
         </ImageBackground>
       </SafeAreaView>
@@ -423,9 +411,6 @@ const styles = StyleSheet.create({
   monthlyBadge: {
     backgroundColor: HalloweenTheme.light?.secondary || '#4B1E00',
   },
-  annualBadge: {
-    backgroundColor: HalloweenTheme.light?.error || '#FF1744',
-  },
   badgeText: {
     color: '#000',
     fontWeight: 'bold',
@@ -497,4 +482,4 @@ const styles = StyleSheet.create({
     zIndex: 1,
     pointerEvents: 'none',
   },
-}); 
+});

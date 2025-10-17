@@ -695,15 +695,132 @@ const en = {
 
   // Paywall
   paywall: {
-    title: '🎃 Nightly Premium 🎃',
-    subtitle: 'HALLOWEEN SPECIAL',
-    tagline: 'PLAY WITHOUT LIMITS IN THE DARKNESS',
+    title: "🎃 Nightly Premium 🎃",
+    subtitle: "HALLOWEEN SPECIAL",
+    tagline: "PLAY WITHOUT LIMITS IN THE DARKNESS",
     features: {
-      unlimited: 'Unlimited access to all modes',
-      weekly: 'New cards every week',
-      visuals: 'Exclusive visual themes',
-      characters: 'Character customization',
-      updates: 'Priority updates'
+      unlimited: "Unlimited access to all modes",
+      weekly: "New cards every week",
+      visuals: "Exclusive visual themes",
+      characters: "Character customization",
+      updates: "Priority updates"
+    },
+    // Paywall A (Plans courts)
+    plans: {
+      weekly: {
+        title: "Free Trial",
+        badge: "FREE",
+        period: "7 days",
+        description: "Test all features"
+      },
+      monthly: {
+        title: "Monthly",
+        badge: "POPULAR",
+        period: "per month",
+        description: "Full access to everything"
+      },
+      annual: {
+        title: "Annual",
+        badge: "BEST VALUE",
+        period: "per year",
+        description: "Save more than 50%"
+      }
+    },
+    prices: {
+      weekly: "0",
+      monthly: "4.99",
+      annual: "29.99",
+      currency: "$"
+    },
+    freeTrial: "7 DAYS",
+    cta: "START TRIAL",
+    // Paywall B (Plan annuel avec réduction)
+    annual: {
+      title: "🔥 LIMITED OFFER 🔥",
+      subtitle: "SAVE MORE THAN 50%",
+      tagline: "Don't miss this unique opportunity!",
+      features: {
+        savings: "Save more than $30 per year"
+      },
+      discount: "off",
+      savings: "Save {amount} {currency}",
+      cta: "GRAB THE DEAL"
+    },
+    alerts: {
+      productUnavailable: {
+        title: "Product not available",
+        message: "This product is not available at the moment."
+      },
+      success: {
+        title: "Congratulations!",
+        message: "Your subscription has been activated successfully!"
+      },
+      pending: {
+        title: "Pending",
+        message: "Your purchase is being processed."
+      },
+      error: {
+        title: "Error",
+        message: "An error occurred during the purchase."
+      },
+      restoreSuccess: {
+        title: "Restoration successful",
+        message: "Your purchases have been restored successfully!"
+      },
+      restoreError: {
+        title: "Restoration error",
+        message: "Unable to restore your purchases."
+      },
+      termsError: {
+        title: "Error",
+        message: "Unable to open terms of use."
+      }
+    },
+    footer: {
+      restore: "Restore purchases",
+      terms: "Terms of use"
+    }
+  },
+    // Paywall A (Short-term plans)
+    plans: {
+      weekly: {
+        title: 'Free Trial',
+        badge: 'FREE',
+        period: '7 days',
+        description: 'Test all features'
+      },
+      monthly: {
+        title: 'Monthly',
+        badge: 'POPULAR',
+        period: 'per month',
+        description: 'Full access to everything'
+      },
+      annual: {
+        title: 'Annual',
+        badge: 'BEST VALUE',
+        period: 'per year',
+        description: 'Save more than 50%'
+      }
+    },
+    prices: {
+      weekly: '0',
+      monthly: '4.99',
+      annual: '29.99',
+      currency: '$'
+    },
+    freeTrial: '7 DAYS',
+    cta: 'START TRIAL',
+    // Paywall B (Annual plan with discount)
+    annual: {
+      title: '🔥 LIMITED OFFER 🔥',
+      subtitle: 'SAVE MORE THAN 50%',
+      tagline: 'Don\'t miss this unique opportunity!',
+      features: {
+        savings: 'Save more than $30 per year'
+      },
+      discount: 'off',
+      savings: 'Save {amount} {currency}',
+      cta: 'GRAB THE DEAL'
     },
     plans: {
       weekly: {

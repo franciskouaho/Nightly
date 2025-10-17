@@ -684,16 +684,92 @@ const es = {
 
   // Paywall
   paywall: {
-    title: 'Nightly Premium',
-    subtitle: 'ACCESO ILIMITADO',
-    tagline: 'JUEGA SIN LÍMITES',
+    title: "🎃 Nightly Premium 🎃",
+    subtitle: "HALLOWEEN SPECIAL",
+    tagline: "JUEGA SIN LÍMITES EN LA OSCURIDAD",
     features: {
-      unlimited: 'Acceso ilimitado a todos los modos',
-      weekly: 'Nuevas cartas cada semana',
-      visuals: 'Temas visuales exclusivos',
-      characters: 'Personalización de personajes',
-      updates: 'Actualizaciones prioritarias'
+      unlimited: "Acceso ilimitado a todos los modos",
+      weekly: "Nuevas cartas cada semana",
+      visuals: "Temas visuales exclusivos",
+      characters: "Personalización de personajes",
+      updates: "Actualizaciones prioritarias"
     },
+    // Paywall A (Planes cortos)
+    plans: {
+      weekly: {
+        title: "Prueba Gratuita",
+        badge: "GRATIS",
+        period: "7 días",
+        description: "Prueba todas las funciones"
+      },
+      monthly: {
+        title: "Mensual",
+        badge: "POPULAR",
+        period: "por mes",
+        description: "Acceso completo a todo"
+      },
+      annual: {
+        title: "Anual",
+        badge: "MEJOR PRECIO",
+        period: "por año",
+        description: "Ahorra más del 50%"
+      }
+    },
+    prices: {
+      weekly: "0",
+      monthly: "4.99",
+      annual: "29.99",
+      currency: "€"
+    },
+    freeTrial: "7 DÍAS",
+    cta: "COMENZAR PRUEBA",
+    // Paywall B (Plan anual con descuento)
+    annual: {
+      title: "🔥 OFERTA LIMITADA 🔥",
+      subtitle: "AHORRA MÁS DEL 50%",
+      tagline: "¡No te pierdas esta oportunidad única!",
+      features: {
+        savings: "Ahorra más de 30€ por año"
+      },
+      discount: "de descuento",
+      savings: "Ahorra {amount} {currency}",
+      cta: "APROVECHAR LA OFERTA"
+    },
+    alerts: {
+      productUnavailable: {
+        title: "Producto no disponible",
+        message: "Este producto no está disponible en este momento."
+      },
+      success: {
+        title: "¡Felicidades!",
+        message: "¡Tu suscripción ha sido activada con éxito!"
+      },
+      pending: {
+        title: "Pendiente",
+        message: "Tu compra está siendo procesada."
+      },
+      error: {
+        title: "Error",
+        message: "Ocurrió un error durante la compra."
+      },
+      restoreSuccess: {
+        title: "Restauración exitosa",
+        message: "¡Tus compras han sido restauradas con éxito!"
+      },
+      restoreError: {
+        title: "Error de restauración",
+        message: "No se pudieron restaurar tus compras."
+      },
+      termsError: {
+        title: "Error",
+        message: "No se pueden abrir los términos de uso."
+      }
+    },
+    footer: {
+      restore: "Restaurar compras",
+      terms: "Términos de uso"
+    }
+  },
     plans: {
       weekly: {
         badge: 'PASE',

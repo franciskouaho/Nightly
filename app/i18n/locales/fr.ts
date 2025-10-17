@@ -719,81 +719,166 @@ const fr = {
   paywall: {
     title: "🎃 Nightly Premium 🎃",
     subtitle: "HALLOWEEN SPECIAL",
-    tagline: "JOUEZ SANS LIMITES DANS L'OBSCURITÉ",
+    tagline: "PLAY WITHOUT LIMITS IN THE DARKNESS",
     features: {
       unlimited: "Accès illimité à tous les modes",
       weekly: "Nouvelles cartes chaque semaine",
       visuals: "Ambiances visuelles exclusives",
       characters: "Personnalisation des personnages",
-      updates: "Mises à jour prioritaires",
+      updates: "Mises à jour prioritaires"
     },
+    // Paywall A (Plans courts)
     plans: {
       weekly: {
-        badge: "PASS",
-        title: "Nightly Pass",
-        period: "par semaine",
-        description: "Parfait pour une soirée ou un week-end entre amis",
+        title: "Essai Gratuit",
+        badge: "GRATUIT",
+        period: "7 jours",
+        description: "Testez toutes les fonctionnalités"
       },
       monthly: {
-        badge: "PARTY",
-        title: "Nightly Party",
+        title: "Mensuel",
+        badge: "POPULAIRE",
         period: "par mois",
-        description: "Pour ceux qui jouent régulièrement",
+        description: "Accès complet à tout"
       },
       annual: {
-        badge: "ALL ACCESS",
-        title: "Nightly All Access",
+        title: "Annuel",
+        badge: "MEILLEUR PRIX",
         period: "par an",
-        description: "L'offre ultime pour les fans",
-      },
+        description: "Économisez plus de 50%"
+      }
     },
-    cta: "Commencer maintenant",
-    footer: {
-      restore: "Restaurer les achats",
-      terms: "CGU",
+    prices: {
+      weekly: "0",
+      monthly: "4.99",
+      annual: "29.99",
+      currency: "€"
+    },
+    freeTrial: "7 JOURS",
+    cta: "COMMENCER L'ESSAI",
+    // Paywall B (Plan annuel avec réduction)
+    annual: {
+      title: "🔥 OFFRE LIMITÉE 🔥",
+      subtitle: "ÉCONOMISEZ PLUS DE 50%",
+      tagline: "Ne ratez pas cette opportunité unique !",
+      features: {
+        savings: "Économisez plus de 30€ par an"
+      },
+      discount: "de réduction",
+      savings: "Économisez {amount} {currency}",
+      cta: "PROFITER DE L'OFFRE"
     },
     alerts: {
       productUnavailable: {
-        title: "Produit non disponible",
-        message:
-          "L'abonnement n'est pas disponible pour le moment. Veuillez réessayer plus tard.",
+        title: "Produit indisponible",
+        message: "Ce produit n'est pas disponible pour le moment."
       },
       success: {
-        title: "Succès",
-        message: "Merci pour votre achat!",
+        title: "Félicitations !",
+        message: "Votre abonnement a été activé avec succès !"
       },
       pending: {
-        title: "Information",
-        message:
-          "Votre abonnement a été traité mais n'est pas encore actif. Veuillez redémarrer l'application.",
+        title: "En attente",
+        message: "Votre achat est en cours de traitement."
       },
       error: {
         title: "Erreur",
-        message:
-          "L'achat a échoué. Veuillez réessayer ou choisir un autre moyen de paiement.",
+        message: "Une erreur est survenue lors de l'achat."
       },
       restoreSuccess: {
-        title: "Succès",
-        message: "Votre achat a été restauré!",
+        title: "Restauration réussie",
+        message: "Vos achats ont été restaurés avec succès !"
       },
       restoreError: {
-        title: "Erreur",
-        message: "La restauration des achats a échoué",
+        title: "Erreur de restauration",
+        message: "Impossible de restaurer vos achats."
       },
       termsError: {
         title: "Erreur",
-        message: "Impossible d'ouvrir les CGU",
+        message: "Impossible d'ouvrir les conditions d'utilisation."
+      }
+    },
+    footer: {
+      restore: "Restaurer les achats",
+      terms: "Conditions d'utilisation"
+    }
+  },
+    // Paywall A (Plan court)
+    plans: {
+      weekly: {
+        title: "Essai Gratuit",
+        badge: "GRATUIT",
+        period: "7 jours",
+        description: "Testez toutes les fonctionnalités",
+      },
+      monthly: {
+        title: "Mensuel",
+        badge: "POPULAIRE",
+        period: "par mois",
+        description: "Accès complet à tout",
+      },
+      annual: {
+        title: "Annuel",
+        badge: "MEILLEUR PRIX",
+        period: "par an",
+        description: "Économisez plus de 50%",
       },
     },
     prices: {
-      weekly: "3,99",
-      monthly: "7,99",
-      annual: "29,99",
+      weekly: "0",
+      monthly: "4.99",
+      annual: "29.99",
       currency: "€",
     },
-    freeTrial: "Gratuit 3 jours",
+    freeTrial: "7 JOURS",
+    cta: "COMMENCER L'ESSAI",
+    // Paywall B (Plan annuel avec réduction)
+    annual: {
+      title: "🔥 OFFRE LIMITÉE 🔥",
+      subtitle: "ÉCONOMISEZ PLUS DE 50%",
+      tagline: "Ne ratez pas cette opportunité unique !",
+      features: {
+        savings: "Économisez plus de 30€ par an",
+      },
+      discount: "de réduction",
+      savings: "Économisez {amount} {currency}",
+      cta: "PROFITER DE L'OFFRE",
+    },
+    alerts: {
+      productUnavailable: {
+        title: "Produit indisponible",
+        message: "Ce produit n'est pas disponible pour le moment.",
+      },
+      success: {
+        title: "Félicitations !",
+        message: "Votre abonnement a été activé avec succès !",
+      },
+      pending: {
+        title: "En attente",
+        message: "Votre achat est en cours de traitement.",
+      },
+      error: {
+        title: "Erreur",
+        message: "Une erreur est survenue lors de l'achat.",
+      },
+      restoreSuccess: {
+        title: "Restauration réussie",
+        message: "Vos achats ont été restaurés avec succès !",
+      },
+      restoreError: {
+        title: "Erreur de restauration",
+        message: "Impossible de restaurer vos achats.",
+      },
+      termsError: {
+        title: "Erreur",
+        message: "Impossible d'ouvrir les conditions d'utilisation.",
+      },
+    },
+    footer: {
+      restore: "Restaurer les achats",
+      terms: "Conditions d'utilisation",
+    },
   },
-
   assets: {
     avatars: {
       "avatar-panda": {
