@@ -119,7 +119,12 @@ export default function GameResults({
       const isWinner = currentUserRank === 1;
       
       // Utiliser la fonction updateUserStats du hook useLeaderboard
-      await updateUserStats(userId, userScore, isWinner);
+      await updateUserStats({
+        userId,
+        points: userScore,
+        won: isWinner,
+        timestamp: new Date()
+      });
     };
 
     updateLeaderboardStats();

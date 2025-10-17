@@ -245,7 +245,12 @@ export default function LeaderboardScreen() {
                 style={styles.testButton}
                 onPress={async () => {
                   console.log('🧪 Test - Ajout de points pour l\'utilisateur:', user.uid);
-                  await updateUserStats(user.uid, 1000, true);
+                  await updateUserStats({
+                    userId: user.uid,
+                    points: 1000,
+                    won: true,
+                    timestamp: new Date()
+                  });
                 }}
               >
                 <Text style={styles.testButtonText}>🧪 +1000 pts (Test)</Text>
