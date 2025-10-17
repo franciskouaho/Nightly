@@ -431,6 +431,8 @@ export default {
     neverHaveIEverHot: {
       never: "Nunca nunca",
       ever: "Eu já",
+      yes: "Sim",
+      no: "Não",
       waiting: "Aguardando a escolha do jogador alvo...",
       prepare: "Prepare-se para responder!",
       submit: "Enviar",

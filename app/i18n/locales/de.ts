@@ -412,6 +412,8 @@ const de = {
     neverHaveIEverHot: {
       never: "Ich habe noch nie",
       ever: "Ich habe schon",
+      yes: "Ja",
+      no: "Nein",
       waiting: "Warte auf die Wahl des Zielspielers...",
       prepare: "Mach dich bereit zu antworten!",
       submit: "Senden",

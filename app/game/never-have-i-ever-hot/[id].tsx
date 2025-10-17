@@ -541,7 +541,7 @@ export default function NeverHaveIEverHotGame() {
             ]}
             onPress={() => handleAnswerAndNext(userId, false)}
           >
-            <Text style={styles.answerButtonText}>🙅‍♂️ {t('game.neverHaveIEverHot.never')}</Text>
+            <Text style={styles.answerButtonText}>🙅‍♂️ {t('game.neverHaveIEverHot.no')}</Text>
           </Pressable>
           <Pressable
             style={({ pressed }) => [
@@ -552,7 +552,7 @@ export default function NeverHaveIEverHotGame() {
             ]}
             onPress={() => handleAnswerAndNext(userId, true)}
           >
-            <Text style={styles.answerButtonText}>🔥 {t('game.neverHaveIEverHot.ever')}</Text>
+            <Text style={styles.answerButtonText}>🔥 {t('game.neverHaveIEverHot.yes')}</Text>
           </Pressable>
         </View>
       )}

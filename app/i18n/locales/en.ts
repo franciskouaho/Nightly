@@ -423,6 +423,8 @@ const en = {
     neverHaveIEverHot: {
       never: "I have never",
       ever: "I have",
+      yes: "Yes",
+      no: "No",
       waiting: "Waiting for the target player's choice...",
       prepare: "Get ready to answer!",
       submit: "Submit",

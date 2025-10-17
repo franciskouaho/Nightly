@@ -469,6 +469,8 @@ export default {
     neverHaveIEverHot: {
       never: "لم أفعل ذلك من قبل",
       ever: "لقد فعلتها من قبل",
+      yes: "نعم",
+      no: "لا",
       waiting: "في انتظار اختيار اللاعب المستهدف...",
       prepare: "استعد للإجابة!",
       submit: "إرسال",
