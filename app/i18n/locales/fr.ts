@@ -769,10 +769,22 @@ const fr = {
         message: "Impossible d'ouvrir les conditions d'utilisation.",
       },
     },
-    footer: {
-      restore: "Restaurer les achats",
-      terms: "Conditions d'utilisation",
-    },
+  footer: {
+    restore: "Restaurer les achats",
+    terms: "Conditions d'utilisation",
+  },
+  leaderboard: {
+    title: "🏆 Classement Général",
+    subtitle: "Les meilleurs joueurs de Nightly",
+    loading: "Chargement du classement...",
+    empty: "Aucun joueur dans le classement",
+    emptySubtext: "Jouez pour apparaître ici !",
+    rank: "Rang",
+    points: "Points",
+    games: "parties",
+    winRate: "victoires",
+    refresh: "Actualiser",
+  },
   },
 
   assets: {

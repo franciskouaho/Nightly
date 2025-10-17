@@ -8,7 +8,7 @@ import { useFirestore } from "@/hooks/useFirestore";
 import { useExpoNotifications } from "@/hooks/useExpoNotifications";
 import HalloweenNotificationScheduler from "@/services/halloweenNotificationScheduler";
 import Colors from "@/constants/Colors";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import HalloweenDecorations from "@/components/HalloweenDecorations";
 import NetInfo from "@react-native-community/netinfo";
 import { usePostHog } from 'posthog-react-native'
@@ -23,6 +23,7 @@ import {
 } from "@react-native-firebase/firestore";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
+import useLeaderboard from "@/hooks/useLeaderboard";
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -77,6 +78,7 @@ export default function HomeScreen() {
   const [error, setError] = React.useState("");
   const posthog = usePostHog();
   const { showPaywallA, showPaywallB, closePaywallB, setInActiveGame, paywallState } = usePaywall();
+  const { getTopPlayers } = useLeaderboard();
   
   // Fonction de test pour forcer l'affichage du PaywallModalB
   const testShowPaywallB = async () => {
@@ -585,6 +587,7 @@ export default function HomeScreen() {
         <View style={{ zIndex: 20 }}>
           <TopBar />
         </View>
+
 
         {/* Boutons de test pour les notifications - uniquement en mode dev */}
         {__DEV__ && (

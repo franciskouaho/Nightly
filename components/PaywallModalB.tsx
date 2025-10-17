@@ -32,16 +32,12 @@ export default function PaywallModalB({ isVisible, onClose, originalPrice, disco
   // Calculer la réduction en pourcentage depuis RevenueCat
   useEffect(() => {
     const savings = calculateAnnualSavings();
-    console.log('💰 useEffect - Calcul des économies:', savings);
-    console.log('💰 useEffect - Discount percentage avant:', discountPercentage);
     
     if (savings) {
       setDiscountPercentage(savings.percentage);
-      console.log('💰 useEffect - Nouveau discount percentage:', savings.percentage);
     } else {
       // Forcer un pourcentage de réduction pour les tests
       setDiscountPercentage(50);
-      console.log('💰 useEffect - Discount percentage forcé à 50%');
     }
   }, [calculateAnnualSavings, discountPercentage]);
 
@@ -261,8 +257,6 @@ export default function PaywallModalB({ isVisible, onClose, originalPrice, disco
                       <Text style={styles.savingsText}>
                         {(() => {
                           const savings = calculateAnnualSavings();
-                          console.log('💰 Calcul des économies:', savings);
-                          console.log('💰 Pricing data:', pricing);
                           
                           if (savings) {
                             return t('paywall.annual.savingsText', { 
@@ -276,7 +270,6 @@ export default function PaywallModalB({ isVisible, onClose, originalPrice, disco
                                            pricing.weekly?.currency || 
                                            'USD';
                             
-                            console.log('💰 Devise détectée:', currency);
                             
                             // Calculer des économies approximatives si les données ne sont pas complètes
                             const monthlyPrice = pricing.monthly?.priceNumber || 6.99;

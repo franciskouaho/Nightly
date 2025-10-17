@@ -24,9 +24,10 @@ function useRevenueCat() {
 
 
     useEffect(() => {
-        /*Purchases.setLogLevel(Purchases.LOG_LEVEL.DEBUG);*/
-
         const fetchData = async () => {
+            // Désactiver les logs de debug RevenueCat
+            Purchases.setLogLevel(Purchases.LOG_LEVEL.ERROR);
+            
             if (Platform.OS === 'android') {
                 Purchases.configure({apiKey: APIKeys.google});
             } else {

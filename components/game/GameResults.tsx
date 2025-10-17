@@ -1,6 +1,7 @@
 import RoundedButton from "@/components/RoundedButton";
 import { useInAppReview } from "@/hooks/useInAppReview";
 import { usePoints } from "@/hooks/usePoints";
+import { useLeaderboard } from "@/hooks/useLeaderboard";
 import { Player } from "@/types/gameTypes";
 import { Ionicons } from "@expo/vector-icons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -78,6 +79,7 @@ export default function GameResults({
   const insets = useSafeAreaInsets();
   const { awardLumiCoins } = usePoints();
   const { requestReview } = useInAppReview();
+  const { updateUserStats } = useLeaderboard();
   const { t } = useTranslation();
 
   const sortedPlayers = useMemo(
@@ -107,6 +109,21 @@ export default function GameResults({
 
   // Flag local pour éviter le spam de requestReview
   const [reviewRequested, setReviewRequested] = useState(false);
+
+  // Mettre à jour les statistiques du leaderboard
+  useEffect(() => {
+    const updateLeaderboardStats = async () => {
+      if (!userId || !scores[userId]) return;
+
+      const userScore = scores[userId];
+      const isWinner = currentUserRank === 1;
+      
+      // Utiliser la fonction updateUserStats du hook useLeaderboard
+      await updateUserStats(userId, userScore, isWinner);
+    };
+
+    updateLeaderboardStats();
+  }, [userId, scores, currentUserRank, updateUserStats]);
 
   useEffect(() => {
     if (currentUserRank === 1 && !reviewRequested) {
