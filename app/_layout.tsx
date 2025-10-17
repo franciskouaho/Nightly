@@ -1,5 +1,6 @@
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { PaywallProvider } from "@/contexts/PaywallContext";
 import { useAppsFlyer } from "@/hooks/useAppsFlyer";
 import { useIsHasUpdates } from "@/hooks/useIsHasUpdates";
 import { usePostHog } from "@/hooks/usePostHog";
@@ -41,12 +42,19 @@ function AppContent() {
       <SafeAreaProvider>
         <PaperProvider>
           <AuthProvider>
-            <StatusBar style="light" />
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="(tabs)" />
-              <Stack.Screen name="(auth)" />
-              <Stack.Screen name="room/[id]" />
-            </Stack>
+            <PaywallProvider config={{
+              cooldownHours: 24,
+              maxPaywallBPerSession: 1,
+              originalAnnualPrice: 59.99,
+              discountedAnnualPrice: 29.99,
+            }}>
+              <StatusBar style="light" />
+              <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="(tabs)" />
+                <Stack.Screen name="(auth)" />
+                <Stack.Screen name="room/[id]" />
+              </Stack>
+            </PaywallProvider>
           </AuthProvider>
         </PaperProvider>
       </SafeAreaProvider>

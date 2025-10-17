@@ -1,7 +1,7 @@
 "use client";
 
 import { gameCategories, GameCategory, GameMode } from "@/app/data/gameModes";
-import PaywallModal from "@/components/PaywallModal";
+import { usePaywall } from "@/contexts/PaywallContext";
 import TopBar from "@/components/TopBar";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFirestore } from "@/hooks/useFirestore";
@@ -75,8 +75,8 @@ export default function HomeScreen() {
   const [loading, setLoading] = React.useState(false);
   const { t } = useTranslation();
   const [error, setError] = React.useState("");
-  const [paywallVisible, setPaywallVisible] = React.useState(false);
   const posthog = usePostHog();
+  const { showPaywallA, setInActiveGame } = usePaywall();
   
   // Hook pour les notifications Expo
   const { expoPushToken, isPermissionGranted, sendLocalNotification, sendHalloweenQuizNotification } = useExpoNotifications();
@@ -90,14 +90,11 @@ export default function HomeScreen() {
   }, [isCreatingRoom]);
 
   useEffect(() => {
-    // Ne jamais afficher le modal si l'utilisateur a déjà un abonnement actif
-    if (user?.hasActiveSubscription) {
-      setPaywallVisible(false);
-      return;
+    // Afficher le paywall A si l'utilisateur n'a pas d'abonnement actif
+    if (!user?.hasActiveSubscription) {
+      showPaywallA();
     }
-    // Afficher le modal uniquement si l'utilisateur n'a pas d'abonnement actif
-    setPaywallVisible(true);
-  }, [user?.hasActiveSubscription]);
+  }, [user?.hasActiveSubscription, showPaywallA]);
 
   const getUserDisplayName = (user: any) => {
     if (!user) return "Joueur";
@@ -340,7 +337,7 @@ export default function HomeScreen() {
   const renderGameModeCard = (game: GameMode, isGridItem = false) => {
     const handlePress = async () => {
       if (game.premium && !user?.hasActiveSubscription) {
-        setPaywallVisible(true);
+        showPaywallA();
         return;
       }
       console.log("🖱️ Clic sur le mode de jeu:", game.name);
@@ -637,10 +634,6 @@ export default function HomeScreen() {
           </View>
         </ScrollView>
       </LinearGradient>
-      <PaywallModal
-        isVisible={paywallVisible}
-        onClose={() => setPaywallVisible(false)}
-      />
       {loading && (
         <View
           style={{
@@ -922,7 +915,7 @@ const styles = StyleSheet.create({
     borderColor: "rgba(255, 215, 0, 0.3)",
   },
   headerPointsText: {
-    color: Colors.tertiary,
+    color: Colors.light.tertiary,
     fontSize: 16,
     fontWeight: "bold",
     marginLeft: 4,
