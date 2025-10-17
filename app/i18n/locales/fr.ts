@@ -153,7 +153,7 @@ const fr = {
         finished: "Terminée",
       },
     },
-    codePlaceholder: "Entre le code de la partie",
+    codePlaceholder: "Entrez le code de la partie",
     loading: "Connexion à la partie...",
     categories: {
       events: "ÉVÉNEMENTS",
@@ -170,66 +170,47 @@ const fr = {
       "listen-but-don-t-judge": {
         name: "ON ÉCOUTE MAIS ON NE JUGE PAS",
         description: "Un mode premium pour rigoler tranquillement entre potes.",
-        tags: {
-          premium: "PREMIUM",
-        },
+        tags: { premium: "PREMIUM" },
       },
       "truth-or-dare": {
         name: "ACTION OU VÉRITÉ",
         description: "Le classique revisité avec des défis exclusifs.",
-        tags: {
-          premium: "PREMIUM",
-        },
+        tags: { premium: "PREMIUM" },
       },
       "never-have-i-ever-hot": {
         name: "JE N'AI JAMAIS 🔞",
         description: "Questions coquines et déplacées... Prêts à assumer ?",
-        tags: {
-          premium: "PREMIUM",
-        },
+        tags: { premium: "PREMIUM" },
       },
       "genius-or-liar": {
         name: "GENIE OU MENTEUR",
         description:
           "Un mode ludique où vous devez prouver vos connaissances ou assumer vos gages.",
-        tags: {
-          premium: "PREMIUM",
-        },
+        tags: { premium: "PREMIUM" },
       },
       "the-hidden-village": {
         name: "LE VILLAGE CACHÉ",
         description:
           "Un jeu de bluff, de stratégie et de discussions... pour ceux qui aiment accuser leurs potes 😈",
-        tags: {
-          premium: "PREMIUM",
-        },
+        tags: { premium: "PREMIUM" },
       },
       "trap-answer": {
         name: "QUESTION PIÈGE",
         description:
           "Un quiz où une mauvaise réponse te fait perdre des points... Pourras-tu éviter les pièges ?",
-        tags: {
-          free: "GRATUIT",
-        },
+        tags: { free: "GRATUIT" },
       },
       "quiz-halloween": {
         name: "QUIZ HALLOWEEN 🎃",
         description:
           "Testez vos connaissances sur Halloween avec des questions effrayantes !",
-        tags: {
-          halloween: "HALLOWEEN",
-          premium: "PREMIUM",
-        },
+        tags: { halloween: "HALLOWEEN", premium: "PREMIUM" },
       },
       "two-letters-one-word": {
         name: "2 LETTRES 1 MOT",
         description:
           "Trouvez un mot qui contient les deux lettres données et correspond au thème.",
-        tags: {
-          free: "GRATUIT",
-          new: "NOUVEAU",
-          premium: "PREMIUM",
-        },
+        tags: { free: "GRATUIT", new: "NOUVEAU", premium: "PREMIUM" },
         score: "Score : {{score}}",
         theme: "Thème : {{theme}}",
         inputPlaceholder: "Entrez votre mot...",
@@ -262,9 +243,7 @@ const fr = {
         name: "DEVINE LE MOT",
         description:
           "Faites deviner un mot sans utiliser les mots interdits... Un jeu de mots et de rapidité !",
-        tags: {
-          premium: "PREMIUM",
-        },
+        tags: { premium: "PREMIUM" },
       },
     },
   },
@@ -321,7 +300,7 @@ const fr = {
     error: "Erreur",
     unknownMode: "Mode de jeu inconnu : {{mode}}",
     notFound: "Aucun document de jeu trouvé pour l'id : {{id}}",
-    noMode: "Aucun mode de jeu trouvé dans le document de jeux.",
+    noMode: "Aucun mode de jeu trouvé dans le document de jeu.",
     loading: "Chargement...",
     results: {
       title: "Résultats Finaux",
@@ -715,7 +694,7 @@ const fr = {
     },
   },
 
-  // Paywall
+  // Paywall (corrigé, sans doublon)
   paywall: {
     title: "🎃 Nightly Premium 🎃",
     subtitle: "HALLOWEEN SPECIAL",
@@ -725,90 +704,13 @@ const fr = {
       weekly: "Nouvelles cartes chaque semaine",
       visuals: "Ambiances visuelles exclusives",
       characters: "Personnalisation des personnages",
-      updates: "Mises à jour prioritaires"
+      updates: "Mises à jour prioritaires",
     },
-    // Paywall A (Plans courts)
     plans: {
       weekly: {
         title: "Essai Gratuit",
         badge: "GRATUIT",
-        period: "7 jours",
-        description: "Testez toutes les fonctionnalités"
-      },
-      monthly: {
-        title: "Mensuel",
-        badge: "POPULAIRE",
-        period: "par mois",
-        description: "Accès complet à tout"
-      },
-      annual: {
-        title: "Annuel",
-        badge: "MEILLEUR PRIX",
-        period: "par an",
-        description: "Économisez plus de 50%"
-      }
-    },
-    prices: {
-      weekly: "0",
-      monthly: "4.99",
-      annual: "29.99",
-      currency: "€"
-    },
-    freeTrial: "7 JOURS",
-    cta: "COMMENCER L'ESSAI",
-    // Paywall B (Plan annuel avec réduction)
-    annual: {
-      title: "🔥 OFFRE LIMITÉE 🔥",
-      subtitle: "ÉCONOMISEZ PLUS DE 50%",
-      tagline: "Ne ratez pas cette opportunité unique !",
-      features: {
-        savings: "Économisez plus de 30€ par an"
-      },
-      discount: "de réduction",
-      savings: "Économisez {amount} {currency}",
-      cta: "PROFITER DE L'OFFRE"
-    },
-    alerts: {
-      productUnavailable: {
-        title: "Produit indisponible",
-        message: "Ce produit n'est pas disponible pour le moment."
-      },
-      success: {
-        title: "Félicitations !",
-        message: "Votre abonnement a été activé avec succès !"
-      },
-      pending: {
-        title: "En attente",
-        message: "Votre achat est en cours de traitement."
-      },
-      error: {
-        title: "Erreur",
-        message: "Une erreur est survenue lors de l'achat."
-      },
-      restoreSuccess: {
-        title: "Restauration réussie",
-        message: "Vos achats ont été restaurés avec succès !"
-      },
-      restoreError: {
-        title: "Erreur de restauration",
-        message: "Impossible de restaurer vos achats."
-      },
-      termsError: {
-        title: "Erreur",
-        message: "Impossible d'ouvrir les conditions d'utilisation."
-      }
-    },
-    footer: {
-      restore: "Restaurer les achats",
-      terms: "Conditions d'utilisation"
-    }
-  },
-    // Paywall A (Plan court)
-    plans: {
-      weekly: {
-        title: "Essai Gratuit",
-        badge: "GRATUIT",
-        period: "7 jours",
+        period: "3 jours",
         description: "Testez toutes les fonctionnalités",
       },
       monthly: {
@@ -819,20 +721,13 @@ const fr = {
       },
       annual: {
         title: "Annuel",
-        badge: "MEILLEUR PRIX",
+        badge: "ÉCONOMIE",
         period: "par an",
         description: "Économisez plus de 50%",
       },
     },
-    prices: {
-      weekly: "0",
-      monthly: "4.99",
-      annual: "29.99",
-      currency: "€",
-    },
-    freeTrial: "7 JOURS",
+    freeTrial: "3 JOURS",
     cta: "COMMENCER L'ESSAI",
-    // Paywall B (Plan annuel avec réduction)
     annual: {
       title: "🔥 OFFRE LIMITÉE 🔥",
       subtitle: "ÉCONOMISEZ PLUS DE 50%",
@@ -841,7 +736,7 @@ const fr = {
         savings: "Économisez plus de 30€ par an",
       },
       discount: "de réduction",
-      savings: "Économisez {amount} {currency}",
+      savingsText: "Économisez {amount} {currency}",
       cta: "PROFITER DE L'OFFRE",
     },
     alerts: {
@@ -879,6 +774,7 @@ const fr = {
       terms: "Conditions d'utilisation",
     },
   },
+
   assets: {
     avatars: {
       "avatar-panda": {

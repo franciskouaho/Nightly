@@ -699,7 +699,7 @@ const es = {
       weekly: {
         title: "Prueba Gratuita",
         badge: "GRATIS",
-        period: "7 días",
+        period: "3 días",
         description: "Prueba todas las funciones"
       },
       monthly: {
@@ -710,18 +710,12 @@ const es = {
       },
       annual: {
         title: "Anual",
-        badge: "MEJOR PRECIO",
+        badge: "AHORRA",
         period: "por año",
         description: "Ahorra más del 50%"
       }
     },
-    prices: {
-      weekly: "0",
-      monthly: "4.99",
-      annual: "29.99",
-      currency: "€"
-    },
-    freeTrial: "7 DÍAS",
+    freeTrial: "3 DÍAS",
     cta: "COMENZAR PRUEBA",
     // Paywall B (Plan anual con descuento)
     annual: {
@@ -769,69 +763,6 @@ const es = {
       restore: "Restaurar compras",
       terms: "Términos de uso"
     }
-  },
-    plans: {
-      weekly: {
-        badge: 'PASE',
-        title: 'Pase Nightly',
-        period: 'por semana',
-        description: 'Perfecto para una noche o un fin de semana con amigos'
-      },
-      monthly: {
-        badge: 'FIESTA',
-        title: 'Fiesta Nightly',
-        period: 'por mes',
-        description: 'Para los que juegan regularmente'
-      },
-      annual: {
-        badge: 'ACCESO TOTAL',
-        title: 'Acceso Total Nightly',
-        period: 'por año',
-        description: 'La oferta definitiva para los fans'
-      }
-    },
-    cta: 'Empezar ahora',
-    footer: {
-      restore: 'Restaurar compras',
-      terms: 'Términos de servicio'
-    },
-    alerts: {
-      productUnavailable: {
-        title: 'Producto no disponible',
-        message: 'La suscripción no está disponible en este momento. Por favor, inténtalo de nuevo más tarde.'
-      },
-      success: {
-        title: 'Éxito',
-        message: '¡Gracias por tu compra!'
-      },
-      pending: {
-        title: 'Información',
-        message: 'Tu suscripción ha sido procesada pero aún no está activa. Por favor, reinicia la aplicación.'
-      },
-      error: {
-        title: 'Error',
-        message: 'La compra ha fallado. Por favor, inténtalo de nuevo o elige otro método de pago.'
-      },
-      restoreSuccess: {
-        title: 'Éxito',
-        message: '¡Tu compra ha sido restaurada!'
-      },
-      restoreError: {
-        title: 'Error',
-        message: 'Falló la restauración de las compras'
-      },
-      termsError: {
-        title: 'Error',
-        message: 'No se pudieron abrir los términos de servicio'
-      }
-    },
-    prices: {
-      weekly: '3,99',
-      monthly: '7,99',
-      annual: '29,99',
-      currency: '€'
-    },
-    freeTrial: '3 días gratis',
   },
 
   assets: {

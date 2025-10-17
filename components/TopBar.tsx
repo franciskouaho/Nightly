@@ -61,6 +61,9 @@ export default function TopBar({
       <View style={styles.rightContainer}>
         <PointsDisplay size="medium" />
         
+        {/* Boutons personnalisés passés en props */}
+        {rightButtons}
+        
         {/* Bouton d'achat de skins */}
         <TouchableOpacity
           style={styles.iconButton}

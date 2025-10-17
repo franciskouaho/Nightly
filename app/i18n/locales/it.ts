@@ -708,7 +708,7 @@ const it = {
         description: 'Per chi gioca regolarmente'
       },
       annual: {
-        badge: 'ALL ACCESS',
+        badge: 'RISPARMIA',
         title: 'Nightly All Access',
         period: 'all\'anno',
         description: 'L\'offerta definitiva per i fan'

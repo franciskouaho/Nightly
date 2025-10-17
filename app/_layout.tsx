@@ -43,10 +43,9 @@ function AppContent() {
         <PaperProvider>
           <AuthProvider>
             <PaywallProvider config={{
-              cooldownHours: 24,
-              maxPaywallBPerSession: 1,
-              originalAnnualPrice: 59.99,
-              discountedAnnualPrice: 29.99,
+              cooldownHours: 8, // 8 heures entre les affichages (3 fois par jour)
+              maxPaywallBPerSession: 3, // Maximum 3 affichages par session
+              // Les prix seront maintenant récupérés depuis RevenueCat
             }}>
               <StatusBar style="light" />
               <Stack screenOptions={{ headerShown: false }}>

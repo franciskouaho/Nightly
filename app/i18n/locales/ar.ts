@@ -587,7 +587,7 @@ export default {
         description: 'للاعبين المنتظمين'
       },
       annual: {
-        badge: 'ALL ACCESS',
+        badge: 'توفير',
         title: 'Nightly All Access',
         period: 'سنويًا',
         description: 'العرض الأمثل للمعجبين'
@@ -627,12 +627,6 @@ export default {
         title: 'خطأ',
         message: 'تعذر فتح شروط الاستخدام'
       }
-    },
-    prices: {
-      weekly: '3.99',
-      monthly: '7.99',
-      annual: '29.99',
-      currency: '€'
     },
     freeTrial: 'تجربة مجانية لمدة 3 أيام',
   },

@@ -4,6 +4,7 @@ import { ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import useRevenueCat from '@/hooks/useRevenueCat';
+import usePricing from '@/hooks/usePricing';
 import { StatusBar } from 'expo-status-bar';
 import Purchases from 'react-native-purchases';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -22,6 +23,7 @@ interface PaywallModalAProps {
 export default function PaywallModalA({ isVisible, onClose, onUpgradeToAnnual }: PaywallModalAProps) {
   const [selectedPlan, setSelectedPlan] = useState('monthly');
   const { currentOffering, isProMember } = useRevenueCat();
+  const { pricing, getFormattedPrice } = usePricing();
   const [loading, setLoading] = useState(false);
   const { t } = useTranslation();
   const { user, setUser } = useAuth();
@@ -218,10 +220,12 @@ export default function PaywallModalA({ isVisible, onClose, onUpgradeToAnnual }:
                 >
                   <View style={[styles.planBadge, styles.weeklyBadge]}>
                     <Text style={styles.badgeText}>{t('paywall.plans.weekly.badge')}</Text>
-                    <Text style={{color: '#111', fontWeight: 'bold', fontSize: 9, marginTop: 1, textAlign: 'center'}}>{t('paywall.freeTrial')}</Text>
+                    <Text style={{color: '#FFFFFF', fontWeight: 'bold', fontSize: 9, marginTop: 1, textAlign: 'center'}}>{t('paywall.freeTrial')}</Text>
                   </View>
                   <Text style={[styles.planTitle, {marginTop: 18}]}>{t('paywall.plans.weekly.title')}</Text>
-                  <Text style={styles.planPrice}>{t('paywall.prices.weekly')} {t('paywall.prices.currency')}</Text>
+                  <Text style={styles.planPrice}>
+                    {getFormattedPrice('weekly')}
+                  </Text>
                   <Text style={styles.planPeriod}>{t('paywall.plans.weekly.period')}</Text>
                   <Text style={styles.planDescription}>{t('paywall.plans.weekly.description')}</Text>
                 </TouchableOpacity>
@@ -237,7 +241,9 @@ export default function PaywallModalA({ isVisible, onClose, onUpgradeToAnnual }:
                     <Text style={styles.badgeText}>{t('paywall.plans.monthly.badge')}</Text>
                   </View>
                   <Text style={styles.planTitle}>{t('paywall.plans.monthly.title')}</Text>
-                  <Text style={styles.planPrice}>{t('paywall.prices.monthly')} {t('paywall.prices.currency')}</Text>
+                  <Text style={styles.planPrice}>
+                    {getFormattedPrice('monthly')}
+                  </Text>
                   <Text style={styles.planPeriod}>{t('paywall.plans.monthly.period')}</Text>
                   <Text style={styles.planDescription}>{t('paywall.plans.monthly.description')}</Text>
                 </TouchableOpacity>
@@ -412,7 +418,7 @@ const styles = StyleSheet.create({
     backgroundColor: HalloweenTheme.light?.secondary || '#4B1E00',
   },
   badgeText: {
-    color: '#000',
+    color: '#FFFFFF',
     fontWeight: 'bold',
     fontSize: 10,
   },

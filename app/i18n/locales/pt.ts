@@ -667,7 +667,7 @@ export default {
         description: 'Para jogadores regulares'
       },
       annual: {
-        badge: 'ALL ACCESS',
+        badge: 'ECONOMIA',
         title: 'Nightly All Access',
         period: 'por ano',
         description: 'A oferta definitiva para fãs'
@@ -707,12 +707,6 @@ export default {
         title: 'Erro',
         message: 'Não foi possível abrir os Termos de Uso'
       }
-    },
-    prices: {
-      weekly: '3,99',
-      monthly: '7,99',
-      annual: '29,99',
-      currency: '€'
     },
     freeTrial: 'Teste gratuito de 3 dias',
   },

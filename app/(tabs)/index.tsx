@@ -76,7 +76,33 @@ export default function HomeScreen() {
   const { t } = useTranslation();
   const [error, setError] = React.useState("");
   const posthog = usePostHog();
-  const { showPaywallA, setInActiveGame } = usePaywall();
+  const { showPaywallA, showPaywallB, closePaywallB, setInActiveGame, paywallState } = usePaywall();
+  
+  // Fonction de test pour forcer l'affichage du PaywallModalB
+  const testShowPaywallB = async () => {
+    console.log('🧪 Test PaywallB - État actuel:', paywallState);
+    console.log('🧪 Test PaywallB - Tentative d\'affichage...');
+    
+    try {
+      // Essayer d'abord la fonction normale
+      await showPaywallB();
+      console.log('🧪 Test PaywallB - Fonction appelée avec succès');
+    } catch (error: any) {
+      console.error('🧪 Test PaywallB - Erreur avec fonction normale:', error);
+      
+      // Si ça ne marche pas, essayer de fermer puis rouvrir
+      console.log('🧪 Test PaywallB - Tentative alternative...');
+      closePaywallB();
+      setTimeout(async () => {
+        try {
+          await showPaywallB();
+          console.log('🧪 Test PaywallB - Fonction alternative réussie');
+        } catch (err: any) {
+          console.error('🧪 Test PaywallB - Erreur alternative:', err);
+        }
+      }, 100);
+    }
+  };
   
   // Hook pour les notifications Expo
   const { expoPushToken, isPermissionGranted, sendLocalNotification, sendHalloweenQuizNotification } = useExpoNotifications();
@@ -590,6 +616,13 @@ export default function HomeScreen() {
             >
               <Text style={styles.halloweenScheduleText}>📅 Oct</Text>
             </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={styles.paywallTestButton}
+              onPress={testShowPaywallB}
+            >
+              <Text style={styles.paywallTestText}>💰 PaywallB</Text>
+            </TouchableOpacity>
           </View>
         )}
 
@@ -965,6 +998,17 @@ const styles = StyleSheet.create({
     borderRadius: 15,
   },
   halloweenScheduleText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 12,
+  },
+  paywallTestButton: {
+    backgroundColor: "#7B2CBF",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 15,
+  },
+  paywallTestText: {
     color: "white",
     fontWeight: "bold",
     fontSize: 12,

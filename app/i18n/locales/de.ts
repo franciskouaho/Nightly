@@ -708,7 +708,7 @@ const de = {
         description: 'Für alle, die regelmäßig spielen'
       },
       annual: {
-        badge: 'ALL ACCESS',
+        badge: 'SPAREN',
         title: 'Nightly All Access',
         period: 'pro Jahr',
         description: 'Das ultimative Angebot für Fans'

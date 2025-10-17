@@ -17,15 +17,13 @@ interface PaywallState {
 interface PaywallConfig {
   cooldownHours: number; // Cooldown entre les affichages du PaywallB
   maxPaywallBPerSession: number; // Max d'affichages du PaywallB par session
-  originalAnnualPrice: number; // Prix original annuel pour calculer la réduction
-  discountedAnnualPrice: number; // Prix réduit annuel
+  originalAnnualPrice?: number; // Prix original pour calculer la réduction
+  discountedAnnualPrice?: number; // Prix réduit
 }
 
 const DEFAULT_CONFIG: PaywallConfig = {
-  cooldownHours: 24,
-  maxPaywallBPerSession: 1,
-  originalAnnualPrice: 59.99,
-  discountedAnnualPrice: 29.99,
+  cooldownHours: 8, // 8 heures entre les affichages (3 fois par jour)
+  maxPaywallBPerSession: 3, // Maximum 3 affichages par session
 };
 
 const STORAGE_KEYS = {
@@ -103,7 +101,7 @@ export default function usePaywallManager(config: Partial<PaywallConfig> = {}) {
       if (updates.hasSeenPaywallB !== undefined) {
         await AsyncStorage.setItem(STORAGE_KEYS.HAS_SEEN_PAYWALL_B, updates.hasSeenPaywallB.toString());
       }
-      if (updates.lastPaywallBShown !== undefined) {
+      if (updates.lastPaywallBShown !== undefined && updates.lastPaywallBShown !== null) {
         await AsyncStorage.setItem(STORAGE_KEYS.LAST_PAYWALL_B_SHOWN, updates.lastPaywallBShown.toString());
       }
     } catch (error) {
@@ -233,14 +231,34 @@ export default function usePaywallManager(config: Partial<PaywallConfig> = {}) {
   }, [generateSessionId]);
 
   // Calculer le pourcentage de réduction
-  const discountPercentage = Math.round(
-    (1 - finalConfig.discountedAnnualPrice / finalConfig.originalAnnualPrice) * 100
-  );
+  const discountPercentage = finalConfig.originalAnnualPrice && finalConfig.discountedAnnualPrice 
+    ? Math.round((1 - finalConfig.discountedAnnualPrice / finalConfig.originalAnnualPrice) * 100)
+    : 0;
 
   // Charger l'état au montage
   useEffect(() => {
     loadPaywallState();
   }, [loadPaywallState]);
+
+  // Afficher automatiquement le PaywallB à intervalles réguliers
+  useEffect(() => {
+    if (isProMember) return;
+
+    const checkAndShowPaywallB = async () => {
+      const canShow = await canShowPaywallB();
+      if (canShow) {
+        await showPaywallB();
+      }
+    };
+
+    // Afficher immédiatement si possible
+    checkAndShowPaywallB();
+
+    // Programmer des vérifications toutes les 8 heures
+    const interval = setInterval(checkAndShowPaywallB, 8 * 60 * 60 * 1000); // 8 heures
+
+    return () => clearInterval(interval);
+  }, [isProMember, canShowPaywallB, showPaywallB]);
 
   return {
     // État
@@ -261,7 +279,7 @@ export default function usePaywallManager(config: Partial<PaywallConfig> = {}) {
     discountPercentage,
     
     // Calculs
-    originalPrice: finalConfig.originalAnnualPrice,
-    discountedPrice: finalConfig.discountedAnnualPrice,
+    originalPrice: finalConfig.originalAnnualPrice || 0,
+    discountedPrice: finalConfig.discountedAnnualPrice || 0,
   };
 }

@@ -4,6 +4,7 @@ import { ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import useRevenueCat from '@/hooks/useRevenueCat';
+import usePricing from '@/hooks/usePricing';
 import { StatusBar } from 'expo-status-bar';
 import Purchases from 'react-native-purchases';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -22,18 +23,27 @@ interface PaywallModalBProps {
 
 export default function PaywallModalB({ isVisible, onClose, originalPrice, discountedPrice }: PaywallModalBProps) {
   const { currentOffering, isProMember } = useRevenueCat();
+  const { pricing, getFormattedPrice, calculateAnnualSavings } = usePricing();
   const [loading, setLoading] = useState(false);
   const [discountPercentage, setDiscountPercentage] = useState(0);
   const { t } = useTranslation();
   const { user, setUser } = useAuth();
 
-  // Calculer la réduction en pourcentage
+  // Calculer la réduction en pourcentage depuis RevenueCat
   useEffect(() => {
-    if (originalPrice && discountedPrice) {
-      const percentage = Math.round((1 - discountedPrice / originalPrice) * 100);
-      setDiscountPercentage(percentage);
+    const savings = calculateAnnualSavings();
+    console.log('💰 useEffect - Calcul des économies:', savings);
+    console.log('💰 useEffect - Discount percentage avant:', discountPercentage);
+    
+    if (savings) {
+      setDiscountPercentage(savings.percentage);
+      console.log('💰 useEffect - Nouveau discount percentage:', savings.percentage);
+    } else {
+      // Forcer un pourcentage de réduction pour les tests
+      setDiscountPercentage(50);
+      console.log('💰 useEffect - Discount percentage forcé à 50%');
     }
-  }, [originalPrice, discountedPrice]);
+  }, [calculateAnnualSavings, discountPercentage]);
 
   const packageToUse = currentOffering?.availablePackages?.find((pkg: any) =>
     pkg.packageType === 'ANNUAL'
@@ -232,27 +242,53 @@ export default function PaywallModalB({ isVisible, onClose, originalPrice, disco
                   <Text style={styles.annualTitle}>{t('paywall.plans.annual.title')}</Text>
                   
                   <View style={styles.priceContainer}>
-                    {originalPrice && (
+                    {pricing.monthly && (
                       <Text style={styles.originalPrice}>
-                        {originalPrice.toFixed(2)} {t('paywall.prices.currency')}
+                        {(pricing.monthly.priceNumber * 12).toFixed(2)} {pricing.monthly.currency}
                       </Text>
                     )}
                     <Text style={styles.discountedPrice}>
-                      {discountedPrice?.toFixed(2) || t('paywall.prices.annual')} {t('paywall.prices.currency')}
+                      {getFormattedPrice('annual')}
                     </Text>
                   </View>
                   
                   <Text style={styles.annualPeriod}>{t('paywall.plans.annual.period')}</Text>
                   <Text style={styles.annualDescription}>{t('paywall.plans.annual.description')}</Text>
                   
-                  {discountPercentage > 0 && (
+                  {true && (
                     <View style={styles.savingsContainer}>
                       <Ionicons name="trending-down" size={16} color="#4CAF50" />
                       <Text style={styles.savingsText}>
-                        {t('paywall.annual.savings', { 
-                          amount: originalPrice ? (originalPrice - (discountedPrice || 0)).toFixed(2) : '0',
-                          currency: t('paywall.prices.currency')
-                        })}
+                        {(() => {
+                          const savings = calculateAnnualSavings();
+                          console.log('💰 Calcul des économies:', savings);
+                          console.log('💰 Pricing data:', pricing);
+                          
+                          if (savings) {
+                            return t('paywall.annual.savingsText', { 
+                              amount: savings.amount.toFixed(2),
+                              currency: savings.currency
+                            });
+                          } else {
+                            // Récupérer la devise depuis les données disponibles
+                            const currency = pricing.annual?.currency || 
+                                           pricing.monthly?.currency || 
+                                           pricing.weekly?.currency || 
+                                           'USD';
+                            
+                            console.log('💰 Devise détectée:', currency);
+                            
+                            // Calculer des économies approximatives si les données ne sont pas complètes
+                            const monthlyPrice = pricing.monthly?.priceNumber || 6.99;
+                            const annualPrice = pricing.annual?.priceNumber || 24.99;
+                            const estimatedSavings = (monthlyPrice * 12) - annualPrice;
+                            
+                            return t('paywall.annual.savingsText', { 
+                              amount: estimatedSavings.toFixed(2),
+                              currency: currency
+                            });
+                          }
+                        })()}
                       </Text>
                     </View>
                   )}
@@ -422,13 +458,13 @@ const styles = StyleSheet.create({
   annualBadge: {
     position: 'absolute',
     top: -12,
-    backgroundColor: '#FFD700',
+    backgroundColor: '#FF6F00',
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 6,
   },
   annualBadgeText: {
-    color: '#000',
+    color: '#FFFFFF',
     fontWeight: 'bold',
     fontSize: 12,
   },
@@ -489,7 +525,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginVertical: 10,
     overflow: 'hidden',
-    backgroundColor: '#FFD700',
+    backgroundColor: '#FF6F00',
   },
   gradientButton: {
     paddingVertical: 16,
@@ -499,7 +535,7 @@ const styles = StyleSheet.create({
   ctaButtonText: {
     fontSize: 22,
     fontWeight: '800',
-    color: '#000',
+    color: '#FFFFFF',
   },
   footerLinks: {
     flexDirection: 'row',
