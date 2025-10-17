@@ -16,6 +16,11 @@ type InviteModalProps = {
 const InviteModal = ({ visible, roomId, onClose, onCopyCode, onShareCode }: InviteModalProps) => {
   const { t } = useTranslation();
 
+  // Ne pas afficher le modal si roomId n'existe pas
+  if (!roomId) {
+    return null;
+  }
+
   return (
     <Modal
       animationType="fade"
@@ -71,18 +76,20 @@ const InviteModal = ({ visible, roomId, onClose, onCopyCode, onShareCode }: Invi
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(10, 6, 20, 0.92)',
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   modal: {
-    width: '88%',
-    borderRadius: 28,
-    backgroundColor: '#2B1845',
+    width: '90%',
+    borderRadius: 20,
+    backgroundColor: 'rgba(75, 0, 130, 0.95)',
     padding: 24,
-    shadowColor: '#000',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 0, 150, 0.3)',
+    shadowColor: '#8B00FF',
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.25,
+    shadowOpacity: 0.4,
     shadowRadius: 16,
     elevation: 10,
   },
@@ -95,27 +102,32 @@ const styles = StyleSheet.create({
   title: {
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: 22,
+    fontSize: 24,
     letterSpacing: 0.5,
+    textShadowColor: 'rgba(0, 0, 0, 0.8)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
   label: {
     color: '#C7B8F5',
-    fontSize: 15,
-    marginBottom: 7,
+    fontSize: 16,
+    marginBottom: 10,
     marginLeft: 2,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   codeBox: {
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'center',
-    backgroundColor: '#3D2956',
-    borderRadius: 18,
-    paddingHorizontal: 18,
-    paddingVertical: 12,
-    marginBottom: 18,
-    marginTop: 2,
-    minWidth: 220,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    borderRadius: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    marginBottom: 20,
+    marginTop: 5,
+    minWidth: 240,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 0, 150, 0.3)',
   },
   code: {
     color: '#fff',
@@ -126,10 +138,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   copyBtn: {
-    marginLeft: 10,
-    padding: 6,
-    borderRadius: 8,
-    backgroundColor: '#866BF5',
+    marginLeft: 12,
+    padding: 8,
+    borderRadius: 10,
+    backgroundColor: '#8B00FF',
+    shadowColor: '#8B00FF',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
   },
   qrContainer: {
     alignSelf: 'center',
@@ -142,10 +159,11 @@ const styles = StyleSheet.create({
   instruction: {
     color: '#C7B8F5',
     textAlign: 'center',
-    fontSize: 14,
-    marginBottom: 18,
-    marginTop: 2,
-    lineHeight: 18,
+    fontSize: 15,
+    marginBottom: 20,
+    marginTop: 5,
+    lineHeight: 20,
+    fontWeight: '500',
   },
   shareBtn: {
     borderRadius: 16,

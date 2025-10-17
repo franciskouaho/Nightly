@@ -1,6 +1,5 @@
 "use client";
 
-import HalloweenDecorations from "@/components/HalloweenDecorations";
 import { analyticsInstance } from "@/config/firebase";
 import Colors from "@/constants/Colors";
 import { useAuth } from "@/contexts/AuthContext";
@@ -42,10 +41,7 @@ export default function LoginScreen() {
 
   // Configuration Google Auth
   const [request, response, promptAsync] = Google.useAuthRequest({
-    expoClientId: GOOGLE_AUTH_CONFIG.expoClientId,
-    iosClientId: GOOGLE_AUTH_CONFIG.iosClientId,
-    androidClientId: GOOGLE_AUTH_CONFIG.androidClientId,
-    webClientId: GOOGLE_AUTH_CONFIG.webClientId,
+    clientId: GOOGLE_AUTH_CONFIG.webClientId,
     scopes: GOOGLE_AUTH_CONFIG.scopes,
   });
 
@@ -83,11 +79,11 @@ export default function LoginScreen() {
       await signIn(finalUsername, finalProfile);
       
       await authAnalytics.trackLogin("google", true);
-      await analyticsInstance().logEvent("login", {
+      await analyticsInstance.logEvent("login", {
         method: "google",
         success: true,
       });
-      await analyticsInstance().setUserId(finalUsername);
+      await analyticsInstance.setUserId(finalUsername);
       
       // Track PostHog Google login event
       track.login("google", true);
@@ -95,7 +91,7 @@ export default function LoginScreen() {
       router.replace("/(tabs)");
     } catch (error: any) {
       await authAnalytics.trackLogin("google", false);
-      await analyticsInstance().logEvent("login", {
+      await analyticsInstance.logEvent("login", {
         method: "google",
         success: false,
       });
@@ -131,10 +127,7 @@ export default function LoginScreen() {
         locations={[0, 0.2, 0.5, 0.8, 1]}
         style={styles.background}
       >
-        {/* Décorations Halloween */}
-        <View style={styles.halloweenDecorationsContainer}>
-          <HalloweenDecorations />
-        </View>
+      
 
         {/* Effets de particules flottantes */}
         <View style={[styles.floatingParticles, { zIndex: 1, opacity: 0.2 }]}>
@@ -148,6 +141,11 @@ export default function LoginScreen() {
         <View style={[styles.content, { zIndex: 15 }]}>
           <View style={styles.header}>
             <View style={styles.logoContainer}>
+              <Image
+                source={require("@/assets/images/login.png")}
+                style={styles.logoImage}
+                resizeMode="contain"
+              />
               <Text style={styles.title}>{t("app.name")}</Text>
               <View style={styles.titleAccent} />
             </View>
@@ -239,6 +237,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 20,
   },
+  logoImage: {
+    width: 150,
+    height: 150,
+    marginBottom: 20,
+    borderRadius: 75,
+    shadowColor: Colors.light?.primary || "#FF6F00",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
   title: {
     fontSize: 42,
     fontWeight: "bold",
@@ -279,7 +288,7 @@ const styles = StyleSheet.create({
   onboardingTitle: {
     fontSize: 16,
     fontWeight: "bold",
-    color: Colors.text,
+    color: Colors.light?.text || "#FFFAF0",
     marginBottom: 15,
     textAlign: "center",
   },
@@ -290,7 +299,7 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 16,
-    color: Colors.text,
+    color: Colors.light?.text || "#FFFAF0",
     marginLeft: 10,
     fontWeight: "600",
   },
@@ -303,7 +312,7 @@ const styles = StyleSheet.create({
     height: 60,
     borderRadius: 30,
     borderWidth: 2,
-    borderColor: Colors.primary,
+    borderColor: Colors.light?.primary || "#FF6F00",
   },
   loginOptions: {
     width: "100%",
@@ -381,7 +390,7 @@ const styles = StyleSheet.create({
     padding: 16,
     marginTop: 10,
   },
-  infoText: {
+  infoContainerText: {
     color: Colors.light?.textSecondary || "#FFB347",
     fontSize: 14,
     marginLeft: 8,
@@ -390,6 +399,15 @@ const styles = StyleSheet.create({
   },
   background: {
     flex: 1,
+  },
+  backgroundImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
+    height: '100%',
   },
   halloweenDecorationsContainer: {
     position: "absolute",
@@ -413,7 +431,7 @@ const styles = StyleSheet.create({
   },
   particle: {
     position: "absolute",
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.light?.primary || "#FF6F00",
     borderRadius: 50,
     opacity: 0.3,
   },

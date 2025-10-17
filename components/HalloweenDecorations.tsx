@@ -169,11 +169,40 @@ const HalloweenDecorations: React.FC<HalloweenDecorationsProps> = ({ style }) =>
       {/* Toile principale au centre */}
       <SpiderWeb style={styles.mainSpiderWeb} size={120} rotation={0} delay={0} showSpider={true} />
       
-      {/* Toilettes d'araignées retirées pour un design plus épuré */}
+      {/* Toilettes secondaires qui se connectent */}
+      <SpiderWeb style={styles.spiderWeb1} size={80} rotation={15} delay={500} showSpider={false} />
+      <SpiderWeb style={styles.spiderWeb2} size={70} rotation={-30} delay={1000} showSpider={true} />
+      <SpiderWeb style={styles.spiderWeb3} size={90} rotation={60} delay={1500} showSpider={false} />
+      <SpiderWeb style={styles.spiderWeb4} size={60} rotation={-45} delay={2000} showSpider={true} />
+      <SpiderWeb style={styles.spiderWeb5} size={85} rotation={120} delay={2500} showSpider={false} />
       
-      {/* Toilettes sur les cartes de jeux retirées */}
+      {/* Toilettes supplémentaires pour couvrir les zones */}
+      <SpiderWeb style={styles.spiderWeb6} size={65} rotation={200} delay={3000} showSpider={true} />
+      <SpiderWeb style={styles.spiderWeb7} size={75} rotation={280} delay={3500} showSpider={false} />
+      <SpiderWeb style={styles.spiderWeb8} size={55} rotation={320} delay={4000} showSpider={true} />
       
-      {/* Lignes de connexion retirées */}
+      {/* Toilettes supplémentaires pour couvrir les cartes de jeux */}
+      <SpiderWeb style={styles.spiderWeb9} size={70} rotation={45} delay={4500} showSpider={false} />
+      <SpiderWeb style={styles.spiderWeb10} size={60} rotation={135} delay={5000} showSpider={true} />
+      <SpiderWeb style={styles.spiderWeb11} size={80} rotation={225} delay={5500} showSpider={false} />
+      <SpiderWeb style={styles.spiderWeb12} size={55} rotation={315} delay={6000} showSpider={true} />
+      
+      {/* Toilettes spécifiques sur les cartes de jeux */}
+      <SpiderWeb style={styles.gameCardWeb1} size={50} rotation={30} delay={6500} showSpider={true} />
+      <SpiderWeb style={styles.gameCardWeb2} size={45} rotation={150} delay={7000} showSpider={false} />
+      <SpiderWeb style={styles.gameCardWeb3} size={55} rotation={270} delay={7500} showSpider={true} />
+      <SpiderWeb style={styles.gameCardWeb4} size={40} rotation={60} delay={8000} showSpider={false} />
+      <SpiderWeb style={styles.gameCardWeb5} size={50} rotation={180} delay={8500} showSpider={true} />
+      
+      {/* Lignes de connexion entre les toilettes */}
+      <View style={[styles.connectionLine, styles.connection1]} />
+      <View style={[styles.connectionLine, styles.connection2]} />
+      <View style={[styles.connectionLine, styles.connection3]} />
+      <View style={[styles.connectionLine, styles.connection4]} />
+      <View style={[styles.connectionLine, styles.connection5]} />
+      <View style={[styles.connectionLine, styles.connection6]} />
+      <View style={[styles.connectionLine, styles.connection7]} />
+      <View style={[styles.connectionLine, styles.connection8]} />
     </View>
   );
 };
