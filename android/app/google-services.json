@@ -12,7 +12,12 @@
           "package_name": "com.emplica.nightly.android"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "939461087699-rjimn8st7pb69lcgc98f8bni50qeufpj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBf9NggQku7axLGr2EwWXGqV3d3_87w5UE"
@@ -20,7 +25,20 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "939461087699-rjimn8st7pb69lcgc98f8bni50qeufpj.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "939461087699-r50qjj71i1jiau3jjep078ki03taugb5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.emplica.nightly",
+                "app_store_id": "6745452775"
+              }
+            }
+          ]
         }
       }
     }
