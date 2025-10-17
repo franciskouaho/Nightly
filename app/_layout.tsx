@@ -13,6 +13,7 @@ import { PaperProvider } from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { PostHogProvider } from 'posthog-react-native';
 import { POSTHOG_CONFIG } from '@/config/posthog';
+import { ModernStatusBar } from '@/utils/ModernStatusBar';
 
 // Composant interne pour gérer PostHog
 function AppContent() {
@@ -21,6 +22,9 @@ function AppContent() {
   const { track } = usePostHog();
 
   useEffect(() => {
+    // Configuration Android 15 Edge-to-Edge
+    ModernStatusBar.configureForAndroid15();
+    
     // Initialiser les services de notifications
     const notificationService = ExpoNotificationService.getInstance();
     notificationService.initialize();
