@@ -13,9 +13,9 @@ import RoundedButton from '@/components/RoundedButton';
 import Avatar from '@/components/Avatar';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { transformQuestion as transformTrapAnswerQuestion } from '../game/trap-answer/questions';
-import { transformQuestion as transformWordGuessingQuestion } from '../game/word-guessing/questions';
-import { transformQuestion as transformNeverHaveIEverHotQuestion } from '../game/never-have-i-ever-hot/questions';
+import { transformQuestion as transformTrapAnswerQuestion } from '../game/data/trap-answer-questions';
+import { transformQuestion as transformWordGuessingQuestion } from '../game/data/word-guessing-questions';
+import { transformQuestion as transformNeverHaveIEverHotQuestion } from '../game/data/never-have-i-ever-hot-questions';
 import HalloweenDecorations from '@/components/HalloweenDecorations';
 import HalloweenTheme from '@/constants/themes/Halloween';
 
