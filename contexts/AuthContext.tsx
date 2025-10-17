@@ -101,6 +101,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (userDoc.exists()) {
           const userData = userDoc.data() as User;
+          
+          // Vérifier si c'est un compte reviewer
+          if (REVIEWER_PSEUDOS.includes(userData.pseudo)) {
+            console.log('🤖 Session reviewer restaurée:', userData.pseudo);
+          }
+          
           setUser(userData);
           identifyUser(userData.uid, {
             pseudo: userData.pseudo,
@@ -286,11 +292,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Ajout import dynamique pour analyticsInstance
       const { analyticsInstance } = await import("@/config/firebase");
 
-      // Vérifier si c'est un compte reviewer
+      // Vérifier si c'est un compte reviewer (comptes spéciaux pour validation stores)
       const isReviewer = REVIEWER_PSEUDOS.includes(pseudo);
 
       if (isReviewer) {
-        // Connexion anonyme pour les reviewers
+        console.log('🤖 Premier login reviewer détecté:', pseudo);
+        // Connexion anonyme pour les reviewers (pas de vérification de session)
         const userCredential = await signInAnonymously(auth);
         const uid = userCredential.user.uid;
         await createReviewerAccount(pseudo, uid);
@@ -377,8 +384,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const db = getFirestore();
 
-      // Vérifier si c'est un compte reviewer
+      // Vérifier si c'est un compte reviewer (comptes spéciaux pour validation stores)
       if (REVIEWER_PSEUDOS.includes(pseudo)) {
+        console.log('🤖 Connexion reviewer détectée:', pseudo);
         const auth = getAuth();
         const userCredential = await signInAnonymously(auth);
         const uid = userCredential.user.uid;
