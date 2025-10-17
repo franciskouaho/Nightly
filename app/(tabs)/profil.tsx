@@ -76,13 +76,7 @@ export default function ProfileScreen() {
       <StatusBar style="light" />
 
       <LinearGradient
-        colors={[
-          "rgba(0, 0, 0, 0.95)",
-          "rgba(80, 40, 20, 0.9)",
-          "rgba(120, 60, 30, 0.9)",
-          "rgba(80, 40, 20, 0.9)",
-          "rgba(0, 0, 0, 0.95)",
-        ]}
+        colors={['#120F1C', '#4B1E00', '#FF6F00', '#4B1E00', '#120F1C']}
         locations={[0, 0.2, 0.5, 0.8, 1]}
         style={styles.background}
       >
@@ -135,13 +129,13 @@ export default function ProfileScreen() {
             <MaterialCommunityIcons
               name="translate"
               size={24}
-              color="rgba(255,255,255,0.9)"
+              color="#FFD700"
             />
             <Text style={styles.settingText}>{t("settings.language")}</Text>
             <MaterialCommunityIcons
               name="chevron-right"
               size={24}
-              color="rgba(255,255,255,0.7)"
+              color="#FFB347"
             />
           </TouchableOpacity>
 
@@ -154,13 +148,13 @@ export default function ProfileScreen() {
             <MaterialCommunityIcons
               name="email"
               size={24}
-              color="rgba(255,255,255,0.9)"
+              color="#FFD700"
             />
             <Text style={styles.settingText}>{t("profile.contact")}</Text>
             <MaterialCommunityIcons
               name="chevron-right"
               size={24}
-              color="rgba(255,255,255,0.7)"
+              color="#FFB347"
             />
           </TouchableOpacity>
 
@@ -171,13 +165,13 @@ export default function ProfileScreen() {
             <MaterialCommunityIcons
               name="shield-account"
               size={24}
-              color="rgba(255,255,255,0.9)"
+              color="#FFD700"
             />
             <Text style={styles.settingText}>{t("settings.privacy")}</Text>
             <MaterialCommunityIcons
               name="chevron-right"
               size={24}
-              color="rgba(255,255,255,0.7)"
+              color="#FFB347"
             />
           </TouchableOpacity>
 
@@ -189,7 +183,7 @@ export default function ProfileScreen() {
             <MaterialCommunityIcons
               name="restore"
               size={24}
-              color="rgba(255,255,255,0.9)"
+              color="#FFD700"
             />
             <Text style={styles.settingText}>
               {t("profile.restorePurchases")}
@@ -201,14 +195,14 @@ export default function ProfileScreen() {
             <MaterialCommunityIcons
               name="bell-ring"
               size={24}
-              color="rgba(255,255,255,0.9)"
+              color="#FFD700"
             />
             <Text style={styles.settingText}>Notifications</Text>
             <Switch
               value={notificationsEnabled}
               onValueChange={handleToggleNotifications}
-              thumbColor={notificationsEnabled ? "#694ED6" : "#ccc"}
-              trackColor={{ false: "#888", true: "#694ED6" }}
+              thumbColor={notificationsEnabled ? "#FF6F00" : "#ccc"}
+              trackColor={{ false: "#888", true: "#FF6F00" }}
             />
           </View>
 
@@ -385,41 +379,55 @@ const styles = StyleSheet.create({
   settingItem: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 15,
-    backgroundColor: "rgba(255,255,255,0.1)",
-    borderRadius: 12,
-    marginBottom: 10,
+    padding: 16,
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
+    borderRadius: 20,
+    marginBottom: 8,
+    borderWidth: 1.5,
+    borderColor: "rgba(255, 111, 0, 0.6)",
+    shadowColor: "rgba(0, 0, 0, 0.5)",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    elevation: 8,
   },
   settingText: {
     flex: 1,
     marginLeft: 15,
-    fontSize: 16,
-    color: "white",
+    fontSize: 17,
+    fontWeight: "bold",
+    color: "#FFFAF0",
+    textShadowColor: "rgba(0, 0, 0, 0.3)",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
   bottomSpace: {
     height: 80,
   },
   premiumCard: {
-    backgroundColor: "rgba(33, 16, 28, 0.2)",
-    borderRadius: 22,
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
+    borderRadius: 20,
     borderWidth: 1.5,
-    borderColor: "rgba(255,255,255,0.10)",
+    borderColor: "rgba(255, 111, 0, 0.6)",
     padding: 24,
     marginBottom: 28,
     marginTop: 10,
-    shadowColor: "#000",
+    shadowColor: "rgba(0, 0, 0, 0.5)",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.18,
-    shadowRadius: 12,
-    elevation: 5,
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    elevation: 8,
   },
   premiumTitle: {
-    color: "#694ED6",
+    color: "#FFD700",
     fontWeight: "bold",
     fontSize: 22,
     marginBottom: 20,
     letterSpacing: 1,
     textAlign: "left",
+    textShadowColor: "rgba(0, 0, 0, 0.5)",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
   premiumFeaturesList: {
     marginBottom: 18,
@@ -434,10 +442,13 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   premiumFeatureText: {
-    color: "white",
+    color: "#FFFFFF",
     fontSize: 16,
     marginLeft: 14,
     flex: 1,
+    textShadowColor: "rgba(0, 0, 0, 0.8)",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
   premiumBottomRow: {
     flexDirection: "row",
@@ -446,16 +457,16 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   premiumButton: {
-    backgroundColor: "#694ED6",
-    borderRadius: 10,
+    backgroundColor: "#FF6F00",
+    borderRadius: 12,
     paddingVertical: 12,
     paddingHorizontal: 22,
     marginRight: 12,
-    shadowColor: "#694ED6",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
-    elevation: 2,
+    shadowColor: "rgba(255, 111, 0, 0.5)",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
   premiumButtonText: {
     color: "white",
@@ -470,30 +481,46 @@ const styles = StyleSheet.create({
     maxWidth: 120,
   },
   premiumOfferMain: {
-    color: "white",
+    color: "#FFFFFF",
     fontWeight: "bold",
     fontSize: 15,
     marginBottom: 2,
+    textShadowColor: "rgba(0, 0, 0, 0.8)",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
   premiumOfferSub: {
-    color: "white",
+    color: "#FFFFFF",
     fontSize: 11,
-    opacity: 0.7,
+    opacity: 0.9,
     flexWrap: "wrap",
+    textShadowColor: "rgba(0, 0, 0, 0.8)",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
   logoutButton: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    padding: 15,
-    backgroundColor: "rgba(255,107,107,0.1)",
-    borderRadius: 12,
+    padding: 16,
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
+    borderRadius: 20,
     marginTop: 20,
+    borderWidth: 1.5,
+    borderColor: "rgba(255, 107, 107, 0.6)",
+    shadowColor: "rgba(0, 0, 0, 0.5)",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    elevation: 8,
   },
   logoutText: {
     marginLeft: 10,
-    fontSize: 16,
+    fontSize: 17,
     color: "#ff6b6b",
-    fontWeight: "600",
+    fontWeight: "bold",
+    textShadowColor: "rgba(0, 0, 0, 0.8)",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
 });
