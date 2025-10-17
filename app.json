@@ -29,7 +29,7 @@
       },
       "package": "com.emplica.nightly.android",
       "googleServicesFile": "./google-services.json",
-      "versionCode": 26,
+      "versionCode": 27,
       "permissions": [
         "INTERNET",
         "NOTIFICATIONS"
