@@ -124,7 +124,7 @@ export default function WordGuessingGame() {
   // Timer pour la barre de temps (UI only)
   const TIMER_DURATION = 30; // secondes
   const [timeLeft, setTimeLeft] = useState(TIMER_DURATION);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Passage automatique au tour suivant après 3 secondes si tous les joueurs ont répondu
   useEffect(() => {
@@ -178,6 +178,9 @@ export default function WordGuessingGame() {
         return acc;
       }, {});
 
+      // Sélectionner aléatoirement le joueur qui fera deviner (targetPlayer)
+      const randomTargetPlayer = gameState.players[Math.floor(Math.random() * gameState.players.length)];
+
       console.log('[DEBUG] Updating game state with first question:', firstQuestion);
       updateGameState({
         currentQuestion: firstQuestion,
@@ -186,7 +189,8 @@ export default function WordGuessingGame() {
         currentRound: 1,
         history: initialPlayersHistory,
         playerAnswers: {},
-        gameMode: 'word-guessing' as GameMode
+        gameMode: 'word-guessing' as GameMode,
+        targetPlayer: randomTargetPlayer
       });
     } else {
       console.log('[DEBUG] No first question available, ending game');
@@ -317,9 +321,9 @@ export default function WordGuessingGame() {
     const nextQ = getRandomQuestion();
 
     if (nextQ) {
-      // Sélectionner aléatoirement le prochain joueur
-      const availablePlayers = gameState?.players.filter(p => p.id !== gameState.targetPlayer?.id) || [];
-      const nextPlayer = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
+      // Sélectionner un nouveau joueur cible pour le prochain tour (exclure le joueur actuel)
+      const availablePlayers = gameState?.players.filter(p => p.id !== gameState?.targetPlayer?.id) || [];
+      const nextTargetPlayer = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
 
       // Réinitialiser le timer
       setTimeLeft(TIMER_DURATION);
@@ -340,7 +344,7 @@ export default function WordGuessingGame() {
         playerAnswers: {},
         phase: GamePhase.QUESTION,
         currentRound: nextRound,
-        targetPlayer: nextPlayer
+        targetPlayer: nextTargetPlayer
       });
     } else {
       updateGameState({ phase: GamePhase.END });
@@ -378,7 +382,19 @@ export default function WordGuessingGame() {
       ]
     };
 
-    // Sélectionner une nouvelle question immédiatement
+    // Vérifier si on a atteint le nombre maximum de rounds
+    const nextRound = (gameState.currentRound || 0) + 1;
+    if (nextRound > (gameState.totalRounds || 5)) {
+      updateGameState({ 
+        phase: GamePhase.END,
+        playerAnswers: newPlayerAnswers,
+        scores: newScores,
+        history: newHistory
+      });
+      return;
+    }
+
+    // Sélectionner une nouvelle question
     const nextQ = getRandomQuestion();
     if (!nextQ) {
       updateGameState({ 
@@ -390,11 +406,11 @@ export default function WordGuessingGame() {
       return;
     }
 
-    // Sélectionner aléatoirement le prochain joueur
+    // Sélectionner un nouveau joueur cible pour le prochain tour (exclure le joueur actuel)
     const availablePlayers = gameState.players.filter(p => p.id !== gameState.targetPlayer?.id) || [];
-    const nextPlayer = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
+    const nextTargetPlayer = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
 
-    // Mettre à jour l'état avec la nouvelle question et le nouveau joueur
+    // Mettre à jour l'état avec la nouvelle question et le nouveau joueur cible
     updateGameState({
       currentQuestion: nextQ,
       askedQuestionIds: [...(gameState.askedQuestionIds || []), nextQ.id].filter((id): id is string => !!id),
@@ -402,8 +418,8 @@ export default function WordGuessingGame() {
       scores: newScores,
       history: newHistory,
       phase: GamePhase.QUESTION,
-      currentRound: (gameState.currentRound || 0) + 1,
-      targetPlayer: nextPlayer
+      currentRound: nextRound,
+      targetPlayer: nextTargetPlayer
     });
 
     // Réinitialiser le timer
@@ -507,31 +523,48 @@ export default function WordGuessingGame() {
   return (
     <LinearGradient colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]} style={styles.container}>
       <TouchableOpacity onPress={handleQuit} style={styles.quitButton}>
-        <Ionicons name="close-circle" size={32} color="white" />
+        <View style={styles.quitButtonBackground}>
+          <Ionicons name="close" size={20} color="white" />
+        </View>
       </TouchableOpacity>
       <View style={styles.header}>
-        <View style={styles.playerInfo}>
-          <Text style={styles.roundText}>{t('game.round', { current: gameState?.currentRound || 1, total: gameState?.totalRounds || 5 })}</Text>
-          <TimerCircle timeLeft={timeLeft} totalTime={TIMER_DURATION} />
-          <View style={styles.scoreContainer}>
-            <MaterialCommunityIcons name="star-four-points" size={20} color="#FFD700" />
-            <Text style={styles.scoreText}>{getPlayerScore(user?.uid || '')}</Text>
+        <View style={styles.headerContent}>
+          <View style={styles.roundContainer}>
+            <View style={styles.roundBadge}>
+              <Text style={styles.roundNumber}>{gameState?.currentRound || 1}</Text>
+              <Text style={styles.roundSeparator}>/</Text>
+              <Text style={styles.roundTotal}>{gameState?.totalRounds || 5}</Text>
+            </View>
+            <Text style={styles.roundLabel}>Tour</Text>
+          </View>
+          
+          <View style={styles.timerSection}>
+            <TimerCircle timeLeft={timeLeft} totalTime={TIMER_DURATION} />
+            <Text style={styles.timerLabel}>Temps</Text>
+          </View>
+          
+          <View style={styles.scoreSection}>
+            <View style={styles.scoreBadge}>
+              <MaterialCommunityIcons name="star-four-points" size={18} color="#FFD700" />
+              <Text style={styles.scoreText}>{getPlayerScore(user?.uid || '')}</Text>
+            </View>
+            <Text style={styles.scoreLabel}>Points</Text>
           </View>
         </View>
       </View>
 
       {/* Contenu principal du jeu (mot à deviner et mots interdits) */}
-      {!isCurrentUserTarget ? (
+      {isCurrentUserTarget ? (
         <>
           <View style={styles.questionContainer}>
             {/* Message pour le joueur qui fait deviner */}
-            {!isCurrentUserTarget && gameState?.targetPlayer && (
+            {isCurrentUserTarget && gameState?.targetPlayer && (
               <Text style={styles.targetPlayerText}>
                 {t('game.word_guessing.targetPlayer', { player: gameState.targetPlayer.displayName || gameState.targetPlayer.username })}
               </Text>
             )}
             {/* Le mot à deviner (visible uniquement pour le joueur qui fait deviner) */}
-            {!isCurrentUserTarget && (
+            {isCurrentUserTarget && (
               <Text style={styles.wordToGuess}>{currentQuestionText}</Text>
             )}
           </View>
@@ -559,7 +592,7 @@ export default function WordGuessingGame() {
       )}
 
       {/* Boutons d'action pour le joueur qui fait deviner */}
-      {!isCurrentUserTarget && (
+      {isCurrentUserTarget && (
         <View style={styles.buttonsContainer}>
           <TouchableOpacity
             style={[styles.button, styles.foundButton]}
@@ -596,27 +629,68 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   header: {
+    width: '100%',
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    marginBottom: 20,
+  },
+  headerContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '100%',
-    paddingHorizontal: 10,
-    marginBottom: 30,
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 20,
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
-  playerInfo: {
+  roundContainer: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  roundBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    padding: 10,
+    backgroundColor: 'rgba(138, 43, 226, 0.2)',
+    borderRadius: 15,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(138, 43, 226, 0.3)',
   },
-  roundText: {
-    color: '#fff',
+  roundNumber: {
+    color: '#8A2BE2',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  roundSeparator: {
+    color: '#8A2BE2',
     fontSize: 16,
     fontWeight: 'bold',
+    marginHorizontal: 4,
+  },
+  roundTotal: {
+    color: '#8A2BE2',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  roundLabel: {
+    color: '#B0B0B0',
+    fontSize: 12,
+    fontWeight: '500',
+    marginTop: 4,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  timerSection: {
+    alignItems: 'center',
+    flex: 1,
   },
   timerContainer: {
     position: 'relative',
-    width: 68, // Ajusté pour correspondre à svgDimension (2 * (yellowCircleRadius + progressStrokeWidth))
-    height: 68, // Ajusté pour correspondre à svgDimension
+    width: 68,
+    height: 68,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -629,15 +703,41 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
   },
-  scoreContainer: {
+  timerLabel: {
+    color: '#B0B0B0',
+    fontSize: 12,
+    fontWeight: '500',
+    marginTop: 4,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  scoreSection: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  scoreBadge: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: 'rgba(255, 215, 0, 0.15)',
+    borderRadius: 15,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 215, 0, 0.3)',
   },
   scoreText: {
-    color: '#fff',
-    fontSize: 16,
+    color: '#FFD700',
+    fontSize: 18,
     fontWeight: 'bold',
-    marginLeft: 5,
+    marginLeft: 6,
+  },
+  scoreLabel: {
+    color: '#B0B0B0',
+    fontSize: 12,
+    fontWeight: '500',
+    marginTop: 4,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   questionContainer: {
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
@@ -729,5 +829,15 @@ const styles = StyleSheet.create({
     top: Platform.OS === 'android' ? 40 : 60,
     right: 20,
     zIndex: 10,
+  },
+  quitButtonBackground: {
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderRadius: 20,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
 }); 

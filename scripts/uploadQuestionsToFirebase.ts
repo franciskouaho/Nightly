@@ -167,6 +167,192 @@ const questions = {
         question: "fleur",
         answer: "fleur",
         traps: ["jardin", "parfum", "couleur"]
+      },
+      // MOTS COMPLEXES - LIEUX
+      {
+        type: "lieux",
+        question: "observatoire",
+        answer: "observatoire",
+        traps: ["télescope", "étoiles", "astronomie"]
+      },
+      {
+        type: "lieux",
+        question: "laboratoire",
+        answer: "laboratoire",
+        traps: ["expérience", "scientifique", "éprouvette"]
+      },
+      {
+        type: "lieux",
+        question: "amphithéâtre",
+        answer: "amphithéâtre",
+        traps: ["spectacle", "gradins", "scène"]
+      },
+      {
+        type: "lieux",
+        question: "observatoire",
+        answer: "observatoire",
+        traps: ["télescope", "étoiles", "astronomie"]
+      },
+      {
+        type: "lieux",
+        question: "conservatoire",
+        answer: "conservatoire",
+        traps: ["musique", "instruments", "étudiant"]
+      },
+      // MOTS COMPLEXES - ALIMENTS
+      {
+        type: "aliments",
+        question: "ratatouille",
+        answer: "ratatouille",
+        traps: ["légumes", "provençale", "mijoter"]
+      },
+      {
+        type: "aliments",
+        question: "bouillabaisse",
+        answer: "bouillabaisse",
+        traps: ["poisson", "marseille", "soupe"]
+      },
+      {
+        type: "aliments",
+        question: "cassoulet",
+        answer: "cassoulet",
+        traps: ["haricots", "toulouse", "casserole"]
+      },
+      {
+        type: "aliments",
+        question: "choucroute",
+        answer: "choucroute",
+        traps: ["chou", "alsace", "charcuterie"]
+      },
+      {
+        type: "aliments",
+        question: "tartiflette",
+        answer: "tartiflette",
+        traps: ["pommes", "reblochon", "savoie"]
+      },
+      // MOTS COMPLEXES - OBJETS
+      {
+        type: "objets",
+        question: "microscope",
+        answer: "microscope",
+        traps: ["grossissement", "lentille", "laboratoire"]
+      },
+      {
+        type: "objets",
+        question: "télescope",
+        answer: "télescope",
+        traps: ["étoiles", "astronomie", "lunette"]
+      },
+      {
+        type: "objets",
+        question: "seismographe",
+        answer: "seismographe",
+        traps: ["tremblement", "terre", "mesure"]
+      },
+      {
+        type: "objets",
+        question: "baromètre",
+        answer: "baromètre",
+        traps: ["pression", "météo", "atmosphérique"]
+      },
+      {
+        type: "objets",
+        question: "stéthoscope",
+        answer: "stéthoscope",
+        traps: ["médecin", "cœur", "écouter"]
+      },
+      // MOTS COMPLEXES - ANIMAUX
+      {
+        type: "animaux",
+        question: "ornithorynque",
+        answer: "ornithorynque",
+        traps: ["australie", "bizarre", "mammifère"]
+      },
+      {
+        type: "animaux",
+        question: "pélican",
+        answer: "pélican",
+        traps: ["bec", "poche", "oiseau"]
+      },
+      {
+        type: "animaux",
+        question: "hippopotame",
+        answer: "hippopotame",
+        traps: ["eau", "gros", "afrique"]
+      },
+      {
+        type: "animaux",
+        question: "rhinocéros",
+        answer: "rhinocéros",
+        traps: ["corne", "gris", "afrique"]
+      },
+      {
+        type: "animaux",
+        question: "girafe",
+        answer: "girafe",
+        traps: ["cou", "long", "taches"]
+      },
+      // MOTS COMPLEXES - MÉTIERS
+      {
+        type: "métiers",
+        question: "archéologue",
+        answer: "archéologue",
+        traps: ["fouilles", "antiquité", "découverte"]
+      },
+      {
+        type: "métiers",
+        question: "astronome",
+        answer: "astronome",
+        traps: ["étoiles", "espace", "télescope"]
+      },
+      {
+        type: "métiers",
+        question: "paléontologue",
+        answer: "paléontologue",
+        traps: ["dinosaures", "fossiles", "préhistoire"]
+      },
+      {
+        type: "métiers",
+        question: "géologue",
+        answer: "géologue",
+        traps: ["roches", "terre", "minéraux"]
+      },
+      {
+        type: "métiers",
+        question: "entomologiste",
+        answer: "entomologiste",
+        traps: ["insectes", "étude", "scientifique"]
+      },
+      // MOTS COMPLEXES - INSTRUMENTS
+      {
+        type: "instruments",
+        question: "saxophone",
+        answer: "saxophone",
+        traps: ["jazz", "cuivre", "anche"]
+      },
+      {
+        type: "instruments",
+        question: "harpe",
+        answer: "harpe",
+        traps: ["corde", "angélique", "musique"]
+      },
+      {
+        type: "instruments",
+        question: "xylophone",
+        answer: "xylophone",
+        traps: ["bois", "percussion", "enfant"]
+      },
+      {
+        type: "instruments",
+        question: "accordéon",
+        answer: "accordéon",
+        traps: ["boutons", "musette", "soufflet"]
+      },
+      {
+        type: "instruments",
+        question: "clavecin",
+        answer: "clavecin",
+        traps: ["baroque", "clavier", "ancien"]
       }
     ],
     
@@ -325,6 +511,186 @@ const questions = {
         question: "flower",
         answer: "flower",
         traps: ["garden", "smell", "color"]
+      },
+      // COMPLEX WORDS - PLACES
+      {
+        type: "places",
+        question: "observatory",
+        answer: "observatory",
+        traps: ["telescope", "stars", "astronomy"]
+      },
+      {
+        type: "places",
+        question: "laboratory",
+        answer: "laboratory",
+        traps: ["experiment", "scientist", "test tube"]
+      },
+      {
+        type: "places",
+        question: "amphitheater",
+        answer: "amphitheater",
+        traps: ["show", "seats", "stage"]
+      },
+      {
+        type: "places",
+        question: "conservatory",
+        answer: "conservatory",
+        traps: ["music", "instruments", "student"]
+      },
+      // COMPLEX WORDS - FOOD
+      {
+        type: "food",
+        question: "ratatouille",
+        answer: "ratatouille",
+        traps: ["vegetables", "provençal", "simmer"]
+      },
+      {
+        type: "food",
+        question: "bouillabaisse",
+        answer: "bouillabaisse",
+        traps: ["fish", "marseille", "soup"]
+      },
+      {
+        type: "food",
+        question: "cassoulet",
+        answer: "cassoulet",
+        traps: ["beans", "toulouse", "casserole"]
+      },
+      {
+        type: "food",
+        question: "sauerkraut",
+        answer: "sauerkraut",
+        traps: ["cabbage", "germany", "fermented"]
+      },
+      {
+        type: "food",
+        question: "tartiflette",
+        answer: "tartiflette",
+        traps: ["potatoes", "cheese", "savoy"]
+      },
+      // COMPLEX WORDS - OBJECTS
+      {
+        type: "objects",
+        question: "microscope",
+        answer: "microscope",
+        traps: ["magnification", "lens", "laboratory"]
+      },
+      {
+        type: "objects",
+        question: "telescope",
+        answer: "telescope",
+        traps: ["stars", "astronomy", "lens"]
+      },
+      {
+        type: "objects",
+        question: "seismograph",
+        answer: "seismograph",
+        traps: ["earthquake", "measure", "vibration"]
+      },
+      {
+        type: "objects",
+        question: "barometer",
+        answer: "barometer",
+        traps: ["pressure", "weather", "atmospheric"]
+      },
+      {
+        type: "objects",
+        question: "stethoscope",
+        answer: "stethoscope",
+        traps: ["doctor", "heart", "listen"]
+      },
+      // COMPLEX WORDS - ANIMALS
+      {
+        type: "animals",
+        question: "platypus",
+        answer: "platypus",
+        traps: ["australia", "weird", "mammal"]
+      },
+      {
+        type: "animals",
+        question: "pelican",
+        answer: "pelican",
+        traps: ["beak", "pouch", "bird"]
+      },
+      {
+        type: "animals",
+        question: "hippopotamus",
+        answer: "hippopotamus",
+        traps: ["water", "big", "africa"]
+      },
+      {
+        type: "animals",
+        question: "rhinoceros",
+        answer: "rhinoceros",
+        traps: ["horn", "gray", "africa"]
+      },
+      {
+        type: "animals",
+        question: "giraffe",
+        answer: "giraffe",
+        traps: ["neck", "long", "spots"]
+      },
+      // COMPLEX WORDS - PROFESSIONS
+      {
+        type: "professions",
+        question: "archaeologist",
+        answer: "archaeologist",
+        traps: ["digging", "antiquity", "discovery"]
+      },
+      {
+        type: "professions",
+        question: "astronomer",
+        answer: "astronomer",
+        traps: ["stars", "space", "telescope"]
+      },
+      {
+        type: "professions",
+        question: "paleontologist",
+        answer: "paleontologist",
+        traps: ["dinosaurs", "fossils", "prehistory"]
+      },
+      {
+        type: "professions",
+        question: "geologist",
+        answer: "geologist",
+        traps: ["rocks", "earth", "minerals"]
+      },
+      {
+        type: "professions",
+        question: "entomologist",
+        answer: "entomologist",
+        traps: ["insects", "study", "scientist"]
+      },
+      // COMPLEX WORDS - INSTRUMENTS
+      {
+        type: "instruments",
+        question: "saxophone",
+        answer: "saxophone",
+        traps: ["jazz", "brass", "reed"]
+      },
+      {
+        type: "instruments",
+        question: "harp",
+        answer: "harp",
+        traps: ["string", "angelic", "music"]
+      },
+      {
+        type: "instruments",
+        question: "xylophone",
+        answer: "xylophone",
+        traps: ["wood", "percussion", "child"]
+      },
+      {
+        type: "instruments",
+        question: "accordion",
+        answer: "accordion",
+        traps: ["buttons", "squeeze", "bellows"]
+      },
+      {
+        type: "instruments",
+        question: "harpsichord",
+        answer: "harpsichord",
+        traps: ["baroque", "keyboard", "ancient"]
       }
     ],
     
