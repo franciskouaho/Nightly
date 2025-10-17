@@ -1,6 +1,6 @@
 "use client";
 
-import PaywallModal from "@/components/PaywallModal";
+import { usePaywall } from "@/contexts/PaywallContext";
 import PointsDisplay from "@/components/PointsDisplay";
 import HalloweenDecorations from "@/components/HalloweenDecorations";
 import { useAuth } from "@/contexts/AuthContext";
@@ -27,7 +27,7 @@ import Purchases from "react-native-purchases";
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
   const router = useRouter();
-  const [showPaywall, setShowPaywall] = useState(false);
+  const { showPaywallA } = usePaywall();
   const { t } = useTranslation();
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
@@ -74,10 +74,6 @@ export default function ProfileScreen() {
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
-      <PaywallModal
-        isVisible={showPaywall}
-        onClose={() => setShowPaywall(false)}
-      />
 
       <LinearGradient
         colors={[
@@ -270,7 +266,7 @@ export default function ProfileScreen() {
             <View style={styles.premiumBottomRow}>
               <TouchableOpacity
                 style={styles.premiumButton}
-                onPress={() => setShowPaywall(true)}
+                onPress={() => showPaywallA()}
               >
                 <Text style={styles.premiumButtonText}>
                   {t("profile.premium.try")}
