@@ -1,7 +1,7 @@
 import RoundedButton from "@/components/RoundedButton";
 import { useInAppReview } from "@/hooks/useInAppReview";
 import { usePoints } from "@/hooks/usePoints";
-import { useLeaderboard } from "@/hooks/useLeaderboard";
+import useLeaderboard from "@/hooks/useLeaderboard";
 import { Player } from "@/types/gameTypes";
 import { Ionicons } from "@expo/vector-icons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";

@@ -157,3 +157,5 @@ export default function useLeaderboard() {
     getPlayersAroundUser,
   };
 }
+
+export default useLeaderboard;
