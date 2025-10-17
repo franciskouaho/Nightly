@@ -13,10 +13,12 @@ buildscript {
   }
 }
 
+def nodeBinary = System.getenv("NODE_BINARY") ?: "/opt/homebrew/bin/node"
+
 def reactNativeAndroidDir = new File(
   providers.exec {
     workingDir(rootDir)
-    commandLine("node", "--print", "require.resolve('react-native/package.json')")
+    commandLine(nodeBinary, "--print", "require.resolve('react-native/package.json')")
   }.standardOutput.asText.get().trim(),
   "../android"
 )
