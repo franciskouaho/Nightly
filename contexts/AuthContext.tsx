@@ -90,6 +90,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+
   const restoreSession = async () => {
     try {
       const savedUid = await AsyncStorage.getItem(STORAGE_KEY);
@@ -105,6 +106,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             pseudo: userData.pseudo,
             createdAt: userData.createdAt,
           });
+          console.log('✅ Session restaurée avec UID:', savedUid);
         } else {
           // Si l'utilisateur n'existe plus dans la base de données
           await AsyncStorage.removeItem(STORAGE_KEY);
@@ -181,7 +183,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw new Error("Ce pseudo est déjà pris");
       }
 
-      // Connexion anonyme
+      // Connexion anonyme - Firebase génère automatiquement un UUID unique
       const userCredential = await signInAnonymously(auth);
       const uid = userCredential.user.uid;
 
@@ -390,95 +392,63 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return true;
       }
 
-      // Logique pour les utilisateurs normaux
+      // Vérifier si l'utilisateur a déjà une session active
+      const savedUid = await AsyncStorage.getItem(STORAGE_KEY);
+      if (savedUid) {
+        // L'utilisateur a déjà une session - vérifier si c'est le bon pseudo
+        const userDoc = await getDoc(doc(db, "users", savedUid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data() as User;
+          if (userData.pseudo === pseudo) {
+            // C'est le bon utilisateur - restaurer la session
+            setUser(userData);
+            identifyUser(userData.uid, {
+              pseudo: userData.pseudo,
+              createdAt: userData.createdAt,
+            });
+            console.log('✅ Reconnexion avec le même compte:', pseudo);
+            return true;
+          } else {
+            // Tentative de connexion avec un autre pseudo
+            Alert.alert(
+              "Compte différent",
+              `Vous êtes déjà connecté avec le pseudo "${userData.pseudo}". Voulez-vous vous déconnecter et créer un nouveau compte ?`,
+              [
+                {
+                  text: "Annuler",
+                  style: "cancel",
+                  onPress: () => false,
+                },
+                {
+                  text: "Déconnexion",
+                  onPress: async () => {
+                    await signOut();
+                    return false;
+                  },
+                },
+              ],
+            );
+            return false;
+          }
+        }
+      }
+
+      // Vérifier si le pseudo existe déjà
       const usernameDoc = await getDoc(
         doc(db, "usernames", pseudo.toLowerCase()),
       );
 
       if (usernameDoc.exists()) {
-        const usernameData = usernameDoc.data();
-        if (!usernameData?.uid) return false;
-
-        // Vérifier si l'utilisateur a déjà une session active
-        const savedUid = await AsyncStorage.getItem(STORAGE_KEY);
-        const disconnectedUid = await getDisconnectedUid();
-
-        // Si l'utilisateur a une session active et que l'UID correspond
-        if (savedUid === usernameData.uid) {
-          const userDoc = await getDoc(doc(db, "users", usernameData.uid));
-
-          if (userDoc.exists()) {
-            const userData = userDoc.data() as User;
-            setUser(userData);
-            await saveUserUid(userData.uid);
-            identifyUser(userData.uid, {
-              pseudo: userData.pseudo,
-              createdAt: userData.createdAt,
-            });
-            return true;
-          }
-        }
-        // Si l'utilisateur a un UID déconnecté qui correspond
-        else if (disconnectedUid === usernameData.uid) {
-          const userDoc = await getDoc(doc(db, "users", usernameData.uid));
-
-          if (userDoc.exists()) {
-            const userData = userDoc.data() as User;
-            setUser(userData);
-            await saveUserUid(userData.uid);
-            await clearDisconnectedUid();
-            identifyUser(userData.uid, {
-              pseudo: userData.pseudo,
-              createdAt: userData.createdAt,
-            });
-            return true;
-          }
-        } else {
-          // Pour les utilisateurs existants qui n'ont pas encore migré
-          const userData = await migrateExistingUser(usernameData.uid, pseudo);
-          if (userData) {
-            setUser(userData);
-            await saveUserUid(userData.uid);
-            identifyUser(userData.uid, {
-              pseudo: userData.pseudo,
-              createdAt: userData.createdAt,
-            });
-            return true;
-          }
-
-          // Si la migration échoue ou si c'est un nouveau compte
-          Alert.alert(
-            "Connexion existante",
-            "Ce pseudo est déjà utilisé. Voulez-vous vous connecter avec ce compte ?",
-            [
-              {
-                text: "Non",
-                style: "cancel",
-                onPress: () => false,
-              },
-              {
-                text: "Oui",
-                onPress: async () => {
-                  const userDoc = await getDoc(
-                    doc(db, "users", usernameData.uid),
-                  );
-                  if (userDoc.exists()) {
-                    const userData = userDoc.data() as User;
-                    setUser(userData);
-                    await saveUserUid(userData.uid);
-                    identifyUser(userData.uid, {
-                      pseudo: userData.pseudo,
-                      createdAt: userData.createdAt,
-                    });
-                    return true;
-                  }
-                  return false;
-                },
-              },
-            ],
-          );
-        }
+        // Le pseudo est déjà pris par quelqu'un d'autre
+        Alert.alert(
+          "Pseudo déjà utilisé",
+          "Ce pseudo est déjà utilisé par un autre joueur. Veuillez choisir un autre pseudo.",
+          [{ text: "OK", onPress: () => false }]
+        );
+        return false;
       }
+
+      // Le pseudo est disponible
       return false;
     } catch (err) {
       console.error("Erreur lors de la vérification de l'utilisateur:", err);
