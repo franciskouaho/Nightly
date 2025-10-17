@@ -72,31 +72,23 @@ export const posthogEvents = {
     },
   }),
   
-  gameEnd: (gameType: string, duration: number, score?: number) => ({
-    event: 'game_ended',
-    properties: {
+  gameEnd: (gameType: string, duration: number, score?: number) => {
+    const properties: Record<string, any> = {
       game_type: gameType,
       duration_seconds: duration,
-      final_score: score,
       timestamp: new Date().toISOString(),
-    },
-  }),
+    };
+    
+    if (score !== undefined) {
+      properties.final_score = score;
+    }
+    
+    return {
+      event: 'game_ended',
+      properties,
+    };
+  },
   
-  // Événements d'onboarding
-  onboardingStart: () => ({
-    event: 'onboarding_started',
-    properties: {
-      timestamp: new Date().toISOString(),
-    },
-  }),
-  
-  onboardingComplete: (steps: number) => ({
-    event: 'onboarding_completed',
-    properties: {
-      steps_completed: steps,
-      timestamp: new Date().toISOString(),
-    },
-  }),
   
   // Événements de navigation
   screenView: (screenName: string) => ({

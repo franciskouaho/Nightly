@@ -1,5 +1,5 @@
 import { Question } from "@/types/gameTypes";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 // Fonction simple pour transformer les données de Firebase en format Question
@@ -80,7 +80,7 @@ export function useListenButDontJudgeQuestions() {
   }, [getGameContent, language]);
 
   // Obtenir une question aléatoire qui n'a pas encore été posée
-  const getRandomQuestion = (): Question | null => {
+  const getRandomQuestion = useCallback((): Question | null => {
     if (questions.length === 0) {
       return null;
     }
@@ -111,7 +111,7 @@ export function useListenButDontJudgeQuestions() {
     }
     
     return null;
-  };
+  }, [questions, askedQuestions]);
 
   // Réinitialiser l'historique des questions posées
   const resetAskedQuestions = () => {

@@ -419,6 +419,8 @@ export default {
       noQuestions: 'Nenhuma pergunta disponível',
       errorNext: 'Ocorreu um erro ao passar para a próxima rodada',
       waiting: 'Aguardando outros jogadores...',
+      answered: 'Você já respondeu. Aguardando outros jogadores...',
+      alreadyAnswered: 'Você já respondeu a esta pergunta',
       answerPlaceholder: 'Escreva sua resposta aqui...',
       submit: 'Enviar',
       errorSubmit: 'Erro ao enviar resposta',

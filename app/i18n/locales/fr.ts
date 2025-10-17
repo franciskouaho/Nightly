@@ -50,9 +50,6 @@ const fr = {
       characterDescription:
         "Sélectionnez un personnage qui vous représente pour la partie",
       subtitle: "Connectez-vous pour commencer à jouer",
-      onboardingInfo: "Informations de votre profil",
-      signInWithGoogle: "Se connecter avec Google",
-      startOnboarding: "Commencer l'onboarding",
     },
     register: {
       title: "Inscription",
@@ -430,6 +427,8 @@ const fr = {
       noQuestions: "Aucune question disponible",
       errorNext: "Une erreur est survenue lors du passage au tour suivant",
       waiting: "En attente des autres joueurs...",
+      answered: "Vous avez déjà répondu. En attente des autres joueurs...",
+      alreadyAnswered: "Vous avez déjà répondu à cette question",
       answerPlaceholder: "Écrivez votre réponse ici...",
       submit: "Soumettre",
       errorSubmit: "Erreur lors de la soumission",
@@ -438,42 +437,6 @@ const fr = {
       voteTitle: "Choisissez la meilleure réponse",
     },
 
-    // Onboarding
-    onboarding: {
-      welcome: {
-        title: "Bienvenue sur Nightly",
-        description: "Découvrez une nouvelle façon de jouer en ligne avec vos amis",
-      },
-      games: {
-        title: "Jeux Multi-joueurs",
-        description: "Profitez de dizaines de jeux amusants à jouer ensemble",
-      },
-      social: {
-        title: "Connectez-vous",
-        description: "Créez des salles privées et invitez vos amis à jouer",
-      },
-      ready: {
-        title: "Prêt à jouer ?",
-        description: "Commencez votre aventure gaming dès maintenant !",
-      },
-      username: {
-        title: "Choisissez votre pseudo",
-        description: "Comment voulez-vous que vos amis vous appellent ?",
-        hint: "Votre pseudo sera visible par tous les joueurs",
-      },
-      character: {
-        title: "Choisissez votre personnage",
-        description: "Sélectionnez un avatar qui vous représente !",
-        yourUsername: "Votre pseudo",
-        preview: "Aperçu",
-      },
-      skip: "Passer",
-      previous: "Précédent",
-      next: "Suivant",
-      start: "Commencer",
-      finish: "Terminer",
-      getStarted: "Commencer l'aventure",
-    },
     neverHaveIEverHot: {
       never: "Je n'ai jamais",
       ever: "J'ai déjà",

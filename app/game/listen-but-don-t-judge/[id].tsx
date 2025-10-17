@@ -95,15 +95,35 @@ export default function ListenButDontJudgeScreen() {
 
   // Fonction simple pour formater le texte de la question
   const formatQuestionText = useCallback((
-    question: Question,
+    question: Question | any, // Permettre any pour gérer les objets avec clés numériques
     playerName: string,
   ) => {
-    if (!question?.text) {
+    let questionText = "";
+    
+    // Si la question a une propriété text, l'utiliser
+    if (question?.text) {
+      questionText = question.text;
+    } else if (question && typeof question === 'object') {
+      // Si la question est un objet avec des clés numériques (caractères stockés individuellement)
+      const keys = Object.keys(question);
+      const numericKeys = keys.filter(key => !isNaN(Number(key)));
+      
+      if (numericKeys.length > 0) {
+        // Reconstruire le texte à partir des caractères
+        questionText = numericKeys
+          .sort((a, b) => Number(a) - Number(b))
+          .map(key => question[key])
+          .join('');
+        // console.log(`[DEBUG] Reconstructed question text:`, questionText);
+      }
+    }
+    
+    if (!questionText) {
       return safeTranslate("game.listenButDontJudge.noQuestions", "Aucune question disponible");
     }
 
     // Remplacer les placeholders de joueur
-    const formattedText = question.text.replace(
+    const formattedText = questionText.replace(
       /\{player(?:Name|_name|name|)\}/gi,
       playerName,
     );
@@ -112,6 +132,12 @@ export default function ListenButDontJudgeScreen() {
   }, [safeTranslate]);
 
   // Les questions sont maintenant chargées automatiquement par useListenButDontJudgeQuestions
+
+  // Vérifier si le joueur actuel a déjà répondu
+  const hasPlayerAnswered = useMemo(() => {
+    if (!game?.answers || !user?.uid) return false;
+    return game.answers.some(answer => answer.playerId === user.uid);
+  }, [game?.answers, user?.uid]);
 
   // Écoute des changements de jeu dans Firebase
   useEffect(() => {
@@ -132,20 +158,32 @@ export default function ListenButDontJudgeScreen() {
         }
         
         // Initialiser la première question si nécessaire
+        
+        // Initialiser la première question si le jeu n'a pas encore de question
         if (
-          gameData.phase === "question" && 
           !gameData.currentQuestion && 
-          gameData.currentRound === 1 && 
-          questions.length > 0
+          questions.length > 0 &&
+          gameData.players && gameData.players.length > 0
         ) {
           const firstQuestion = getRandomQuestion();
           if (firstQuestion) {
             const randomPlayerIndex = Math.floor(Math.random() * gameData.players.length);
             const targetPlayer = gameData.players[randomPlayerIndex];
             
+            // S'assurer que la question a la bonne structure avant de la stocker
+            const questionToStore = {
+              id: firstQuestion.id,
+              text: firstQuestion.text,
+              theme: firstQuestion.theme || "general",
+              roundNumber: firstQuestion.roundNumber || 1
+            };
+            
             updateDoc(gameRef, {
-              currentQuestion: firstQuestion,
+              currentQuestion: questionToStore,
               targetPlayer: targetPlayer,
+              phase: "question", // Passer directement à la phase question
+              currentRound: gameData.currentRound || 1,
+              totalRounds: gameData.totalRounds || 5,
             }).catch((e) => console.error("Error initializing first question:", e));
           }
         }
@@ -158,12 +196,37 @@ export default function ListenButDontJudgeScreen() {
             phase: "question",
           }).catch((e) => console.error("Error updating phase:", e));
         }
+        
+        // Si le jeu n'a pas de phase définie ou n'a pas de question, initialiser
+        if ((!gameData.phase || gameData.phase === "choix") && !gameData.currentQuestion && questions.length > 0) {
+          const firstQuestion = getRandomQuestion();
+          if (firstQuestion) {
+            const randomPlayerIndex = Math.floor(Math.random() * gameData.players.length);
+            const targetPlayer = gameData.players[randomPlayerIndex];
+            
+            // S'assurer que la question a la bonne structure avant de la stocker
+            const questionToStore = {
+              id: firstQuestion.id,
+              text: firstQuestion.text,
+              theme: firstQuestion.theme || "general",
+              roundNumber: firstQuestion.roundNumber || 1
+            };
+            
+            updateDoc(gameRef, {
+              currentQuestion: questionToStore,
+              targetPlayer: targetPlayer,
+              phase: "question",
+              currentRound: gameData.currentRound || 1,
+              totalRounds: gameData.totalRounds || 5,
+            }).catch((e) => console.error("Error initializing question:", e));
+          }
+        }
       }
       setLoading(false);
     });
     
     return unsubscribe;
-  }, [id, game?.phase, getRandomQuestion, questions]);
+  }, [id, game?.phase, questions.length]);
 
   // Gestion de la fin de jeu
   useEffect(() => {
@@ -184,6 +247,15 @@ export default function ListenButDontJudgeScreen() {
   // Soumission d'une réponse
   const handleSubmitAnswer = async () => {
     if (!game || !user || !answer.trim()) return;
+    
+    // Vérifier si le joueur a déjà répondu
+    if (hasPlayerAnswered) {
+      Alert.alert(
+        safeTranslate("game.error", "Erreur"),
+        safeTranslate("game.listenButDontJudge.alreadyAnswered", "Vous avez déjà répondu à cette question")
+      );
+      return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -453,28 +525,43 @@ export default function ListenButDontJudgeScreen() {
             
             {game.phase === "question" &&
               (user?.uid !== game.targetPlayer?.id || game.players.length === 2 ? (
-                <View style={styles.questionContainer}>
-                  <View style={styles.questionCard}>
-                    <Text style={styles.questionText}>
-                      {formattedQuestionText}
-                    </Text>
+                hasPlayerAnswered ? (
+                  <View style={styles.questionContainer}>
+                    <View style={styles.questionCard}>
+                      <Text style={styles.questionText}>
+                        {formattedQuestionText}
+                      </Text>
+                    </View>
+                    <View style={styles.answeredContainer}>
+                      <Text style={styles.answeredText}>
+                        {safeTranslate("game.listenButDontJudge.answered", "Vous avez déjà répondu. En attente des autres joueurs...")}
+                      </Text>
+                    </View>
                   </View>
-                  <TextInput
-                    style={styles.input}
-                    placeholder={t("game.listenButDontJudge.answerPlaceholder", "Écrivez votre réponse ici...")}
-                    placeholderTextColor="#666"
-                    value={answer}
-                    onChangeText={setAnswer}
-                    multiline
-                    maxLength={200}
-                  />
-                  <RoundedButton
-                    title={t("game.listenButDontJudge.submit", "Soumettre")}
-                    onPress={handleSubmitAnswer}
-                    disabled={isSubmitting || !answer.trim()}
-                    style={styles.submitButton}
-                  />
-                </View>
+                ) : (
+                  <View style={styles.questionContainer}>
+                    <View style={styles.questionCard}>
+                      <Text style={styles.questionText}>
+                        {formattedQuestionText}
+                      </Text>
+                    </View>
+                    <TextInput
+                      style={styles.input}
+                      placeholder={t("game.listenButDontJudge.answerPlaceholder", "Écrivez votre réponse ici...")}
+                      placeholderTextColor="#666"
+                      value={answer}
+                      onChangeText={setAnswer}
+                      multiline
+                      maxLength={200}
+                    />
+                    <RoundedButton
+                      title={t("game.listenButDontJudge.submit", "Soumettre")}
+                      onPress={handleSubmitAnswer}
+                      disabled={isSubmitting || !answer.trim()}
+                      style={styles.submitButton}
+                    />
+                  </View>
+                )
               ) : (
                 <View style={styles.questionContainer}>
                   <View style={styles.questionCard}>
@@ -628,6 +715,28 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     paddingHorizontal: 16,
+  },
+  answeredContainer: {
+    backgroundColor: "rgba(255,255,255,0.08)",
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 24,
+    maxWidth: 480,
+    width: "100%",
+    alignSelf: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 6,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.05)",
+  },
+  answeredText: {
+    color: "#fff",
+    fontSize: 18,
+    textAlign: "center",
+    fontWeight: "500",
   },
   questionText: {
     color: "#fff",

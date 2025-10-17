@@ -400,6 +400,8 @@ const it = {
       noQuestions: 'Nessuna domanda disponibile',
       errorNext: 'Si è verificato un errore nel passare al turno successivo',
       waiting: 'In attesa degli altri giocatori...',
+      answered: 'Hai già risposto. In attesa degli altri giocatori...',
+      alreadyAnswered: 'Hai già risposto a questa domanda',
       answerPlaceholder: 'Scrivi la tua risposta qui...',
       submit: 'Invia',
       errorSubmit: 'Errore nell\'invio della risposta',

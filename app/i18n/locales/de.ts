@@ -400,6 +400,8 @@ const de = {
       noQuestions: 'Keine Fragen verfügbar',
       errorNext: 'Ein Fehler ist beim Wechsel zur nächsten Runde aufgetreten',
       waiting: 'Warten auf andere Spieler...',
+      answered: 'Sie haben bereits geantwortet. Warten auf andere Spieler...',
+      alreadyAnswered: 'Sie haben bereits auf diese Frage geantwortet',
       answerPlaceholder: 'Schreiben Sie Ihre Antwort hier...',
       submit: 'Absenden',
       errorSubmit: 'Fehler beim Absenden der Antwort',

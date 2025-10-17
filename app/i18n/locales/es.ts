@@ -400,6 +400,8 @@ const es = {
       noQuestions: 'No hay preguntas disponibles',
       errorNext: 'Ocurrió un error al pasar a la siguiente ronda',
       waiting: 'Esperando a otros jugadores...',
+      answered: 'Ya has respondido. Esperando a otros jugadores...',
+      alreadyAnswered: 'Ya has respondido a esta pregunta',
       answerPlaceholder: 'Escribe tu respuesta aquí...',
       submit: 'Enviar',
       errorSubmit: 'Error al enviar la respuesta',

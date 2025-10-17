@@ -15,8 +15,6 @@ export function usePostHog() {
         logout: () => {},
         gameStart: () => {},
         gameEnd: () => {},
-        onboardingStart: () => {},
-        onboardingComplete: () => {},
         screenView: () => {},
         error: () => {},
         custom: () => {},
@@ -55,16 +53,6 @@ export function usePostHog() {
       posthog?.capture(event.event, event.properties);
     },
     
-    // Événements d'onboarding
-    onboardingStart: () => {
-      const event = posthogEvents.onboardingStart();
-      posthog?.capture(event.event, event.properties);
-    },
-    
-    onboardingComplete: (steps: number) => {
-      const event = posthogEvents.onboardingComplete(steps);
-      posthog?.capture(event.event, event.properties);
-    },
     
     // Événements de navigation
     screenView: (screenName: string) => {
@@ -93,7 +81,9 @@ export function usePostHog() {
   };
 
   const setUserProperties = (properties: Record<string, any>) => {
-    posthog?.people?.set(properties);
+    // PostHog ne semble pas avoir de méthode directe pour définir les propriétés utilisateur
+    // On peut utiliser capture avec des événements personnalisés ou identify
+    posthog?.identify(posthog.getDistinctId(), properties);
   };
 
   // Fonctions pour les feature flags

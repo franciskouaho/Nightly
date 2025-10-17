@@ -1,13 +1,13 @@
 "use client";
 
+import HalloweenDecorations from "@/components/HalloweenDecorations";
 import { analyticsInstance } from "@/config/firebase";
 import Colors from "@/constants/Colors";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAuthAnalytics } from "@/hooks/useAuthAnalytics";
-import { usePostHog } from "@/hooks/usePostHog";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -17,32 +17,238 @@ import {
   Platform,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
-import * as WebBrowser from 'expo-web-browser';
-import * as Google from 'expo-auth-session/providers/google';
-import { GOOGLE_AUTH_CONFIG } from '@/config/googleAuth';
 
-// Configuration pour Google Auth
-WebBrowser.maybeCompleteAuthSession();
+const profils: string[] = [
+  "https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/profils%2Frenard.png?alt=media&token=139ed01b-46f2-4f3e-9305-459841f2a893",
+  "https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/profils%2Fchat.png?alt=media&token=0c852d5b-1a14-4b8a-8926-78a7c88c0695",
+  "https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/profils%2Fgrenouille.png?alt=media&token=8257acb0-bcf7-4e30-a7cf-5ddf44e6da01",
+  "https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/profils%2Foiseau.png?alt=media&token=5a9a9e36-1651-4461-8702-d7bc8d516423",
+];
+
+function chunkArray<T>(array: T[], size: number): T[][] {
+  const result: T[][] = [];
+  for (let i = 0; i < array.length; i += size) {
+    result.push(array.slice(i, i + size));
+  }
+  return result;
+}
 
 export default function LoginScreen() {
+  const [username, setUsername] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { user, signIn } = useAuth();
+  const [selectedProfile, setSelectedProfile] = useState(profils[0] as string);
+  const { signIn, restoreSession, user, firstLogin, checkExistingUser } =
+    useAuth();
   const router = useRouter();
   const authAnalytics = useAuthAnalytics();
-  const { track } = usePostHog();
   const { t } = useTranslation();
-  const { username, selectedProfile } = useLocalSearchParams<{
-    username?: string;
-    selectedProfile?: string;
-  }>();
+  
+  // Couleurs du thème Halloween
+  const primary = Colors.light.primary;
+  const secondary = Colors.light.secondary;
+  const tertiary = Colors.light.tertiary;
+  const background = Colors.light.background;
+  const backgroundDarker = Colors.light.backgroundDarker;
+  const backgroundLighter = Colors.light.backgroundLighter;
+  const text = Colors.light.text;
+  const textSecondary = Colors.light.textSecondary;
 
-  // Configuration Google Auth
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    clientId: GOOGLE_AUTH_CONFIG.webClientId,
-    scopes: GOOGLE_AUTH_CONFIG.scopes,
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    content: {
+      flex: 1,
+      justifyContent: "center",
+      padding: 20,
+    },
+    header: {
+      alignItems: "center",
+      marginBottom: 40,
+    },
+    selectedProfileImage: {
+      width: 80,
+      height: 80,
+      borderRadius: 40,
+      marginBottom: 10,
+      borderWidth: 3,
+      borderColor: primary,
+      backgroundColor: backgroundLighter,
+    },
+    title: {
+      fontSize: 32,
+      fontWeight: "bold",
+      color: text,
+      marginTop: 10,
+      textShadowColor: backgroundDarker,
+      textShadowOffset: { width: 2, height: 2 },
+      textShadowRadius: 4,
+      letterSpacing: 1,
+    },
+    subtitle: {
+      fontSize: 16,
+      color: textSecondary,
+      marginTop: 5,
+    },
+    profileSelectionTitle: {
+      fontSize: 18,
+      fontWeight: "bold",
+      color: text,
+      marginTop: 20,
+      marginBottom: 8,
+    },
+    profileSelectionSubtitle: {
+      fontSize: 14,
+      color: textSecondary,
+      marginBottom: 15,
+    },
+    form: {
+      width: "100%",
+    },
+    inputContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: backgroundLighter,
+      borderRadius: 12,
+      paddingHorizontal: 15,
+      marginBottom: 20,
+      borderWidth: 2,
+      borderColor: primary,
+      shadowColor: primary,
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+      elevation: 4,
+      zIndex: 20,
+    },
+    input: {
+      flex: 1,
+      height: 50,
+      color: text,
+      fontSize: 16,
+      marginLeft: 10,
+    },
+    profilesRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      marginBottom: 15,
+    },
+    profileImg: {
+      width: 60,
+      height: 60,
+      borderRadius: 30,
+      borderWidth: 2,
+      borderColor: "transparent",
+    },
+    profileImgSelected: {
+      borderColor: primary,
+      borderWidth: 3,
+      transform: [{ scale: 1.1 }],
+      shadowColor: primary,
+      shadowOffset: {
+        width: 0,
+        height: 3,
+      },
+      shadowOpacity: 0.4,
+      shadowRadius: 6,
+      elevation: 6,
+    },
+    buttonContainer: {
+      marginTop: 20,
+      borderRadius: 12,
+      shadowColor: primary,
+      shadowOffset: {
+        width: 0,
+        height: 4,
+      },
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+      elevation: 8,
+    },
+    button: {
+      borderRadius: 12,
+      height: 50,
+      justifyContent: "center",
+      alignItems: "center",
+      position: "relative",
+    },
+    buttonDisabled: {
+      opacity: 0.7,
+    },
+    buttonText: {
+      color: text,
+      fontSize: 16,
+      fontWeight: "bold",
+      textShadowColor: backgroundDarker,
+      textShadowOffset: { width: 1, height: 1 },
+      textShadowRadius: 2,
+    },
+    background: {
+      flex: 1,
+    },
+    halloweenDecorationsContainer: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      width: "100%",
+      height: "100%",
+      pointerEvents: "none",
+      zIndex: 5,
+      opacity: 0.3,
+    },
+    floatingParticles: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      zIndex: 0,
+    },
+    particle: {
+      position: "absolute",
+      backgroundColor: primary,
+      borderRadius: 50,
+      opacity: 0.3,
+    },
+    particle1: {
+      width: 4,
+      height: 4,
+      top: "20%",
+      left: "10%",
+    },
+    particle2: {
+      width: 6,
+      height: 6,
+      top: "40%",
+      right: "15%",
+    },
+    particle3: {
+      width: 3,
+      height: 3,
+      top: "60%",
+      left: "20%",
+    },
+    particle4: {
+      width: 5,
+      height: 5,
+      top: "80%",
+      right: "25%",
+    },
+    particle5: {
+      width: 4,
+      height: 4,
+      top: "30%",
+      left: "70%",
+    },
   });
 
   useEffect(() => {
@@ -51,65 +257,68 @@ export default function LoginScreen() {
     }
   }, [user]);
 
-  useEffect(() => {
-    if (response?.type === 'success') {
-      const { authentication } = response;
-      handleGoogleSignIn(authentication?.accessToken);
+  const handleLogin = async () => {
+    if (!username) {
+      Alert.alert(t("errors.general"), t("auth.login.usernameRequired"));
+      return;
     }
-  }, [response]);
 
-  const handleGoogleSignIn = async (accessToken?: string) => {
-    if (!accessToken) {
-      Alert.alert(t("errors.general"), "Erreur lors de l'authentification Google");
+    if (username.length < 3) {
+      Alert.alert(t("errors.general"), t("auth.login.usernameLength"));
       return;
     }
 
     setIsLoading(true);
 
     try {
-      // Récupérer les informations de l'utilisateur Google
-      const response = await fetch(`https://www.googleapis.com/oauth2/v2/userinfo?access_token=${accessToken}`);
-      const userInfo = await response.json();
+      if (!selectedProfile) return;
 
-      // Utiliser le pseudo de l'onboarding ou l'email Google
-      const finalUsername = username || userInfo.email?.split('@')[0] || 'User';
-      const finalProfile = selectedProfile || 'https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/profils%2Frenard.png?alt=media&token=139ed01b-46f2-4f3e-9305-459841f2a893';
+      // Vérifier si l'utilisateur existe déjà
+      const userExists = await checkExistingUser(username);
 
-      // Créer ou connecter l'utilisateur
-      await signIn(finalUsername, finalProfile);
-      
-      await authAnalytics.trackLogin("google", true);
+      if (userExists) {
+        // L'utilisateur existe déjà et a confirmé la connexion
+        await authAnalytics.trackLogin("username", true);
+        // Tracking Google Analytics login event
+        await analyticsInstance.logEvent("login", {
+          method: "username",
+          success: true,
+        });
+        await analyticsInstance.setUserId(username);
+        router.replace("/(tabs)");
+        return;
+      }
+
+      // Si l'utilisateur n'existe pas ou n'a pas confirmé la connexion
+      try {
+        await restoreSession();
+      } catch (error) {
+        // Si aucune session n'existe, créer une nouvelle session
+        await firstLogin(username);
+      }
+
+      // Continuer avec la connexion normale
+      await signIn(username, selectedProfile);
+      await authAnalytics.trackLogin("username", true);
+      // Tracking Google Analytics login event
       await analyticsInstance.logEvent("login", {
-        method: "google",
+        method: "username",
         success: true,
       });
-      await analyticsInstance.setUserId(finalUsername);
-      
-      // Track PostHog Google login event
-      track.login("google", true);
-      
+      await analyticsInstance.setUserId(username);
       router.replace("/(tabs)");
     } catch (error: any) {
-      await authAnalytics.trackLogin("google", false);
+      await authAnalytics.trackLogin("username", false);
+      // Tracking Google Analytics failed login event
       await analyticsInstance.logEvent("login", {
-        method: "google",
+        method: "username",
         success: false,
       });
-      
-      // Track PostHog Google login error
-      track.login("google", false);
-      track.error("google_auth_error", error.message || "Unknown error", {
-        method: "google",
-        hasUsername: !!username,
-        hasProfile: !!selectedProfile,
-      });
-      
       Alert.alert(t("errors.general"), error.message || t("errors.authError"));
     } finally {
       setIsLoading(false);
     }
   };
-
 
   return (
     <KeyboardAvoidingView
@@ -118,16 +327,19 @@ export default function LoginScreen() {
     >
       <LinearGradient
         colors={[
-          Colors.light?.gradient?.midnight?.from || "#1A1A2E",
-          Colors.light?.gradient?.midnight?.from || "#1A1A2E",
-          Colors.light?.gradient?.midnight?.middle || "#4B1E00",
-          Colors.light?.gradient?.midnight?.from || "#1A1A2E",
-          Colors.light?.gradient?.midnight?.to || "#120F1C",
+          backgroundDarker,
+          secondary,
+          primary,
+          secondary,
+          backgroundDarker,
         ]}
         locations={[0, 0.2, 0.5, 0.8, 1]}
         style={styles.background}
       >
-      
+        {/* Décorations Halloween */}
+        <View style={styles.halloweenDecorationsContainer}>
+          <HalloweenDecorations />
+        </View>
 
         {/* Effets de particules flottantes */}
         <View style={[styles.floatingParticles, { zIndex: 1, opacity: 0.2 }]}>
@@ -140,329 +352,78 @@ export default function LoginScreen() {
 
         <View style={[styles.content, { zIndex: 15 }]}>
           <View style={styles.header}>
-            <View style={styles.logoContainer}>
-              <Image
-                source={require("@/assets/images/login.png")}
-                style={styles.logoImage}
-                resizeMode="contain"
-              />
-              <Text style={styles.title}>{t("app.name")}</Text>
-              <View style={styles.titleAccent} />
-            </View>
-            <Text style={styles.subtitle}>
-              {t("auth.login.subtitle", "Connectez-vous pour commencer à jouer")}
-            </Text>
+            <Image
+              source={{ uri: selectedProfile }}
+              style={styles.selectedProfileImage}
+            />
+            <Text style={styles.title}>{t("app.name")}</Text>
+            <Text style={styles.subtitle}>{t("auth.login.enterUsername")}</Text>
           </View>
 
-          {/* Affichage des informations de l'onboarding si disponibles */}
-          {(username || selectedProfile) && (
-            <View style={styles.onboardingInfo}>
-              <Text style={styles.onboardingTitle}>
-                {t("auth.login.onboardingInfo", "Informations de votre profil")}
-              </Text>
-              {username && (
-                <View style={styles.infoRow}>
-                  <Ionicons name="person-outline" size={20} color="#fff" />
-                  <Text style={styles.infoText}>{username}</Text>
-                </View>
-              )}
-              {selectedProfile && (
-                <View style={styles.avatarPreview}>
-                  <Image
-                    source={{ uri: selectedProfile }}
-                    style={styles.avatarImage}
-                  />
-                </View>
-              )}
+          <View style={styles.form}>
+            <View style={styles.inputContainer}>
+              <Ionicons name="person-outline" size={24} color={text} />
+              <TextInput
+                style={styles.input}
+                placeholder={t("auth.login.username")}
+                placeholderTextColor={textSecondary}
+                value={username}
+                onChangeText={setUsername}
+                autoCapitalize="none"
+                maxLength={20}
+              />
             </View>
-          )}
 
-          <View style={styles.loginOptions}>
-            {/* Bouton Google Sign In */}
+            <Text style={styles.profileSelectionTitle}>
+              {t("auth.login.selectCharacter")}
+            </Text>
+            <Text style={styles.profileSelectionSubtitle}>
+              {t("auth.login.characterDescription")}
+            </Text>
+
+            {chunkArray(profils, 4).map((row: any[], rowIdx: number) => (
+              <View style={styles.profilesRow} key={rowIdx}>
+                {row.map((img: any, idx: number) => (
+                  <TouchableOpacity
+                    key={idx}
+                    onPress={() => setSelectedProfile(img)}
+                  >
+                    <Image
+                      source={{ uri: img }}
+                      style={[
+                        styles.profileImg,
+                        selectedProfile === img && styles.profileImgSelected,
+                      ]}
+                    />
+                  </TouchableOpacity>
+                ))}
+              </View>
+            ))}
+
             <TouchableOpacity
               style={[
-                styles.googleButton,
-                (isLoading || !request) && styles.buttonDisabled,
+                styles.buttonContainer,
+                isLoading && styles.buttonDisabled,
               ]}
-              onPress={() => promptAsync()}
-              disabled={isLoading || !request}
+              onPress={handleLogin}
+              disabled={isLoading}
             >
-              <View style={[styles.button, { backgroundColor: Colors.light?.primary || "#FF6F00" }]}>
-                <View style={styles.googleIconContainer}>
-                  <Ionicons name="logo-google" size={24} color="#fff" />
-                </View>
+              <LinearGradient
+                colors={[primary, secondary, tertiary]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.button}
+              >
                 <Text style={styles.buttonText}>
                   {isLoading
                     ? t("auth.login.connecting")
-                    : t("auth.login.signInWithGoogle")}
+                    : t("auth.login.play")}
                 </Text>
-              </View>
+              </LinearGradient>
             </TouchableOpacity>
-
-            {/* Séparateur */}
-            <View style={styles.separator}>
-              <View style={styles.separatorLine} />
-              <Text style={styles.separatorText}>ou</Text>
-              <View style={styles.separatorLine} />
-            </View>
-
-            {/* Texte informatif */}
-            <View style={styles.infoContainer}>
-              <Text style={styles.infoText}>
-                Connectez-vous pour accéder à tous les jeux et fonctionnalités
-              </Text>
-            </View>
-
           </View>
         </View>
       </LinearGradient>
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    flex: 1,
-    justifyContent: "center",
-    padding: 20,
-  },
-  header: {
-    alignItems: "center",
-    marginBottom: 50,
-  },
-  logoContainer: {
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  logoImage: {
-    width: 150,
-    height: 150,
-    marginBottom: 20,
-    borderRadius: 75,
-    shadowColor: Colors.light?.primary || "#FF6F00",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  title: {
-    fontSize: 42,
-    fontWeight: "bold",
-    color: Colors.light?.text || "#FFFAF0",
-    textShadowColor: "rgba(0, 0, 0, 0.8)",
-    textShadowOffset: { width: 2, height: 2 },
-    textShadowRadius: 6,
-    letterSpacing: 2,
-    marginBottom: 8,
-  },
-  titleAccent: {
-    width: 60,
-    height: 4,
-    backgroundColor: Colors.light?.primary || "#FF6F00",
-    borderRadius: 2,
-    shadowColor: Colors.light?.primary || "#FF6F00",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  subtitle: {
-    fontSize: 18,
-    color: Colors.light?.textSecondary || "#FFB347",
-    textAlign: "center",
-    fontWeight: "500",
-    lineHeight: 24,
-    paddingHorizontal: 20,
-  },
-  onboardingInfo: {
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 30,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.2)",
-  },
-  onboardingTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: Colors.light?.text || "#FFFAF0",
-    marginBottom: 15,
-    textAlign: "center",
-  },
-  infoRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  infoText: {
-    fontSize: 16,
-    color: Colors.light?.text || "#FFFAF0",
-    marginLeft: 10,
-    fontWeight: "600",
-  },
-  avatarPreview: {
-    alignItems: "center",
-    marginTop: 10,
-  },
-  avatarImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    borderWidth: 2,
-    borderColor: Colors.light?.primary || "#FF6F00",
-  },
-  loginOptions: {
-    width: "100%",
-  },
-  googleButton: {
-    marginBottom: 20,
-    borderRadius: 12,
-    shadowColor: "#4285F4",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  button: {
-    borderRadius: 16,
-    height: 56,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 24,
-    shadowColor: Colors.light?.primary || "#FF6F00",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  buttonDisabled: {
-    opacity: 0.7,
-  },
-  googleIconContainer: {
-    marginRight: 12,
-    padding: 4,
-    borderRadius: 8,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-  },
-  buttonText: {
-    color: Colors.light?.text || "#FFFAF0",
-    fontSize: 18,
-    fontWeight: "bold",
-    textShadowColor: "rgba(0, 0, 0, 0.5)",
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
-  },
-  separator: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 30,
-    paddingHorizontal: 20,
-  },
-  separatorLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
-  },
-  separatorText: {
-    color: Colors.light?.textSecondary || "#FFB347",
-    fontSize: 14,
-    fontWeight: "500",
-    marginHorizontal: 16,
-    textTransform: "uppercase",
-    letterSpacing: 1,
-  },
-  infoContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-    borderRadius: 12,
-    padding: 16,
-    marginTop: 10,
-  },
-  infoContainerText: {
-    color: Colors.light?.textSecondary || "#FFB347",
-    fontSize: 14,
-    marginLeft: 8,
-    textAlign: "center",
-    lineHeight: 20,
-  },
-  background: {
-    flex: 1,
-  },
-  backgroundImage: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    width: '100%',
-    height: '100%',
-  },
-  halloweenDecorationsContainer: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    width: "100%",
-    height: "100%",
-    pointerEvents: "none",
-    zIndex: 5,
-    opacity: 0.3,
-  },
-  floatingParticles: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 0,
-  },
-  particle: {
-    position: "absolute",
-    backgroundColor: Colors.light?.primary || "#FF6F00",
-    borderRadius: 50,
-    opacity: 0.3,
-  },
-  particle1: {
-    width: 4,
-    height: 4,
-    top: "20%",
-    left: "10%",
-  },
-  particle2: {
-    width: 6,
-    height: 6,
-    top: "40%",
-    right: "15%",
-  },
-  particle3: {
-    width: 3,
-    height: 3,
-    top: "60%",
-    left: "20%",
-  },
-  particle4: {
-    width: 5,
-    height: 5,
-    top: "80%",
-    right: "25%",
-  },
-  particle5: {
-    width: 4,
-    height: 4,
-    top: "30%",
-    left: "70%",
-  },
-});

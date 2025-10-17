@@ -15,7 +15,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useTruthOrDareQuestions } from './questions';
 import { usePoints } from '@/hooks/usePoints';
 import GameResults from '@/components/game/GameResults';
-import SkewedButton from '@/app/components/game/SkewedButton';
+import SkewedButton from '@/components/game/SkewedButton';
 import Colors from '@/constants/Colors';
 import HalloweenDecorations from '@/components/HalloweenDecorations';
 

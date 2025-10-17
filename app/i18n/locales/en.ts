@@ -411,6 +411,8 @@ const en = {
       noQuestions: 'No questions available',
       errorNext: 'An error occurred while moving to the next round',
       waiting: 'Waiting for other players...',
+      answered: 'You have already answered. Waiting for other players...',
+      alreadyAnswered: 'You have already answered this question',
       answerPlaceholder: 'Write your answer here...',
       submit: 'Submit',
       errorSubmit: 'Error submitting answer',
