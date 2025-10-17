@@ -848,8 +848,7 @@ const es = {
         name: 'Gato Misterioso',
         description: 'Un gato misterioso con ojos brillantes'
       },
-      'avatar-chat-rare-2':
-      {
+      'avatar-chat-rare-2': {
         name: 'Gato Raro',
         description: 'Un gato raro con un diseño único'
       },
