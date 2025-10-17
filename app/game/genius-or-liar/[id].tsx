@@ -9,7 +9,7 @@ import { useInAppReview } from '@/hooks/useInAppReview';
 import { useGeniusOrLiarAnalytics } from '@/hooks/useGeniusOrLiarAnalytics';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useGeniusOrLiarQuestions } from './questions';
+import { useGeniusOrLiarQuestions } from '../data/genius-or-liar-questions';
 import GameResults from '@/components/game/GameResults';
 
 interface FirebaseQuestion {

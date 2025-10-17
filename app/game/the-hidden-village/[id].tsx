@@ -7,7 +7,7 @@ import RoundedButton from '@/components/RoundedButton';
 import { useAuth } from '@/contexts/AuthContext';
 import { getFirestore, doc, onSnapshot, updateDoc } from '@react-native-firebase/firestore';
 import { usePoints } from '@/hooks/usePoints';
-import { useTheHiddenVillageQuestions } from './questions';
+import { useTheHiddenVillageQuestions } from '../data/the-hidden-village-questions';
 
 interface Role {
   id: string;

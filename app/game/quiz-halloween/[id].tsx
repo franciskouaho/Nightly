@@ -7,7 +7,7 @@ import { GamePhase, Player } from '@/types/gameTypes';
 import { useGame } from '@/hooks/useGame';
 import { useAuth } from '@/contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useQuizHalloweenQuestions } from './questions';
+import { useQuizHalloweenQuestions } from '../data/quiz-halloween-questions';
 import { TrapAnswer, TrapPlayerAnswer, TrapQuestion } from "@/types/types";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import GameResults from '@/components/game/GameResults';

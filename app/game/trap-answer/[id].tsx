@@ -6,7 +6,7 @@ import { GamePhase, Player } from '@/types/gameTypes';
 import { useGame } from '@/hooks/useGame';
 import { useAuth } from '@/contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useTrapAnswerQuestions } from './questions';
+import { useTrapAnswerQuestions } from '../data/trap-answer-questions';
 import { TrapAnswer, TrapPlayerAnswer, TrapQuestion } from "@/types/types";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import GameResults from '@/components/game/GameResults';

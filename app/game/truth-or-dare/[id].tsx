@@ -12,7 +12,7 @@ import { useInAppReview } from '@/hooks/useInAppReview';
 import { useTruthOrDareAnalytics } from '@/hooks/useTruthOrDareAnalytics';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useTruthOrDareQuestions } from './questions';
+import { useTruthOrDareQuestions } from '../data/truth-or-dare-questions';
 import { usePoints } from '@/hooks/usePoints';
 import GameResults from '@/components/game/GameResults';
 import SkewedButton from '@/components/game/SkewedButton';

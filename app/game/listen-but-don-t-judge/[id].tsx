@@ -33,7 +33,7 @@ import { useTranslation } from "react-i18next";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { GamePhase, Question } from "@/types/gameTypes";
 import ResultsPhase from "@/components/game/ResultsPhase";
-import { useListenButDontJudgeQuestions } from "./questions";
+import { useListenButDontJudgeQuestions } from "../data/listen-but-don-t-judge-questions";
 
 // Define interfaces
 interface Player {
