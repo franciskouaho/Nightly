@@ -67,6 +67,8 @@ const generateRoomCode = (length = 6) => {
   return code;
 };
 
+import PostHogTestComponent from "@/components/test/PostHogTestComponent";
+
 export default function HomeScreen() {
   const { user, setUser } = useAuth();
   const router = useRouter();
@@ -120,6 +122,9 @@ export default function HomeScreen() {
     sendLocalNotification,
     sendHalloweenQuizNotification,
   } = useExpoNotifications();
+
+  // Test PostHog: capture d'un événement à l'affichage du composant de test
+  // (L'événement "PostHogTestComponent mounted" sera envoyé par le composant)
 
   useEffect(() => {
     posthog.capture("MyComponent loaded", { foo: "bar" });

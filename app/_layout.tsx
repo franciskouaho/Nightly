@@ -67,10 +67,13 @@ function AppContent() {
 
 export default function RootLayout() {
   return (
-    <PostHogProvider 
+    <PostHogProvider
       apiKey={POSTHOG_CONFIG.apiKey}
-      host={POSTHOG_CONFIG.host}
-      options={POSTHOG_CONFIG.options}
+      options={{
+        host: POSTHOG_CONFIG.host,
+        ...POSTHOG_CONFIG.options,
+      }}
+      autocapture
     >
       <AppContent />
     </PostHogProvider>

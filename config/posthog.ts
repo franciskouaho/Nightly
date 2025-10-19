@@ -1,10 +1,11 @@
 // Configuration PostHog pour Nightly
-import { PostHog } from 'posthog-react-native';
+import { PostHog } from "posthog-react-native";
+import Constants from "expo-constants";
 
 // Configuration PostHog EU
 export const POSTHOG_CONFIG = {
-  apiKey: 'phc_gdnE960X8pH4DWUkU3lBmZ7jTbaY0zuVM2oeAqe1J3t',
-  host: 'https://eu.i.posthog.com',
+  apiKey: "phc_z8yLZKPz4orGGZQlGTh4FIap9nSMAUiwQJYbSjdvaf6",
+  host: "https://eu.i.posthog.com",
   options: {
     // Configuration pour React Native
     enableFeatureFlags: true,
@@ -12,22 +13,22 @@ export const POSTHOG_CONFIG = {
     enableAutocapture: true,
     capturePageViews: true,
     capturePageLeave: true,
-    
+
     // Configuration spécifique mobile
     disableGeoip: false,
     disableSessionRecording: true,
-    
+
     // Personnalisation
-    appVersion: '1.3.5', // Version de l'app depuis app.json
-    appBuild: '26', // Version code depuis app.json
-    
+    appVersion: Constants.expoConfig?.version, // Version de l'app depuis app.json
+    appBuild: Constants.expoConfig?.android?.versionCode || Constants.expoConfig?.ios?.buildNumber , // Version code depuis app.json
+
     // Debug (désactiver en production)
     debug: __DEV__,
-    
-    // Configuration des événements
+
+    // Configuration des événements (spécifique à React Native)
     autocapture: {
-      dom_event_allowlist: ['click', 'change', 'submit'],
-      url_allowlist: ['nightly.app', 'localhost'],
+      // Les options DOM ne s'appliquent pas à React Native
+      // On garde seulement les options pertinentes
     },
   },
 };
@@ -47,61 +48,60 @@ export const setPostHogInstance = (instance: PostHog): void => {
 export const posthogEvents = {
   // Événements d'authentification
   login: (method: string, success: boolean) => ({
-    event: 'user_login',
+    event: "user_login",
     properties: {
       method,
       success,
       timestamp: new Date().toISOString(),
     },
   }),
-  
+
   logout: () => ({
-    event: 'user_logout',
+    event: "user_logout",
     properties: {
       timestamp: new Date().toISOString(),
     },
   }),
-  
+
   // Événements de jeu
   gameStart: (gameType: string, playerCount: number) => ({
-    event: 'game_started',
+    event: "game_started",
     properties: {
       game_type: gameType,
       player_count: playerCount,
       timestamp: new Date().toISOString(),
     },
   }),
-  
+
   gameEnd: (gameType: string, duration: number, score?: number) => {
     const properties: Record<string, any> = {
       game_type: gameType,
       duration_seconds: duration,
       timestamp: new Date().toISOString(),
     };
-    
+
     if (score !== undefined) {
       properties.final_score = score;
     }
-    
+
     return {
-      event: 'game_ended',
+      event: "game_ended",
       properties,
     };
   },
-  
-  
+
   // Événements de navigation
   screenView: (screenName: string) => ({
-    event: 'screen_viewed',
+    event: "screen_viewed",
     properties: {
       screen_name: screenName,
       timestamp: new Date().toISOString(),
     },
   }),
-  
+
   // Événements d'erreur
   error: (errorType: string, errorMessage: string, context?: any) => ({
-    event: 'app_error',
+    event: "app_error",
     properties: {
       error_type: errorType,
       error_message: errorMessage,
