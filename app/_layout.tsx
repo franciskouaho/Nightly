@@ -4,7 +4,6 @@ import { PaywallProvider } from "@/contexts/PaywallContext";
 import { useAppsFlyer } from "@/hooks/useAppsFlyer";
 import { useIsHasUpdates } from "@/hooks/useIsHasUpdates";
 import { usePostHog } from "@/hooks/usePostHog";
-import { ExpoNotificationService } from "@/services/expoNotificationService";
 import HalloweenNotificationScheduler from "@/services/halloweenNotificationScheduler";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -25,9 +24,6 @@ function AppContent() {
     // Configuration Android 15 Edge-to-Edge
     ModernStatusBar.configureForAndroid15();
     
-    // Initialiser les services de notifications
-    const notificationService = ExpoNotificationService.getInstance();
-    notificationService.initialize();
     // Programmer les notifications Halloween pour octobre
     HalloweenNotificationScheduler.scheduleHalloweenNotifications();
     

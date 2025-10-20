@@ -12,6 +12,8 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
   }),
 });
 
@@ -35,7 +37,7 @@ export class ExpoNotificationService {
       // Vérifier si c'est un appareil physique
       if (!Device.isDevice) {
         console.warn('⚠️ Les notifications push ne fonctionnent que sur un appareil physique');
-        return;
+        return false;
       }
 
       // Demander les permissions
@@ -43,20 +45,21 @@ export class ExpoNotificationService {
       let finalStatus = existingStatus;
 
       if (existingStatus !== 'granted') {
+        console.log('🔐 Demande de permissions de notification...');
         const { status } = await Notifications.requestPermissionsAsync();
         finalStatus = status;
       }
 
       if (finalStatus !== 'granted') {
-        console.warn('⚠️ Permission de notification refusée');
-        return;
+        console.warn('⚠️ Permission de notification refusée - Status:', finalStatus);
+        return false;
       }
 
       console.log('✅ Permissions de notification accordées');
 
       // Obtenir le token Expo Push
       const token = await Notifications.getExpoPushTokenAsync({
-        projectId: 'nightly-efa29', // Remplacer par votre project ID
+        projectId: '3de41614-7f99-4215-bec0-9a2ece4bbd35', // Project ID Expo correct
       });
 
       console.log('🎯 Token Expo Push obtenu:', token.data);
@@ -72,8 +75,12 @@ export class ExpoNotificationService {
         await this.setupAndroidChannels();
       }
 
+      console.log('✅ Notifications Expo initialisées avec succès');
+      return true;
+
     } catch (error) {
       console.error('❌ Erreur lors de l\'initialisation des notifications Expo:', error);
+      return false;
     }
   }
 
@@ -98,7 +105,7 @@ export class ExpoNotificationService {
       name: '🎃 Invitations de jeu',
       importance: Notifications.AndroidImportance.MAX,
       vibrationPattern: [0, 250, 250, 250],
-      lightColor: HalloweenTheme.primary,
+      lightColor: "#FF6F00",
       sound: 'default',
     });
 
@@ -106,7 +113,7 @@ export class ExpoNotificationService {
       name: '🕸️ Mises à jour de jeu',
       importance: Notifications.AndroidImportance.HIGH,
       vibrationPattern: [0, 250, 250, 250],
-      lightColor: HalloweenTheme.primary,
+      lightColor: "#FF6F00",
       sound: 'default',
     });
 
@@ -120,7 +127,7 @@ export class ExpoNotificationService {
       name: '🎃 Halloween',
       importance: Notifications.AndroidImportance.MAX,
       vibrationPattern: [0, 250, 250, 250],
-      lightColor: HalloweenTheme.primary,
+      lightColor: "#FF6F00",
       sound: 'default',
     });
   }
@@ -182,10 +189,10 @@ export class ExpoNotificationService {
         data: {
           ...data,
           theme: 'halloween',
-          color: HalloweenTheme.primary,
+          color: "#FF6F00",
         },
         sound: 'default',
-        color: HalloweenTheme.primary,
+        color: "#FF6F00",
       },
       trigger: null, // Immédiat
     });
@@ -200,12 +207,12 @@ export class ExpoNotificationService {
         data: {
           ...data,
           theme: 'halloween',
-          color: HalloweenTheme.primary,
+          color: "#FF6F00",
         },
         sound: 'default',
-        color: HalloweenTheme.primary,
+        color: "#FF6F00",
       },
-      trigger: { seconds },
+      trigger: null,
     });
   }
 
@@ -219,10 +226,10 @@ export class ExpoNotificationService {
           ...data,
           theme: 'halloween-quiz',
           gameId: 'quiz-halloween',
-          color: HalloweenTheme.error,
+          color: "#FF1744",
         },
         sound: 'default',
-        color: HalloweenTheme.error,
+        color: "#FF1744",
       },
       trigger: null,
     });

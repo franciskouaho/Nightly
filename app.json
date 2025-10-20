@@ -28,7 +28,13 @@
       "package": "com.emplica.nightly.android",
       "googleServicesFile": "./google-services.json",
       "versionCode": 28,
-      "permissions": ["INTERNET", "NOTIFICATIONS"],
+      "permissions": [
+        "INTERNET", 
+        "NOTIFICATIONS",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE",
+        "WAKE_LOCK"
+      ],
       "edgeToEdgeEnabled": true
     },
     "web": {
@@ -53,7 +59,7 @@
             "enableShrinkResourcesInReleaseBuilds": true,
             "compileSdkVersion": 35,
             "targetSdkVersion": 35,
-            "versionCode": 29,
+            "versionCode": 30,
             "buildToolsVersion": "35.0.0",
             "enablePageSize16K": true,
             "enableEdgeToEdge": true,

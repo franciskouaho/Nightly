@@ -333,8 +333,9 @@ export default function PaywallModalB({
                       />
                       <Text style={styles.savingsText}>
                         {t("paywall.annual.savingsText", {
-                          amount: "40",
+                          amount: calculateAnnualSavings()?.amount?.toFixed(2) || "0",
                           currency:
+                            calculateAnnualSavings()?.currency ||
                             pricing.annual?.currency ||
                             pricing.monthly?.currency ||
                             pricing.weekly?.currency ||
