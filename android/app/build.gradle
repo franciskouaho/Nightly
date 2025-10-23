@@ -3,7 +3,7 @@ apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 
 def projectRoot = rootDir.getAbsoluteFile().getParentFile().getAbsolutePath()
-def nodeBinary = System.getenv("NODE_BINARY") ?: "/opt/homebrew/bin/node"
+def nodeBinary = System.getenv('NODE_BINARY') ?: '/opt/homebrew/bin/node'
 
 /**
  * This is the configuration block to customize your React Native Android app.

@@ -1,6 +1,5 @@
 pluginManagement {
-  def nodeBinary = System.getenv("NODE_BINARY") ?: "/opt/homebrew/bin/node"
-  
+  def nodeBinary = System.getenv('NODE_BINARY') ?: '/opt/homebrew/bin/node'
   def reactNativeGradlePlugin = new File(
     providers.exec {
       workingDir(rootDir)

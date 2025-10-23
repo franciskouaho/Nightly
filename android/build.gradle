@@ -1,10 +1,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-  ext {
-      agp_version = '8.13.0'
-  }
-    repositories {
+  repositories {
     google()
     mavenCentral()
   }
@@ -16,8 +13,7 @@ buildscript {
   }
 }
 
-def nodeBinary = System.getenv("NODE_BINARY") ?: "/opt/homebrew/bin/node"
-
+def nodeBinary = System.getenv('NODE_BINARY') ?: '/opt/homebrew/bin/node'
 def reactNativeAndroidDir = new File(
   providers.exec {
     workingDir(rootDir)
