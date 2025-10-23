@@ -401,11 +401,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentContainer: {
-    flex: 1,
-    justifyContent: "space-between",
     paddingHorizontal: 10,
     paddingTop: 0,
-    paddingBottom: 10,
+    paddingBottom: 20,
+    minHeight: "100%",
   },
   header: {
     flexDirection: "row",

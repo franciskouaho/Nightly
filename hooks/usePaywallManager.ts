@@ -218,10 +218,10 @@ export default function usePaywallManager(config: Partial<PaywallConfig> = {}) {
   const handlePaywallAClose = useCallback(async () => {
     closePaywallA();
 
-    // Attendre un peu avant de suggérer l'annuel
+    // Attendre plus longtemps avant de suggérer l'annuel (30-60s)
     setTimeout(async () => {
       await showPaywallB();
-    }, 5000);
+    }, 45000); // 45 secondes au lieu de 5
   }, [closePaywallA, showPaywallB]);
 
   // Marquer qu'on est dans une partie active
