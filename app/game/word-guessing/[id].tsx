@@ -285,12 +285,8 @@ export default function WordGuessingGame() {
 
       // Track la fin du jeu
       if (id) {
-        awardGamePoints(
-          String(id),
-          'word-guessing' as GameMode,
-          gameState.players,
-          gameState.scores
-        );
+        // Les points sont attribués par GameResults.tsx via useLeaderboard
+        // Pas besoin d'appeler awardGamePoints ici pour éviter les doublons
       }
     }
   }, [gameState?.phase, id, user, awardGamePoints]);
@@ -436,12 +432,8 @@ export default function WordGuessingGame() {
     }, {} as Record<string, number>);
 
     try {
-      await awardGamePoints(
-        String(id),
-        'word-guessing' as GameMode,
-        gameState.players,
-        points
-      );
+      // Les points sont attribués par GameResults.tsx via useLeaderboard
+      // Pas besoin d'appeler awardGamePoints ici pour éviter les doublons
       router.replace('/');
     } catch (error) {
       console.error('Erreur lors de la fin du jeu:', error);

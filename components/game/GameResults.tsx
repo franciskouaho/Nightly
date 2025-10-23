@@ -115,13 +115,19 @@ export default function GameResults({
     const updateLeaderboardStats = async () => {
       if (!userId || !scores[userId]) return;
 
-      const userScore = scores[userId];
       const isWinner = currentUserRank === 1;
+      
+      // Calculer les points de classement selon la position finale
+      let leaderboardPoints = 0;
+      if (currentUserRank === 1) leaderboardPoints = 25; // 1ère place
+      else if (currentUserRank === 2) leaderboardPoints = 15; // 2ème place  
+      else if (currentUserRank === 3) leaderboardPoints = 10; // 3ème place
+      else leaderboardPoints = 5; // Autres places
       
       // Utiliser la fonction updateUserStats du hook useLeaderboard
       await updateUserStats({
         userId,
-        points: userScore,
+        points: leaderboardPoints,
         won: isWinner,
         timestamp: new Date()
       });

@@ -173,7 +173,8 @@ export default function QuizHalloweenGameOptimized() {
       };
       
       await updateGameState(finalState);
-      await awardGamePoints(gameId, 'quiz-halloween', gameState.players, localScores);
+      // Les points sont attribués par GameResults.tsx via useLeaderboard
+      // Pas besoin d'appeler awardGamePoints ici pour éviter les doublons
       
       console.log('✅ Scores finaux sauvegardés avec succès');
     } catch (error) {

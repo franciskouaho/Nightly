@@ -35,6 +35,7 @@ interface LeaderboardEntry {
   avatar: string;
   totalPoints: number;
   gamesPlayed: number;
+  gamesWon: number;
   winRate: number;
   rank: number;
 }
@@ -47,47 +48,13 @@ export default function LeaderboardScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  // Fonction pour mettre à jour les statistiques d'un utilisateur
-  const updateUserStats = async (
-    userId: string,
-    points: number,
-    won: boolean = false,
-  ) => {
-    try {
-      const db = getFirestore();
-      const userRef = doc(db, "users", userId);
-
-      const updateData: any = {
-        totalPoints: increment(points),
-        gamesPlayed: increment(1),
-        lastGamePlayed: new Date(),
-      };
-
-      if (won) {
-        updateData.gamesWon = increment(1);
-      }
-
-      await updateDoc(userRef, updateData);
-      console.log(
-        "📊 Stats mises à jour pour l'utilisateur:",
-        userId,
-        "Points:",
-        points,
-        "Victoire:",
-        won,
-      );
-
-      // Le listener temps réel se chargera automatiquement de la mise à jour
-    } catch (error) {
-      console.error("Erreur lors de la mise à jour des stats:", error);
-    }
-  };
+  // Fonction updateUserStats supprimée - maintenant gérée par useLeaderboard hook
 
   // Listener en temps réel pour le leaderboard
   useEffect(() => {
     const db = getFirestore();
     const usersRef = collection(db, "users");
-    const q = query(usersRef, orderBy("totalPoints", "desc"), limit(50));
+    const q = query(usersRef, orderBy("points", "desc"), limit(50));
 
     console.log("🔄 Démarrage du listener temps réel pour le leaderboard");
 
@@ -103,12 +70,12 @@ export default function LeaderboardScreen() {
             pseudo: userData.pseudo,
             username: userData.username,
             displayName: userData.displayName,
-            totalPoints: userData.totalPoints,
+            totalPoints: userData.points,
             gamesPlayed: userData.gamesPlayed,
             gamesWon: userData.gamesWon,
           });
 
-          if (userData.totalPoints && userData.totalPoints > 0) {
+          if (userData.points && userData.points > 0) {
             const gamesPlayed = userData.gamesPlayed || 0;
             const gamesWon = userData.gamesWon || 0;
 
@@ -121,7 +88,7 @@ export default function LeaderboardScreen() {
                 userData.username ||
                 "Joueur",
               avatar: userData.avatar || "https://via.placeholder.com/40",
-              totalPoints: userData.totalPoints || 0,
+              totalPoints: userData.points || 0,
               gamesPlayed,
               gamesWon,
               winRate: gamesPlayed > 0 ? (gamesWon / gamesPlayed) * 100 : 0,
@@ -129,7 +96,7 @@ export default function LeaderboardScreen() {
             });
           } else {
             console.log(
-              `❌ Utilisateur ${doc.id} exclu: totalPoints = ${userData.totalPoints}`,
+              `❌ Utilisateur ${doc.id} exclu: points = ${userData.points}`,
             );
           }
         });

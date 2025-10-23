@@ -3,8 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { usePoints } from "@/hooks/usePoints";
 import { Asset, useUnlockedAssets } from "@/hooks/useUnlockedAssets";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { doc, updateDoc } from "firebase/firestore";
-import { db } from "@/config/firebase";
+import { getFirestore, doc, updateDoc } from "@react-native-firebase/firestore";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -153,9 +152,13 @@ export default function BuyAssetsScreen() {
   }, [user?.uid, getUnlockedAssets]);
 
   const handleUnlockAsset = async (asset: Asset) => {
-    if (!user || typeof user.points !== "number") return;
+    if (!user?.uid) {
+      Alert.alert(t("errors.general"), "Utilisateur non connecté");
+      return;
+    }
 
-    if (user.points < asset.cost) {
+    const userPoints = user.points || 0;
+    if (userPoints < asset.cost) {
       Alert.alert(
         t("profile.insufficientPoints"),
         t("profile.insufficientPointsMessage"),
@@ -164,13 +167,18 @@ export default function BuyAssetsScreen() {
     }
 
     try {
+      // D'abord débloquer l'asset
       const success = await unlockAsset(user.uid, asset.id);
       if (success) {
+        // Ensuite déduire les points
+        const db = getFirestore();
+        const userRef = doc(db, "users", user.uid);
+        await updateDoc(userRef, {
+          points: userPoints - asset.cost
+        });
+
         // Update local state immediately after successful unlock
         setUnlockedAssetIds((prevIds) => [...prevIds, asset.id]);
-
-        // Deduct points - addPointsToUser already updates user object in AuthContext
-        await addPointsToUser(user.uid, -asset.cost);
 
         Alert.alert(
           t("profile.success"),
@@ -182,6 +190,7 @@ export default function BuyAssetsScreen() {
         Alert.alert(t("errors.general"), t("profile.unlockError"));
       }
     } catch (error) {
+      console.error("Erreur lors de l'achat d'asset:", error);
       Alert.alert(t("errors.general"), t("profile.unlockError"));
     }
   };
@@ -190,6 +199,7 @@ export default function BuyAssetsScreen() {
     if (!user) return;
 
     try {
+      const db = getFirestore();
       const userRef = doc(db, "users", user.uid);
 
       // Mettre à jour l'avatar de l'utilisateur
@@ -202,6 +212,7 @@ export default function BuyAssetsScreen() {
 
       Alert.alert(t("profile.success"), t("profile.avatarChanged"));
     } catch (error) {
+      console.error("Erreur lors du changement d'avatar:", error);
       Alert.alert(t("errors.general"), t("profile.avatarChangeError"));
     }
   };

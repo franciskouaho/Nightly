@@ -114,13 +114,8 @@ export default function TheHiddenVillageGame() {
 
   useEffect(() => {
     if (game?.phase === 'end' && game.gameMode) {
-      // Attribuer les points à la fin du jeu
-      awardGamePoints(
-        game.id,
-        game.gameMode,
-        game.players,
-        game.scores
-      );
+      // Les points sont attribués par GameResults.tsx via useLeaderboard
+      // Pas besoin d'appeler awardGamePoints ici pour éviter les doublons
     }
   }, [game?.phase, game?.gameMode, game?.id, game?.players, game?.scores, awardGamePoints]);
 

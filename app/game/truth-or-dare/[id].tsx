@@ -298,15 +298,8 @@ export default function TruthOrDareGameScreen() {
       if (id) {
         gameAnalytics.trackGameComplete(String(id), game.totalRounds, gameDuration);
 
-        // Attribuer les points avant la redirection
-        if (game.gameMode) {
-          awardGamePoints(
-              id,
-              game.gameMode,
-              game.players,
-              game.playerScores
-          );
-        }
+        // Les points sont attribués par GameResults.tsx via useLeaderboard
+        // Pas besoin d'appeler awardGamePoints ici pour éviter les doublons
       }
     } else {
       setIsGameOver(false);

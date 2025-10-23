@@ -463,15 +463,8 @@ export default function NeverHaveIEverHotGame() {
   }
 
   if (gameState.phase === GamePhase.END) {
-    // Attribuer les points avant d'afficher les résultats
-    if (gameState.gameMode) {
-      awardGamePoints(
-        gameId,
-        'never-have-i-ever-hot' as GameMode,
-        gameState.players,
-        gameState.scores
-      );
-    }
+    // Les points sont attribués par GameResults.tsx via useLeaderboard
+    // Pas besoin d'appeler awardGamePoints ici pour éviter les doublons
 
     return (
       <View style={{flex: 1}}>

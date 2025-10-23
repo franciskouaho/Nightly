@@ -63,18 +63,25 @@ export function useGame<T extends GameState = GameState>(gameId: string) {
         const mergedState = { ...newState };
         
         console.log('🔧 Fusion playerAnswers:', {
-          newPlayerAnswers: newState.playerAnswers,
-          currentPlayerAnswers: currentData.playerAnswers,
-          hasNew: !!newState.playerAnswers,
-          hasCurrent: !!currentData.playerAnswers
+          newPlayerAnswers: (newState as any).playerAnswers,
+          currentPlayerAnswers: (currentData as any).playerAnswers,
+          hasNew: !!(newState as any).playerAnswers,
+          hasCurrent: !!(currentData as any).playerAnswers
         });
         
-        if (newState.playerAnswers) {
-          mergedState.playerAnswers = {
-            ...(currentData.playerAnswers || {}),
-            ...newState.playerAnswers
-          };
-          console.log('🔧 Résultat fusion:', mergedState.playerAnswers);
+        if ((newState as any).playerAnswers !== undefined) {
+          // Si playerAnswers est un objet vide {}, on le réinitialise complètement
+          if (Object.keys((newState as any).playerAnswers).length === 0) {
+            (mergedState as any).playerAnswers = {};
+            console.log('🔧 Réinitialisation playerAnswers');
+          } else {
+            // Sinon, on fusionne normalement
+            (mergedState as any).playerAnswers = {
+              ...((currentData as any).playerAnswers || {}),
+              ...(newState as any).playerAnswers
+            };
+            console.log('🔧 Résultat fusion:', (mergedState as any).playerAnswers);
+          }
         }
         
         await updateDoc(gameRef, mergedState as { [key: string]: any });

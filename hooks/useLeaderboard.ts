@@ -86,7 +86,7 @@ export default function useLeaderboard() {
       const userRef = doc(db, 'users', user.uid);
       
       const updateData: any = {
-        totalPoints: increment(gameResult.points),
+        points: increment(gameResult.points),
         gamesPlayed: increment(1),
         lastGamePlayed: gameResult.timestamp,
       };
@@ -116,7 +116,7 @@ export default function useLeaderboard() {
         const gamesWon = userData.gamesWon || 0;
         
         return {
-          totalPoints: userData.totalPoints || 0,
+          totalPoints: userData.points || 0,
           gamesPlayed,
           gamesWon,
           winRate: gamesPlayed > 0 ? (gamesWon / gamesPlayed) * 100 : 0,

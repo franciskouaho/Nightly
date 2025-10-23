@@ -52,9 +52,9 @@ export default function TrapAnswerGame() {
   // Timer pour la barre de temps (UI only)
   const TIMER_DURATION = 20; // secondes
   const [timeLeft, setTimeLeft] = useState(TIMER_DURATION);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Passage automatique au tour suivant après 3 secondes si tous les joueurs ont répondu
+  // Passage automatique au tour suivant après 2 secondes si tous les joueurs ont répondu
   useEffect(() => {
     if (
       gameState?.phase === GamePhase.QUESTION &&
@@ -63,7 +63,7 @@ export default function TrapAnswerGame() {
     ) {
       const timeout = setTimeout(() => {
         nextQuestion();
-      }, 2500);
+      }, 2000);
       return () => clearTimeout(timeout);
     }
 
@@ -203,15 +203,8 @@ export default function TrapAnswerGame() {
   if (!gameState) return null;
 
   if (gameState.phase === GamePhase.END) {
-    // Attribuer les points avant d'afficher les résultats
-    if (gameState.gameMode) {
-      awardGamePoints(
-        gameId,
-        gameState.gameMode,
-        gameState.players,
-        gameState.scores
-      );
-    }
+    // Les points sont attribués par GameResults.tsx via useLeaderboard
+    // Pas besoin d'appeler awardGamePoints ici pour éviter les doublons
 
     return (
       <GameResults
