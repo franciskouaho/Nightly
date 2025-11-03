@@ -46,21 +46,21 @@ import HalloweenTheme from "@/constants/themes/Halloween";
 import ChristmasTheme from "@/constants/themes/Christmas";
 
 export default function RoomScreen() {
-  const { id } = useLocalSearchParams();
-  const { user } = useAuth();
+    const { id } = useLocalSearchParams();
+    const { user } = useAuth();
   const { t } = useTranslation();
   const { getGameContent } = useLanguage();
 
   // State
-  const [room, setRoom] = useState<Room | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [isRulesDrawerVisible, setIsRulesDrawerVisible] = useState(false);
-  const [inviteModalVisible, setInviteModalVisible] = useState(false);
-  const [isStartingGame, setIsStartingGame] = useState(false);
-  const [hasReadRules, setHasReadRules] = useState(false);
-  const [showRulesOnReady, setShowRulesOnReady] = useState(false);
-  const [selectedRounds, setSelectedRounds] = useState(5);
-  const [showRoundSelector, setShowRoundSelector] = useState(false);
+    const [room, setRoom] = useState<Room | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [isRulesDrawerVisible, setIsRulesDrawerVisible] = useState(false);
+    const [inviteModalVisible, setInviteModalVisible] = useState(false);
+    const [isStartingGame, setIsStartingGame] = useState(false);
+    const [hasReadRules, setHasReadRules] = useState(false);
+    const [showRulesOnReady, setShowRulesOnReady] = useState(false);
+    const [selectedRounds, setSelectedRounds] = useState(5);
+    const [showRoundSelector, setShowRoundSelector] = useState(false);
 
   // Game options
   const [selectedLevel, setSelectedLevel] = useState<
@@ -85,101 +85,101 @@ export default function RoomScreen() {
     room.players.length >= minPlayers;
 
   // Listener pour les changements de la room
-  useEffect(() => {
-    if (!id || !user) return;
+    useEffect(() => {
+        if (!id || !user) return;
 
-    const db = getFirestore();
+        const db = getFirestore();
     const roomRef = doc(db, "rooms", id as string);
 
     const unsubscribe = onSnapshot(
       roomRef,
       async (doc) => {
-        if (doc.exists()) {
-          const roomData = { ...(doc.data() as Room), id: doc.id };
-          setRoom(roomData);
+            if (doc.exists()) {
+                const roomData = { ...(doc.data() as Room), id: doc.id };
+                setRoom(roomData);
 
           // Redirection automatique quand la partie commence
           if (roomData.status === "playing" && roomData.gameDocId) {
             router.replace(`/game/${roomData.gameMode}/${roomData.gameDocId}`);
-            return;
-          }
+                    return;
+                }
           // Redirection spéciale pour Quiz Halloween
           else if (
             roomData.status === "waiting" &&
             roomData.gameDocId &&
             roomData.gameMode === "quiz-halloween"
           ) {
-            router.replace(`/game/quiz-halloween/${roomData.gameDocId}`);
-            return;
-          }
-        } else {
+                    router.replace(`/game/quiz-halloween/${roomData.gameDocId}`);
+                    return;
+                }
+            } else {
           Alert.alert("Erreur", "Salle introuvable");
-          router.back();
-        }
-        setLoading(false);
+                router.back();
+            }
+            setLoading(false);
       },
       (error) => {
         console.error("Erreur lors de l'écoute de la salle:", error);
         Alert.alert("Erreur", "Impossible de charger la salle");
-        router.back();
+            router.back();
       },
     );
 
-    return () => unsubscribe();
-  }, [id, user]);
+        return () => unsubscribe();
+    }, [id, user]);
 
-  const handleStartGame = async () => {
-    if (!room || !user) return;
+    const handleStartGame = async () => {
+        if (!room || !user) return;
 
-    if (room.players.length < minPlayers) {
-      Alert.alert(
+        if (room.players.length < minPlayers) {
+            Alert.alert(
         t("room.notEnoughPlayers"),
         t("room.minPlayersRequired", { count: minPlayers }),
-      );
-      return;
-    }
+            );
+            return;
+        }
 
-    setHasReadRules(false);
-    setIsRulesDrawerVisible(true);
-    setIsStartingGame(true);
-  };
+        setHasReadRules(false);
+        setIsRulesDrawerVisible(true);
+        setIsStartingGame(true);
+    };
 
-  const handleRulesClose = async () => {
-    setIsRulesDrawerVisible(false);
-    setShowRulesOnReady(false);
+    const handleRulesClose = async () => {
+        setIsRulesDrawerVisible(false);
+        setShowRulesOnReady(false);
 
-    if (isStartingGame && hasReadRules) {
-      setIsStartingGame(false);
-      await startGame();
-    } else if (isStartingGame) {
-      setIsStartingGame(false);
-      Alert.alert(
+        if (isStartingGame && hasReadRules) {
+            setIsStartingGame(false);
+            await startGame();
+        } else if (isStartingGame) {
+            setIsStartingGame(false);
+            Alert.alert(
         "Règles non lues",
         "Veuillez lire les règles avant de démarrer la partie.",
-      );
-    }
-  };
+            );
+        }
+    };
 
-  const handleRulesConfirm = async () => {
-    setHasReadRules(true);
-    if (isStartingGame) {
-      setIsRulesDrawerVisible(false);
-      setIsStartingGame(false);
-      await startGame();
-    } else if (showRulesOnReady) {
-      await handleConfirmRulesOnReady();
-      setShowRulesOnReady(false);
-    } else {
-      setIsRulesDrawerVisible(false);
-    }
-  };
+    const handleRulesConfirm = async () => {
+        setHasReadRules(true);
+        if (isStartingGame) {
+            setIsRulesDrawerVisible(false);
+            setIsStartingGame(false);
+            await startGame();
+        } else if (showRulesOnReady) {
+            await handleConfirmRulesOnReady();
+            setShowRulesOnReady(false);
+        } else {
+            setIsRulesDrawerVisible(false);
+        }
+    };
 
-  const startGame = async () => {
-    setIsStartingGame(true);
-    if (!room || !user) return;
+    const startGame = async () => {
+        setIsStartingGame(true);
+        if (!room || !user) return;
 
-    try {
-      const db = getFirestore();
+        try {
+            const db = getFirestore();
       const gameDocId = await createGame({
         gameMode: room.gameId,
         players: room.players,
@@ -197,15 +197,15 @@ export default function RoomScreen() {
       await updateDoc(doc(db, "rooms", room.id), {
         status: newStatus,
         gameDocId: gameDocId,
-        gameMode: room.gameId,
+                    gameMode: room.gameId,
       });
 
       router.replace(`/game/${room.gameId}/${gameDocId}`);
-    } catch (error) {
+                } catch (error) {
       console.error("Erreur lors du démarrage du jeu:", error);
       Alert.alert("Erreur", "Impossible de démarrer le jeu");
     } finally {
-      setIsStartingGame(false);
+                    setIsStartingGame(false);
     }
   };
 
@@ -221,72 +221,72 @@ export default function RoomScreen() {
       await updateDoc(doc(db, "rooms", room.id), {
         players: updatedPlayers,
       });
-    } catch (error) {
+        } catch (error) {
       console.error("Erreur lors de la mise à jour du statut prêt:", error);
       Alert.alert("Erreur", "Impossible de se mettre prêt");
     }
   };
 
-  const handleLeaveRoom = async () => {
-    if (!room || !user) return;
+    const handleLeaveRoom = async () => {
+        if (!room || !user) return;
 
-    try {
-      const db = getFirestore();
+        try {
+            const db = getFirestore();
       const updatedPlayers = room.players.filter((p) => p.id !== user.uid);
 
-      if (updatedPlayers.length === 0) {
+            if (updatedPlayers.length === 0) {
         await updateDoc(doc(db, "rooms", room.id), {
           status: "finished",
-        });
-      } else if (updatedPlayers[0]) {
+                });
+            } else if (updatedPlayers[0]) {
         await updateDoc(doc(db, "rooms", room.id), {
-          players: updatedPlayers,
+                    players: updatedPlayers,
           host: updatedPlayers[0].id,
-        });
-      }
+                });
+            }
 
-      router.back();
-    } catch (error) {
+            router.back();
+        } catch (error) {
       console.error("Erreur lors de la sortie de la salle:", error);
       Alert.alert("Erreur", "Impossible de quitter la salle");
-    }
-  };
+        }
+    };
 
-  const handleShareRoom = async () => {
-    if (!room) return;
-    try {
-      await Share.share({
-        message: `Rejoins ma partie sur Nightly ! Code: ${room.code}`,
+    const handleShareRoom = async () => {
+        if (!room) return;
+        try {
+            await Share.share({
+                message: `Rejoins ma partie sur Nightly ! Code: ${room.code}`,
         title: "Rejoins ma partie",
-      });
-    } catch (error) {
+            });
+        } catch (error) {
       console.error("Erreur lors du partage:", error);
-    }
-  };
+        }
+    };
 
-  const handleCopyCode = async () => {
-    if (!room) return;
-    try {
-      await Clipboard.setString(room.code);
-    } catch (error) {
+    const handleCopyCode = async () => {
+        if (!room) return;
+        try {
+            await Clipboard.setString(room.code);
+        } catch (error) {
       console.error("Erreur lors de la copie du code:", error);
     }
   };
 
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
+    if (loading) {
+        return (
+            <View style={styles.loadingContainer}>
         <Text style={styles.loadingText}>{t("room.loading")}</Text>
-      </View>
-    );
-  }
+            </View>
+        );
+    }
 
   if (!room || !room.id) return null;
 
-  return (
-    <View style={styles.container}>
-      <StatusBar style="light" />
-      <LinearGradient
+    return (
+        <View style={styles.container}>
+            <StatusBar style="light" />
+            <LinearGradient
         colors={
           isHalloweenGame
             ? [
@@ -303,32 +303,32 @@ export default function RoomScreen() {
                 ChristmasTheme.light.backgroundDarker,
                 ChristmasTheme.light.background,
               ]
-        }
-        locations={[0, 0.2, 0.5, 0.8, 1]}
-        style={styles.background}
-      >
-        {isHalloweenGame && (
-          <View style={styles.halloweenDecorations}>
-            <HalloweenDecorations />
-          </View>
-        )}
-
+                }
+                locations={[0, 0.2, 0.5, 0.8, 1]}
+                style={styles.background}
+            >
+                {isHalloweenGame && (
+                    <View style={styles.halloweenDecorations}>
+                        <HalloweenDecorations />
+                    </View>
+                )}
+                
         {/* Top Bar */}
-        <View style={styles.topBar}>
-          <View style={styles.topBarRow}>
+                <View style={styles.topBar}>
+                    <View style={styles.topBarRow}>
             <TouchableOpacity
               onPress={handleLeaveRoom}
               style={styles.backButton}
             >
-              <Ionicons name="arrow-back" size={24} color="white" />
-            </TouchableOpacity>
+                            <Ionicons name="arrow-back" size={24} color="white" />
+                        </TouchableOpacity>
 
-            <View style={styles.rightContainer}>
-              <TouchableOpacity
-                style={styles.iconButton}
+                        <View style={styles.rightContainer}>
+                            <TouchableOpacity
+                                style={styles.iconButton}
                 onPress={() => setInviteModalVisible(true)}
-              >
-                <LinearGradient
+                            >
+                                <LinearGradient
                   colors={
                     isHalloweenGame
                       ? [
@@ -340,56 +340,56 @@ export default function RoomScreen() {
                           ChristmasTheme.light.secondary,
                         ]
                   }
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={{ borderRadius: 12, padding: 7 }}
-                >
-                  <Ionicons name="qr-code" size={22} color="white" />
-                </LinearGradient>
-              </TouchableOpacity>
-            </View>
-          </View>
+                                    start={{ x: 0, y: 0 }}
+                                    end={{ x: 1, y: 1 }}
+                                    style={{ borderRadius: 12, padding: 7 }}
+                                >
+                                    <Ionicons name="qr-code" size={22} color="white" />
+                                </LinearGradient>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
 
-          <View style={styles.topBarTitleContainer}>
-            <Text style={styles.topBarTitle}>
+                    <View style={styles.topBarTitleContainer}>
+                        <Text style={styles.topBarTitle}>
               {t("room.title")} -{" "}
               {t(`home.games.${room.gameId}.name`, {
                 defaultValue: room.name?.toUpperCase(),
               })}
-            </Text>
-          </View>
-        </View>
+                        </Text>
+                    </View>
+                </View>
 
         {/* Warning minimum de joueurs */}
         {room.players.length <= minPlayers && (
-          <Text style={[styles.minPlayersWarning, styles.centeredWarning]}>
+                    <Text style={[styles.minPlayersWarning, styles.centeredWarning]}>
             {t("room.minPlayersRequired", { count: minPlayers })}
-          </Text>
-        )}
+                    </Text>
+                )}
 
         {/* Code de la room */}
         <RoomCodeDisplay code={room.code} onCopy={handleCopyCode} />
 
         {/* Liste des joueurs */}
-        <View style={styles.playersContainer}>
-          <View style={styles.playersHeaderRow}>
-            <Text style={styles.sectionTitle}>
+                <View style={styles.playersContainer}>
+                    <View style={styles.playersHeaderRow}>
+                        <Text style={styles.sectionTitle}>
               {t("room.players", { count: room.players.length })} (
               {room.players.length}/{room.maxPlayers})
-            </Text>
+                        </Text>
             <TouchableOpacity
               style={styles.rulesButtonRow}
               onPress={() => setIsRulesDrawerVisible(true)}
             >
               <Text style={styles.rulesText}>{t("room.rules")}</Text>
-              <View style={styles.rulesCircle}>
-                <Text style={styles.rulesQuestionMark}>?</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
+                            <View style={styles.rulesCircle}>
+                                <Text style={styles.rulesQuestionMark}>?</Text>
+                            </View>
+                        </TouchableOpacity>
+                    </View>
 
           <PlayersList players={room.players} maxPlayers={room.maxPlayers} />
-        </View>
+                                </View>
 
         {/* Contrôles de l'hôte */}
         {isHost && room.status === "waiting" && (
@@ -420,12 +420,12 @@ export default function RoomScreen() {
 
             {/* Bouton Démarrer */}
             <View style={styles.startButtonContainer}>
-              <RoundedButton
+                            <RoundedButton
                 title={t("room.startGame")}
-                onPress={handleStartGame}
+                                onPress={handleStartGame}
                 disabled={!canStart}
                 style={[styles.startButton, !canStart && styles.disabledButton]}
-                textStyle={styles.startButtonText}
+                                textStyle={styles.startButtonText}
                 gradientColors={
                   isHalloweenGame
                     ? [HalloweenTheme.light.primary, HalloweenTheme.light.error]
@@ -433,23 +433,23 @@ export default function RoomScreen() {
                         ChristmasTheme.light.primary,
                         ChristmasTheme.light.secondary,
                       ]
-                }
-              />
-            </View>
+                                }
+                            />
+                        </View>
           </View>
-        )}
+                )}
 
         {/* Bouton "Je suis prêt" pour les non-hôtes */}
         {!isHost && room.status === "waiting" && !currentPlayer?.isReady && (
           <View style={styles.readyButtonContainer}>
-            <TouchableOpacity
+                    <TouchableOpacity
               style={styles.readyButtonFullWidth}
-              onPress={() => {
-                setShowRulesOnReady(true);
+                        onPress={() => {
+                            setShowRulesOnReady(true);
                 setIsRulesDrawerVisible(true);
-              }}
-            >
-              <LinearGradient
+                        }}
+                    >
+                        <LinearGradient
                 colors={
                   isHalloweenGame
                     ? [HalloweenTheme.light.primary, HalloweenTheme.light.error]
@@ -458,8 +458,8 @@ export default function RoomScreen() {
                         ChristmasTheme.light.secondary,
                       ]
                 }
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
                 style={styles.roundSelectorGradient}
               >
                 <View
@@ -487,8 +487,8 @@ export default function RoomScreen() {
                     />
                   </View>
                 </View>
-              </LinearGradient>
-            </TouchableOpacity>
+                        </LinearGradient>
+                    </TouchableOpacity>
           </View>
         )}
 
@@ -501,56 +501,56 @@ export default function RoomScreen() {
           isStartingGame={showRulesOnReady}
         />
 
-        <InviteModal
-          visible={inviteModalVisible}
+                <InviteModal
+                    visible={inviteModalVisible}
           roomId={room?.code || ""}
-          onClose={() => setInviteModalVisible(false)}
-          onCopyCode={handleCopyCode}
-          onShareCode={handleShareRoom}
-        />
-      </LinearGradient>
-    </View>
-  );
+                    onClose={() => setInviteModalVisible(false)}
+                    onCopyCode={handleCopyCode}
+                    onShareCode={handleShareRoom}
+                />
+            </LinearGradient>
+        </View>
+    );
 }
 
 const styles = StyleSheet.create<RoomScreenStyles>({
   container: { flex: 1 },
   background: { flex: 1 },
-  loadingContainer: {
-    flex: 1,
+    loadingContainer: {
+        flex: 1,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#4b277d",
   },
   loadingText: { color: "#fff", fontSize: 16 },
   topBar: { paddingHorizontal: 20, paddingTop: 50, paddingBottom: 10 },
-  topBarRow: {
+    topBarRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     width: "100%",
-    marginBottom: 8,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
+        marginBottom: 8,
+    },
+    backButton: {
+        width: 40,
+        height: 40,
     borderRadius: 20,
     backgroundColor: "rgba(255,255,255,0.1)",
     alignItems: "center",
     justifyContent: "center",
-  },
-  topBarTitleContainer: {
+    },
+    topBarTitleContainer: {
     width: "100%",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 5,
-  },
-  topBarTitle: {
+        marginBottom: 5,
+    },
+    topBarTitle: {
     color: "#fff",
-    fontSize: 18,
+        fontSize: 18,
     fontWeight: "bold",
     textTransform: "uppercase",
-    letterSpacing: 1,
+        letterSpacing: 1,
     textAlign: "center",
   },
   rightContainer: { flexDirection: "row", alignItems: "center" },
@@ -563,64 +563,64 @@ const styles = StyleSheet.create<RoomScreenStyles>({
     marginLeft: 10,
   },
   playersContainer: { flex: 1, paddingHorizontal: 20 },
-  playersHeaderRow: {
+    playersHeaderRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 15,
-  },
+        marginBottom: 15,
+    },
   rulesButtonRow: { flexDirection: "row", alignItems: "center" },
   rulesText: { color: "#ccc", fontSize: 16, marginRight: 6 },
-  rulesCircle: {
-    width: 18,
-    height: 18,
-    borderRadius: 14,
-    borderWidth: 1,
+    rulesCircle: {
+        width: 18,
+        height: 18,
+        borderRadius: 14,
+        borderWidth: 1,
     borderColor: "#ccc",
     alignItems: "center",
     justifyContent: "center",
-  },
-  rulesQuestionMark: {
+    },
+    rulesQuestionMark: {
     color: "#ccc",
-    fontSize: 10,
+        fontSize: 10,
     fontWeight: "bold",
-    marginTop: -2,
-  },
+        marginTop: -2,
+    },
   sectionTitle: { color: "#fff", fontSize: 16, fontWeight: "bold" },
-  gameControlsContainer: {
+    gameControlsContainer: {
     width: "100%",
     paddingHorizontal: 20,
-    marginBottom: 15,
+        marginBottom: 15,
     position: "relative",
-    zIndex: 100,
-  },
+        zIndex: 100,
+    },
   readyButtonContainer: {
     width: "100%",
     alignItems: "stretch",
     paddingHorizontal: 20,
-    marginBottom: 15,
+        marginBottom: 15,
     position: "relative",
-    zIndex: 100,
-  },
+        zIndex: 100,
+    },
   readyButtonFullWidth: {
     width: "100%",
-    borderRadius: 12,
+        borderRadius: 12,
     overflow: "hidden",
-    marginTop: 10,
-  },
-  roundSelectorGradient: {
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderRadius: 12,
+        marginTop: 10,
+    },
+    roundSelectorGradient: {
+        paddingHorizontal: 20,
+        paddingVertical: 15,
+        borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
   },
   roundSelectorText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
-  roundSelectorIconContainer: {
+    roundSelectorIconContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginLeft: 5,
-  },
+        marginLeft: 5,
+    },
   starIcon: { marginLeft: 2 },
   smallStarIcon: { marginLeft: -4, marginTop: -8 },
   startButtonContainer: { width: "100%", marginBottom: 15 },
@@ -629,15 +629,15 @@ const styles = StyleSheet.create<RoomScreenStyles>({
   minPlayersWarning: { color: "#ff6b6b", fontSize: 14, fontWeight: "500" },
   disabledButton: { opacity: 0.5 },
   centeredWarning: { textAlign: "center", marginBottom: 10 },
-  halloweenDecorations: {
+    halloweenDecorations: {
     position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
     width: "100%",
     height: "100%",
-    zIndex: 1,
+        zIndex: 1,
     pointerEvents: "none",
   },
 
