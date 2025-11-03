@@ -4,8 +4,8 @@ import PaywallModalA from '@/components/PaywallModalA';
 import PaywallModalB from '@/components/PaywallModalB';
 
 interface PaywallContextType {
-  showPaywallA: () => void;
-  showPaywallB: () => void;
+  showPaywallA: (forceShow?: boolean) => void;
+  showPaywallB: (forceShow?: boolean) => Promise<void>;
   closePaywallA: () => void;
   closePaywallB: () => void;
   setInActiveGame: (inGame: boolean) => void;

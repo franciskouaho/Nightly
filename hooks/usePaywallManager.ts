@@ -156,8 +156,11 @@ export default function usePaywallManager(config: Partial<PaywallConfig> = {}) {
   }, [isProMember, paywallState, finalConfig]);
 
   // Afficher le PaywallA (plan court)
-  const showPaywallA = useCallback(() => {
-    if (isProMember) return;
+  const showPaywallA = useCallback((forceShow = false) => {
+    // Si forceShow est true, on affiche même pour les membres pro (pour gérer les abonnements)
+    if (!forceShow && isProMember) return;
+
+    console.log('💰 showPaywallA appelé - forceShow:', forceShow, 'isProMember:', isProMember);
 
     setPaywallState((prev) => ({
       ...prev,
@@ -167,11 +170,16 @@ export default function usePaywallManager(config: Partial<PaywallConfig> = {}) {
   }, [isProMember]);
 
   // Afficher le PaywallB (plan annuel)
-  const showPaywallB = useCallback(async () => {
-    if (isProMember) return;
+  const showPaywallB = useCallback(async (forceShow = false) => {
+    // Si forceShow est true, on affiche même pour les membres pro et on ignore les restrictions (pour dev)
+    if (!forceShow && isProMember) return;
 
-    const canShow = await canShowPaywallB();
-    if (!canShow) return;
+    if (!forceShow) {
+      const canShow = await canShowPaywallB();
+      if (!canShow) return;
+    }
+
+    console.log('💎 showPaywallB appelé - forceShow:', forceShow, 'isProMember:', isProMember);
 
     setPaywallState((prev) => ({
       ...prev,
@@ -180,21 +188,23 @@ export default function usePaywallManager(config: Partial<PaywallConfig> = {}) {
       lastPaywallBShown: Date.now(),
     }));
 
-    // Incrémenter le compteur de session
-    try {
-      const countStr = await AsyncStorage.getItem(
-        `${STORAGE_KEYS.PAYWALL_B_COUNT}_${paywallState.sessionId}`,
-      );
-      const count = countStr ? parseInt(countStr) : 0;
-      await AsyncStorage.setItem(
-        `${STORAGE_KEYS.PAYWALL_B_COUNT}_${paywallState.sessionId}`,
-        (count + 1).toString(),
-      );
-    } catch (error) {
-      console.error(
-        "Erreur lors de l'incrémentation du compteur PaywallB:",
-        error,
-      );
+    // Incrémenter le compteur de session seulement si ce n'est pas un forceShow
+    if (!forceShow) {
+      try {
+        const countStr = await AsyncStorage.getItem(
+          `${STORAGE_KEYS.PAYWALL_B_COUNT}_${paywallState.sessionId}`,
+        );
+        const count = countStr ? parseInt(countStr) : 0;
+        await AsyncStorage.setItem(
+          `${STORAGE_KEYS.PAYWALL_B_COUNT}_${paywallState.sessionId}`,
+          (count + 1).toString(),
+        );
+      } catch (error) {
+        console.error(
+          "Erreur lors de l'incrémentation du compteur PaywallB:",
+          error,
+        );
+      }
     }
   }, [isProMember, canShowPaywallB, paywallState.sessionId]);
 
@@ -275,22 +285,8 @@ export default function usePaywallManager(config: Partial<PaywallConfig> = {}) {
     loadPaywallState();
   }, [loadPaywallState]);
 
-  // Afficher automatiquement le PaywallB à intervalles réguliers
-  useEffect(() => {
-    if (isProMember) return;
-
-    const checkAndShowPaywallB = async () => {
-      const canShow = await canShowPaywallB();
-      if (canShow) {
-        await showPaywallB();
-      }
-    };
-
-    // Programmer des vérifications toutes les 8 heures
-    const interval = setInterval(checkAndShowPaywallB, 8 * 60 * 60 * 1000); // 8 heures
-
-    return () => clearInterval(interval);
-  }, [isProMember, canShowPaywallB, showPaywallB]);
+  // NOTE: L'affichage automatique du paywall est désormais géré par useSmartPaywall
+  // On ne déclenche PAS automatiquement au lancement pour respecter l'expérience utilisateur
 
   return {
     // État

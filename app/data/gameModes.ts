@@ -144,6 +144,54 @@ export const gameCategories: GameCategory[] = [
         },
         games: [
             {
+                id: 'double-dare',
+                nameKey: 'home.games.double-dare.name',
+                descriptionKey: 'home.games.double-dare.description',
+                image: require('@/assets/jeux/hot.png'),
+                colors: ["rgba(74, 26, 102, 0.9)", "rgba(123, 44, 191, 0.9)"],
+                borderColor: "#4A1A66",
+                shadowColor: "#7B2CBF",
+                tags: [{
+                    text: 'home.games.double-dare.tags.couple',
+                    color: "#E91E63"
+                }, {
+                    text: 'home.games.double-dare.tags.defis',
+                    color: "#7B2CBF"
+                }, {
+                    text: 'home.games.double-dare.tags.extreme',
+                    color: "#FF6B35"
+                }, {
+                    text: 'home.games.double-dare.tags.premium',
+                    color: "#D81B60"
+                }],
+                premium: true,
+                interactive: 'action'
+            },
+            {
+                id: 'forbidden-desire',
+                nameKey: 'home.games.forbidden-desire.name',
+                descriptionKey: 'home.games.forbidden-desire.description',
+                image: require('@/assets/jeux/hot.png'),
+                colors: ["rgba(139, 0, 0, 0.9)", "rgba(220, 20, 60, 0.9)"],
+                borderColor: "#8B0000",
+                shadowColor: "#DC143C",
+                tags: [{
+                    text: 'home.games.forbidden-desire.tags.couple',
+                    color: "#E91E63"
+                }, {
+                    text: 'home.games.forbidden-desire.tags.extreme',
+                    color: "#8B0000"
+                }, {
+                    text: 'home.games.forbidden-desire.tags.revelations',
+                    color: "#FF1744"
+                }, {
+                    text: 'home.games.forbidden-desire.tags.premium',
+                    color: "#D81B60"
+                }],
+                premium: true,
+                interactive: 'action'
+            },
+            {
                 id: 'never-have-i-ever-hot',
                 nameKey: 'home.games.never-have-i-ever-hot.name',
                 descriptionKey: 'home.games.never-have-i-ever-hot.description',

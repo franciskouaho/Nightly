@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import ChristmasTheme from '@/constants/themes/Christmas';
 
 interface Player {
   id: string;
@@ -26,7 +27,7 @@ export default function PhaseSummaryModal({
   actionSummary,
   mainPlayer,
   emoji,
-  color = '#A855F7',
+  color = ChristmasTheme.light?.primary || '#C41E3A',
   onContinue,
   isHost = false,
 }: Props) {
@@ -49,7 +50,11 @@ export default function PhaseSummaryModal({
   return (
     <Animated.View style={[styles.overlay, { opacity: fadeAnim }]}> 
       <LinearGradient
-        colors={["#1a1033", color + '99', '#21101C']}
+        colors={[
+          ChristmasTheme.light?.backgroundDarker || "#0D0D1A", 
+          color + '99', 
+          ChristmasTheme.light?.background || "#1A1A2E"
+        ]}
         style={styles.modal}
       >
         <Text style={styles.phaseTitle}>{phase === 'night' ? 'Résumé de la Nuit' : 'Résumé du Jour'}</Text>

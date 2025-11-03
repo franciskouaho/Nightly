@@ -2,6 +2,7 @@ import RoundedButton from "@/components/RoundedButton";
 import { useInAppReview } from "@/hooks/useInAppReview";
 import { usePoints } from "@/hooks/usePoints";
 import useLeaderboard from "@/hooks/useLeaderboard";
+import { useSmartPaywall } from "@/hooks/useSmartPaywall";
 import { Player } from "@/types/gameTypes";
 import { Ionicons } from "@expo/vector-icons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -80,6 +81,7 @@ export default function GameResults({
   const { awardLumiCoins } = usePoints();
   const { requestReview } = useInAppReview();
   const { updateUserStats } = useLeaderboard();
+  const { onFreeGameCompleted } = useSmartPaywall();
   const { t } = useTranslation();
 
   const sortedPlayers = useMemo(
@@ -142,6 +144,18 @@ export default function GameResults({
       setReviewRequested(true);
     }
   }, [currentUserRank, requestReview, reviewRequested]);
+
+  // Déclencher le smart paywall après la partie
+  useEffect(() => {
+    const triggerSmartPaywall = async () => {
+      console.log('🎮 Partie terminée - vérification smart paywall');
+      await onFreeGameCompleted();
+    };
+
+    // Attendre un peu pour laisser l'utilisateur voir les résultats
+    const timer = setTimeout(triggerSmartPaywall, 2000);
+    return () => clearTimeout(timer);
+  }, [onFreeGameCompleted]);
 
   return (
     <LinearGradient colors={colors} style={styles.resultsBg}>

@@ -14,6 +14,7 @@ import {
   Alert,
   Image,
   Linking,
+  Platform,
   ScrollView,
   StyleSheet,
   Switch,
@@ -22,13 +23,19 @@ import {
   View,
 } from "react-native";
 import Purchases from "react-native-purchases";
+import { useExpoNotifications } from "@/hooks/useExpoNotifications";
+import HalloweenNotificationScheduler from "@/services/halloweenNotificationScheduler";
 
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
   const router = useRouter();
-  const { showPaywallA } = usePaywall();
+  const { showPaywallA, showPaywallB, closePaywallB, paywallState } = usePaywall();
   const { t } = useTranslation();
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const { sendHalloweenQuizNotification } = useExpoNotifications();
+
+  // Vérifier si l'utilisateur est admin depuis Firestore
+  const isAdmin = user?.isAdmin === true;
 
   useEffect(() => {
     const checkNotificationStatus = async () => {
@@ -110,6 +117,16 @@ export default function ProfileScreen() {
     }
   };
 
+  const handleOpenPaywallB = async () => {
+    try {
+      console.log("🧪 Ouverture du PaywallB (mode dev - forceShow)");
+      await showPaywallB(true);
+    } catch (error: any) {
+      console.error("Erreur lors de l'ouverture du PaywallB:", error);
+      Alert.alert("Erreur", "Impossible d'ouvrir le paywall. Erreur: " + error?.message);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
@@ -122,12 +139,7 @@ export default function ProfileScreen() {
       </LinearGradient>
 
       <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <MaterialCommunityIcons name="arrow-left" size={24} color="white" />
-        </TouchableOpacity>
+        <View style={styles.headerLeft} />
         <Text style={styles.headerTitle}>{t("profile.title")}</Text>
         <View style={styles.headerRight}>
           {/* Affichage des points dans l'en-tête */}
@@ -297,7 +309,10 @@ export default function ProfileScreen() {
             <View style={styles.premiumBottomRow}>
               <TouchableOpacity
                 style={styles.premiumButton}
-                onPress={() => showPaywallA()}
+                onPress={() => {
+                  console.log('🔥 Bouton Premium cliqué');
+                  showPaywallA(true); // Force l'affichage même pour les membres pro
+                }}
               >
                 <Text style={styles.premiumButtonText}>
                   {t("profile.premium.try")}
@@ -313,6 +328,66 @@ export default function ProfileScreen() {
               </View>
             </View>
           </View>
+
+          {/* Bouton Admin */}
+          {isAdmin && (
+            <TouchableOpacity
+              style={styles.settingItem}
+              onPress={() => router.push("/admin")}
+            >
+              <MaterialCommunityIcons
+                name="shield-crown"
+                size={24}
+                color="#FFD700"
+              />
+              <Text style={styles.settingText}>Admin</Text>
+              <MaterialCommunityIcons
+                name="chevron-right"
+                size={24}
+                color="#E8B4B8"
+              />
+            </TouchableOpacity>
+          )}
+
+          {/* Section de tests (développement) */}
+          {__DEV__ && (
+            <View style={styles.testSection}>
+              <Text style={styles.testSectionTitle}>🧪 TESTS (DEV ONLY)</Text>
+              <View style={styles.testButtonsRow}>
+                <TouchableOpacity
+                  style={styles.testButton}
+                  onPress={() => {
+                    sendHalloweenQuizNotification(
+                      "Quiz Halloween",
+                      "Une partie effrayante t'attend !",
+                    );
+                  }}
+                >
+                  <Text style={styles.testButtonText}>🎃 Quiz</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.testButton}
+                  onPress={async () => {
+                    await HalloweenNotificationScheduler.scheduleTestHalloweenNotification();
+                    Alert.alert(
+                      "🎃 Test",
+                      "Notification Halloween programmée dans 5 secondes !",
+                    );
+                  }}
+                >
+                  <Text style={styles.testButtonText}>📅 Oct</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.testButton}
+                  onPress={handleOpenPaywallB}
+                >
+                  <Text style={styles.testButtonText}>💰 PaywallB</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
 
           {/* Bouton de déconnexion */}
           <TouchableOpacity style={styles.logoutButton} onPress={handleSignOut}>
@@ -338,13 +413,9 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingBottom: 20,
   },
-  backButton: {
+  headerLeft: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.1)",
-    alignItems: "center",
-    justifyContent: "center",
   },
   headerTitle: {
     fontSize: 20,
@@ -559,5 +630,41 @@ const styles = StyleSheet.create({
     textShadowColor: "rgba(0, 0, 0, 0.8)",
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
+  },
+  testSection: {
+    backgroundColor: "rgba(255, 152, 0, 0.2)",
+    borderRadius: 20,
+    padding: 16,
+    marginTop: 20,
+    borderWidth: 2,
+    borderColor: "rgba(255, 152, 0, 0.5)",
+  },
+  testSectionTitle: {
+    color: "#FFA726",
+    fontSize: 14,
+    fontWeight: "bold",
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  testButtonsRow: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    gap: 8,
+  },
+  testButton: {
+    backgroundColor: "#C41E3A",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  testButtonText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 12,
   },
 });

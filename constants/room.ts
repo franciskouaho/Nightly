@@ -21,7 +21,9 @@ export const GAME_CONFIG = {
     'genius-or-liar': { minPlayers: 2 },
     'two-letters-one-word': { minPlayers: 1 },
     'word-guessing': { minPlayers: 2 },
-    'quiz-halloween': { minPlayers: 1 }
+    'quiz-halloween': { minPlayers: 1 },
+    'forbidden-desire': { minPlayers: 2 },
+    'double-dare': { minPlayers: 2 }
 };
 
 // Génère deux lettres aléatoires pour 2 Lettres 1 Mot

@@ -23,7 +23,6 @@ import {
 } from "react-native";
 import Purchases from "react-native-purchases";
 import { SafeAreaView } from "react-native-safe-area-context";
-import HalloweenDecorations from "./HalloweenDecorations";
 
 interface PaywallModalBProps {
   isVisible: boolean;
@@ -44,6 +43,11 @@ export default function PaywallModalB({
   const [discountPercentage, setDiscountPercentage] = useState(0);
   const { t } = useTranslation();
   const { user, setUser } = useAuth();
+
+  // Log pour debug
+  React.useEffect(() => {
+    console.log('💎 PaywallModalB - isVisible:', isVisible, 'isProMember:', isProMember, 'currentOffering:', !!currentOffering);
+  }, [isVisible, isProMember, currentOffering]);
 
   // Calculer la réduction en pourcentage depuis RevenueCat
   useEffect(() => {
@@ -152,7 +156,7 @@ export default function PaywallModalB({
       <SafeAreaView style={[styles.container, { zIndex: 10 }]}>
         <StatusBar style="light" />
         <ImageBackground
-          source={require("@/assets/halloween/logo.png")}
+          source={require("@/assets/images/logo.png")}
           style={styles.background}
           resizeMode="repeat"
           imageStyle={{ opacity: 0.3 }}
@@ -168,10 +172,6 @@ export default function PaywallModalB({
             locations={[0, 0.2, 0.5, 0.8, 1]}
             style={styles.gradientOverlay}
           >
-            <View style={styles.halloweenDecorations}>
-              <HalloweenDecorations />
-            </View>
-
             <ScrollView
               style={styles.scrollView}
               contentContainerStyle={styles.contentContainer}
@@ -323,27 +323,6 @@ export default function PaywallModalB({
                   <Text style={styles.annualDescription}>
                     {t("paywall.plans.annual.description")}
                   </Text>
-
-                  {true && (
-                    <View style={styles.savingsContainer}>
-                      <Ionicons
-                        name="trending-down"
-                        size={16}
-                        color="#C41E3A"
-                      />
-                      <Text style={styles.savingsText}>
-                        {t("paywall.annual.savingsText", {
-                          amount: calculateAnnualSavings()?.amount?.toFixed(2) || "0",
-                          currency:
-                            calculateAnnualSavings()?.currency ||
-                            pricing.annual?.currency ||
-                            pricing.monthly?.currency ||
-                            pricing.weekly?.currency ||
-                            "€",
-                        })}
-                      </Text>
-                    </View>
-                  )}
                 </View>
               </View>
 
@@ -604,16 +583,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     textDecorationLine: "underline",
-  },
-  halloweenDecorations: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    width: "100%",
-    height: "100%",
-    zIndex: 1,
-    pointerEvents: "none",
   },
 });

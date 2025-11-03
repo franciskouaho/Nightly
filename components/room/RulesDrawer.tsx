@@ -6,6 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/contexts/LanguageContext';
 import HalloweenTheme from '@/constants/themes/Halloween';
+import ChristmasTheme from '@/constants/themes/Christmas';
 
 type RulesDrawerProps = {
   visible: boolean;
@@ -117,7 +118,10 @@ const RulesDrawer = ({ visible, onClose, onConfirm, gameId, isStartingGame }: Ru
       onRequestClose={onClose}
     >
       <LinearGradient
-        colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
+        colors={isHalloweenGame 
+          ? ["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]
+          : [ChristmasTheme.light?.backgroundDarker || "#0D0D1A", ChristmasTheme.light?.background || "#1A1A2E", ChristmasTheme.light?.secondary || "#8B1538", ChristmasTheme.light?.background || "#1A1A2E", ChristmasTheme.light?.backgroundDarker || "#0D0D1A"]
+        }
         locations={[0, 0.2, 0.5, 0.8, 1]}
         style={StyleSheet.absoluteFill}
       />
@@ -132,7 +136,7 @@ const RulesDrawer = ({ visible, onClose, onConfirm, gameId, isStartingGame }: Ru
             styles.container, 
             { 
               transform: [{ translateY }],
-              backgroundColor: isHalloweenGame ? (HalloweenTheme.light?.backgroundDarker || '#120F1C') : '#2B1845'
+              backgroundColor: isHalloweenGame ? (HalloweenTheme.light?.backgroundDarker || '#120F1C') : (ChristmasTheme.light?.backgroundLighter || '#2D223A')
             }
           ]}
         >
@@ -141,7 +145,7 @@ const RulesDrawer = ({ visible, onClose, onConfirm, gameId, isStartingGame }: Ru
               <Text 
                 style={[
                   styles.title,
-                  isHalloweenGame && { color: HalloweenTheme.light?.primary || '#FF6F00' }
+                  isHalloweenGame ? { color: HalloweenTheme.light?.primary || '#FF6F00' } : { color: ChristmasTheme.light?.textSecondary || '#E8B4B8' }
                 ]}
               >
                 {t('rules.title')}
@@ -150,7 +154,7 @@ const RulesDrawer = ({ visible, onClose, onConfirm, gameId, isStartingGame }: Ru
                 <Ionicons 
                   name="close" 
                   size={24} 
-                  color={isHalloweenGame ? (HalloweenTheme.light?.primary || '#FF6F00') : "#fff"} 
+                  color={isHalloweenGame ? (HalloweenTheme.light?.primary || '#FF6F00') : (ChristmasTheme.light?.textSecondary || '#E8B4B8')} 
                 />
               </TouchableOpacity>
             </View>
@@ -195,7 +199,9 @@ const RulesDrawer = ({ visible, onClose, onConfirm, gameId, isStartingGame }: Ru
               <TouchableOpacity 
                 style={[
                   styles.confirmButton,
-                  isHalloweenGame && { backgroundColor: HalloweenTheme.light?.primary || '#FF6F00' }
+                  isHalloweenGame 
+                    ? { backgroundColor: HalloweenTheme.light?.primary || '#FF6F00' }
+                    : { backgroundColor: ChristmasTheme.light?.primary || '#C41E3A' }
                 ]}
                 onPress={onConfirm}
               >
@@ -230,10 +236,10 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     overflow: 'hidden',
-    backgroundColor: '#2B1845',
-    shadowColor: '#000',
+    backgroundColor: '#2D223A', // Christmas theme backgroundLighter
+    shadowColor: '#C41E3A',
     shadowOffset: { width: 0, height: -8 },
-    shadowOpacity: 0.18,
+    shadowOpacity: 0.2,
     shadowRadius: 16,
     elevation: 10,
     maxHeight: '85%',
@@ -259,12 +265,14 @@ const styles = StyleSheet.create({
     maxHeight: windowHeight * 0.45,
   },
   ruleCard: {
-    backgroundColor: '#3D2956',
+    backgroundColor: 'rgba(196, 30, 58, 0.15)',
     borderRadius: 18,
     padding: 16,
     flexDirection: 'row',
     alignItems: 'flex-start',
     marginBottom: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(196, 30, 58, 0.3)',
   },
   emoji: {
     fontSize: 28,
@@ -274,7 +282,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   ruleTitle: {
-    color: '#C7B8F5',
+    color: '#E8B4B8',
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 4,
@@ -292,7 +300,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   confirmButton: {
-    backgroundColor: '#A259FF',
+    backgroundColor: '#C41E3A',
     padding: 16,
     borderRadius: 12,
     marginTop: 20,

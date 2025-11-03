@@ -29,6 +29,7 @@ interface User {
   points: number;
   hasActiveSubscription?: boolean;
   isReviewer?: boolean;
+  isAdmin?: boolean;
   subscriptionType?: string;
   subscriptionUpdatedAt?: string;
 }

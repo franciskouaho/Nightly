@@ -3,6 +3,11 @@ const fr = {
   app: {
     name: "Nightly",
   },
+  common: {
+    cancel: "Annuler",
+    validate: "Valider",
+    ok: "OK",
+  },
 
   // Écran de langue
   language: {
@@ -122,6 +127,8 @@ const fr = {
     createGame: "Créer une partie",
     joinGame: "Rejoindre une partie",
     enterCode: "Entrer le code",
+    or: "ou",
+    scanQR: "Scanner QR",
     join: "Rejoindre",
     gameModes: {
       title: "Modes de jeu",
@@ -199,6 +206,26 @@ const fr = {
           gratuit: "GRATUIT",
           fun: "FUN",
           porte_entree: "PORTE D'ENTRÉE",
+        },
+      },
+      "double-dare": {
+        name: "DOUBLE DARE",
+        description: "Deux joueurs. Zéro limite. Un seul mot d'ordre : oser 💀",
+        tags: {
+          couple: "COUPLE",
+          defis: "DÉFIS",
+          extreme: "EXTRÊME",
+          premium: "PREMIUM",
+        },
+      },
+      "forbidden-desire": {
+        name: "DÉSIR INTERDIT",
+        description: "Osez tout vous dire… ou assumez vos désirs interdits 🔥",
+        tags: {
+          couple: "COUPLE",
+          extreme: "EXTRÊME",
+          revelations: "RÉVÉLATIONS",
+          premium: "PREMIUM",
         },
       },
       "never-have-i-ever-hot": {
@@ -775,9 +802,9 @@ const fr = {
 
   // Paywall (corrigé, sans doublon)
   paywall: {
-    title: "🎃 Nightly Premium 🎃",
-    subtitle: "HALLOWEEN SPECIAL",
-    tagline: "PLAY WITHOUT LIMITS IN THE DARKNESS",
+    title: "⭐ Nightly Premium ⭐",
+    subtitle: "NOEL SPECIAL",
+    tagline: "JOUEZ SANS LIMITES",
     features: {
       unlimited: "Accès illimité à tous les modes",
       weekly: "Nouvelles cartes chaque semaine",

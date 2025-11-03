@@ -60,22 +60,31 @@ export default function TabLayout() {
       <Tabs 
         screenOptions={{ 
           headerShown: false,
-          contentStyle: {
-            backgroundColor: Colors.background
-          },
           tabBarStyle: { display: 'none' }
         }}
       >
         <Tabs.Screen 
           name="index"
-          options={{
-            href: user ? undefined : null
-          }}
         />
         <Tabs.Screen 
           name="leaderboard"
+        />
+        <Tabs.Screen 
+          name="profil"
           options={{
-            href: user ? undefined : null
+            href: null
+          }}
+        />
+        <Tabs.Screen 
+          name="game/[id]"
+          options={{
+            href: null
+          }}
+        />
+        <Tabs.Screen 
+          name="settings/buy-assets/index"
+          options={{
+            href: null
           }}
         />
       </Tabs>

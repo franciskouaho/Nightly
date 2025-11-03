@@ -5,10 +5,8 @@ import TopBar from "@/components/TopBar";
 import Colors from "@/constants/Colors";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePaywall } from "@/contexts/PaywallContext";
-import { useExpoNotifications } from "@/hooks/useExpoNotifications";
 import { useFirestore } from "@/hooks/useFirestore";
 import useLeaderboard from "@/hooks/useLeaderboard";
-import HalloweenNotificationScheduler from "@/services/halloweenNotificationScheduler";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import NetInfo from "@react-native-community/netinfo";
 import {
@@ -23,12 +21,14 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { usePostHog } from "posthog-react-native";
+import { useRef } from "react";
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Alert,
   Image,
   ImageBackground,
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
@@ -36,6 +36,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import * as Linking from "expo-linking";
+import QRScannerModal from "@/components/QRScannerModal";
 
 interface Room {
   id?: string;
@@ -58,7 +60,7 @@ interface Room {
 }
 
 const generateRoomCode = (length = 6) => {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const chars = "0123456789";
   let code = "";
   for (let i = 0; i < length; i++) {
     code += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -66,7 +68,6 @@ const generateRoomCode = (length = 6) => {
   return code;
 };
 
-import PostHogTestComponent from "@/components/test/PostHogTestComponent";
 
 export default function HomeScreen() {
   const { user, setUser } = useAuth();
@@ -74,53 +75,20 @@ export default function HomeScreen() {
   const { add: createRoom, loading: isCreatingRoom } =
     useFirestore<Room>("rooms");
   const [partyCode, setPartyCode] = React.useState("");
+  const [codeDigits, setCodeDigits] = React.useState(["", "", "", "", "", ""]);
+  const codeInputRefs = useRef<(TextInput | null)[]>([]);
   const [loading, setLoading] = React.useState(false);
+  const [showQRScanner, setShowQRScanner] = React.useState(false);
   const { t } = useTranslation();
   const [error, setError] = React.useState("");
   const posthog = usePostHog();
   const {
     showPaywallA,
-    showPaywallB,
-    closePaywallB,
     setInActiveGame,
-    paywallState,
     isProMember,
   } = usePaywall();
   const { getTopPlayers } = useLeaderboard();
 
-  // Fonction de test pour forcer l'affichage du PaywallModalB
-  const testShowPaywallB = async () => {
-    console.log("🧪 Test PaywallB - État actuel:", paywallState);
-    console.log("🧪 Test PaywallB - Tentative d'affichage...");
-
-    try {
-      // Essayer d'abord la fonction normale
-      await showPaywallB();
-      console.log("🧪 Test PaywallB - Fonction appelée avec succès");
-    } catch (error: any) {
-      console.error("🧪 Test PaywallB - Erreur avec fonction normale:", error);
-
-      // Si ça ne marche pas, essayer de fermer puis rouvrir
-      console.log("🧪 Test PaywallB - Tentative alternative...");
-      closePaywallB();
-      setTimeout(async () => {
-        try {
-          await showPaywallB();
-          console.log("🧪 Test PaywallB - Fonction alternative réussie");
-        } catch (err: any) {
-          console.error("🧪 Test PaywallB - Erreur alternative:", err);
-        }
-      }, 100);
-    }
-  };
-
-  // Hook pour les notifications Expo
-  const {
-    expoPushToken,
-    isPermissionGranted,
-    sendLocalNotification,
-    sendHalloweenQuizNotification,
-  } = useExpoNotifications();
 
   // Test PostHog: capture d'un événement à l'affichage du composant de test
   // (L'événement "PostHogTestComponent mounted" sera envoyé par le composant)
@@ -324,8 +292,53 @@ export default function HomeScreen() {
     }
   };
 
-  const handleJoinGame = async () => {
-    if (!partyCode.trim()) {
+  const handleCodeDigitChange = (value: string, index: number) => {
+    // Ne garder que les chiffres
+    const digit = value.replace(/[^0-9]/g, '').slice(0, 1);
+    
+    const newDigits = [...codeDigits];
+    newDigits[index] = digit;
+    setCodeDigits(newDigits);
+    
+    // Mettre à jour le code complet
+    const fullCode = newDigits.join('');
+    setPartyCode(fullCode);
+    
+    // Passer au champ suivant si un chiffre a été saisi
+    if (digit && index < 5) {
+      codeInputRefs.current[index + 1]?.focus();
+    }
+    
+    // Si tous les chiffres sont remplis, rejoindre automatiquement
+    if (newDigits.every(d => d !== '') && newDigits.join('').length === 6) {
+      setTimeout(() => handleJoinGame(), 300);
+    }
+  };
+
+  const handleCodeKeyPress = (key: string, index: number) => {
+    // Gérer la suppression : si Backspace et champ vide, aller au précédent
+    if (key === 'Backspace' && !codeDigits[index] && index > 0) {
+      codeInputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handleScanQR = () => {
+    setShowQRScanner(true);
+  };
+
+  const handleQRScanSuccess = (code: string) => {
+    // Mettre à jour les champs avec le code scanné
+    const digits = code.slice(0, 6).split('');
+    const filledDigits = digits.concat(Array(6 - digits.length).fill(''));
+    setCodeDigits(filledDigits);
+    setPartyCode(code);
+    
+    // Rejoindre la room automatiquement
+    handleJoinGameWithCode(code);
+  };
+
+  const handleJoinGameWithCode = async (code: string) => {
+    if (!code || !code.trim()) {
       Alert.alert("Erreur", "Veuillez entrer un code de partie");
       return;
     }
@@ -333,7 +346,62 @@ export default function HomeScreen() {
     try {
       const db = getFirestore();
       const roomsRef = collection(db, "rooms");
-      const q = query(roomsRef, where("code", "==", partyCode.toUpperCase()));
+      const q = query(roomsRef, where("code", "==", code.toUpperCase()));
+      const querySnapshot = await getDocs(q);
+      if (querySnapshot.empty) {
+        Alert.alert("Erreur", "Code de partie invalide");
+        setLoading(false);
+        return;
+      }
+      const roomDoc = querySnapshot.docs[0];
+      if (!roomDoc) {
+        Alert.alert("Erreur", "Salle introuvable");
+        setLoading(false);
+        return;
+      }
+      const roomData = roomDoc.data() as Room;
+      const roomId = roomDoc.id;
+
+      // Vérifier si la partie a déjà commencé
+      if (roomData.status === "playing" || roomData.status === "finished") {
+        Alert.alert("Erreur", "Cette partie a déjà commencé ou est terminée");
+        setLoading(false);
+        return;
+      }
+
+      // Vérifier si la salle est pleine
+      if (
+        roomData.players &&
+        roomData.maxPlayers &&
+        roomData.players.length >= roomData.maxPlayers
+      ) {
+        Alert.alert("Erreur", "Cette salle est pleine");
+        setLoading(false);
+        return;
+      }
+
+      // Rediriger vers la salle
+      router.push(`/room/${roomId}`);
+      setLoading(false);
+    } catch (error: any) {
+      console.error("Erreur lors de la connexion à la salle:", error);
+      Alert.alert("Erreur", error.message || "Impossible de rejoindre la partie");
+      setLoading(false);
+    }
+  };
+
+  const handleJoinGame = async () => {
+    const code = codeDigits.join('') || partyCode;
+    if (!code.trim()) {
+      Alert.alert("Erreur", "Veuillez entrer un code de partie");
+      return;
+    }
+    setLoading(true);
+    try {
+      const db = getFirestore();
+      const roomsRef = collection(db, "rooms");
+      const code = codeDigits.join('') || partyCode;
+      const q = query(roomsRef, where("code", "==", code.toUpperCase()));
       const querySnapshot = await getDocs(q);
       if (querySnapshot.empty) {
         Alert.alert("Erreur", "Code de partie invalide");
@@ -645,81 +713,51 @@ export default function HomeScreen() {
           <TopBar />
         </View>
 
-        {/* Boutons de test pour les notifications - uniquement en mode dev */}
-        {__DEV__ && (
-          <View style={styles.notificationButtonsContainer}>
+        <View style={[styles.joinGameCard, { zIndex: 15 }]}>
+          <View style={styles.joinGameHeader}>
+            <View style={styles.joinGameTitleContainer}>
+              <Text style={styles.joinGameTitle}>
+                {t("home.joinGame")}: {t("home.enterCode")} {t("home.or")} {"\n"}
+                {t("home.scanQR")}
+              </Text>
+            </View>
             <TouchableOpacity
-              style={styles.simpleTestButton}
-              onPress={() => {
-                sendLocalNotification("Test", "Notification Expo OK !");
-              }}
+              style={styles.qrButtonSmall}
+              onPress={handleScanQR}
+              activeOpacity={0.85}
             >
-              <Text style={styles.simpleTestText}>🔔 Test</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.halloweenTestButton}
-              onPress={() => {
-                sendHalloweenQuizNotification(
-                  "Quiz Halloween",
-                  "Une partie effrayante t'attend !",
-                );
-              }}
-            >
-              <Text style={styles.halloweenTestText}>🎃 Quiz</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.halloweenScheduleButton}
-              onPress={async () => {
-                await HalloweenNotificationScheduler.scheduleTestHalloweenNotification();
-                Alert.alert(
-                  "🎃 Test",
-                  "Notification Halloween programmée dans 5 secondes !",
-                );
-              }}
-            >
-              <Text style={styles.halloweenScheduleText}>📅 Oct</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.paywallTestButton}
-              onPress={testShowPaywallB}
-            >
-              <Text style={styles.paywallTestText}>💰 PaywallB</Text>
+              <LinearGradient
+                colors={["#C41E3A", "#8B1538"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.qrButtonSmallGradient}
+              >
+                <MaterialCommunityIcons name="qrcode-scan" size={18} color="#fff" />
+              </LinearGradient>
             </TouchableOpacity>
           </View>
-        )}
-
-        <View style={[styles.codeRow, { zIndex: 15 }]}>
+          
           <View style={styles.codeInputContainer}>
-            <TextInput
-              style={styles.codeInputText}
-              placeholder={t("home.codePlaceholder")}
-              placeholderTextColor="#C7B8F5"
-              value={partyCode}
-              onChangeText={setPartyCode}
-              selectionColor="#C41E3A"
-              autoCapitalize="characters"
-              maxLength={8}
-              returnKeyType="done"
-              onSubmitEditing={handleJoinGame}
-            />
+            {[0, 1, 2, 3, 4, 5].map((index) => (
+              <TextInput
+                key={index}
+                ref={(ref) => {
+                  codeInputRefs.current[index] = ref;
+                }}
+                style={[
+                  styles.codeDigitInput,
+                  codeDigits[index] && styles.codeDigitInputFilled,
+                ]}
+                value={codeDigits[index]}
+                onChangeText={(value) => handleCodeDigitChange(value, index)}
+                onKeyPress={({ nativeEvent }) => handleCodeKeyPress(nativeEvent.key, index)}
+                keyboardType="number-pad"
+                maxLength={1}
+                selectTextOnFocus
+                autoFocus={index === 0}
+              />
+            ))}
           </View>
-          <TouchableOpacity
-            style={styles.qrButton}
-            onPress={handleJoinGame}
-            activeOpacity={0.85}
-          >
-            <LinearGradient
-              colors={["#C41E3A", "#8B1538"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.qrGradient}
-            >
-              <MaterialCommunityIcons name="login" size={30} color="#fff" />
-            </LinearGradient>
-          </TouchableOpacity>
         </View>
 
         <ScrollView
@@ -732,6 +770,13 @@ export default function HomeScreen() {
           </View>
         </ScrollView>
       </LinearGradient>
+      
+      <QRScannerModal
+        visible={showQRScanner}
+        onClose={() => setShowQRScanner(false)}
+        onScanSuccess={handleQRScanSuccess}
+      />
+      
       {loading && (
         <View
           style={{
@@ -918,6 +963,33 @@ const styles = StyleSheet.create({
   disabledCard: {
     opacity: 0.6,
   },
+  lockedImage: {
+    opacity: 0.3,
+  },
+  premiumLockOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.75)",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 20,
+    gap: 4,
+  },
+  premiumLockText: {
+    color: "#FFD700",
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  premiumLockSubtext: {
+    color: "#FFFFFF",
+    fontSize: 12,
+    textAlign: "center",
+    opacity: 0.9,
+  },
   lockOverlay: {
     position: "absolute",
     top: 0,
@@ -957,41 +1029,121 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontWeight: "600",
   },
+  joinGameCard: {
+    backgroundColor: "rgba(196, 30, 58, 0.15)",
+    borderRadius: 20,
+    padding: 16,
+    marginHorizontal: 20,
+    marginVertical: 12,
+    borderWidth: 1.5,
+    borderColor: "rgba(196, 30, 58, 0.3)",
+    shadowColor: "#C41E3A",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  joinGameHeader: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    marginBottom: 12,
+    gap: 12,
+  },
+  joinGameTitleContainer: {
+    flex: 1,
+  },
+  joinGameTitle: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#E8B4B8",
+    textAlign: "left",
+    lineHeight: 20,
+  },
+  qrButtonSmall: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    overflow: "hidden",
+    marginTop: -2,
+  },
+  qrButtonSmallGradient: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  joinGameRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+  qrButtonRow: {
+    marginTop: 16,
+    borderRadius: 12,
+    overflow: "hidden",
+    width: "100%",
+  },
+  qrButtonGradient: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    gap: 8,
+  },
+  qrButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
   codeRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 24,
-    marginBottom: 16,
-    paddingHorizontal: 20,
+    marginHorizontal: 16,
+    marginVertical: 12,
+    gap: 8,
   },
   codeInputContainer: {
-    flex: 1,
-    backgroundColor: Colors.light.backgroundLighter,
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: Colors.light.secondary,
-    height: 45,
-    justifyContent: "center",
-    paddingHorizontal: 24,
-    marginRight: 16,
-    shadowColor: Colors.light.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 12,
-    elevation: 6,
+    flexDirection: "row",
+    gap: 6,
+    alignItems: "center",
+    justifyContent: "flex-start",
+    width: "100%",
   },
-  codeInputText: {
-    color: Colors.light.text,
-    fontSize: 14,
-    fontWeight: "400",
-    letterSpacing: 0.2,
-    fontFamily: "System",
-    padding: 0,
+  codeDigitInput: {
+    width: 44,
+    height: 52,
+    borderRadius: 12,
+    backgroundColor: "rgba(26, 26, 46, 0.4)",
+    borderWidth: 1.5,
+    borderStyle: "dashed",
+    borderColor: "rgba(232, 180, 184, 0.4)",
+    textAlign: "center",
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#E8B4B8",
+  },
+  codeDigitInputFilled: {
+    borderColor: "#C41E3A",
+    borderStyle: "solid",
+    backgroundColor: "rgba(196, 30, 58, 0.2)",
+    color: "#fff",
+  },
+  codeDigitInputActive: {
+    borderColor: "#C41E3A",
+    borderWidth: 2,
+    backgroundColor: "rgba(196, 30, 58, 0.2)",
+    shadowColor: "#C41E3A",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    elevation: 4,
   },
   qrButton: {
-    width: 40,
-    height: 40,
+    width: 52,
+    height: 52,
     borderRadius: 12,
     overflow: "hidden",
     justifyContent: "center",
@@ -1062,56 +1214,4 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   // Styles pour les boutons de test de notifications
-  notificationButtonsContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 10,
-    marginVertical: 8,
-    zIndex: 15,
-  },
-  simpleTestButton: {
-    backgroundColor: "#C41E3A",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 15,
-  },
-  simpleTestText: {
-    color: "white",
-    fontWeight: "bold",
-    fontSize: 12,
-  },
-  halloweenTestButton: {
-    backgroundColor: "#C41E3A",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 15,
-  },
-  halloweenTestText: {
-    color: "white",
-    fontWeight: "bold",
-    fontSize: 12,
-  },
-  halloweenScheduleButton: {
-    backgroundColor: "#C41E3A",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 15,
-  },
-  halloweenScheduleText: {
-    color: "white",
-    fontWeight: "bold",
-    fontSize: 12,
-  },
-  paywallTestButton: {
-    backgroundColor: "#C41E3A",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 15,
-  },
-  paywallTestText: {
-    color: "white",
-    fontWeight: "bold",
-    fontSize: 12,
-  },
 });

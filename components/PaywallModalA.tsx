@@ -11,7 +11,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import { getFirestore, doc, updateDoc } from '@react-native-firebase/firestore';
 import { useAuth } from '@/contexts/AuthContext';
-import HalloweenDecorations from './HalloweenDecorations';
 import ChristmasTheme from '@/constants/themes/Christmas';
 
 interface PaywallModalAProps {
@@ -27,6 +26,11 @@ export default function PaywallModalA({ isVisible, onClose, onUpgradeToAnnual }:
   const [loading, setLoading] = useState(false);
   const { t } = useTranslation();
   const { user, setUser } = useAuth();
+
+  // Log pour debug
+  React.useEffect(() => {
+    console.log('💰 PaywallModalA - isVisible:', isVisible, 'isProMember:', isProMember, 'currentOffering:', !!currentOffering);
+  }, [isVisible, isProMember, currentOffering]);
 
   const packageToUse = currentOffering?.availablePackages?.find((pkg: any) =>
     selectedPlan === 'weekly'
@@ -133,7 +137,7 @@ export default function PaywallModalA({ isVisible, onClose, onUpgradeToAnnual }:
       <SafeAreaView style={[styles.container, { zIndex: 10 }]}>
         <StatusBar style="light" />
         <ImageBackground
-          source={require("@/assets/halloween/logo.png")}
+          source={require("@/assets/images/logo.png")}
           style={styles.background}
           resizeMode="repeat"
           imageStyle={{ opacity: 0.3 }}
@@ -149,10 +153,6 @@ export default function PaywallModalA({ isVisible, onClose, onUpgradeToAnnual }:
             locations={[0, 0.2, 0.5, 0.8, 1]}
             style={styles.gradientOverlay}
           >
-            <View style={styles.halloweenDecorations}>
-              <HalloweenDecorations />
-            </View>
-            
             <ScrollView
               style={styles.scrollView}
               contentContainerStyle={styles.contentContainer}
@@ -476,16 +476,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     textDecorationLine: 'underline',
-  },
-  halloweenDecorations: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    width: '100%',
-    height: '100%',
-    zIndex: 1,
-    pointerEvents: 'none',
   },
 });

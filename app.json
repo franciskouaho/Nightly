@@ -12,12 +12,13 @@
       "bundleIdentifier": "com.emplica.nightly",
       "googleServicesFile": "./GoogleService-Info.plist",
       "appleTeamId": "NAN7MFNMT7",
-      "infoPlist": {
-        "NSAppTransportSecurity": {
-          "NSAllowsArbitraryLoads": true
+        "infoPlist": {
+          "NSAppTransportSecurity": {
+            "NSAllowsArbitraryLoads": true
+          },
+          "UIBackgroundModes": ["remote-notification"],
+          "NSCameraUsageDescription": "Allow Nightly to access your camera to scan QR codes and join game rooms."
         },
-        "UIBackgroundModes": ["remote-notification"]
-      },
       "requireFullScreen": true
     },
     "android": {
@@ -33,7 +34,8 @@
         "NOTIFICATIONS",
         "RECEIVE_BOOT_COMPLETED",
         "VIBRATE",
-        "WAKE_LOCK"
+        "WAKE_LOCK",
+        "CAMERA"
       ],
       "edgeToEdgeEnabled": true
     },
@@ -63,7 +65,8 @@
             "enablePageSize16K": true,
             "enableEdgeToEdge": true,
             "statusBarStyle": "light",
-            "statusBarBackgroundColor": "transparent"
+            "statusBarBackgroundColor": "transparent",
+            "permissions": ["CAMERA"]
           }
         }
       ],
@@ -81,7 +84,13 @@
           "color": "#4b277d"
         }
       ],
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Nightly to access your camera to scan QR codes and join game rooms."
+        }
+      ]
     ],
     "assetBundlePatterns": ["**/*"],
     "experiments": {

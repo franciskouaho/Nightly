@@ -670,9 +670,9 @@ const it = {
 
   // Paywall
   paywall: {
-    title: "🎃 Nightly Premium 🎃",
-    subtitle: "SPECIALE HALLOWEEN",
-    tagline: "GIOCA SENZA LIMITI NELL'OSCURITÀ",
+    title: "⭐ Nightly Premium ⭐",
+    subtitle: "SPECIALE NATALE",
+    tagline: "GIOCA SENZA LIMITI",
     features: {
       unlimited: "Accesso illimitato a tutte le modalità",
       weekly: "Nuove carte ogni settimana",

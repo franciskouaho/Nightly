@@ -13,6 +13,9 @@ export interface Question {
   roundNumber: number;
   type?: 'coquin' | 'sage';
   answer?: string;
+  intensity?: 'soft' | 'tension' | 'extreme';
+  level?: 'hot' | 'extreme' | 'chaos'; // For double-dare
+  mode?: 'versus' | 'fusion'; // For double-dare game modes
 }
 
 export interface Answer {
@@ -34,13 +37,15 @@ export enum GamePhase {
   END = 'end'
 }
 
-export type GameMode = 
+export type GameMode =
   | 'never-have-i-ever-hot'
   | 'truth-or-dare'
   | 'genius-or-liar'
   | 'trap-answer'
   | 'listen-but-don-t-judge'
-  | 'quiz-halloween';
+  | 'quiz-halloween'
+  | 'forbidden-desire'
+  | 'double-dare';
 
 export interface GameState {
   phase: GamePhase;

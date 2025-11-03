@@ -960,8 +960,8 @@ export default function RoomScreen() {
                                 ]}
                                 textStyle={styles.startButtonText}
                                 gradientColors={isHalloweenGame ? 
-                                    [HalloweenTheme.light.primary, HalloweenTheme.light.error, HalloweenTheme.light.backgroundDarker, HalloweenTheme.light.secondary] : // Couleurs Halloween
-                                    ["#D80B96", "#B707A7", "#A90BB2", "#8E08C1"] // Couleurs normales
+                                    [HalloweenTheme.light.primary, HalloweenTheme.light.error] : // Couleurs Halloween
+                                    ["#C41E3A", "#8B1538"] // Mêmes couleurs que le bouton rounds
                                 }
                             />
                         </View>
@@ -969,22 +969,30 @@ export default function RoomScreen() {
                 )}
 
                 {user?.uid !== room.host && room.status === 'waiting' && room.id && !room.players.find(p => String(p.id) === String(user?.uid))?.isReady && (
-                    <TouchableOpacity
-                        style={styles.readyButton}
-                        onPress={() => {
-                            setShowRulesOnReady(true);
-                            setIsReadyClicked(true);
-                        }}
-                    >
-                        <LinearGradient
-                            colors={isHalloweenGame ? [HalloweenTheme.light.primary, HalloweenTheme.light.error] : ["#A259FF", "#C471F5"]}
-                            start={{ x: 0, y: 0 }}
-                            end={{ x: 1, y: 0 }}
-                            style={styles.readyButtonGradient}
+                    <View style={styles.roundSelectorContainer}>
+                        <TouchableOpacity
+                            style={styles.roundSelectorButton}
+                            onPress={() => {
+                                setShowRulesOnReady(true);
+                                setIsReadyClicked(true);
+                            }}
                         >
-                            <Text style={styles.readyButtonText}>{t('room.iAmReady')}</Text>
-                        </LinearGradient>
-                    </TouchableOpacity>
+                            <LinearGradient
+                                colors={isHalloweenGame ? [HalloweenTheme.light.primary, HalloweenTheme.light.error] : ["#C41E3A", "#8B1538"]}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 0 }}
+                                style={styles.roundSelectorGradient}
+                            >
+                                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Text style={styles.roundSelectorText}>{t('room.iAmReady')}</Text>
+                                    <View style={styles.roundSelectorIconContainer}>
+                                        <MaterialCommunityIcons name="star-four-points" size={18} color="white" style={styles.starIcon} />
+                                        <MaterialCommunityIcons name="star-four-points" size={12} color="white" style={styles.smallStarIcon} />
+                                    </View>
+                                </View>
+                            </LinearGradient>
+                        </TouchableOpacity>
+                    </View>
                 )}
 
                 <InviteModal
@@ -1031,8 +1039,10 @@ const styles = StyleSheet.create<RoomScreenStyles>({
     backButton: {
         width: 40,
         height: 40,
-        justifyContent: 'center',
+        borderRadius: 20,
+        backgroundColor: 'rgba(255,255,255,0.1)',
         alignItems: 'center',
+        justifyContent: 'center',
     },
     topBarTitleContainer: {
         width: '100%',
