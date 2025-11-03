@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import useRevenueCat from '@/hooks/useRevenueCat';
 import usePricing from '@/hooks/usePricing';
+import { useAppsFlyer } from '@/hooks/useAppsFlyer';
 import { StatusBar } from 'expo-status-bar';
 import Purchases from 'react-native-purchases';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -23,6 +24,7 @@ export default function PaywallModalA({ isVisible, onClose, onUpgradeToAnnual }:
   const [selectedPlan, setSelectedPlan] = useState('weekly');
   const { currentOffering, isProMember } = useRevenueCat();
   const { pricing, getFormattedPrice } = usePricing();
+  const { logPurchase } = useAppsFlyer();
   const [loading, setLoading] = useState(false);
   const { t } = useTranslation();
   const { user, setUser } = useAuth();
@@ -70,6 +72,17 @@ export default function PaywallModalA({ isVisible, onClose, onUpgradeToAnnual }:
           });
           setUser(user ? { ...user, hasActiveSubscription: true } : null);
         }
+
+        // Track AppsFlyer purchase event
+        if (packageToUse?.product) {
+          const revenue = packageToUse.product.price;
+          const currency = packageToUse.product.currencyCode || 'USD';
+          await logPurchase(revenue, currency, 1, {
+            subscription_type: selectedPlan,
+            package_type: packageToUse.packageType,
+          });
+        }
+
         Alert.alert(
           t('paywall.alerts.success.title'),
           t('paywall.alerts.success.message')

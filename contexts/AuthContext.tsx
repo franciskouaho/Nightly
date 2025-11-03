@@ -2,6 +2,7 @@
 
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { usePostHog } from "@/hooks/usePostHog";
+import { useAppsFlyer } from "@/hooks/useAppsFlyer";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   getAuth,
@@ -57,6 +58,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState<Error | null>(null);
   const { identifyUser, resetUser, trackEvent } = useAnalytics();
   const { track, identify } = usePostHog();
+  const { logLogin, logCompleteRegistration, setCustomerUserId } = useAppsFlyer();
 
   const saveUserUid = async (uid: string) => {
     try {
@@ -156,12 +158,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const userDoc = await getDoc(doc(db, "users", firebaseUser.uid));
           if (userDoc.exists()) {
             const userData = userDoc.data() as User;
-            setUser(userData);
-            await saveUserUid(firebaseUser.uid);
-            identifyUser(userData.uid, {
-              pseudo: userData.pseudo,
-              createdAt: userData.createdAt,
-            });
+          setUser(userData);
+          await saveUserUid(firebaseUser.uid);
+          identifyUser(userData.uid, {
+            pseudo: userData.pseudo,
+            createdAt: userData.createdAt,
+          });
+          // Set AppsFlyer Client ID
+          await setCustomerUserId(userData.uid);
           }
         } catch (err) {
           setError(err as Error);
@@ -227,6 +231,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         avatar,
         created_at: new Date().toISOString(),
       });
+
+      // Track AppsFlyer events
+      await logLogin();
+      await logCompleteRegistration("username");
+      await setCustomerUserId(uid);
     } catch (err) {
       setError(err as Error);
       throw err;
@@ -307,6 +316,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           method: "reviewer",
         });
         await analyticsInstance().setUserId(pseudo);
+        // Track AppsFlyer registration for reviewer
+        await logCompleteRegistration("reviewer");
+        await setCustomerUserId(uid);
         return;
       }
 
@@ -342,6 +354,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         method: "username",
       });
       await analyticsInstance().setUserId(pseudo);
+
+      // Track AppsFlyer registration
+      await logCompleteRegistration("username");
+      await setCustomerUserId(uid);
     } catch (err) {
       setError(err as Error);
       throw err;
@@ -398,6 +414,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           pseudo: userData.pseudo,
           createdAt: userData.createdAt,
         });
+        await setCustomerUserId(uid);
+        await logLogin();
         return true;
       }
 
@@ -415,6 +433,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               pseudo: userData.pseudo,
               createdAt: userData.createdAt,
             });
+            await setCustomerUserId(userData.uid);
+            await logLogin();
             console.log('✅ Reconnexion avec le même compte:', pseudo);
             return true;
           } else {

@@ -2,6 +2,7 @@ import ChristmasTheme from "@/constants/themes/Christmas";
 import { useAuth } from "@/contexts/AuthContext";
 import usePricing from "@/hooks/usePricing";
 import useRevenueCat from "@/hooks/useRevenueCat";
+import { useAppsFlyer } from "@/hooks/useAppsFlyer";
 import { Ionicons } from "@expo/vector-icons";
 import { doc, getFirestore, updateDoc } from "@react-native-firebase/firestore";
 import { LinearGradient } from "expo-linear-gradient";
@@ -39,6 +40,7 @@ export default function PaywallModalB({
 }: PaywallModalBProps) {
   const { currentOffering, isProMember } = useRevenueCat();
   const { pricing, getFormattedPrice, calculateAnnualSavings } = usePricing();
+  const { logPurchase } = useAppsFlyer();
   const [loading, setLoading] = useState(false);
   const [discountPercentage, setDiscountPercentage] = useState(0);
   const { t } = useTranslation();
@@ -86,6 +88,17 @@ export default function PaywallModalB({
           });
           setUser(user ? { ...user, hasActiveSubscription: true } : null);
         }
+
+        // Track AppsFlyer purchase event
+        if (packageToUse?.product) {
+          const revenue = packageToUse.product.price;
+          const currency = packageToUse.product.currencyCode || 'USD';
+          await logPurchase(revenue, currency, 1, {
+            subscription_type: "annual",
+            package_type: packageToUse.packageType,
+          });
+        }
+
         Alert.alert(
           t("paywall.alerts.success.title"),
           t("paywall.alerts.success.message"),
