@@ -4,17 +4,14 @@ import { StatusBar } from 'expo-status-bar';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { getFirestore, doc, onSnapshot, updateDoc } from '@react-native-firebase/firestore';
 import { useAuth } from '@/contexts/AuthContext';
-import { GameState, GamePhase, Question } from '@/types/gameTypes';
+import { GameState } from '@/types/gameTypes';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Animated } from 'react-native';
 import { useInAppReview } from '@/hooks/useInAppReview';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useForbiddenDesireQuestions } from '@/hooks/forbidden-desire-questions';
 import { usePoints } from '@/hooks/usePoints';
 import GameResults from '@/components/game/GameResults';
-import SkewedButton from '@/components/game/SkewedButton';
-import Colors from '@/constants/Colors';
 
 interface ForbiddenDesireGameState extends Omit<GameState, 'phase'> {
   currentPlayerId: string;
@@ -84,39 +81,6 @@ const QuestionCard = ({
   );
 };
 
-// Boutons de choix d'intensité
-const IntensityChoiceButtons = ({ onSelect }: { onSelect: (intensity: 'soft' | 'tension' | 'extreme') => void }) => {
-  return (
-    <View style={styles.intensityContainer}>
-      <TouchableOpacity
-        style={[styles.intensityButton, { backgroundColor: '#FF6B6B' }]}
-        onPress={() => onSelect('soft')}
-      >
-        <Text style={styles.intensityEmoji}>🔥</Text>
-        <Text style={styles.intensityText}>SOFT</Text>
-        <Text style={styles.intensitySubtext}>Questions douces</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={[styles.intensityButton, { backgroundColor: '#DC143C' }]}
-        onPress={() => onSelect('tension')}
-      >
-        <Text style={styles.intensityEmoji}>😳</Text>
-        <Text style={styles.intensityText}>TENSION</Text>
-        <Text style={styles.intensitySubtext}>Ça pique</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={[styles.intensityButton, { backgroundColor: '#8B0000' }]}
-        onPress={() => onSelect('extreme')}
-      >
-        <Text style={styles.intensityEmoji}>😈</Text>
-        <Text style={styles.intensityText}>EXTRÊME</Text>
-        <Text style={styles.intensitySubtext}>Sans limites</Text>
-      </TouchableOpacity>
-    </View>
-  );
-};
 
 export default function ForbiddenDesireGameScreen() {
   const { id: idParam } = useLocalSearchParams();
@@ -162,12 +126,14 @@ export default function ForbiddenDesireGameScreen() {
         return;
       }
 
+      // Générer une nouvelle question pour le prochain joueur avec la même intensité
+      const nextQuestion = getRandomQuestion(game.selectedIntensity || 'soft');
+      
       await updateDoc(gameRef, {
         currentRound: nextRound,
         currentPlayerId: nextPlayer.id,
-        phase: 'choix',
-        currentQuestion: null,
-        selectedIntensity: null,
+        phase: 'question',
+        currentQuestion: nextQuestion,
         refusedQuestion: false,
         partnerChallenge: null,
         gameMode: 'forbidden-desire'
@@ -178,30 +144,6 @@ export default function ForbiddenDesireGameScreen() {
     }
   };
 
-  const handleIntensityChoice = async (intensity: 'soft' | 'tension' | 'extreme') => {
-    if (!game || !user || !id) return;
-
-    const question = getRandomQuestion(intensity);
-    if (!question) {
-      Alert.alert('Erreur', 'Aucune question disponible pour cette intensité');
-      return;
-    }
-
-    try {
-      const db = getFirestore();
-      const gameRef = doc(db, 'games', String(id));
-
-      await updateDoc(gameRef, {
-        selectedIntensity: intensity,
-        currentQuestion: question,
-        phase: 'question',
-        refusedQuestion: false
-      });
-    } catch (error) {
-      console.error('Error selecting intensity:', error);
-      Alert.alert('Erreur', 'Impossible de sélectionner l\'intensité');
-    }
-  };
 
   const handleAnswer = async (answered: boolean) => {
     if (!game || !user || !id) return;
@@ -270,12 +212,24 @@ export default function ForbiddenDesireGameScreen() {
             gameMode: 'forbidden-desire'
           }).catch(e => console.error("Error updating gameMode:", e));
         }
+        
+
+        if (gameData.selectedIntensity && !gameData.currentQuestion && gameData.phase !== 'end' && gameData.phase !== 'results' && gameData.phase !== 'challenge') {
+          const question = getRandomQuestion(gameData.selectedIntensity);
+          if (question) {
+            updateDoc(gameRef, {
+              phase: 'question',
+              currentQuestion: question,
+            }).catch(e => console.error("Error generating initial question:", e));
+          }
+        }
+        
         setGame(gameData);
       }
       setLoading(false);
     });
     return () => unsubscribe();
-  }, [id]);
+  }, [id, getRandomQuestion]);
 
   useEffect(() => {
     if (game && (game.currentRound > game.totalRounds || game.phase === 'end')) {
@@ -323,13 +277,6 @@ export default function ForbiddenDesireGameScreen() {
   const otherPlayer = game.players.find(p => p.id !== game.currentPlayerId);
   const isOtherPlayer = user?.uid === otherPlayer?.id;
 
-  // Debug logs
-  console.log('[DEBUG ForbiddenDesire] Current Player ID:', game.currentPlayerId);
-  console.log('[DEBUG ForbiddenDesire] User UID:', user?.uid);
-  console.log('[DEBUG ForbiddenDesire] Is Current Player:', isCurrentPlayer);
-  console.log('[DEBUG ForbiddenDesire] All Players:', game.players.map(p => ({ id: p.id, name: p.name })));
-  console.log('[DEBUG ForbiddenDesire] Current Player:', currentPlayer?.name);
-
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" />
@@ -344,24 +291,6 @@ export default function ForbiddenDesireGameScreen() {
               Tour {game.currentRound} / {game.totalRounds}
             </Text>
           </View>
-
-          {/* Phase de choix d'intensité */}
-          {game.phase === 'choix' && isCurrentPlayer && (
-            <View style={styles.content}>
-              <Text style={styles.instructionText}>
-                Choisis ton niveau d'intensité 🔥
-              </Text>
-              <IntensityChoiceButtons onSelect={handleIntensityChoice} />
-            </View>
-          )}
-
-          {game.phase === 'choix' && !isCurrentPlayer && (
-            <View style={styles.content}>
-              <Text style={styles.waitingText}>
-                {currentPlayer?.name || currentPlayer?.displayName || currentPlayer?.username || 'Le joueur'} choisit l'intensité...
-              </Text>
-            </View>
-          )}
 
           {/* Phase de question */}
           {game.phase === 'question' && game.currentQuestion && game.selectedIntensity && (
@@ -523,36 +452,6 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     justifyContent: 'center',
-  },
-  instructionText: {
-    fontSize: 20,
-    color: '#fff',
-    textAlign: 'center',
-    marginBottom: 30,
-    fontWeight: '600',
-  },
-  intensityContainer: {
-    gap: 16,
-  },
-  intensityButton: {
-    padding: 24,
-    borderRadius: 16,
-    alignItems: 'center',
-  },
-  intensityEmoji: {
-    fontSize: 48,
-    marginBottom: 8,
-  },
-  intensityText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  intensitySubtext: {
-    fontSize: 14,
-    color: '#fff',
-    opacity: 0.8,
-    marginTop: 4,
   },
   waitingText: {
     fontSize: 18,

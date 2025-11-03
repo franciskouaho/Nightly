@@ -16,6 +16,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { transformQuestion as transformTrapAnswerQuestion } from '@/hooks/trap-answer-questions';
 import { transformQuestion as transformWordGuessingQuestion } from '@/hooks/word-guessing-questions';
 import { transformQuestion as transformNeverHaveIEverHotQuestion } from '@/hooks/never-have-i-ever-hot-questions';
+import { doubleDareQuestions, transformDoubleDareQuestion } from '@/hooks/double-dare-questions';
 import HalloweenDecorations from '@/components/HalloweenDecorations';
 import HalloweenTheme from '@/constants/themes/Halloween';
 
@@ -165,6 +166,13 @@ interface RoomScreenStyles {
     centeredWarning: TextStyle;
     minPlayersText: TextStyle;
     halloweenDecorations: ViewStyle;
+    gameOptionsContainer: ViewStyle;
+    optionLabel: TextStyle;
+    optionsRow: ViewStyle;
+    optionButton: ViewStyle;
+    selectedOptionButton: ViewStyle;
+    optionButtonText: TextStyle;
+    selectedOptionButtonText: TextStyle;
 }
 
 /**
@@ -288,6 +296,11 @@ export default function RoomScreen() {
     const [isReadyClicked, setIsReadyClicked] = useState(false);
     const [selectedRounds, setSelectedRounds] = useState(5);
     const [showRoundSelector, setShowRoundSelector] = useState(false);
+    // Options pour double-dare (valeurs par défaut)
+    const [selectedLevel, setSelectedLevel] = useState<'hot' | 'extreme' | 'chaos' | null>('hot');
+    const [selectedMode, setSelectedMode] = useState<'versus' | 'fusion' | null>('versus');
+    // Options pour forbidden-desire (valeur par défaut)
+    const [selectedIntensity, setSelectedIntensity] = useState<'soft' | 'tension' | 'extreme' | null>('soft');
     const { t } = useTranslation();
     const { language, isRTL, getGameContent } = useLanguage();
 
@@ -498,8 +511,24 @@ export default function RoomScreen() {
                     phase: GamePhase.CHOIX, // Commence en phase de choix
                 };
             } else if (room.gameId === 'double-dare') {
-                // Logique spécifique au jeu "Double Dare" - Commence en phase de choix de niveau
-                console.log('[DEBUG] Démarrage du jeu Double Dare - Phase de choix de niveau');
+                // Logique spécifique au jeu "Double Dare" - Utilise les valeurs choisies dans la room
+                console.log('[DEBUG] Démarrage du jeu Double Dare avec level:', selectedLevel, 'mode:', selectedMode);
+                
+                // Utiliser les valeurs par défaut si non définies
+                const levelToUse = selectedLevel || 'hot';
+                const modeToUse = selectedMode || 'versus';
+                
+                // Générer la première question avec le niveau et mode choisis
+                const filteredQuestions = doubleDareQuestions.filter(
+                    q => q.level === levelToUse && q.mode === modeToUse
+                );
+                const firstQuestion = filteredQuestions.length > 0
+                    ? transformDoubleDareQuestion(
+                        filteredQuestions[Math.floor(Math.random() * filteredQuestions.length)],
+                        0
+                      )
+                    : null;
+                
                 gameDataToSet = {
                     gameMode: room.gameId,
                     players: playersForGameDoc,
@@ -513,17 +542,20 @@ export default function RoomScreen() {
                     playerScores: {}, // Scores spécifiques pour double-dare
                     history: {},
                     currentPlayerId: initialCurrentPlayerId || playersForGameDoc[0]?.id || '', // Le premier joueur commence
-                    selectedLevel: null, // Pas encore de niveau sélectionné
-                    selectedMode: null, // Pas encore de mode sélectionné
-                    currentQuestion: null, // Pas encore de question sélectionnée
+                    selectedLevel: levelToUse, // Utilise le niveau choisi dans la room (ou défaut)
+                    selectedMode: modeToUse, // Utilise le mode choisi dans la room (ou défaut)
+                    currentQuestion: firstQuestion, // Première question générée
                     safeWordEnabled: true, // Safe word activé par défaut
                     dareCompleted: false,
                     penaltyAssigned: false,
-                    phase: 'level-choice', // Commence en phase de choix de niveau
+                    phase: 'dare', // Passe directement à la phase de défi
                 };
             } else if (room.gameId === 'forbidden-desire') {
-                // Logique spécifique au jeu "Forbidden Desire" - Commence en phase de choix d'intensité
-                console.log('[DEBUG] Démarrage du jeu Forbidden Desire - Phase de choix d\'intensité');
+                // Logique spécifique au jeu "Forbidden Desire" - Utilise l'intensité choisie dans la room
+                console.log('[DEBUG] Démarrage du jeu Forbidden Desire avec intensity:', selectedIntensity);
+                
+                // Utiliser la valeur par défaut si non définie
+                const intensityToUse = selectedIntensity || 'soft';
                 
                 // Pour un jeu à deux joueurs, choisir aléatoirement qui commence
                 const randomStartingPlayer = playersForGameDoc.length > 0 
@@ -533,6 +565,22 @@ export default function RoomScreen() {
                 
                 console.log('[DEBUG ForbiddenDesire] Starting player ID:', startingPlayerId);
                 console.log('[DEBUG ForbiddenDesire] All players:', playersForGameDoc.map(p => ({ id: p.id, name: p.name })));
+                
+                // Récupérer les questions pour générer la première
+                let firstQuestion = null;
+                try {
+                    const gameContent = await getGameContent(room.gameId as GameMode);
+                    const questionsArr = gameContent?.questions;
+                    if (questionsArr && Array.isArray(questionsArr)) {
+                        // Filtrer par intensité
+                        const filteredQuestions = questionsArr.filter((q: any) => q.intensity === intensityToUse);
+                        if (filteredQuestions.length > 0) {
+                            firstQuestion = filteredQuestions[Math.floor(Math.random() * filteredQuestions.length)];
+                        }
+                    }
+                } catch (error) {
+                    console.error('Erreur lors de la récupération des questions pour forbidden-desire:', error);
+                }
                 
                 gameDataToSet = {
                     gameMode: room.gameId,
@@ -547,11 +595,11 @@ export default function RoomScreen() {
                     playerScores: {}, // Scores spécifiques pour forbidden-desire
                     history: {},
                     currentPlayerId: startingPlayerId, // Joueur aléatoire commence
-                    selectedIntensity: null, // Pas encore d'intensité sélectionnée
-                    currentQuestion: null, // Pas encore de question sélectionnée
+                    selectedIntensity: intensityToUse, // Utilise l'intensité choisie dans la room (ou défaut)
+                    currentQuestion: firstQuestion, // Première question générée
                     refusedQuestion: false,
                     partnerChallenge: null,
-                    phase: 'choix', // Commence en phase de choix d'intensité
+                    phase: 'question', // Passe directement à la phase de question
                 };
             }
             else {
@@ -1022,6 +1070,123 @@ export default function RoomScreen() {
                                 )}
                             </View>
 
+                            {/* Sélecteurs pour double-dare */}
+                            {room.gameId === 'double-dare' && (
+                                <View style={styles.gameOptionsContainer}>
+                                    <Text style={styles.optionLabel}>Niveau :</Text>
+                                    <View style={styles.optionsRow}>
+                                        <TouchableOpacity
+                                            style={[
+                                                styles.optionButton,
+                                                selectedLevel === 'hot' && styles.selectedOptionButton
+                                            ]}
+                                            onPress={() => setSelectedLevel('hot')}
+                                        >
+                                            <Text style={[
+                                                styles.optionButtonText,
+                                                selectedLevel === 'hot' && styles.selectedOptionButtonText
+                                            ]}>🔥 HOT</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                            style={[
+                                                styles.optionButton,
+                                                selectedLevel === 'extreme' && styles.selectedOptionButton
+                                            ]}
+                                            onPress={() => setSelectedLevel('extreme')}
+                                        >
+                                            <Text style={[
+                                                styles.optionButtonText,
+                                                selectedLevel === 'extreme' && styles.selectedOptionButtonText
+                                            ]}>😳 EXTREME</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                            style={[
+                                                styles.optionButton,
+                                                selectedLevel === 'chaos' && styles.selectedOptionButton
+                                            ]}
+                                            onPress={() => setSelectedLevel('chaos')}
+                                        >
+                                            <Text style={[
+                                                styles.optionButtonText,
+                                                selectedLevel === 'chaos' && styles.selectedOptionButtonText
+                                            ]}>😈 CHAOS</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                    <Text style={styles.optionLabel}>Mode :</Text>
+                                    <View style={styles.optionsRow}>
+                                        <TouchableOpacity
+                                            style={[
+                                                styles.optionButton,
+                                                selectedMode === 'versus' && styles.selectedOptionButton
+                                            ]}
+                                            onPress={() => setSelectedMode('versus')}
+                                        >
+                                            <Text style={[
+                                                styles.optionButtonText,
+                                                selectedMode === 'versus' && styles.selectedOptionButtonText
+                                            ]}>⚔️ VERSUS</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                            style={[
+                                                styles.optionButton,
+                                                selectedMode === 'fusion' && styles.selectedOptionButton
+                                            ]}
+                                            onPress={() => setSelectedMode('fusion')}
+                                        >
+                                            <Text style={[
+                                                styles.optionButtonText,
+                                                selectedMode === 'fusion' && styles.selectedOptionButtonText
+                                            ]}>💫 FUSION</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                            )}
+
+                            {/* Sélecteur pour forbidden-desire */}
+                            {room.gameId === 'forbidden-desire' && (
+                                <View style={styles.gameOptionsContainer}>
+                                    <Text style={styles.optionLabel}>Intensité :</Text>
+                                    <View style={styles.optionsRow}>
+                                        <TouchableOpacity
+                                            style={[
+                                                styles.optionButton,
+                                                selectedIntensity === 'soft' && styles.selectedOptionButton
+                                            ]}
+                                            onPress={() => setSelectedIntensity('soft')}
+                                        >
+                                            <Text style={[
+                                                styles.optionButtonText,
+                                                selectedIntensity === 'soft' && styles.selectedOptionButtonText
+                                            ]}>🔥 SOFT</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                            style={[
+                                                styles.optionButton,
+                                                selectedIntensity === 'tension' && styles.selectedOptionButton
+                                            ]}
+                                            onPress={() => setSelectedIntensity('tension')}
+                                        >
+                                            <Text style={[
+                                                styles.optionButtonText,
+                                                selectedIntensity === 'tension' && styles.selectedOptionButtonText
+                                            ]}>😳 TENSION</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                            style={[
+                                                styles.optionButton,
+                                                selectedIntensity === 'extreme' && styles.selectedOptionButton
+                                            ]}
+                                            onPress={() => setSelectedIntensity('extreme')}
+                                        >
+                                            <Text style={[
+                                                styles.optionButtonText,
+                                                selectedIntensity === 'extreme' && styles.selectedOptionButtonText
+                                            ]}>😈 EXTRÊME</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                            )}
+
                             <View style={styles.startButtonContainer}>
                                 <RoundedButton
                                     title={t('room.startGame')}
@@ -1425,6 +1590,49 @@ const styles = StyleSheet.create<RoomScreenStyles>({
     centeredWarning: {
         textAlign: 'center',
         marginBottom: 10,
+    },
+    gameOptionsContainer: {
+        width: '100%',
+        marginBottom: 15,
+        paddingHorizontal: 10,
+    },
+    optionLabel: {
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: 'bold',
+        marginBottom: 8,
+        marginTop: 5,
+    },
+    optionsRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        gap: 8,
+        marginBottom: 10,
+    },
+    optionButton: {
+        flex: 1,
+        paddingVertical: 12,
+        paddingHorizontal: 8,
+        borderRadius: 12,
+        backgroundColor: 'rgba(80, 80, 100, 0.3)',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 2,
+        borderColor: 'transparent',
+    },
+    selectedOptionButton: {
+        backgroundColor: '#C41E3A',
+        borderColor: '#E8B4B8',
+    },
+    optionButtonText: {
+        color: '#ccc',
+        fontSize: 12,
+        fontWeight: '600',
+        textAlign: 'center',
+    },
+    selectedOptionButtonText: {
+        color: '#fff',
+        fontWeight: 'bold',
     },
     minPlayersText: {
         color: '#ccc', // Couleur grise pour l'information permanente

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, Alert, StyleSheet, ScrollView, TouchableOpacity, Vibration } from 'react-native';
+import { View, Text, ActivityIndicator, Alert, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { getFirestore, doc, onSnapshot, updateDoc } from '@react-native-firebase/firestore';
@@ -99,68 +99,6 @@ const DareCard = ({
   );
 };
 
-// Boutons de choix de niveau
-const LevelChoiceButtons = ({ onSelect }: { onSelect: (level: 'hot' | 'extreme' | 'chaos') => void }) => {
-  return (
-    <View style={styles.choiceContainer}>
-      <Text style={styles.choiceTitle}>Choisis ton niveau</Text>
-      <TouchableOpacity
-        style={[styles.levelButton, { backgroundColor: '#FF6B6B' }]}
-        onPress={() => { onSelect('hot'); Vibration.vibrate(50); }}
-      >
-        <Text style={styles.levelEmoji}>🔥</Text>
-        <Text style={styles.levelText}>HOT</Text>
-        <Text style={styles.levelSubtext}>Défis sensuels</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={[styles.levelButton, { backgroundColor: '#C41E3A' }]}
-        onPress={() => { onSelect('extreme'); Vibration.vibrate(50); }}
-      >
-        <Text style={styles.levelEmoji}>😈</Text>
-        <Text style={styles.levelText}>EXTRÊME</Text>
-        <Text style={styles.levelSubtext}>Sans limites</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={[styles.levelButton, { backgroundColor: '#8B0000' }]}
-        onPress={() => { onSelect('chaos'); Vibration.vibrate(100); }}
-      >
-        <Text style={styles.levelEmoji}>💀</Text>
-        <Text style={styles.levelText}>CHAOS</Text>
-        <Text style={styles.levelSubtext}>Total chaos</Text>
-      </TouchableOpacity>
-    </View>
-  );
-};
-
-// Boutons de choix de mode
-const ModeChoiceButtons = ({ onSelect }: { onSelect: (mode: 'versus' | 'fusion') => void }) => {
-  return (
-    <View style={styles.choiceContainer}>
-      <Text style={styles.choiceTitle}>Choisis ton mode</Text>
-      <TouchableOpacity
-        style={[styles.modeButton, { backgroundColor: '#C41E3A' }]}
-        onPress={() => { onSelect('versus'); Vibration.vibrate(50); }}
-      >
-        <Text style={styles.modeEmoji}>⚔️</Text>
-        <Text style={styles.modeText}>VERSUS</Text>
-        <Text style={styles.modeSubtext}>Affrontez-vous</Text>
-        <Text style={styles.modeDesc}>Le perdant subit un gage choisi par l'autre</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={[styles.modeButton, { backgroundColor: '#7B2CBF' }]}
-        onPress={() => { onSelect('fusion'); Vibration.vibrate(50); }}
-      >
-        <Text style={styles.modeEmoji}>❤️</Text>
-        <Text style={styles.modeText}>FUSION</Text>
-        <Text style={styles.modeSubtext}>Jouez ensemble</Text>
-        <Text style={styles.modeDesc}>Défis à réaliser à deux (plus sensuels)</Text>
-      </TouchableOpacity>
-    </View>
-  );
-};
 
 export default function DoubleDareGame() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -181,6 +119,17 @@ export default function DoubleDareGame() {
       if (snapshot.exists()) {
         const data = snapshot.data() as DoubleDareGameState;
         setGameState(data);
+        
+        // Si le niveau et le mode sont déjà définis mais pas de question, en générer une
+        if (data.selectedLevel && data.selectedMode && !data.currentQuestion && data.phase === 'dare') {
+          const question = getRandomQuestion(data.selectedLevel, data.selectedMode);
+          if (question) {
+            updateDoc(gameRef, {
+              currentQuestion: question,
+            }).catch(console.error);
+          }
+        }
+        
         setLoading(false);
       } else {
         Alert.alert('Erreur', 'La partie n\'existe pas');
@@ -191,23 +140,6 @@ export default function DoubleDareGame() {
     return () => unsubscribe();
   }, [id]);
 
-  const handleLevelChoice = async (level: 'hot' | 'extreme' | 'chaos') => {
-    await updateDoc(gameRef, {
-      selectedLevel: level,
-      phase: 'mode-choice',
-    });
-  };
-
-  const handleModeChoice = async (mode: 'versus' | 'fusion') => {
-    const question = getRandomQuestion(gameState?.selectedLevel || 'hot', mode);
-
-    await updateDoc(gameRef, {
-      selectedMode: mode,
-      phase: 'dare',
-      currentQuestion: question,
-      dareCompleted: false,
-    });
-  };
 
   const handleDareCompleted = async (completed: boolean) => {
     if (!gameState || !user) return;
@@ -232,13 +164,15 @@ export default function DoubleDareGame() {
       const nextPlayer = gameState.players[nextPlayerIndex];
       if (!nextPlayer) return;
       
+      // Générer une nouvelle question pour le prochain joueur avec les mêmes paramètres
+      const nextQuestion = getRandomQuestion(gameState.selectedLevel || 'hot', gameState.selectedMode || 'versus');
+      
       await updateDoc(gameRef, {
-        phase: 'level-choice',
+        phase: 'dare',
         currentRound: nextRound,
         currentPlayerId: nextPlayer.id,
         playerScores: updatedScores,
-        selectedLevel: null,
-        selectedMode: null,
+        currentQuestion: nextQuestion,
         dareCompleted: false,
         penaltyAssigned: false,
       });
@@ -301,36 +235,6 @@ export default function DoubleDareGame() {
             <Text style={styles.roundText}>Tour {gameState.currentRound}/{gameState.totalRounds}</Text>
           </View>
         </View>
-
-        {/* Phase: Choix du niveau */}
-        {gameState.phase === 'level-choice' && (
-          <>
-            <View style={styles.turnIndicator}>
-              <Text style={styles.turnText}>
-                {isCurrentUser ? '🎯 À ton tour !' : `⏳ Tour de ${currentPlayer?.name}`}
-              </Text>
-            </View>
-            {isCurrentUser && <LevelChoiceButtons onSelect={handleLevelChoice} />}
-            {!isCurrentUser && (
-              <Text style={styles.waitingText}>En attente du choix de {currentPlayer?.name}...</Text>
-            )}
-          </>
-        )}
-
-        {/* Phase: Choix du mode */}
-        {gameState.phase === 'mode-choice' && (
-          <>
-            <View style={styles.turnIndicator}>
-              <Text style={styles.turnText}>
-                {isCurrentUser ? '🎯 Choisis ton mode !' : `⏳ Tour de ${currentPlayer?.name}`}
-              </Text>
-            </View>
-            {isCurrentUser && <ModeChoiceButtons onSelect={handleModeChoice} />}
-            {!isCurrentUser && (
-              <Text style={styles.waitingText}>En attente du choix de mode...</Text>
-            )}
-          </>
-        )}
 
         {/* Phase: Défi */}
         {gameState.phase === 'dare' && gameState.currentQuestion && (
@@ -441,72 +345,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     fontWeight: '600',
-  },
-  choiceContainer: {
-    gap: 16,
-    marginBottom: 24,
-  },
-  choiceTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  levelButton: {
-    padding: 20,
-    borderRadius: 16,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  levelEmoji: {
-    fontSize: 48,
-    marginBottom: 8,
-  },
-  levelText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 4,
-  },
-  levelSubtext: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.8)',
-  },
-  modeButton: {
-    padding: 24,
-    borderRadius: 16,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  modeEmoji: {
-    fontSize: 48,
-    marginBottom: 8,
-  },
-  modeText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 4,
-  },
-  modeSubtext: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.9)',
-    marginBottom: 8,
-  },
-  modeDesc: {
-    fontSize: 13,
-    color: 'rgba(255, 255, 255, 0.7)',
-    textAlign: 'center',
-    fontStyle: 'italic',
   },
   cardContainer: {
     borderRadius: 20,

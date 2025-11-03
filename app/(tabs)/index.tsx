@@ -37,6 +37,7 @@ import {
 } from "react-native";
 import * as Linking from "expo-linking";
 import QRScannerModal from "@/components/QRScannerModal";
+import ChristmasSnow from "@/components/ChristmasSnow";
 
 interface Room {
   id?: string;
@@ -289,35 +290,45 @@ export default function HomeScreen() {
 
   const handlePasteInput = (value: string) => {
     // Ne garder que les chiffres
-    const digits = value.replace(/[^0-9]/g, '');
+    const digits = value.replace(/[^0-9]/g, '').slice(0, 6); // Limiter à 6 chiffres
     
     if (digits.length > 0) {
       const newDigits = Array(6).fill('');
       // Remplir les champs avec les chiffres collés (max 6)
-      for (let i = 0; i < Math.min(digits.length, 6); i++) {
+      for (let i = 0; i < digits.length; i++) {
         newDigits[i] = digits[i];
       }
+      
+      // Mettre à jour tous les champs visuellement avant de mettre à jour l'état
+      newDigits.forEach((digit, idx) => {
+        if (codeInputRefs.current[idx]) {
+          codeInputRefs.current[idx].setNativeProps({ text: digit });
+        }
+      });
+      
+      // Mettre à jour l'état
       setCodeDigits(newDigits);
       
       const fullCode = newDigits.join('');
       setPartyCode(fullCode);
       
-      // Focus sur le dernier champ rempli ou le premier vide
-      const lastFilledIndex = Math.min(digits.length - 1, 5);
-      if (lastFilledIndex < 5) {
-        // Focus sur le premier champ vide
-        codeInputRefs.current[lastFilledIndex + 1]?.focus();
-      } else {
-        // Tous les champs sont remplis, focus sur le dernier
-        codeInputRefs.current[5]?.focus();
-      }
+      // Retirer le focus de tous les champs
+      codeInputRefs.current.forEach((ref) => ref?.blur());
       
       // Si tous les 6 chiffres sont remplis, rejoindre automatiquement
-      if (newDigits.every(d => d !== '') && newDigits.join('').length === 6) {
+      if (digits.length === 6) {
         // Utiliser le code construit plutôt que d'attendre le state update
         setTimeout(() => {
           handleJoinGameWithCode(fullCode);
-        }, 300);
+        }, 100);
+      } else {
+        // Focus sur le premier champ vide
+        const firstEmptyIndex = digits.length;
+        if (firstEmptyIndex < 6) {
+          setTimeout(() => {
+            codeInputRefs.current[firstEmptyIndex]?.focus();
+          }, 50);
+        }
       }
     }
   };
@@ -328,11 +339,12 @@ export default function HomeScreen() {
     
     // Si plusieurs chiffres sont collés (paste détecté)
     if (digits.length > 1) {
-      handlePasteInput(digits);
-      // Vider le champ qui a reçu le paste
+      // Vider immédiatement le champ source pour éviter l'affichage du texte collé
       if (codeInputRefs.current[index]) {
         codeInputRefs.current[index].setNativeProps({ text: '' });
       }
+      // Distribuer les chiffres dans les champs appropriés
+      handlePasteInput(digits);
       return;
     }
     
@@ -438,6 +450,9 @@ export default function HomeScreen() {
 
       if (roomData.players.some((p: any) => p.id === user.uid)) {
         // Le joueur est déjà dans la salle, juste rediriger
+        setCodeDigits(["", "", "", "", "", ""]); // Vider les champs
+        // Retirer le focus de tous les champs
+        codeInputRefs.current.forEach((ref) => ref?.blur());
         router.push(`/room/${roomId}`);
         setLoading(false);
         return;
@@ -459,6 +474,11 @@ export default function HomeScreen() {
       });
 
       console.log('[DEBUG] Joueur ajouté à la room:', user.uid);
+      
+      // Vider les champs de code avant de rediriger
+      setCodeDigits(["", "", "", "", "", ""]);
+      // Retirer le focus de tous les champs
+      codeInputRefs.current.forEach((ref) => ref?.blur());
       
       // Rediriger vers la salle
       router.push(`/room/${roomId}`);
@@ -741,6 +761,10 @@ export default function HomeScreen() {
         locations={[0, 0.2, 0.5, 0.8, 1]}
         style={styles.background}
       >
+        {/* Neige animée pour le thème de Noël */}
+        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1 }}>
+          <ChristmasSnow />
+        </View>
 
         <View style={{ zIndex: 20 }}>
           <TopBar />
