@@ -41,9 +41,10 @@ const RulesDrawer = ({ visible, onClose, onConfirm, gameId, isStartingGame }: Ru
 
   useEffect(() => {
     if (visible && gameId) {
+      console.log('[DEBUG RulesDrawer] Ouverture du drawer pour gameId:', gameId, 'onConfirm:', !!onConfirm);
       fetchRules();
     }
-  }, [visible, gameId, language]);
+  }, [visible, gameId, language, onConfirm]);
 
   const fetchRules = async () => {
     try {
@@ -81,6 +82,7 @@ const RulesDrawer = ({ visible, onClose, onConfirm, gameId, isStartingGame }: Ru
       }
     } catch (error) {
       console.error('Erreur lors du chargement des règles:', error);
+      setLoading(false);
     } finally {
       setLoading(false);
     }
@@ -195,7 +197,7 @@ const RulesDrawer = ({ visible, onClose, onConfirm, gameId, isStartingGame }: Ru
               )}
             </ScrollView>
 
-            {onConfirm && (
+            {onConfirm ? (
               <TouchableOpacity 
                 style={[
                   styles.confirmButton,
@@ -203,14 +205,21 @@ const RulesDrawer = ({ visible, onClose, onConfirm, gameId, isStartingGame }: Ru
                     ? { backgroundColor: HalloweenTheme.light?.primary || '#FF6F00' }
                     : { backgroundColor: ChristmasTheme.light?.primary || '#C41E3A' }
                 ]}
-                onPress={onConfirm}
+                onPress={() => {
+                  console.log('[DEBUG RulesDrawer] Bouton de confirmation cliqué');
+                  onConfirm();
+                }}
               >
                 <Text style={styles.confirmButtonText}>
                   {isStartingGame 
-                    ? t('rules.confirmStart') 
-                    : t('rules.confirm')}
+                    ? (t('rules.confirmStart', 'Démarrer') || 'Démarrer')
+                    : (t('rules.confirm', 'Je suis prêt') || 'Je suis prêt')}
                 </Text>
               </TouchableOpacity>
+            ) : (
+              <View style={{ padding: 20 }}>
+                <Text style={{ color: '#fff', textAlign: 'center' }}>Aucun callback de confirmation</Text>
+              </View>
             )}
           </View>
         </Animated.View>

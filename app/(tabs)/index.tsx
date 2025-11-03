@@ -6,7 +6,6 @@ import Colors from "@/constants/Colors";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePaywall } from "@/contexts/PaywallContext";
 import { useFirestore } from "@/hooks/useFirestore";
-import useLeaderboard from "@/hooks/useLeaderboard";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import NetInfo from "@react-native-community/netinfo";
 import {
@@ -87,11 +86,7 @@ export default function HomeScreen() {
     setInActiveGame,
     isProMember,
   } = usePaywall();
-  const { getTopPlayers } = useLeaderboard();
 
-
-  // Test PostHog: capture d'un événement à l'affichage du composant de test
-  // (L'événement "PostHogTestComponent mounted" sera envoyé par le composant)
 
   useEffect(() => {
     posthog.capture("MyComponent loaded", { foo: "bar" });
@@ -292,10 +287,57 @@ export default function HomeScreen() {
     }
   };
 
+  const handlePasteInput = (value: string) => {
+    // Ne garder que les chiffres
+    const digits = value.replace(/[^0-9]/g, '');
+    
+    if (digits.length > 0) {
+      const newDigits = Array(6).fill('');
+      // Remplir les champs avec les chiffres collés (max 6)
+      for (let i = 0; i < Math.min(digits.length, 6); i++) {
+        newDigits[i] = digits[i];
+      }
+      setCodeDigits(newDigits);
+      
+      const fullCode = newDigits.join('');
+      setPartyCode(fullCode);
+      
+      // Focus sur le dernier champ rempli ou le premier vide
+      const lastFilledIndex = Math.min(digits.length - 1, 5);
+      if (lastFilledIndex < 5) {
+        // Focus sur le premier champ vide
+        codeInputRefs.current[lastFilledIndex + 1]?.focus();
+      } else {
+        // Tous les champs sont remplis, focus sur le dernier
+        codeInputRefs.current[5]?.focus();
+      }
+      
+      // Si tous les 6 chiffres sont remplis, rejoindre automatiquement
+      if (newDigits.every(d => d !== '') && newDigits.join('').length === 6) {
+        // Utiliser le code construit plutôt que d'attendre le state update
+        setTimeout(() => {
+          handleJoinGameWithCode(fullCode);
+        }, 300);
+      }
+    }
+  };
+
   const handleCodeDigitChange = (value: string, index: number) => {
     // Ne garder que les chiffres
-    const digit = value.replace(/[^0-9]/g, '').slice(0, 1);
+    const digits = value.replace(/[^0-9]/g, '');
     
+    // Si plusieurs chiffres sont collés (paste détecté)
+    if (digits.length > 1) {
+      handlePasteInput(digits);
+      // Vider le champ qui a reçu le paste
+      if (codeInputRefs.current[index]) {
+        codeInputRefs.current[index].setNativeProps({ text: '' });
+      }
+      return;
+    }
+    
+    // Comportement normal : un seul chiffre
+    const digit = digits.slice(0, 1);
     const newDigits = [...codeDigits];
     newDigits[index] = digit;
     setCodeDigits(newDigits);
@@ -311,7 +353,10 @@ export default function HomeScreen() {
     
     // Si tous les chiffres sont remplis, rejoindre automatiquement
     if (newDigits.every(d => d !== '') && newDigits.join('').length === 6) {
-      setTimeout(() => handleJoinGame(), 300);
+      // Utiliser le code construit directement plutôt que d'attendre le state update
+      setTimeout(() => {
+        handleJoinGameWithCode(fullCode);
+      }, 300);
     }
   };
 
@@ -338,15 +383,19 @@ export default function HomeScreen() {
   };
 
   const handleJoinGameWithCode = async (code: string) => {
-    if (!code || !code.trim()) {
-      Alert.alert("Erreur", "Veuillez entrer un code de partie");
+    // Nettoyer le code (enlever les espaces, garder seulement les chiffres)
+    const cleanCode = code.replace(/[^0-9]/g, '');
+    
+    if (!cleanCode || cleanCode.length !== 6) {
+      Alert.alert("Erreur", "Veuillez entrer un code de partie complet (6 chiffres)");
       return;
     }
+    
     setLoading(true);
     try {
       const db = getFirestore();
       const roomsRef = collection(db, "rooms");
-      const q = query(roomsRef, where("code", "==", code.toUpperCase()));
+      const q = query(roomsRef, where("code", "==", cleanCode));
       const querySnapshot = await getDocs(q);
       if (querySnapshot.empty) {
         Alert.alert("Erreur", "Code de partie invalide");
@@ -380,6 +429,37 @@ export default function HomeScreen() {
         return;
       }
 
+      // Vérifier si l'utilisateur est déjà dans la salle
+      if (!user) {
+        Alert.alert("Erreur", "Utilisateur non authentifié");
+        setLoading(false);
+        return;
+      }
+
+      if (roomData.players.some((p: any) => p.id === user.uid)) {
+        // Le joueur est déjà dans la salle, juste rediriger
+        router.push(`/room/${roomId}`);
+        setLoading(false);
+        return;
+      }
+
+      // Ajouter le joueur à la salle
+      const roomRef = doc(db, "rooms", roomId);
+      const newPlayer = {
+        id: user.uid,
+        username: user.pseudo || "Joueur",
+        displayName: user.pseudo || "Joueur",
+        isHost: false,
+        isReady: false,
+        avatar: user.avatar,
+      };
+      
+      await updateDoc(roomRef, {
+        players: [...roomData.players, newPlayer],
+      });
+
+      console.log('[DEBUG] Joueur ajouté à la room:', user.uid);
+      
       // Rediriger vers la salle
       router.push(`/room/${roomId}`);
       setLoading(false);
@@ -391,63 +471,16 @@ export default function HomeScreen() {
   };
 
   const handleJoinGame = async () => {
-    const code = codeDigits.join('') || partyCode;
-    if (!code.trim()) {
-      Alert.alert("Erreur", "Veuillez entrer un code de partie");
+    // Construire le code à partir des digits remplis
+    const code = codeDigits.join('').trim();
+    
+    if (!code || code.length !== 6) {
+      Alert.alert("Erreur", "Veuillez entrer un code de partie complet (6 chiffres)");
       return;
     }
-    setLoading(true);
-    try {
-      const db = getFirestore();
-      const roomsRef = collection(db, "rooms");
-      const code = codeDigits.join('') || partyCode;
-      const q = query(roomsRef, where("code", "==", code.toUpperCase()));
-      const querySnapshot = await getDocs(q);
-      if (querySnapshot.empty) {
-        Alert.alert("Erreur", "Code de partie invalide");
-        return;
-      }
-      const roomDoc = querySnapshot.docs[0];
-      if (!roomDoc) {
-        Alert.alert("Erreur", "Salle introuvable");
-        return;
-      }
-      const room = roomDoc.data();
-      if (room.status !== "waiting") {
-        Alert.alert("Erreur", "Cette partie a déjà commencé");
-        return;
-      }
-      if (room.players.length >= room.maxPlayers) {
-        Alert.alert("Erreur", "Cette partie est pleine");
-        return;
-      }
-      if (!user) {
-        Alert.alert("Erreur", "Utilisateur non authentifié");
-        return;
-      }
-      if (room.players.some((p: any) => p.id === user.uid)) {
-        Alert.alert("Erreur", "Vous êtes déjà dans cette partie");
-        return;
-      }
-      const roomRef = doc(db, "rooms", roomDoc.id);
-      const newPlayer = {
-        id: user.uid,
-        username: user.pseudo || "Joueur",
-        displayName: user.pseudo || "Joueur",
-        isHost: false,
-        isReady: false,
-        avatar: user.avatar,
-      };
-      await updateDoc(roomRef, {
-        players: [...room.players, newPlayer],
-      });
-      router.push(`/room/${roomDoc.id}`);
-    } catch (error) {
-      console.error("Erreur lors de la jonction de la salle:", error);
-      Alert.alert("Erreur", "Impossible de rejoindre la salle");
-    } finally {
-      setLoading(false);
-    }
+    
+    // Utiliser handleJoinGameWithCode pour la logique commune
+    return handleJoinGameWithCode(code);
   };
 
   const renderGameModeCard = (game: GameMode, isGridItem = false) => {
@@ -752,9 +785,8 @@ export default function HomeScreen() {
                 onChangeText={(value) => handleCodeDigitChange(value, index)}
                 onKeyPress={({ nativeEvent }) => handleCodeKeyPress(nativeEvent.key, index)}
                 keyboardType="number-pad"
-                maxLength={1}
+                maxLength={index === 0 ? 6 : 1}
                 selectTextOnFocus
-                autoFocus={index === 0}
               />
             ))}
           </View>

@@ -141,6 +141,8 @@ interface RoomScreenStyles {
     gameControlsContainer: ViewStyle;
     roundSelectorContainer: ViewStyle;
     roundSelectorButton: ViewStyle;
+    readyButtonContainer: ViewStyle;
+    readyButtonFullWidth: ViewStyle;
     roundSelectorGradient: ViewStyle;
     roundSelectorText: TextStyle;
     roundSelectorIconContainer: ViewStyle;
@@ -152,6 +154,7 @@ interface RoomScreenStyles {
     roundOptionText: TextStyle;
     selectedRoundOption: ViewStyle;
     selectedRoundOptionText: TextStyle;
+    startButtonContainer: ViewStyle;
     startButton: ViewStyle;
     startButtonText: TextStyle;
     leaveButton: ViewStyle;
@@ -319,6 +322,10 @@ export default function RoomScreen() {
                 if (roomData.status === 'playing' && roomData.gameDocId) {
                     if (roomData.gameMode === 'truth-or-dare') {
                         router.replace(`/game/truth-or-dare/${roomData.gameDocId}`);
+                    } else if (roomData.gameMode === 'double-dare') {
+                        router.replace(`/game/double-dare/${roomData.gameDocId}`);
+                    } else if (roomData.gameMode === 'forbidden-desire') {
+                        router.replace(`/game/forbidden-desire/${roomData.gameDocId}`);
                     } else if (roomData.gameMode === 'listen-but-don-t-judge') {
                         router.replace(`/game/listen-but-don-t-judge/${roomData.gameDocId}`);
                     } else if (roomData.gameMode === 'trap-answer') {
@@ -402,12 +409,14 @@ export default function RoomScreen() {
     };
 
     const handleRulesConfirm = async () => {
+        console.log('[DEBUG] handleRulesConfirm appelé, isStartingGame:', isStartingGame, 'showRulesOnReady:', showRulesOnReady);
         setHasReadRules(true);
         if (isStartingGame) {
             setIsRulesDrawerVisible(false);
             setIsStartingGame(false);
             await startGame();
         } else if (showRulesOnReady) {
+            console.log('[DEBUG] Appel de handleConfirmRulesOnReady');
             await handleConfirmRulesOnReady();
             setShowRulesOnReady(false);
         } else {
@@ -487,6 +496,62 @@ export default function RoomScreen() {
                     currentQuestion: null, // Pas encore de question sélectionnée
                     askedQuestionIds: [], // Aucune question posée au début
                     phase: GamePhase.CHOIX, // Commence en phase de choix
+                };
+            } else if (room.gameId === 'double-dare') {
+                // Logique spécifique au jeu "Double Dare" - Commence en phase de choix de niveau
+                console.log('[DEBUG] Démarrage du jeu Double Dare - Phase de choix de niveau');
+                gameDataToSet = {
+                    gameMode: room.gameId,
+                    players: playersForGameDoc,
+                    status: 'playing',
+                    currentRound: 1,
+                    totalRounds: selectedRounds,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                    host: user.uid,
+                    scores: {},
+                    playerScores: {}, // Scores spécifiques pour double-dare
+                    history: {},
+                    currentPlayerId: initialCurrentPlayerId || playersForGameDoc[0]?.id || '', // Le premier joueur commence
+                    selectedLevel: null, // Pas encore de niveau sélectionné
+                    selectedMode: null, // Pas encore de mode sélectionné
+                    currentQuestion: null, // Pas encore de question sélectionnée
+                    safeWordEnabled: true, // Safe word activé par défaut
+                    dareCompleted: false,
+                    penaltyAssigned: false,
+                    phase: 'level-choice', // Commence en phase de choix de niveau
+                };
+            } else if (room.gameId === 'forbidden-desire') {
+                // Logique spécifique au jeu "Forbidden Desire" - Commence en phase de choix d'intensité
+                console.log('[DEBUG] Démarrage du jeu Forbidden Desire - Phase de choix d\'intensité');
+                
+                // Pour un jeu à deux joueurs, choisir aléatoirement qui commence
+                const randomStartingPlayer = playersForGameDoc.length > 0 
+                    ? playersForGameDoc[Math.floor(Math.random() * playersForGameDoc.length)]
+                    : null;
+                const startingPlayerId = randomStartingPlayer?.id || initialCurrentPlayerId || playersForGameDoc[0]?.id || '';
+                
+                console.log('[DEBUG ForbiddenDesire] Starting player ID:', startingPlayerId);
+                console.log('[DEBUG ForbiddenDesire] All players:', playersForGameDoc.map(p => ({ id: p.id, name: p.name })));
+                
+                gameDataToSet = {
+                    gameMode: room.gameId,
+                    players: playersForGameDoc,
+                    status: 'playing',
+                    currentRound: 1,
+                    totalRounds: selectedRounds,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                    host: user.uid,
+                    scores: {},
+                    playerScores: {}, // Scores spécifiques pour forbidden-desire
+                    history: {},
+                    currentPlayerId: startingPlayerId, // Joueur aléatoire commence
+                    selectedIntensity: null, // Pas encore d'intensité sélectionnée
+                    currentQuestion: null, // Pas encore de question sélectionnée
+                    refusedQuestion: false,
+                    partnerChallenge: null,
+                    phase: 'choix', // Commence en phase de choix d'intensité
                 };
             }
             else {
@@ -587,6 +652,8 @@ export default function RoomScreen() {
             switch (room.gameId) {
                 case 'never-have-i-ever-hot':
                 case 'truth-or-dare':
+                case 'double-dare':
+                case 'forbidden-desire':
                 case 'listen-but-don-t-judge':
                 case 'trap-answer':
                 case 'genius-or-liar':
@@ -669,32 +736,40 @@ export default function RoomScreen() {
     };
 
     const handleConfirmRulesOnReady = async () => {
-        setShowRulesOnReady(false);
-        if (isReadyClicked && room && user) {
-            try {
-                const db = getFirestore();
-                const updatedPlayers = room.players.map(p =>
-                    String(p.id) === String(user?.uid) ? { ...p, isReady: true } : p
-                );
-
-                console.log('Mise à jour du statut prêt pour le joueur:', user.uid);
-                await updateDoc(doc(db, 'rooms', room.id), {
-                    players: updatedPlayers
-                });
-
-                // Vérification que la mise à jour a réussi
-                const roomRef = doc(db, 'rooms', room.id);
-                const updatedRoomDoc = await getDoc(roomRef);
-                if (updatedRoomDoc.exists()) {
-                    const updatedRoomData = updatedRoomDoc.data();
-                    console.log('Statut mis à jour avec succès:', updatedRoomData);
-                }
-            } catch (error) {
-                console.error('Erreur lors de la mise à jour du statut prêt:', error);
-                Alert.alert('Erreur', 'Impossible de se mettre prêt');
-            }
+        console.log('[DEBUG] handleConfirmRulesOnReady appelé, room:', !!room, 'user:', !!user);
+        if (!room || !user) {
+            console.error('[DEBUG] Room ou User manquant');
+            setShowRulesOnReady(false);
+            return;
         }
+
+        try {
+            const db = getFirestore();
+            const updatedPlayers = room.players.map(p =>
+                String(p.id) === String(user?.uid) ? { ...p, isReady: true } : p
+            );
+
+            console.log('[DEBUG] Mise à jour du statut prêt pour le joueur:', user.uid, 'roomId:', room.id);
+            await updateDoc(doc(db, 'rooms', room.id), {
+                players: updatedPlayers
+            });
+
+            console.log('[DEBUG] Statut prêt mis à jour avec succès');
+            
+            // Vérification que la mise à jour a réussi
+            const roomRef = doc(db, 'rooms', room.id);
+            const updatedRoomDoc = await getDoc(roomRef);
+            if (updatedRoomDoc.exists()) {
+                const updatedRoomData = updatedRoomDoc.data();
+                console.log('[DEBUG] Vérification - Statut mis à jour avec succès:', updatedRoomData);
+            }
+        } catch (error) {
+            console.error('[DEBUG] Erreur lors de la mise à jour du statut prêt:', error);
+            Alert.alert('Erreur', 'Impossible de se mettre prêt');
+        }
+        
         setIsReadyClicked(false);
+        setShowRulesOnReady(false);
     };
 
     if (loading) {
@@ -947,32 +1022,35 @@ export default function RoomScreen() {
                                 )}
                             </View>
 
-                            <RoundedButton
-                                title={t('room.startGame')}
-                                onPress={handleStartGame}
-                                disabled={
-                                    !room.players.every(p => p.isReady) ||
-                                    room.players.length < getMinPlayersForGame(room.gameId)
-                                }
-                                style={[
-                                    styles.startButton,
-                                    room.players.length < getMinPlayersForGame(room.gameId) && styles.disabledButton
-                                ]}
-                                textStyle={styles.startButtonText}
-                                gradientColors={isHalloweenGame ? 
-                                    [HalloweenTheme.light.primary, HalloweenTheme.light.error] : // Couleurs Halloween
-                                    ["#C41E3A", "#8B1538"] // Mêmes couleurs que le bouton rounds
-                                }
-                            />
+                            <View style={styles.startButtonContainer}>
+                                <RoundedButton
+                                    title={t('room.startGame')}
+                                    onPress={handleStartGame}
+                                    disabled={
+                                        !room.players.every(p => p.isReady) ||
+                                        room.players.length < getMinPlayersForGame(room.gameId)
+                                    }
+                                    style={[
+                                        styles.startButton,
+                                        room.players.length < getMinPlayersForGame(room.gameId) && styles.disabledButton
+                                    ]}
+                                    textStyle={styles.startButtonText}
+                                    gradientColors={isHalloweenGame ? 
+                                        [HalloweenTheme.light.primary, HalloweenTheme.light.error] : // Couleurs Halloween
+                                        ["#C41E3A", "#8B1538"] // Mêmes couleurs que le bouton rounds
+                                    }
+                                />
+                            </View>
                         </View>
                     </>
                 )}
 
                 {user?.uid !== room.host && room.status === 'waiting' && room.id && !room.players.find(p => String(p.id) === String(user?.uid))?.isReady && (
-                    <View style={styles.roundSelectorContainer}>
+                    <View style={styles.readyButtonContainer}>
                         <TouchableOpacity
-                            style={styles.roundSelectorButton}
+                            style={styles.readyButtonFullWidth}
                             onPress={() => {
+                                console.log('[DEBUG] Je suis prêt cliqué, gameId:', room.gameId);
                                 setShowRulesOnReady(true);
                                 setIsReadyClicked(true);
                             }}
@@ -1209,6 +1287,7 @@ const styles = StyleSheet.create<RoomScreenStyles>({
     },
     gameControlsContainer: {
         width: '100%',
+        paddingHorizontal: 20,
         marginBottom: 15,
         position: 'relative',
         zIndex: 100,
@@ -1216,13 +1295,26 @@ const styles = StyleSheet.create<RoomScreenStyles>({
     roundSelectorContainer: {
         width: '100%',
         alignItems: 'flex-start',
-        marginHorizontal: 20,
         marginBottom: 15,
         position: 'relative',
         zIndex: 100,
     },
     roundSelectorButton: {
         width: 'auto',
+        borderRadius: 12,
+        overflow: 'hidden',
+        marginTop: 10,
+    },
+    readyButtonContainer: {
+        width: '100%',
+        alignItems: 'stretch',
+        paddingHorizontal: 20,
+        marginBottom: 15,
+        position: 'relative',
+        zIndex: 100,
+    },
+    readyButtonFullWidth: {
+        width: '100%',
         borderRadius: 12,
         overflow: 'hidden',
         marginTop: 10,
@@ -1289,12 +1381,13 @@ const styles = StyleSheet.create<RoomScreenStyles>({
     selectedRoundOptionText: {
         color: '#fff',
     },
-    startButton: {
-        marginHorizontal: 20,
+    startButtonContainer: {
+        width: '100%',
         marginBottom: 15,
-        paddingVertical: 15,
-        borderRadius: 12,
-        alignItems: 'center',
+    },
+    startButton: {
+        width: '100%',
+        alignSelf: 'stretch',
     },
     startButtonText: {
         color: '#fff',

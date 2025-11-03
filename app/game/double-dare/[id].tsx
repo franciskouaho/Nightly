@@ -174,10 +174,10 @@ export default function DoubleDareGame() {
   const [loading, setLoading] = useState(true);
 
   const firestore = getFirestore();
-  const roomRef = doc(firestore, 'rooms', id);
+  const gameRef = doc(firestore, 'games', String(id));
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(roomRef, (snapshot) => {
+    const unsubscribe = onSnapshot(gameRef, (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.data() as DoubleDareGameState;
         setGameState(data);
@@ -192,7 +192,7 @@ export default function DoubleDareGame() {
   }, [id]);
 
   const handleLevelChoice = async (level: 'hot' | 'extreme' | 'chaos') => {
-    await updateDoc(roomRef, {
+    await updateDoc(gameRef, {
       selectedLevel: level,
       phase: 'mode-choice',
     });
@@ -201,7 +201,7 @@ export default function DoubleDareGame() {
   const handleModeChoice = async (mode: 'versus' | 'fusion') => {
     const question = getRandomQuestion(gameState?.selectedLevel || 'hot', mode);
 
-    await updateDoc(roomRef, {
+    await updateDoc(gameRef, {
       selectedMode: mode,
       phase: 'dare',
       currentQuestion: question,
@@ -222,17 +222,20 @@ export default function DoubleDareGame() {
     const isGameOver = nextRound > gameState.totalRounds;
 
     if (isGameOver) {
-      await updateDoc(roomRef, {
+      await updateDoc(gameRef, {
         phase: 'end',
         playerScores: updatedScores,
         scores: updatedScores,
       });
     } else {
       const nextPlayerIndex = (currentPlayerIndex + 1) % gameState.players.length;
-      await updateDoc(roomRef, {
+      const nextPlayer = gameState.players[nextPlayerIndex];
+      if (!nextPlayer) return;
+      
+      await updateDoc(gameRef, {
         phase: 'level-choice',
         currentRound: nextRound,
-        currentPlayerId: gameState.players[nextPlayerIndex].id,
+        currentPlayerId: nextPlayer.id,
         playerScores: updatedScores,
         selectedLevel: null,
         selectedMode: null,

@@ -140,8 +140,31 @@ export default function ForbiddenDesireGameScreen() {
       const db = getFirestore();
       const gameRef = doc(db, 'games', String(id));
 
+      const nextRound = game.currentRound + 1;
+      const isGameOver = nextRound > game.totalRounds;
+
+      if (isGameOver) {
+        // Le jeu est terminé
+        await updateDoc(gameRef, {
+          phase: 'end',
+          currentRound: game.totalRounds,
+        });
+        return;
+      }
+
+      // Alterner entre les joueurs pour le prochain tour
+      const currentPlayerIndex = game.players.findIndex(p => p.id === game.currentPlayerId);
+      const nextPlayerIndex = (currentPlayerIndex + 1) % game.players.length;
+      const nextPlayer = game.players[nextPlayerIndex];
+      
+      if (!nextPlayer) {
+        console.error('Next player not found');
+        return;
+      }
+
       await updateDoc(gameRef, {
-        currentRound: game.currentRound + 1,
+        currentRound: nextRound,
+        currentPlayerId: nextPlayer.id,
         phase: 'choix',
         currentQuestion: null,
         selectedIntensity: null,
@@ -188,13 +211,22 @@ export default function ForbiddenDesireGameScreen() {
       const gameRef = doc(db, 'games', String(id));
 
       if (answered) {
-        // Le joueur a répondu à la question
+        // Le joueur a répondu à la question - attribuer des points selon l'intensité
+        const pointsEarned = game.selectedIntensity === 'extreme' ? 30 
+          : game.selectedIntensity === 'tension' ? 20 
+          : 10; // soft
+
+        const updatedPlayerScores = { ...(game.playerScores || {}) };
+        updatedPlayerScores[game.currentPlayerId] = (updatedPlayerScores[game.currentPlayerId] || 0) + pointsEarned;
+
         await updateDoc(gameRef, {
           phase: 'results',
-          refusedQuestion: false
+          refusedQuestion: false,
+          playerScores: updatedPlayerScores,
+          scores: updatedPlayerScores, // Pour compatibilité
         });
       } else {
-        // Le joueur refuse de répondre
+        // Le joueur refuse de répondre - pas de points
         await updateDoc(gameRef, {
           phase: 'challenge',
           refusedQuestion: true
@@ -246,7 +278,7 @@ export default function ForbiddenDesireGameScreen() {
   }, [id]);
 
   useEffect(() => {
-    if (game && game.currentRound > game.totalRounds) {
+    if (game && (game.currentRound > game.totalRounds || game.phase === 'end')) {
       setIsGameOver(true);
       const gameDuration = Date.now() - gameStartTime.current;
     } else {
@@ -272,13 +304,31 @@ export default function ForbiddenDesireGameScreen() {
   }
 
   if (isGameOver) {
-    return <GameResults gameId={id} onClose={() => router.push('/(tabs)')} />;
+    return (
+      <GameResults
+        players={game?.players || []}
+        scores={game?.playerScores || game?.scores || {}}
+        userId={user?.uid || ''}
+        pointsConfig={{
+          firstPlace: 30,
+          secondPlace: 20,
+          thirdPlace: 10
+        }}
+      />
+    );
   }
 
   const currentPlayer = game.players.find(p => p.id === game.currentPlayerId);
-  const isCurrentPlayer = user?.id === game.currentPlayerId;
+  const isCurrentPlayer = user?.uid === game.currentPlayerId;
   const otherPlayer = game.players.find(p => p.id !== game.currentPlayerId);
-  const isOtherPlayer = user?.id === otherPlayer?.id;
+  const isOtherPlayer = user?.uid === otherPlayer?.id;
+
+  // Debug logs
+  console.log('[DEBUG ForbiddenDesire] Current Player ID:', game.currentPlayerId);
+  console.log('[DEBUG ForbiddenDesire] User UID:', user?.uid);
+  console.log('[DEBUG ForbiddenDesire] Is Current Player:', isCurrentPlayer);
+  console.log('[DEBUG ForbiddenDesire] All Players:', game.players.map(p => ({ id: p.id, name: p.name })));
+  console.log('[DEBUG ForbiddenDesire] Current Player:', currentPlayer?.name);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -308,7 +358,7 @@ export default function ForbiddenDesireGameScreen() {
           {game.phase === 'choix' && !isCurrentPlayer && (
             <View style={styles.content}>
               <Text style={styles.waitingText}>
-                {currentPlayer?.name || 'Le joueur'} choisit l'intensité...
+                {currentPlayer?.name || currentPlayer?.displayName || currentPlayer?.username || 'Le joueur'} choisit l'intensité...
               </Text>
             </View>
           )}

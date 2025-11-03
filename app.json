@@ -2,8 +2,8 @@
   "expo": {
     "name": "Nightly",
     "slug": "nightly",
-    "version": "1.5.1",
-    "icon": "./assets/halloween/logo.png",
+    "version": "1.6.0",
+    "icon": "./assets/christmas/logo.png",
     "scheme": "nightly",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -23,7 +23,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/halloween/logo.png",
+        "foregroundImage": "./assets/christmas/logo.png",
         "backgroundColor": "#4b277d"
       },
       "package": "com.emplica.nightly.android",
@@ -42,7 +42,7 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/halloween/logo.png"
+      "favicon": "./assets/christmas/logo.png"
     },
     "plugins": [
       "expo-router",
@@ -56,7 +56,7 @@
             "useFrameworks": "static"
           },
           "android": {
-            "permissions": ["com.android.vending.BILLING"],
+            "permissions": ["com.android.vending.BILLING", "CAMERA"],
             "enableProguardInReleaseBuilds": true,
             "enableShrinkResourcesInReleaseBuilds": true,
             "compileSdkVersion": 35,
@@ -66,7 +66,6 @@
             "enableEdgeToEdge": true,
             "statusBarStyle": "light",
             "statusBarBackgroundColor": "transparent",
-            "permissions": ["CAMERA"]
           }
         }
       ],
@@ -80,7 +79,7 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/halloween/logo.png",
+          "icon": "./assets/christmas/logo.png",
           "color": "#4b277d"
         }
       ],

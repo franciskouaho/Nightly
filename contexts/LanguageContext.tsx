@@ -59,7 +59,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
           await i18nChangeLanguage(savedLanguage);
         } else {
           console.log('[DEBUG LanguageContext] No saved language found, checking device language');
-          const deviceLanguage = Localization.locale.split('-')[0];
+          const deviceLocale = Localization.locale || Localization.getLocales()?.[0]?.languageCode || 'fr';
+          const deviceLanguage = typeof deviceLocale === 'string' ? deviceLocale.split('-')[0] : 'fr';
           console.log('[DEBUG LanguageContext] Device language:', deviceLanguage);
           
           const supportedLanguage = LANGUAGES.find(lang => lang.id === deviceLanguage);
@@ -103,7 +104,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const getGameContent = async (gameId: string) => {
     const db = getFirestore();
     try {
-      const currentLanguage = i18n.language || 'fr';
+      const currentLanguage = language || i18n.language || 'fr';
       console.log(`[DEBUG LanguageContext] Fetching game content for ${gameId} in ${currentLanguage}`);
       
       // Récupération des questions du jeu
