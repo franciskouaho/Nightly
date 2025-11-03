@@ -572,7 +572,10 @@ export default function HomeScreen() {
               ) : null;
             })()}
             <View style={styles.overlay}>
-              <Text style={styles.cardTitle}>
+              <Text style={[
+                styles.cardTitle,
+                game.fontFamily && { fontFamily: game.fontFamily }
+              ]}>
                 {game.nameKey ? t(game.nameKey) : (t(`home.games.${game.id}.name`) || game.name || '')}
               </Text>
             </View>
@@ -640,7 +643,11 @@ export default function HomeScreen() {
                 />
               )}
               <Text
-                style={[styles.modeName, isGridItem && styles.gridModeName]}
+                style={[
+                  styles.modeName, 
+                  isGridItem && styles.gridModeName,
+                  game.fontFamily && { fontFamily: game.fontFamily }
+                ]}
               >
                 {game.nameKey ? t(game.nameKey) : (t(`home.games.${game.id}.name`) || game.name || '')}
               </Text>
@@ -892,12 +899,20 @@ const styles = StyleSheet.create({
   },
   categoryTitle: {
     color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
+    fontSize: 18,
+    fontFamily: "Montserrat-Bold",
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
+    textShadowColor: "rgba(0,0,0,0.5)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   categorySubtitle: {
     color: Colors.light.textSecondary,
-    fontSize: 12,
+    fontSize: 13,
+    fontFamily: "Roboto-Regular",
+    letterSpacing: 0.2,
+    marginTop: 4,
   },
   rulesButton: {
     borderWidth: 1,
@@ -953,16 +968,21 @@ const styles = StyleSheet.create({
   },
   modeName: {
     color: "white",
-    fontSize: 14,
-    fontWeight: "bold",
+    fontSize: 16,
+    fontFamily: "BebasNeue-Regular", // Fallback par défaut - sera remplacé par game.fontFamily
     marginBottom: 4,
-    fontFamily: "System",
-    letterSpacing: 0.5,
+    letterSpacing: 1.2,
+    textTransform: "uppercase",
+    textShadowColor: "rgba(0,0,0,0.7)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 5,
   },
   modeDescription: {
-    color: "white",
-    fontSize: 12,
-    lineHeight: 14,
+    color: "rgba(255,255,255,0.95)",
+    fontSize: 13,
+    lineHeight: 18,
+    fontFamily: "Roboto-Regular",
+    letterSpacing: 0.3,
   },
   modeTagContainer: {
     paddingHorizontal: 8,
@@ -974,9 +994,11 @@ const styles = StyleSheet.create({
   },
   modeTagText: {
     color: "white",
-    fontSize: 8,
-    fontWeight: "bold",
+    fontSize: 9,
+    fontFamily: "Montserrat-Bold",
     textAlign: "center",
+    letterSpacing: 0.5,
+    textTransform: "uppercase",
   },
   gridContainer: {
     flexDirection: "row",
@@ -1004,9 +1026,15 @@ const styles = StyleSheet.create({
     paddingRight: 0,
   },
   gridModeName: {
-    fontSize: 12,
+    fontSize: 14,
+    fontFamily: "BebasNeue-Regular", // Fallback par défaut - sera remplacé par game.fontFamily
     marginTop: 8,
     textAlign: "center",
+    letterSpacing: 1.2,
+    textTransform: "uppercase",
+    textShadowColor: "rgba(0,0,0,0.7)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 5,
   },
   gridCharacterImage: {
     width: 70,
@@ -1074,16 +1102,19 @@ const styles = StyleSheet.create({
   },
   ctaMainText: {
     color: "white",
-    fontSize: 15,
-    fontWeight: "bold",
+    fontSize: 14,
+    fontFamily: "Montserrat-Bold",
     textAlign: "center",
     marginBottom: 4,
+    letterSpacing: 0.5,
+    textTransform: "uppercase",
   },
   ctaSubText: {
     color: "rgba(255, 255, 255, 0.9)",
-    fontSize: 12,
+    fontSize: 11,
+    fontFamily: "Roboto-Regular",
     textAlign: "center",
-    fontWeight: "600",
+    letterSpacing: 0.3,
   },
   joinGameCard: {
     backgroundColor: "rgba(196, 30, 58, 0.15)",
@@ -1112,7 +1143,7 @@ const styles = StyleSheet.create({
   joinGameTitle: {
     fontSize: 14,
     fontWeight: "bold",
-    color: "#E8B4B8",
+    color: "#fff",
     textAlign: "left",
     lineHeight: 20,
   },
@@ -1235,11 +1266,13 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     color: "#fff",
-    fontWeight: "bold",
-    fontSize: 14,
-    textShadowColor: "rgba(0,0,0,0.5)",
+    fontSize: 16,
+    fontFamily: "BebasNeue-Regular", // Fallback par défaut - sera remplacé par game.fontFamily
+    letterSpacing: 1.2,
+    textShadowColor: "rgba(0,0,0,0.8)",
     textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
+    textShadowRadius: 6,
+    textTransform: "uppercase",
   },
   headerRight: {
     flexDirection: "row",

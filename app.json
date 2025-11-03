@@ -12,13 +12,15 @@
       "bundleIdentifier": "com.emplica.nightly",
       "googleServicesFile": "./GoogleService-Info.plist",
       "appleTeamId": "NAN7MFNMT7",
-        "infoPlist": {
-          "NSAppTransportSecurity": {
-            "NSAllowsArbitraryLoads": true
-          },
-          "UIBackgroundModes": ["remote-notification"],
-          "NSCameraUsageDescription": "Allow Nightly to access your camera to scan QR codes and join game rooms."
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
         },
+        "UIBackgroundModes": [
+          "remote-notification"
+        ],
+        "NSCameraUsageDescription": "Allow Nightly to access your camera to scan QR codes and join game rooms."
+      },
       "requireFullScreen": true
     },
     "android": {
@@ -56,7 +58,10 @@
             "useFrameworks": "static"
           },
           "android": {
-            "permissions": ["com.android.vending.BILLING", "CAMERA"],
+            "permissions": [
+              "com.android.vending.BILLING",
+              "CAMERA"
+            ],
             "enableProguardInReleaseBuilds": true,
             "enableShrinkResourcesInReleaseBuilds": true,
             "compileSdkVersion": 35,
@@ -65,7 +70,7 @@
             "enablePageSize16K": true,
             "enableEdgeToEdge": true,
             "statusBarStyle": "light",
-            "statusBarBackgroundColor": "transparent",
+            "statusBarBackgroundColor": "transparent"
           }
         }
       ],
@@ -89,9 +94,12 @@
         {
           "cameraPermission": "Allow Nightly to access your camera to scan QR codes and join game rooms."
         }
-      ]
+      ],
+      "expo-font"
     ],
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "experiments": {
       "typedRoutes": true
     },

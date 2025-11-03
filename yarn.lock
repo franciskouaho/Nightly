@@ -1280,6 +1280,83 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@expo-google-fonts/anton@npm:^0.4.2":
+  version: 0.4.2
+  resolution: "@expo-google-fonts/anton@npm:0.4.2"
+  checksum: 10c0/7667b64aba170bf84d2d491c3560d352491eb0c4b220350951a254f234f6f990d97e8866e717af5dce7b973b986d1f5d085f5cea302103aaef8959b364ae5624
+  languageName: node
+  linkType: hard
+
+"@expo-google-fonts/archivo-black@npm:^0.4.1":
+  version: 0.4.1
+  resolution: "@expo-google-fonts/archivo-black@npm:0.4.1"
+  checksum: 10c0/f7943c0ab065b5478ae6069769d9f461768df744a2546727765a84c0a9aa6737723cf0943603d8b8e4bd116678f997b754a4ac82c2f7649d892e13b077bd4c14
+  languageName: node
+  linkType: hard
+
+"@expo-google-fonts/bangers@npm:^0.4.1":
+  version: 0.4.1
+  resolution: "@expo-google-fonts/bangers@npm:0.4.1"
+  checksum: 10c0/ad7efe39371d977087723d2624ad1db2b2b49ddab1c99919604fdcaa9924d52efa264f214f13cc529f24e4158093dec68fb04e83b79d933605e8e0a1440ebd4f
+  languageName: node
+  linkType: hard
+
+"@expo-google-fonts/bebas-neue@npm:^0.4.1":
+  version: 0.4.1
+  resolution: "@expo-google-fonts/bebas-neue@npm:0.4.1"
+  checksum: 10c0/41c3b75382c44fb0625dd9aa4e9bab3643128b0106844aea03170ad1453057ace3864bd28695bc75db03866279dd457e356adc44c3c244913303bd2874d95931
+  languageName: node
+  linkType: hard
+
+"@expo-google-fonts/fredoka-one@npm:^0.2.3":
+  version: 0.2.3
+  resolution: "@expo-google-fonts/fredoka-one@npm:0.2.3"
+  checksum: 10c0/257c3fdd4811dab0c45d5403b8297588f677b8a7eb793a9e5f7713890c4e6794816d1cd0665361773b3076cd24ca7c369092c833364db2d7a2a03d0cf5fb6029
+  languageName: node
+  linkType: hard
+
+"@expo-google-fonts/montserrat@npm:^0.4.2":
+  version: 0.4.2
+  resolution: "@expo-google-fonts/montserrat@npm:0.4.2"
+  checksum: 10c0/6b040a64adef7aa1595d013865c7efa7d9a8c6e20ebeeba338f5024492772b5ea7c1476a9a7911bda55a9c55c7a38112607c6a2b74e5079088fb6ac6baf083f9
+  languageName: node
+  linkType: hard
+
+"@expo-google-fonts/oswald@npm:^0.4.2":
+  version: 0.4.2
+  resolution: "@expo-google-fonts/oswald@npm:0.4.2"
+  checksum: 10c0/5f686655d882f75b2d4651f2e40a38b2a58e34c8f7f80bc89ccf89836b87dd1675597f70ee94870a61c6ec232d15dd4d4825842912ba8afd5197d616a17ed4f7
+  languageName: node
+  linkType: hard
+
+"@expo-google-fonts/poppins@npm:^0.4.1":
+  version: 0.4.1
+  resolution: "@expo-google-fonts/poppins@npm:0.4.1"
+  checksum: 10c0/068b995d7db0dab2a8884efe8b5d6ae1e78d1d52d86906e771d06af128718780bcf4b147d83cf4cc19fcd66e7a47bc6f867b877eaad6c095e9f7b5edf3bb50d4
+  languageName: node
+  linkType: hard
+
+"@expo-google-fonts/raleway@npm:^0.4.2":
+  version: 0.4.2
+  resolution: "@expo-google-fonts/raleway@npm:0.4.2"
+  checksum: 10c0/fda6981c03d9ac1c2de6016fa6d0b1a3eb93148f42fb4443575038d3cb0c1a379e658d4f828b9aed9751fd60799e229182936929512181a0e6982d3d14e0a9a5
+  languageName: node
+  linkType: hard
+
+"@expo-google-fonts/roboto@npm:^0.4.1":
+  version: 0.4.1
+  resolution: "@expo-google-fonts/roboto@npm:0.4.1"
+  checksum: 10c0/860c3a14e75c4459dcfecd5205898ed61f4425faa8d7a90184ae4e83ed959e119a02fb41fa717391fa79eed67d05a9a06e51daa65f2e75d6f646ce973f6d7b1a
+  languageName: node
+  linkType: hard
+
+"@expo-google-fonts/ubuntu@npm:^0.4.1":
+  version: 0.4.1
+  resolution: "@expo-google-fonts/ubuntu@npm:0.4.1"
+  checksum: 10c0/8e6cbff2d766f51e5278fb8d9cc4a46a20014a940a895565fe247b7125d57d966f00615028e81dcc0ce2e647783b32937b202a3e61cd71ab2f68ff57e776da5c
+  languageName: node
+  linkType: hard
+
 "@expo/apple-utils@npm:2.1.12":
   version: 2.1.12
   resolution: "@expo/apple-utils@npm:2.1.12"
@@ -11915,6 +11992,17 @@ __metadata:
   dependencies:
     "@babel/core": "npm:^7.25.2"
     "@eslint/js": "npm:^9.25.0"
+    "@expo-google-fonts/anton": "npm:^0.4.2"
+    "@expo-google-fonts/archivo-black": "npm:^0.4.1"
+    "@expo-google-fonts/bangers": "npm:^0.4.1"
+    "@expo-google-fonts/bebas-neue": "npm:^0.4.1"
+    "@expo-google-fonts/fredoka-one": "npm:^0.2.3"
+    "@expo-google-fonts/montserrat": "npm:^0.4.2"
+    "@expo-google-fonts/oswald": "npm:^0.4.2"
+    "@expo-google-fonts/poppins": "npm:^0.4.1"
+    "@expo-google-fonts/raleway": "npm:^0.4.2"
+    "@expo-google-fonts/roboto": "npm:^0.4.1"
+    "@expo-google-fonts/ubuntu": "npm:^0.4.1"
     "@expo/vector-icons": "npm:^14.1.0"
     "@react-native-async-storage/async-storage": "npm:2.1.2"
     "@react-native-community/netinfo": "npm:^11.3.1"
