@@ -3,6 +3,7 @@
 import { gameCategories, GameCategory, GameMode } from "@/app/data/gameModes";
 import TopBar from "@/components/TopBar";
 import Colors from "@/constants/Colors";
+import GameModeCard from "@/components/GameModeCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePaywall } from "@/contexts/PaywallContext";
 import { useFirestore } from "@/hooks/useFirestore";
@@ -97,15 +98,18 @@ export default function HomeScreen() {
     console.log("🔄 État de création de salle:", isCreatingRoom);
   }, [isCreatingRoom]);
 
-  useEffect(() => {
-    // Afficher le paywall A 2 secondes après l'arrivée sur la home si l'utilisateur n'a pas d'abonnement actif et n'est pas pro
-    if (!user?.hasActiveSubscription && !isProMember) {
-      const timer = setTimeout(() => {
-        showPaywallA();
-      }, 2500);
-      return () => clearTimeout(timer);
-    }
-  }, [user?.hasActiveSubscription, isProMember, showPaywallA]);
+  // DÉSACTIVÉ : On ne veut plus afficher le paywall automatiquement à l'ouverture
+  // Le paywall s'affichera uniquement :
+  // 1. Quand l'utilisateur clique sur un jeu premium
+  // 2. Après avoir terminé 2-3 parties gratuites
+  // useEffect(() => {
+  //   if (!user?.hasActiveSubscription && !isProMember) {
+  //     const timer = setTimeout(() => {
+  //       showPaywallA();
+  //     }, 2500);
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [user?.hasActiveSubscription, isProMember, showPaywallA]);
 
   const getUserDisplayName = (user: any) => {
     if (!user) return "Joueur";
@@ -536,51 +540,22 @@ export default function HomeScreen() {
     };
 
     if (isGridItem) {
+      const gameName = game.nameKey ? t(game.nameKey) : (t(`home.games.${game.id}.name`) || game.name || '');
+
       return (
-        <TouchableOpacity
+        <GameModeCard
           key={game.id}
-          style={[styles.modeCard, styles.gridModeCard]}
+          id={game.id}
+          name={gameName}
+          image={game.image}
+          colors={game.colors || ["#C41E3A", "#8B1538"]}
+          borderColor={game.borderColor || Colors.light.primary}
+          shadowColor={game.shadowColor || Colors.light.secondary}
+          fontFamily={game.fontFamily}
+          premium={game.premium}
           onPress={handlePress}
-          activeOpacity={0.8}
           disabled={isCreatingRoom}
-          testID={`game-mode-${game.id}`}
-        >
-          <ImageBackground
-            source={game.image}
-            style={styles.cardImageBackground}
-            imageStyle={{ borderRadius: 20 }}
-            resizeMode="cover"
-          >
-            {game.tags && game.tags.length > 0 && (() => {
-              // Ne garder que le tag premium ou gratuit (le plus important)
-              const importantTag = game.tags.find(tag => 
-                tag.text.includes('premium') || tag.text.includes('gratuit')
-              ) || game.tags[0]; // Fallback sur le premier tag si aucun premium/gratuit
-              
-              return importantTag ? (
-                <View style={styles.tagsContainer}>
-                  <View
-                    style={[
-                      styles.modeTagContainer,
-                      styles.gridModeTagContainer,
-                      { backgroundColor: importantTag.color },
-                    ]}
-                  >
-                    <Text style={styles.modeTagText}>{t(importantTag.text)}</Text>
-                  </View>
-                </View>
-              ) : null;
-            })()}
-            <View style={styles.overlay}>
-              <Text style={[
-                styles.cardTitle,
-                game.fontFamily && { fontFamily: game.fontFamily }
-              ]}>
-                {game.nameKey ? t(game.nameKey) : (t(`home.games.${game.id}.name`) || game.name || '')}
-              </Text>
-            </View>
-          </ImageBackground>
-        </TouchableOpacity>
+        />
       );
     }
 
@@ -934,7 +909,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     borderRadius: 20,
     overflow: "hidden",
-    height: 120,
+    height: 180,
   },
   modeGradient: {
     borderRadius: 20,
@@ -952,8 +927,8 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   characterContainer: {
-    width: 90,
-    height: 90,
+    width: 130,
+    height: 130,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 16,
@@ -1010,7 +985,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   gridModeCard: {
-    height: 180,
+    height: 220,
   },
   gridModeGradient: {
     height: "100%",
@@ -1026,23 +1001,77 @@ const styles = StyleSheet.create({
     paddingRight: 0,
   },
   gridModeName: {
-    fontSize: 14,
+    fontSize: 16,
     fontFamily: "BebasNeue-Regular", // Fallback par défaut - sera remplacé par game.fontFamily
-    marginTop: 8,
     textAlign: "center",
     letterSpacing: 1.2,
     textTransform: "uppercase",
-    textShadowColor: "rgba(0,0,0,0.7)",
+    color: 'white',
+    fontWeight: 'bold',
+    textShadowColor: "rgba(0,0,0,0.9)",
     textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 5,
+    textShadowRadius: 6,
   },
   gridCharacterImage: {
-    width: 70,
-    height: 70,
+    width: 110,
+    height: 110,
   },
   gridModeTagContainer: {
     top: 5,
     right: 5,
+  },
+  // Nouveaux styles pour badges discrets
+  ageRatingBadge: {
+    position: 'absolute',
+    top: 8,
+    left: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    zIndex: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  ageRatingText: {
+    color: 'white',
+    fontSize: 10,
+    fontFamily: 'Montserrat-Bold',
+    letterSpacing: 0.5,
+  },
+  premiumBadgeSmall: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: 'rgba(216, 27, 96, 0.9)',
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 215, 0, 0.8)',
+    shadowColor: '#FFD700',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  premiumBadgeText: {
+    color: '#FFD700',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  cardTitleContainer: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    marginTop: 8,
+    width: '100%',
+    alignItems: 'center',
+    backdropFilter: 'blur(10px)',
   },
   disabledCard: {
     opacity: 0.6,
@@ -1252,7 +1281,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-end",
     alignItems: "center",
-    height: 140,
+    height: 180,
     borderRadius: 20,
     overflow: "hidden",
   },

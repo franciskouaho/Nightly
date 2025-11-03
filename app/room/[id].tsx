@@ -1,1654 +1,658 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, Alert, Clipboard, Share, GestureResponderEvent, ViewStyle, TextStyle, ImageStyle } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
-import { LinearGradient } from 'expo-linear-gradient';
-import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
-import { router, useLocalSearchParams } from 'expo-router';
-import { useAuth } from '@/contexts/AuthContext';
-import { collection, doc, onSnapshot, updateDoc, getFirestore, getDoc, setDoc, addDoc } from '@react-native-firebase/firestore';
-import {GamePhase, GameMode } from '@/types/gameTypes';
-import RulesDrawer from '@/components/room/RulesDrawer';
-import InviteModal from '@/components/room/InviteModal';
-import RoundedButton from '@/components/RoundedButton';
-import Avatar from '@/components/Avatar';
-import { useTranslation } from 'react-i18next';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { transformQuestion as transformTrapAnswerQuestion } from '@/hooks/trap-answer-questions';
-import { transformQuestion as transformWordGuessingQuestion } from '@/hooks/word-guessing-questions';
-import { transformQuestion as transformNeverHaveIEverHotQuestion } from '@/hooks/never-have-i-ever-hot-questions';
-import { doubleDareQuestions, transformDoubleDareQuestion } from '@/hooks/double-dare-questions';
-import HalloweenDecorations from '@/components/HalloweenDecorations';
-import HalloweenTheme from '@/constants/themes/Halloween';
+import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import {
+  doc,
+  getFirestore,
+  onSnapshot,
+  updateDoc,
+} from "@react-native-firebase/firestore";
+import { LinearGradient } from "expo-linear-gradient";
+import { router, useLocalSearchParams } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import Clipboard from "@react-native-clipboard/clipboard";
+import {
+  Alert,
+  Share,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
-// Liste des thèmes possibles pour 2 Lettres 1 Mot
-const TWO_LETTERS_ONE_WORD_THEMES = [
-    'une marque',
-    'une ville',
-    'un prénom',
-    'un pays',
-    'un animal',
-    'un métier',
-    'un sport',
-    'un fruit',
-    'un légume',
-    'un objet'
-] as const;
+// Types
+import { Room, RoomScreenStyles } from "@/types/roomTypes";
 
-// Génère deux lettres aléatoires pour 2 Lettres 1 Mot
-const generateTwoLettersOneWordRandomLetters = (): [string, string] => {
-    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    let firstLetter = alphabet[Math.floor(Math.random() * alphabet.length)] as string;
-    let secondLetter: string;
-    do {
-        secondLetter = alphabet[Math.floor(Math.random() * alphabet.length)] as string;
-    } while (secondLetter === firstLetter);
-    return [firstLetter, secondLetter];
-};
+// Components
+import HalloweenDecorations from "@/components/HalloweenDecorations";
+import GameOptions from "@/components/room/GameOptions";
+import InviteModal from "@/components/room/InviteModal";
+import PlayersList from "@/components/room/PlayersList";
+import RoomCodeDisplay from "@/components/room/RoomCodeDisplay";
+import RoundSelector from "@/components/room/RoundSelector";
+import RulesDrawer from "@/components/room/RulesDrawer";
+import RoundedButton from "@/components/RoundedButton";
 
-// Configuration des jeux avec le nombre minimum de joueurs requis
-const GAME_CONFIG = {
-    'truth-or-dare': { minPlayers: 2 },
-    'listen-but-don-t-judge': { minPlayers: 3 },
-    'trap-answer': { minPlayers: 2 },
-    'never-have-i-ever-hot': { minPlayers: 2 },
-    'genius-or-liar': { minPlayers: 2 },
-    'two-letters-one-word': { minPlayers: 1 },
-    'word-guessing': { minPlayers: 2 }
-};
+// Services
+import {
+  createGame,
+  getMinPlayersForGame,
+} from "@/services/gameInitializationService";
 
-// Type pour l'utilisateur
-interface User {
-    id: string | number;
-    username: string;
-    displayName?: string;
-    avatar?: string;
-    level?: number;
-    isHost?: boolean;
-}
-
-// Type local pour Player qui correspond à ce que nous utilisons dans ce composant
-interface LocalPlayer {
-    id: string;
-    username: string;
-    displayName?: string;
-    name: string; // Pour la rétrocompatibilité avec le code existant
-    isHost: boolean;
-    isReady: boolean;
-    avatar: string;
-    level: number;
-}
-
-// Interface pour l'objet Room qui correspond à ce qui est créé dans la page d'accueil
-interface Room {
-    id: string;
-    gameId: string;
-    gameMode?: string;
-    name: string;
-    players: LocalPlayer[];
-    createdAt: string;
-    status: string;
-    host: string;
-    maxPlayers: number;
-    code: string;
-    gameDocId?: string;
-}
-
-// Interface pour les données de création de salle
-interface RoomCreationData {
-    name: string;
-    gameId: string;
-    maxPlayers: number;
-    host: string;
-    players: LocalPlayer[];
-    [key: string]: any; // Pour les propriétés additionnelles
-}
-
-interface RoomScreenStyles {
-    container: ViewStyle;
-    background: ViewStyle;
-    loadingContainer: ViewStyle;
-    loadingText: TextStyle;
-    topBar: ViewStyle;
-    topBarRow: ViewStyle;
-    backButton: ViewStyle;
-    topBarTitleContainer: ViewStyle;
-    topBarTitle: TextStyle;
-    shareButton: ViewStyle;
-    codeContainer: ViewStyle;
-    codeLabel: TextStyle;
-    codeBox: ViewStyle;
-    codeText: TextStyle;
-    playersContainer: ViewStyle;
-    playersHeaderRow: ViewStyle;
-    rulesButtonRow: ViewStyle;
-    rulesText: TextStyle;
-    rulesCircle: ViewStyle;
-    rulesQuestionMark: TextStyle;
-    sectionTitle: TextStyle;
-    playerCard: ViewStyle;
-    playerAvatar: ImageStyle;
-    playerInfo: ViewStyle;
-    playerName: TextStyle;
-    hostBadge: ViewStyle;
-    hostText: TextStyle;
-    readyBadge: ViewStyle;
-    readyText: TextStyle;
-    readyButton: ViewStyle;
-    readyButtonGradient: ViewStyle;
-    readyButtonText: TextStyle;
-    rightContainer: ViewStyle;
-    headerButtons: ViewStyle;
-    inviteButton: ViewStyle;
-    gameControlsContainer: ViewStyle;
-    roundSelectorContainer: ViewStyle;
-    roundSelectorButton: ViewStyle;
-    readyButtonContainer: ViewStyle;
-    readyButtonFullWidth: ViewStyle;
-    roundSelectorGradient: ViewStyle;
-    roundSelectorText: TextStyle;
-    roundSelectorIconContainer: ViewStyle;
-    starIcon: TextStyle;
-    smallStarIcon: TextStyle;
-    roundOptionsContainer: ViewStyle;
-    roundOptionsRow: ViewStyle;
-    roundOption: ViewStyle;
-    roundOptionText: TextStyle;
-    selectedRoundOption: ViewStyle;
-    selectedRoundOptionText: TextStyle;
-    startButtonContainer: ViewStyle;
-    startButton: ViewStyle;
-    startButtonText: TextStyle;
-    leaveButton: ViewStyle;
-    leaveButtonText: TextStyle;
-    iconButton: ViewStyle;
-    minPlayersWarning: TextStyle;
-    disabledButton: ViewStyle;
-    centeredWarning: TextStyle;
-    minPlayersText: TextStyle;
-    halloweenDecorations: ViewStyle;
-    gameOptionsContainer: ViewStyle;
-    optionLabel: TextStyle;
-    optionsRow: ViewStyle;
-    optionButton: ViewStyle;
-    selectedOptionButton: ViewStyle;
-    optionButtonText: TextStyle;
-    selectedOptionButtonText: TextStyle;
-}
-
-/**
- * Crée une salle dans Firebase avec gestion de timeout et d'erreurs améliorée
- * @param roomData Données de la salle à créer
- * @param timeoutMs Délai maximum en millisecondes (défaut: 30000ms)
- * @returns Promise avec les données de la salle créée incluant son ID
- */
-export const createFirebaseRoom = async (roomData: RoomCreationData, timeoutMs = 30000): Promise<Room> => {
-    // Récupérer l'instance Firestore
-    const db = getFirestore();
-
-    // Vérification des données obligatoires
-    if (!roomData.name || !roomData.host || !roomData.gameId) {
-        throw new Error('Données de salle incomplètes (nom, hôte ou gameId manquant)');
-    }
-
-    // Nettoyer les données pour éviter les champs non sérialisables
-    const cleanedPlayers = roomData.players.map(player => ({
-        id: player.id,
-        username: player.username || player.displayName || 'Joueur',
-        name: player.name || player.displayName || player.username || 'Joueur',
-        isHost: player.isHost || false,
-        isReady: player.isReady || false,
-        avatar: player.avatar || `https://i.pravatar.cc/150?img=${Math.floor(Math.random() * 70)}`,
-        level: player.level || 1
-    }));
-
-    // Créer un objet propre pour Firestore (sans méthodes ou propriétés spéciales)
-    const firestoreData = {
-        name: roomData.name,
-        gameId: roomData.gameId,
-        gameMode: roomData.gameId,
-        host: roomData.host,
-        status: 'waiting',
-        players: cleanedPlayers,
-        maxPlayers: roomData.maxPlayers || 20,
-        createdAt: new Date().toISOString(), // Utiliser une chaîne ISO au lieu de serverTimestamp() pour résoudre des problèmes potentiels
-        updatedAt: new Date().toISOString(),
-        code: roomData.code || '',
-    };
-
-    console.log('🏠 Tentative de création de salle avec données nettoyées:', JSON.stringify(firestoreData));
-
-    try {
-        // Créer une référence à la collection
-        const roomsCollection = collection(db, 'rooms');
-
-        // Mesurer le temps d'exécution
-        const startTime = Date.now();
-
-        // Utiliser une promesse avec timeout manuellement géré
-        const addDocWithTimeout = async () => {
-            return new Promise<Room>((resolve, reject) => {
-                // Ajouter le document
-                addDoc(roomsCollection, firestoreData)
-                    .then(docRef => {
-                        const endTime = Date.now();
-                        console.log(`🏠 Salle créée avec succès en ${endTime - startTime}ms:`, docRef.id);
-
-                        // Retourner l'objet Room avec l'ID
-                        const roomWithId: Room = {
-                            ...roomData,
-                            id: docRef.id,
-                            createdAt: firestoreData.createdAt,
-                            status: 'waiting',
-                            maxPlayers: firestoreData.maxPlayers,
-                            code: firestoreData.code,
-                            gameMode: firestoreData.gameMode,
-                        };
-
-                        resolve(roomWithId);
-                    })
-                    .catch(error => {
-                        console.error('⚡ Erreur Firebase addDoc:', error);
-                        reject(error);
-                    });
-
-                // Ajouter un timeout
-                setTimeout(() => {
-                    reject(new Error(`Délai d'attente dépassé lors de la création de la salle (${timeoutMs}ms)`));
-                }, timeoutMs);
-            });
-        };
-
-        // Exécuter avec un délai de garde
-        return await addDocWithTimeout();
-    } catch (error: any) {
-        console.error('🔥 Erreur de création de salle détaillée:', error);
-
-        // Vérifications supplémentaires
-        if (error.code === 'permission-denied') {
-            throw new Error(`Accès refusé: vérifiez les règles de sécurité Firestore`);
-        } else if (error.code === 'unavailable' || error.code === 'network-request-failed') {
-            throw new Error(`Problème réseau: vérifiez votre connexion internet`);
-        }
-
-        // Ajouter le délai au message pour clarté
-        if (error.message.includes('Délai d\'attente dépassé')) {
-            console.error(`⏱️ Délai de ${timeoutMs}ms dépassé - causes possibles:`);
-            console.error('- Connexion internet instable ou lente');
-            console.error('- Règles de sécurité Firestore restrictives');
-            console.error('- Données non sérialisables dans l\'objet room');
-            console.error('- Trafic élevé ou limitations Firebase');
-        }
-
-        throw error;
-    }
-};
+// Constants
+import HalloweenTheme from "@/constants/themes/Halloween";
 
 export default function RoomScreen() {
-    const { id } = useLocalSearchParams();
-    const { user } = useAuth();
-    const [room, setRoom] = useState<Room | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [isRulesDrawerVisible, setIsRulesDrawerVisible] = useState(false);
-    const [inviteModalVisible, setInviteModalVisible] = useState(false);
-    const [isStartingGame, setIsStartingGame] = useState(false);
-    const [hasReadRules, setHasReadRules] = useState(false);
-    const [showRulesOnReady, setShowRulesOnReady] = useState(false);
-    const [isReadyClicked, setIsReadyClicked] = useState(false);
-    const [selectedRounds, setSelectedRounds] = useState(5);
-    const [showRoundSelector, setShowRoundSelector] = useState(false);
-    // Options pour double-dare (valeurs par défaut)
-    const [selectedLevel, setSelectedLevel] = useState<'hot' | 'extreme' | 'chaos' | null>('hot');
-    const [selectedMode, setSelectedMode] = useState<'versus' | 'fusion' | null>('versus');
-    // Options pour forbidden-desire (valeur par défaut)
-    const [selectedIntensity, setSelectedIntensity] = useState<'soft' | 'tension' | 'extreme' | null>('soft');
-    const { t } = useTranslation();
-    const { language, isRTL, getGameContent } = useLanguage();
+  const { id } = useLocalSearchParams();
+  const { user } = useAuth();
+  const { t } = useTranslation();
+  const { getGameContent } = useLanguage();
 
-    // Debugging useEffect
-    useEffect(() => {
-        if (room) {
-            console.log('DEBUG MIN PLAYERS CONDITION:', {
-                gameId: room.gameId,
-                playersLength: room.players?.length,
-                minRequired: getMinPlayersForGame(room.gameId),
-            });
-        }
-    }, [room?.gameId, room?.players?.length]);
+  // State
+  const [room, setRoom] = useState<Room | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isRulesDrawerVisible, setIsRulesDrawerVisible] = useState(false);
+  const [inviteModalVisible, setInviteModalVisible] = useState(false);
+  const [isStartingGame, setIsStartingGame] = useState(false);
+  const [hasReadRules, setHasReadRules] = useState(false);
+  const [showRulesOnReady, setShowRulesOnReady] = useState(false);
+  const [selectedRounds, setSelectedRounds] = useState(5);
+  const [showRoundSelector, setShowRoundSelector] = useState(false);
 
-    useEffect(() => {
-        if (!id || !user) return;
+  // Game options
+  const [selectedLevel, setSelectedLevel] = useState<
+    "hot" | "extreme" | "chaos" | null
+  >("hot");
+  const [selectedMode, setSelectedMode] = useState<"versus" | "fusion" | null>(
+    "versus",
+  );
+  const [selectedIntensity, setSelectedIntensity] = useState<
+    "soft" | "tension" | "extreme" | null
+  >("soft");
 
-        const db = getFirestore();
-        const roomRef = doc(db, 'rooms', id as string);
+  const isHalloweenGame = room?.gameId === "quiz-halloween";
+  const isHost = user?.uid === room?.host;
+  const currentPlayer = room?.players.find(
+    (p) => String(p.id) === String(user?.uid),
+  );
+  const minPlayers = room ? getMinPlayersForGame(room.gameId) : 2;
+  const canStart =
+    room &&
+    room.players.every((p) => p.isReady) &&
+    room.players.length >= minPlayers;
 
-        const unsubscribe = onSnapshot(roomRef, async (doc) => {
-            console.log('[DEBUG] onSnapshot déclenché');
-            if (doc.exists()) {
-                const roomData = { ...(doc.data() as Room), id: doc.id };
-                setRoom(roomData);
+  // Listener pour les changements de la room
+  useEffect(() => {
+    if (!id || !user) return;
 
-                // Ajout du log debug
-                console.log('[DEBUG ROOM] roomData:', roomData);
-                console.log('[DEBUG ROOM] Statut:', roomData.status, 'gameDocId:', roomData.gameDocId, 'gameMode:', roomData.gameMode);
+    const db = getFirestore();
+    const roomRef = doc(db, "rooms", id as string);
 
-                // Redirection automatique pour tous les joueurs quand la partie commence
-                if (roomData.status === 'playing' && roomData.gameDocId) {
-                    if (roomData.gameMode === 'truth-or-dare') {
-                        router.replace(`/game/truth-or-dare/${roomData.gameDocId}`);
-                    } else if (roomData.gameMode === 'double-dare') {
-                        router.replace(`/game/double-dare/${roomData.gameDocId}`);
-                    } else if (roomData.gameMode === 'forbidden-desire') {
-                        router.replace(`/game/forbidden-desire/${roomData.gameDocId}`);
-                    } else if (roomData.gameMode === 'listen-but-don-t-judge') {
-                        router.replace(`/game/listen-but-don-t-judge/${roomData.gameDocId}`);
-                    } else if (roomData.gameMode === 'trap-answer') {
-                        router.replace(`/game/trap-answer/${roomData.gameDocId}`);
-                    } else if (roomData.gameMode === 'never-have-i-ever-hot') {
-                        router.replace(`/game/never-have-i-ever-hot/${roomData.gameDocId}`);
-                    } else if (roomData.gameMode === 'genius-or-liar') {
-                        router.replace(`/game/genius-or-liar/${roomData.gameDocId}`);
-                    } else if (roomData.gameMode === 'two-letters-one-word') {
-                        router.replace(`/game/two-letters-one-word/${roomData.gameDocId}`);
-                    } else if (roomData.gameMode === 'word-guessing') {
-                        router.replace(`/game/word-guessing/${roomData.gameDocId}`);
-                    } else if (roomData.gameMode === 'quiz-halloween') {
-                        router.replace(`/game/quiz-halloween/${roomData.gameDocId}`);
-                    }
-                    return;
-                }
-                // Redirection spéciale pour Quiz Halloween en phase waiting
-                else if (roomData.status === 'waiting' && roomData.gameDocId && roomData.gameMode === 'quiz-halloween') {
-                    router.replace(`/game/quiz-halloween/${roomData.gameDocId}`);
-                    return;
-                }
-            } else {
-                Alert.alert('Erreur', 'Salle introuvable');
-                router.back();
-            }
-            setLoading(false);
-        }, (error) => {
-            console.error('Erreur lors de l\'écoute de la salle:', error);
-            Alert.alert('Erreur', 'Impossible de charger la salle');
-            router.back();
-        });
+    const unsubscribe = onSnapshot(
+      roomRef,
+      async (doc) => {
+        if (doc.exists()) {
+          const roomData = { ...(doc.data() as Room), id: doc.id };
+          setRoom(roomData);
 
-        return () => unsubscribe();
-    }, [id, user]);
-
-    const getMinPlayersForGame = (gameId: string): number => {
-        return GAME_CONFIG[gameId as keyof typeof GAME_CONFIG]?.minPlayers || 2;
-    };
-
-    const handleStartGame = async () => {
-        if (!room || !user) return;
-
-        const minPlayers = getMinPlayersForGame(room.gameId);
-
-        // Déterminer le nombre minimum de joueurs à afficher dans l'alerte
-        const displayMinPlayers = room.gameId === 'two-letters-one-word' ? 1 : minPlayers;
-
-        if (room.players.length < minPlayers) {
-            Alert.alert(
-                t('room.notEnoughPlayers'),
-                t('room.minPlayersRequired', { count: displayMinPlayers })
-            );
+          // Redirection automatique quand la partie commence
+          if (roomData.status === "playing" && roomData.gameDocId) {
+            router.replace(`/game/${roomData.gameMode}/${roomData.gameDocId}`);
             return;
-        }
-
-        // Réinitialiser l'état de lecture des règles
-        setHasReadRules(false);
-        // Afficher les règles avant de démarrer la partie
-        setIsRulesDrawerVisible(true);
-        setIsStartingGame(true);
-    };
-
-    const handleRulesClose = async () => {
-        setIsRulesDrawerVisible(false);
-        setShowRulesOnReady(false);
-
-        // Si on était en train de démarrer la partie et que les règles ont été lues
-        if (isStartingGame && hasReadRules) {
-            setIsStartingGame(false);
-            await startGame();
-        } else if (isStartingGame) {
-            // Si on ferme sans avoir lu les règles, on annule le démarrage
-            setIsStartingGame(false);
-            Alert.alert(
-                'Règles non lues',
-                'Veuillez lire les règles avant de démarrer la partie.',
-                [{ text: 'OK' }]
-            );
-        }
-    };
-
-    const handleRulesConfirm = async () => {
-        console.log('[DEBUG] handleRulesConfirm appelé, isStartingGame:', isStartingGame, 'showRulesOnReady:', showRulesOnReady);
-        setHasReadRules(true);
-        if (isStartingGame) {
-            setIsRulesDrawerVisible(false);
-            setIsStartingGame(false);
-            await startGame();
-        } else if (showRulesOnReady) {
-            console.log('[DEBUG] Appel de handleConfirmRulesOnReady');
-            await handleConfirmRulesOnReady();
-            setShowRulesOnReady(false);
+          }
+          // Redirection spéciale pour Quiz Halloween
+          else if (
+            roomData.status === "waiting" &&
+            roomData.gameDocId &&
+            roomData.gameMode === "quiz-halloween"
+          ) {
+            router.replace(`/game/quiz-halloween/${roomData.gameDocId}`);
+            return;
+          }
         } else {
-            setIsRulesDrawerVisible(false);
+          Alert.alert("Erreur", "Salle introuvable");
+          router.back();
         }
-    };
-
-    const startGame = async () => {
-        setIsStartingGame(true);
-        if (!room || !user) return;
-
-        try {
-            const db = getFirestore();
-            const gamesCollection = collection(db, 'games');
-            const gameDocRef = doc(gamesCollection);
-            const gameDocId = gameDocRef.id;
-
-            // Assurer que chaque joueur a un champ 'name' avant de le copier dans le document de jeu
-            const playersForGameDoc = room.players.map(player => ({
-                id: player.id,
-                username: player.username || player.displayName || 'Joueur',
-                displayName: player.displayName || player.username || 'Joueur',
-                name: player.displayName || player.username || 'Joueur Inconnu',
-                isHost: player.isHost || false,
-                isReady: player.isReady || false,
-                avatar: player.avatar || '',
-                level: player.level || 1,
-                score: 0,
-                history: [],
-            }));
-
-            let gameDataToSet;
-            const initialTargetPlayer = playersForGameDoc.length > 0 ? playersForGameDoc[0] : null;
-            const initialCurrentPlayerId = initialTargetPlayer ? initialTargetPlayer.id : null;
-
-            // CORRECTION: Initialiser l'historique des joueurs avec des tableaux vides au lieu de pré-remplir avec des 0
-            const initialPlayersHistory: { [playerId: string]: number[] } = {};
-
-            // Logique spéciale pour Quiz Halloween - commence en phase waiting
-            const isQuizHalloween = room.gameId === 'quiz-halloween';
-
-            // Logique spécifique au jeu "Two Letters One Word"
-            if (room.gameId === 'two-letters-one-word') {
-                console.log('[DEBUG] Démarrage du jeu Two Letters One Word');
-                gameDataToSet = {
-                    gameMode: room.gameId,
-                    players: playersForGameDoc,
-                    status: 'playing',
-                    currentRound: 1,
-                    totalRounds: selectedRounds,
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
-                    host: user.uid,
-                    scores: {},
-                    history: initialPlayersHistory,
-                    currentLetters: generateTwoLettersOneWordRandomLetters(),
-                    currentTheme: TWO_LETTERS_ONE_WORD_THEMES[Math.floor(Math.random() * TWO_LETTERS_ONE_WORD_THEMES.length)],
-                };
-            } else if (room.gameId === 'truth-or-dare') {
-                // Logique spécifique au jeu "Truth or Dare" - Commence en phase de choix
-                console.log('[DEBUG] Démarrage du jeu Truth or Dare - Phase de choix');
-                gameDataToSet = {
-                    gameMode: room.gameId,
-                    players: playersForGameDoc,
-                    status: 'playing',
-                    currentRound: 1,
-                    totalRounds: selectedRounds,
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
-                    host: user.uid,
-                    scores: {},
-                    history: {},
-                    naughtyAnswers: {},
-                    targetPlayer: initialTargetPlayer, // Le premier joueur commence
-                    currentPlayerId: initialCurrentPlayerId, // Initialiser currentPlayerId de manière sécurisée
-                    currentChoice: null, // Pas encore de choix
-                    currentQuestion: null, // Pas encore de question sélectionnée
-                    askedQuestionIds: [], // Aucune question posée au début
-                    phase: GamePhase.CHOIX, // Commence en phase de choix
-                };
-            } else if (room.gameId === 'double-dare') {
-                // Logique spécifique au jeu "Double Dare" - Utilise les valeurs choisies dans la room
-                console.log('[DEBUG] Démarrage du jeu Double Dare avec level:', selectedLevel, 'mode:', selectedMode);
-                
-                // Utiliser les valeurs par défaut si non définies
-                const levelToUse = selectedLevel || 'hot';
-                const modeToUse = selectedMode || 'versus';
-                
-                // Générer la première question avec le niveau et mode choisis
-                const filteredQuestions = doubleDareQuestions.filter(
-                    q => q.level === levelToUse && q.mode === modeToUse
-                );
-                const firstQuestion = filteredQuestions.length > 0
-                    ? transformDoubleDareQuestion(
-                        filteredQuestions[Math.floor(Math.random() * filteredQuestions.length)],
-                        0
-                      )
-                    : null;
-                
-                gameDataToSet = {
-                    gameMode: room.gameId,
-                    players: playersForGameDoc,
-                    status: 'playing',
-                    currentRound: 1,
-                    totalRounds: selectedRounds,
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
-                    host: user.uid,
-                    scores: {},
-                    playerScores: {}, // Scores spécifiques pour double-dare
-                    history: {},
-                    currentPlayerId: initialCurrentPlayerId || playersForGameDoc[0]?.id || '', // Le premier joueur commence
-                    selectedLevel: levelToUse, // Utilise le niveau choisi dans la room (ou défaut)
-                    selectedMode: modeToUse, // Utilise le mode choisi dans la room (ou défaut)
-                    currentQuestion: firstQuestion, // Première question générée
-                    safeWordEnabled: true, // Safe word activé par défaut
-                    dareCompleted: false,
-                    penaltyAssigned: false,
-                    phase: 'dare', // Passe directement à la phase de défi
-                };
-            } else if (room.gameId === 'forbidden-desire') {
-                // Logique spécifique au jeu "Forbidden Desire" - Utilise l'intensité choisie dans la room
-                console.log('[DEBUG] Démarrage du jeu Forbidden Desire avec intensity:', selectedIntensity);
-                
-                // Utiliser la valeur par défaut si non définie
-                const intensityToUse = selectedIntensity || 'soft';
-                
-                // Pour un jeu à deux joueurs, choisir aléatoirement qui commence
-                const randomStartingPlayer = playersForGameDoc.length > 0 
-                    ? playersForGameDoc[Math.floor(Math.random() * playersForGameDoc.length)]
-                    : null;
-                const startingPlayerId = randomStartingPlayer?.id || initialCurrentPlayerId || playersForGameDoc[0]?.id || '';
-                
-                console.log('[DEBUG ForbiddenDesire] Starting player ID:', startingPlayerId);
-                console.log('[DEBUG ForbiddenDesire] All players:', playersForGameDoc.map(p => ({ id: p.id, name: p.name })));
-                
-                // Récupérer les questions pour générer la première
-                let firstQuestion = null;
-                try {
-                    const gameContent = await getGameContent(room.gameId as GameMode);
-                    const questionsArr = gameContent?.questions;
-                    if (questionsArr && Array.isArray(questionsArr)) {
-                        // Filtrer par intensité
-                        const filteredQuestions = questionsArr.filter((q: any) => q.intensity === intensityToUse);
-                        if (filteredQuestions.length > 0) {
-                            firstQuestion = filteredQuestions[Math.floor(Math.random() * filteredQuestions.length)];
-                        }
-                    }
-                } catch (error) {
-                    console.error('Erreur lors de la récupération des questions pour forbidden-desire:', error);
-                }
-                
-                gameDataToSet = {
-                    gameMode: room.gameId,
-                    players: playersForGameDoc,
-                    status: 'playing',
-                    currentRound: 1,
-                    totalRounds: selectedRounds,
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
-                    host: user.uid,
-                    scores: {},
-                    playerScores: {}, // Scores spécifiques pour forbidden-desire
-                    history: {},
-                    currentPlayerId: startingPlayerId, // Joueur aléatoire commence
-                    selectedIntensity: intensityToUse, // Utilise l'intensité choisie dans la room (ou défaut)
-                    currentQuestion: firstQuestion, // Première question générée
-                    refusedQuestion: false,
-                    partnerChallenge: null,
-                    phase: 'question', // Passe directement à la phase de question
-                };
-            }
-            else {
-                // Logique pour les autres modes de jeu - Commence en phase de question/action
-                // Récupérer les questions pour le mode de jeu
-                let gameContent;
-                try {
-                    gameContent = await getGameContent(room.gameId as GameMode);
-                } catch (error) {
-                    console.error('Erreur lors de la récupération du contenu du jeu:', error);
-                    Alert.alert('Erreur', 'Impossible de démarrer la partie car les questions n\'ont pas pu être chargées.');
-                    setIsStartingGame(false);
-                    return;
-                }
-
-                const questionsArr = gameContent?.questions;
-
-                if (!questionsArr || !Array.isArray(questionsArr) || questionsArr.length === 0) {
-                    console.error('Aucune question disponible pour ce mode de jeu:', room.gameId);
-                    Alert.alert('Erreur', 'Impossible de démarrer la partie car aucune question n\'est disponible pour ce mode de jeu.');
-                    setIsStartingGame(false);
-                    return;
-                }
-
-                // Sélectionner la première question aléatoirement
-                const firstQuestion = questionsArr[Math.floor(Math.random() * questionsArr.length)];
-                console.log('[DEBUG ROOM] firstQuestion (raw from array):', firstQuestion);
-
-                if (!firstQuestion) {
-                    console.error('Impossible de sélectionner la première question.');
-                    Alert.alert('Erreur', 'Impossible de démarrer la partie car la première question n\'a pas pu être sélectionnée.');
-                    setIsStartingGame(false);
-                    return;
-                }
-
-                // Assurer que la question sélectionnée a une structure correcte pour le stockage
-                let transformedFirstQuestion;
-                switch (room.gameId) {
-                    case 'word-guessing':
-                        transformedFirstQuestion = transformWordGuessingQuestion(firstQuestion, 0);
-                        break;
-                    case 'trap-answer':
-                        transformedFirstQuestion = transformTrapAnswerQuestion(firstQuestion, 0);
-                        break;
-                    case 'never-have-i-ever-hot':
-                        transformedFirstQuestion = transformNeverHaveIEverHotQuestion(firstQuestion, 0);
-                        break;
-                    default:
-                        // Fallback pour les autres jeux, en supposant une structure simple.
-                        console.warn(`Utilisation de la transformation de question générique pour: ${room.gameId}`);
-                        transformedFirstQuestion = { ...firstQuestion, id: `q_0` };
-                        break;
-                }
-                console.log('[DEBUG ROOM] transformedFirstQuestion:', transformedFirstQuestion);
-
-                console.log(`[DEBUG] Démarrage du jeu ${room.gameId} - Phase Question/Action`);
-                
-                gameDataToSet = {
-                    gameMode: room.gameId,
-                    players: playersForGameDoc,
-                    status: isQuizHalloween ? 'waiting' : 'playing',
-                    currentRound: 1,
-                    totalRounds: selectedRounds,
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
-                    host: user.uid,
-                    scores: {},
-                    history: initialPlayersHistory,
-                    naughtyAnswers: {}, // Peut être spécifique à certains jeux, laisser pour l'instant si c'était là
-                    targetPlayer: initialTargetPlayer, // Définir le premier joueur comme cible initiale
-                    currentPlayerId: initialCurrentPlayerId, // Initialiser currentPlayerId de manière sécurisée
-                    currentQuestion: isQuizHalloween ? null : transformedFirstQuestion, // Pas de question initiale pour Quiz Halloween
-                    askedQuestionIds: isQuizHalloween ? [] : [transformedFirstQuestion.id], // Pas de questions posées pour Quiz Halloween
-                    phase: isQuizHalloween ? 'waiting' : GamePhase.QUESTION, // Phase waiting pour Quiz Halloween
-                };
-            }
-
-            // Assurez-vous que gameDataToSet est défini avant d'appeler setDoc
-            if (!gameDataToSet) {
-                console.error('Erreur: gameDataToSet n\'a pas été défini pour le mode de jeu', room.gameId);
-                Alert.alert('Erreur', 'Impossible de démarrer la partie: configuration de jeu manquante.');
-                setIsStartingGame(false);
-                return;
-            }
-
-            await setDoc(gameDocRef, gameDataToSet);
-
-            // Mettre à jour la salle avec l'ID du document de jeu et le mode de jeu
-            await updateDoc(doc(db, 'rooms', room.id), {
-                status: isQuizHalloween ? 'waiting' : 'playing',
-                gameDocId: gameDocId,
-                gameMode: room.gameId
-            });
-
-            // Rediriger vers le jeu
-            console.log('[DEBUG] Redirection vers le jeu:', room.gameId, gameDocId);
-
-            switch (room.gameId) {
-                case 'never-have-i-ever-hot':
-                case 'truth-or-dare':
-                case 'double-dare':
-                case 'forbidden-desire':
-                case 'listen-but-don-t-judge':
-                case 'trap-answer':
-                case 'genius-or-liar':
-                case 'two-letters-one-word':
-                case 'word-guessing':
-                case 'quiz-halloween':
-                    router.replace(`/game/${room.gameId}/${gameDocId}`);
-                    break;
-                default:
-                    console.error('Mode de jeu non reconnu:', room.gameId);
-                    Alert.alert('Erreur', 'Mode de jeu non reconnu');
-                    setIsStartingGame(false);
-            }
-
-        } catch (error) {
-            console.error('Erreur lors du démarrage du jeu:', error);
-            Alert.alert('Erreur', 'Impossible de démarrer le jeu');
-        } finally {
-            setIsStartingGame(false);
-        }
-    };
-
-    const handleInviteFriend = () => {
-        setInviteModalVisible(true);
-    };
-
-    const handleLeaveRoom = async () => {
-        if (!room || !user) return;
-
-        try {
-            const db = getFirestore();
-            const updatedPlayers = room.players.filter(p => p.id !== user.uid);
-
-            if (updatedPlayers.length === 0) {
-                // Si c'était le dernier joueur, supprimer la salle
-                await updateDoc(doc(db, 'rooms', room.id), {
-                    status: 'finished'
-                });
-            } else if (updatedPlayers[0]) {
-                // Sinon, mettre à jour la liste des joueurs
-                await updateDoc(doc(db, 'rooms', room.id), {
-                    players: updatedPlayers,
-                    host: updatedPlayers[0].id // Le premier joueur restant devient l'hôte
-                });
-            }
-
-            router.back();
-        } catch (error) {
-            console.error('Erreur lors de la sortie de la salle:', error);
-            Alert.alert('Erreur', 'Impossible de quitter la salle');
-        }
-    };
-
-    const handleShareRoom = async () => {
-        if (!room) return;
-
-        try {
-            await Share.share({
-                message: `Rejoins ma partie sur Nightly ! Code: ${room.code}`,
-                title: 'Rejoins ma partie'
-            });
-        } catch (error) {
-            console.error('Erreur lors du partage:', error);
-        }
-    };
-
-    const handleCopyCode = async () => {
-        if (!room) return;
-
-        try {
-            await Clipboard.setString(room.code);
-        } catch (error) {
-            console.error('Erreur lors de la copie du code:', error);
-        }
-    };
-
-    const handleRoundSelection = (rounds: number) => {
-        setSelectedRounds(rounds);
-        setShowRoundSelector(false);
-    };
-
-    const handleConfirmRulesOnReady = async () => {
-        console.log('[DEBUG] handleConfirmRulesOnReady appelé, room:', !!room, 'user:', !!user);
-        if (!room || !user) {
-            console.error('[DEBUG] Room ou User manquant');
-            setShowRulesOnReady(false);
-            return;
-        }
-
-        try {
-            const db = getFirestore();
-            const updatedPlayers = room.players.map(p =>
-                String(p.id) === String(user?.uid) ? { ...p, isReady: true } : p
-            );
-
-            console.log('[DEBUG] Mise à jour du statut prêt pour le joueur:', user.uid, 'roomId:', room.id);
-            await updateDoc(doc(db, 'rooms', room.id), {
-                players: updatedPlayers
-            });
-
-            console.log('[DEBUG] Statut prêt mis à jour avec succès');
-            
-            // Vérification que la mise à jour a réussi
-            const roomRef = doc(db, 'rooms', room.id);
-            const updatedRoomDoc = await getDoc(roomRef);
-            if (updatedRoomDoc.exists()) {
-                const updatedRoomData = updatedRoomDoc.data();
-                console.log('[DEBUG] Vérification - Statut mis à jour avec succès:', updatedRoomData);
-            }
-        } catch (error) {
-            console.error('[DEBUG] Erreur lors de la mise à jour du statut prêt:', error);
-            Alert.alert('Erreur', 'Impossible de se mettre prêt');
-        }
-        
-        setIsReadyClicked(false);
-        setShowRulesOnReady(false);
-    };
-
-    if (loading) {
-        return (
-            <View style={styles.loadingContainer}>
-                <Text style={styles.loadingText}>{t('room.loading')}</Text>
-            </View>
-        );
-    }
-
-    if (!room || !room.id) {
-        return null;
-    }
-
-    const minPlayersForGame = room.gameId ? getMinPlayersForGame(room.gameId) : -1; // Calculate minimum players
-    
-    // Fonction pour déterminer si c'est le Quiz Halloween
-    const isHalloweenGame = room?.gameId === 'quiz-halloween';
-
-    return (
-        <View style={styles.container}>
-            <StatusBar style="light" />
-            <LinearGradient
-                colors={isHalloweenGame ? 
-                    [HalloweenTheme.light.backgroundDarker, HalloweenTheme.light.secondary, HalloweenTheme.light.primary, HalloweenTheme.light.secondary, HalloweenTheme.light.backgroundDarker] : // Couleurs Halloween
-                    ["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"] // Couleurs normales
-                }
-                locations={[0, 0.2, 0.5, 0.8, 1]}
-                style={styles.background}
-            >
-                {/* Décorations Halloween pour le Quiz Halloween */}
-                {isHalloweenGame && (
-                    <View style={styles.halloweenDecorations}>
-                        <HalloweenDecorations />
-                    </View>
-                )}
-                
-                <View style={styles.topBar}>
-                    <View style={styles.topBarRow}>
-                        <TouchableOpacity onPress={handleLeaveRoom} style={styles.backButton}>
-                            <Ionicons name="arrow-back" size={24} color="white" />
-                        </TouchableOpacity>
-
-                        <View style={styles.rightContainer}>
-                            <TouchableOpacity
-                                style={styles.iconButton}
-                                onPress={handleInviteFriend}
-                            >
-                                <LinearGradient
-                                    colors={isHalloweenGame ? [HalloweenTheme.light.primary, HalloweenTheme.light.error] : ["#C41E3A", "#8B1538"]}
-                                    start={{ x: 0, y: 0 }}
-                                    end={{ x: 1, y: 1 }}
-                                    style={{ borderRadius: 12, padding: 7 }}
-                                >
-                                    <Ionicons name="qr-code" size={22} color="white" />
-                                </LinearGradient>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-
-                    <View style={styles.topBarTitleContainer}>
-                        <Text style={styles.topBarTitle}>
-                            {t('room.title')} - {t(`home.games.${room.gameId}.name`, { defaultValue: room.name?.toUpperCase() })}
-                        </Text>
-                    </View>
-                </View>
-
-                {/* Message du minimum de joueurs déplacé ici */}
-                {room && room.players && room.gameId && room.players.length <= getMinPlayersForGame(room.gameId) && (
-                    <Text style={[styles.minPlayersWarning, styles.centeredWarning]}>
-                        {t('room.minPlayersRequired', { count: getMinPlayersForGame(room.gameId) })}
-                    </Text>
-                )}
-
-                <View style={styles.codeContainer}>
-                    <Text style={styles.codeLabel}>{t('room.codeLabel')}</Text>
-                    <TouchableOpacity
-                        style={styles.codeBox}
-                        onPress={handleCopyCode}
-                    >
-                        <Text style={styles.codeText}>{room.code}</Text>
-                        <Ionicons name="copy-outline" size={20} color="#fff" />
-                    </TouchableOpacity>
-                </View>
-
-                <View style={styles.playersContainer}>
-                    <View style={styles.playersHeaderRow}>
-                        <Text style={styles.sectionTitle}>
-                            {t('room.players', {count: room.players.length})} ({room.players.length}/{room.maxPlayers})
-                        </Text>
-                        <TouchableOpacity style={styles.rulesButtonRow} onPress={() => setIsRulesDrawerVisible(true)}>
-                            <Text style={styles.rulesText}>{t('room.rules')}</Text>
-                            <View style={styles.rulesCircle}>
-                                <Text style={styles.rulesQuestionMark}>?</Text>
-                            </View>
-                        </TouchableOpacity>
-                    </View>
-                    <FlatList
-                        data={room.players}
-                        keyExtractor={(item) => item.id.toString()}
-                        renderItem={({ item }) => (
-                            <View style={styles.playerCard}>
-                                <View style={{ marginRight: 10 }}>
-                                    <Avatar
-                                        source={item.avatar}
-                                        size={40}
-                                        username={item.displayName || item.username}
-                                    />
-                                </View>
-                                <View style={styles.playerInfo}>
-                                    <Text style={styles.playerName}>{item.displayName || item.username}</Text>
-                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                        {item.isHost && (
-                                            <View style={styles.hostBadge}>
-                                                <Text style={styles.hostText}>{t('room.host')}</Text>
-                                            </View>
-                                        )}
-                                        {item.isReady && (
-                                            <View style={styles.readyBadge}>
-                                                <Text style={styles.readyText}>{t('room.ready')}</Text>
-                                            </View>
-                                        )}
-                                    </View>
-                                </View>
-                            </View>
-                        )}
-                    />
-                </View>
-
-                <RulesDrawer
-                    visible={isRulesDrawerVisible || showRulesOnReady}
-                    onClose={handleRulesClose}
-                    onConfirm={handleRulesConfirm}
-                    gameId={room?.gameId}
-                    isStartingGame={showRulesOnReady}
-                />
-
-                {user?.uid === room.host && room.status === 'waiting' && (
-                    <>
-                        <View style={styles.gameControlsContainer}>
-                            <View style={styles.roundSelectorContainer}>
-                                {user?.uid === room.host && (
-                                    <TouchableOpacity
-                                        style={styles.roundSelectorButton}
-                                        onPress={() => setShowRoundSelector(!showRoundSelector)}
-                                    >
-                                        <LinearGradient
-                                            colors={isHalloweenGame ? [HalloweenTheme.light.primary, HalloweenTheme.light.error] : ["#C41E3A", "#8B1538"]}
-                                            start={{ x: 0, y: 0 }}
-                                            end={{ x: 1, y: 0 }}
-                                            style={styles.roundSelectorGradient}
-                                        >
-                                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                                                <Text style={styles.roundSelectorText}>{selectedRounds} {t('room.rounds')}</Text>
-                                                <View style={styles.roundSelectorIconContainer}>
-                                                    <MaterialCommunityIcons name="star-four-points" size={18} color="white" style={styles.starIcon} />
-                                                    <MaterialCommunityIcons name="star-four-points" size={12} color="white" style={styles.smallStarIcon} />
-                                                </View>
-                                            </View>
-                                        </LinearGradient>
-                                    </TouchableOpacity>
-                                )}
-
-                                {showRoundSelector && (
-                                    <View style={styles.roundOptionsContainer}>
-                                        <View style={styles.roundOptionsRow}>
-                                            <TouchableOpacity
-                                                key={5}
-                                                style={[
-                                                    styles.roundOption,
-                                                    selectedRounds === 5 && styles.selectedRoundOption
-                                                ]}
-                                                onPress={() => handleRoundSelection(5)}
-                                            >
-                                                <Text style={[
-                                                    styles.roundOptionText,
-                                                    selectedRounds === 5 && styles.selectedRoundOptionText
-                                                ]}>
-                                                    5
-                                                </Text>
-                                            </TouchableOpacity>
-
-                                            <TouchableOpacity
-                                                key={10}
-                                                style={[
-                                                    styles.roundOption,
-                                                    selectedRounds === 10 && styles.selectedRoundOption
-                                                ]}
-                                                onPress={() => handleRoundSelection(10)}
-                                            >
-                                                <Text style={[
-                                                    styles.roundOptionText,
-                                                    selectedRounds === 10 && styles.selectedRoundOptionText
-                                                ]}>
-                                                    10
-                                                </Text>
-                                            </TouchableOpacity>
-
-                                            <TouchableOpacity
-                                                key={15}
-                                                style={[
-                                                    styles.roundOption,
-                                                    selectedRounds === 15 && styles.selectedRoundOption
-                                                ]}
-                                                onPress={() => handleRoundSelection(15)}
-                                            >
-                                                <Text style={[
-                                                    styles.roundOptionText,
-                                                    selectedRounds === 15 && styles.selectedRoundOptionText
-                                                ]}>
-                                                    15
-                                                </Text>
-                                            </TouchableOpacity>
-                                        </View>
-
-                                        <View style={styles.roundOptionsRow}>
-                                            <TouchableOpacity
-                                                key={20}
-                                                style={[
-                                                    styles.roundOption,
-                                                    selectedRounds === 20 && styles.selectedRoundOption
-                                                ]}
-                                                onPress={() => handleRoundSelection(20)}
-                                            >
-                                                <Text style={[
-                                                    styles.roundOptionText,
-                                                    selectedRounds === 20 && styles.selectedRoundOptionText
-                                                ]}>
-                                                    20
-                                                </Text>
-                                            </TouchableOpacity>
-
-                                            <TouchableOpacity
-                                                key={25}
-                                                style={[
-                                                    styles.roundOption,
-                                                    selectedRounds === 25 && styles.selectedRoundOption
-                                                ]}
-                                                onPress={() => handleRoundSelection(25)}
-                                            >
-                                                <Text style={[
-                                                    styles.roundOptionText,
-                                                    selectedRounds === 25 && styles.selectedRoundOptionText
-                                                ]}>
-                                                    25
-                                                </Text>
-                                            </TouchableOpacity>
-                                        </View>
-                                    </View>
-                                )}
-                            </View>
-
-                            {/* Sélecteurs pour double-dare */}
-                            {room.gameId === 'double-dare' && (
-                                <View style={styles.gameOptionsContainer}>
-                                    <Text style={styles.optionLabel}>Niveau :</Text>
-                                    <View style={styles.optionsRow}>
-                                        <TouchableOpacity
-                                            style={[
-                                                styles.optionButton,
-                                                selectedLevel === 'hot' && styles.selectedOptionButton
-                                            ]}
-                                            onPress={() => setSelectedLevel('hot')}
-                                        >
-                                            <Text style={[
-                                                styles.optionButtonText,
-                                                selectedLevel === 'hot' && styles.selectedOptionButtonText
-                                            ]}>🔥 HOT</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity
-                                            style={[
-                                                styles.optionButton,
-                                                selectedLevel === 'extreme' && styles.selectedOptionButton
-                                            ]}
-                                            onPress={() => setSelectedLevel('extreme')}
-                                        >
-                                            <Text style={[
-                                                styles.optionButtonText,
-                                                selectedLevel === 'extreme' && styles.selectedOptionButtonText
-                                            ]}>😳 EXTREME</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity
-                                            style={[
-                                                styles.optionButton,
-                                                selectedLevel === 'chaos' && styles.selectedOptionButton
-                                            ]}
-                                            onPress={() => setSelectedLevel('chaos')}
-                                        >
-                                            <Text style={[
-                                                styles.optionButtonText,
-                                                selectedLevel === 'chaos' && styles.selectedOptionButtonText
-                                            ]}>😈 CHAOS</Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                    <Text style={styles.optionLabel}>Mode :</Text>
-                                    <View style={styles.optionsRow}>
-                                        <TouchableOpacity
-                                            style={[
-                                                styles.optionButton,
-                                                selectedMode === 'versus' && styles.selectedOptionButton
-                                            ]}
-                                            onPress={() => setSelectedMode('versus')}
-                                        >
-                                            <Text style={[
-                                                styles.optionButtonText,
-                                                selectedMode === 'versus' && styles.selectedOptionButtonText
-                                            ]}>⚔️ VERSUS</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity
-                                            style={[
-                                                styles.optionButton,
-                                                selectedMode === 'fusion' && styles.selectedOptionButton
-                                            ]}
-                                            onPress={() => setSelectedMode('fusion')}
-                                        >
-                                            <Text style={[
-                                                styles.optionButtonText,
-                                                selectedMode === 'fusion' && styles.selectedOptionButtonText
-                                            ]}>💫 FUSION</Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                </View>
-                            )}
-
-                            {/* Sélecteur pour forbidden-desire */}
-                            {room.gameId === 'forbidden-desire' && (
-                                <View style={styles.gameOptionsContainer}>
-                                    <Text style={styles.optionLabel}>Intensité :</Text>
-                                    <View style={styles.optionsRow}>
-                                        <TouchableOpacity
-                                            style={[
-                                                styles.optionButton,
-                                                selectedIntensity === 'soft' && styles.selectedOptionButton
-                                            ]}
-                                            onPress={() => setSelectedIntensity('soft')}
-                                        >
-                                            <Text style={[
-                                                styles.optionButtonText,
-                                                selectedIntensity === 'soft' && styles.selectedOptionButtonText
-                                            ]}>🔥 SOFT</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity
-                                            style={[
-                                                styles.optionButton,
-                                                selectedIntensity === 'tension' && styles.selectedOptionButton
-                                            ]}
-                                            onPress={() => setSelectedIntensity('tension')}
-                                        >
-                                            <Text style={[
-                                                styles.optionButtonText,
-                                                selectedIntensity === 'tension' && styles.selectedOptionButtonText
-                                            ]}>😳 TENSION</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity
-                                            style={[
-                                                styles.optionButton,
-                                                selectedIntensity === 'extreme' && styles.selectedOptionButton
-                                            ]}
-                                            onPress={() => setSelectedIntensity('extreme')}
-                                        >
-                                            <Text style={[
-                                                styles.optionButtonText,
-                                                selectedIntensity === 'extreme' && styles.selectedOptionButtonText
-                                            ]}>😈 EXTRÊME</Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                </View>
-                            )}
-
-                            <View style={styles.startButtonContainer}>
-                                <RoundedButton
-                                    title={t('room.startGame')}
-                                    onPress={handleStartGame}
-                                    disabled={
-                                        !room.players.every(p => p.isReady) ||
-                                        room.players.length < getMinPlayersForGame(room.gameId)
-                                    }
-                                    style={[
-                                        styles.startButton,
-                                        room.players.length < getMinPlayersForGame(room.gameId) && styles.disabledButton
-                                    ]}
-                                    textStyle={styles.startButtonText}
-                                    gradientColors={isHalloweenGame ? 
-                                        [HalloweenTheme.light.primary, HalloweenTheme.light.error] : // Couleurs Halloween
-                                        ["#C41E3A", "#8B1538"] // Mêmes couleurs que le bouton rounds
-                                    }
-                                />
-                            </View>
-                        </View>
-                    </>
-                )}
-
-                {user?.uid !== room.host && room.status === 'waiting' && room.id && !room.players.find(p => String(p.id) === String(user?.uid))?.isReady && (
-                    <View style={styles.readyButtonContainer}>
-                        <TouchableOpacity
-                            style={styles.readyButtonFullWidth}
-                            onPress={() => {
-                                console.log('[DEBUG] Je suis prêt cliqué, gameId:', room.gameId);
-                                setShowRulesOnReady(true);
-                                setIsReadyClicked(true);
-                            }}
-                        >
-                            <LinearGradient
-                                colors={isHalloweenGame ? [HalloweenTheme.light.primary, HalloweenTheme.light.error] : ["#C41E3A", "#8B1538"]}
-                                start={{ x: 0, y: 0 }}
-                                end={{ x: 1, y: 0 }}
-                                style={styles.roundSelectorGradient}
-                            >
-                                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                                    <Text style={styles.roundSelectorText}>{t('room.iAmReady')}</Text>
-                                    <View style={styles.roundSelectorIconContainer}>
-                                        <MaterialCommunityIcons name="star-four-points" size={18} color="white" style={styles.starIcon} />
-                                        <MaterialCommunityIcons name="star-four-points" size={12} color="white" style={styles.smallStarIcon} />
-                                    </View>
-                                </View>
-                            </LinearGradient>
-                        </TouchableOpacity>
-                    </View>
-                )}
-
-                <InviteModal
-                    visible={inviteModalVisible}
-                    roomId={room?.code || ''}
-                    onClose={() => setInviteModalVisible(false)}
-                    onCopyCode={handleCopyCode}
-                    onShareCode={handleShareRoom}
-                />
-            </LinearGradient>
-        </View>
+        setLoading(false);
+      },
+      (error) => {
+        console.error("Erreur lors de l'écoute de la salle:", error);
+        Alert.alert("Erreur", "Impossible de charger la salle");
+        router.back();
+      },
     );
+
+    return () => unsubscribe();
+  }, [id, user]);
+
+  const handleStartGame = async () => {
+    if (!room || !user) return;
+
+    if (room.players.length < minPlayers) {
+      Alert.alert(
+        t("room.notEnoughPlayers"),
+        t("room.minPlayersRequired", { count: minPlayers }),
+      );
+      return;
+    }
+
+    setHasReadRules(false);
+    setIsRulesDrawerVisible(true);
+    setIsStartingGame(true);
+  };
+
+  const handleRulesClose = async () => {
+    setIsRulesDrawerVisible(false);
+    setShowRulesOnReady(false);
+
+    if (isStartingGame && hasReadRules) {
+      setIsStartingGame(false);
+      await startGame();
+    } else if (isStartingGame) {
+      setIsStartingGame(false);
+      Alert.alert(
+        "Règles non lues",
+        "Veuillez lire les règles avant de démarrer la partie.",
+      );
+    }
+  };
+
+  const handleRulesConfirm = async () => {
+    setHasReadRules(true);
+    if (isStartingGame) {
+      setIsRulesDrawerVisible(false);
+      setIsStartingGame(false);
+      await startGame();
+    } else if (showRulesOnReady) {
+      await handleConfirmRulesOnReady();
+      setShowRulesOnReady(false);
+    } else {
+      setIsRulesDrawerVisible(false);
+    }
+  };
+
+  const startGame = async () => {
+    setIsStartingGame(true);
+    if (!room || !user) return;
+
+    try {
+      const db = getFirestore();
+      const gameDocId = await createGame({
+        gameMode: room.gameId,
+        players: room.players,
+        hostId: user.uid,
+        selectedRounds,
+        selectedLevel: selectedLevel || undefined,
+        selectedMode: selectedMode || undefined,
+        selectedIntensity: selectedIntensity || undefined,
+        getGameContent,
+      });
+
+      const isQuizHalloween = room.gameId === "quiz-halloween";
+      const newStatus = isQuizHalloween ? "waiting" : "playing";
+
+      await updateDoc(doc(db, "rooms", room.id), {
+        status: newStatus,
+        gameDocId: gameDocId,
+        gameMode: room.gameId,
+      });
+
+      router.replace(`/game/${room.gameId}/${gameDocId}`);
+    } catch (error) {
+      console.error("Erreur lors du démarrage du jeu:", error);
+      Alert.alert("Erreur", "Impossible de démarrer le jeu");
+    } finally {
+      setIsStartingGame(false);
+    }
+  };
+
+  const handleConfirmRulesOnReady = async () => {
+    if (!room || !user) return;
+
+    try {
+      const db = getFirestore();
+      const updatedPlayers = room.players.map((p) =>
+        String(p.id) === String(user?.uid) ? { ...p, isReady: true } : p,
+      );
+
+      await updateDoc(doc(db, "rooms", room.id), {
+        players: updatedPlayers,
+      });
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour du statut prêt:", error);
+      Alert.alert("Erreur", "Impossible de se mettre prêt");
+    }
+  };
+
+  const handleLeaveRoom = async () => {
+    if (!room || !user) return;
+
+    try {
+      const db = getFirestore();
+      const updatedPlayers = room.players.filter((p) => p.id !== user.uid);
+
+      if (updatedPlayers.length === 0) {
+        await updateDoc(doc(db, "rooms", room.id), {
+          status: "finished",
+        });
+      } else if (updatedPlayers[0]) {
+        await updateDoc(doc(db, "rooms", room.id), {
+          players: updatedPlayers,
+          host: updatedPlayers[0].id,
+        });
+      }
+
+      router.back();
+    } catch (error) {
+      console.error("Erreur lors de la sortie de la salle:", error);
+      Alert.alert("Erreur", "Impossible de quitter la salle");
+    }
+  };
+
+  const handleShareRoom = async () => {
+    if (!room) return;
+    try {
+      await Share.share({
+        message: `Rejoins ma partie sur Nightly ! Code: ${room.code}`,
+        title: "Rejoins ma partie",
+      });
+    } catch (error) {
+      console.error("Erreur lors du partage:", error);
+    }
+  };
+
+  const handleCopyCode = async () => {
+    if (!room) return;
+    try {
+      await Clipboard.setString(room.code);
+    } catch (error) {
+      console.error("Erreur lors de la copie du code:", error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={styles.loadingText}>{t("room.loading")}</Text>
+      </View>
+    );
+  }
+
+  if (!room || !room.id) return null;
+
+  return (
+    <View style={styles.container}>
+      <StatusBar style="light" />
+      <LinearGradient
+        colors={
+          isHalloweenGame
+            ? [
+                HalloweenTheme.light.backgroundDarker,
+                HalloweenTheme.light.secondary,
+                HalloweenTheme.light.primary,
+                HalloweenTheme.light.secondary,
+                HalloweenTheme.light.backgroundDarker,
+              ]
+            : ["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]
+        }
+        locations={[0, 0.2, 0.5, 0.8, 1]}
+        style={styles.background}
+      >
+        {isHalloweenGame && (
+          <View style={styles.halloweenDecorations}>
+            <HalloweenDecorations />
+          </View>
+        )}
+
+        {/* Top Bar */}
+        <View style={styles.topBar}>
+          <View style={styles.topBarRow}>
+            <TouchableOpacity
+              onPress={handleLeaveRoom}
+              style={styles.backButton}
+            >
+              <Ionicons name="arrow-back" size={24} color="white" />
+            </TouchableOpacity>
+
+            <View style={styles.rightContainer}>
+              <TouchableOpacity
+                style={styles.iconButton}
+                onPress={() => setInviteModalVisible(true)}
+              >
+                <LinearGradient
+                  colors={
+                    isHalloweenGame
+                      ? [
+                          HalloweenTheme.light.primary,
+                          HalloweenTheme.light.error,
+                        ]
+                      : ["#C41E3A", "#8B1538"]
+                  }
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={{ borderRadius: 12, padding: 7 }}
+                >
+                  <Ionicons name="qr-code" size={22} color="white" />
+                </LinearGradient>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={styles.topBarTitleContainer}>
+            <Text style={styles.topBarTitle}>
+              {t("room.title")} -{" "}
+              {t(`home.games.${room.gameId}.name`, {
+                defaultValue: room.name?.toUpperCase(),
+              })}
+            </Text>
+          </View>
+        </View>
+
+        {/* Warning minimum de joueurs */}
+        {room.players.length <= minPlayers && (
+          <Text style={[styles.minPlayersWarning, styles.centeredWarning]}>
+            {t("room.minPlayersRequired", { count: minPlayers })}
+          </Text>
+        )}
+
+        {/* Code de la room */}
+        <RoomCodeDisplay code={room.code} onCopy={handleCopyCode} />
+
+        {/* Liste des joueurs */}
+        <View style={styles.playersContainer}>
+          <View style={styles.playersHeaderRow}>
+            <Text style={styles.sectionTitle}>
+              {t("room.players", { count: room.players.length })} (
+              {room.players.length}/{room.maxPlayers})
+            </Text>
+            <TouchableOpacity
+              style={styles.rulesButtonRow}
+              onPress={() => setIsRulesDrawerVisible(true)}
+            >
+              <Text style={styles.rulesText}>{t("room.rules")}</Text>
+              <View style={styles.rulesCircle}>
+                <Text style={styles.rulesQuestionMark}>?</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+
+          <PlayersList players={room.players} maxPlayers={room.maxPlayers} />
+        </View>
+
+        {/* Contrôles de l'hôte */}
+        {isHost && room.status === "waiting" && (
+          <View style={styles.gameControlsContainer}>
+            {/* Sélecteur de rounds */}
+            <RoundSelector
+              selectedRounds={selectedRounds}
+              showOptions={showRoundSelector}
+              onToggle={() => setShowRoundSelector(!showRoundSelector)}
+              onSelect={(rounds) => {
+                setSelectedRounds(rounds);
+                setShowRoundSelector(false);
+              }}
+              isHalloweenGame={isHalloweenGame}
+            />
+
+            {/* Options spécifiques au jeu */}
+            <GameOptions
+              gameId={room.gameId}
+              selectedLevel={selectedLevel}
+              selectedMode={selectedMode}
+              selectedIntensity={selectedIntensity}
+              onLevelChange={setSelectedLevel}
+              onModeChange={setSelectedMode}
+              onIntensityChange={setSelectedIntensity}
+              isHalloweenGame={isHalloweenGame}
+            />
+
+            {/* Bouton Démarrer */}
+            <View style={styles.startButtonContainer}>
+              <RoundedButton
+                title={t("room.startGame")}
+                onPress={handleStartGame}
+                disabled={!canStart}
+                style={[styles.startButton, !canStart && styles.disabledButton]}
+                textStyle={styles.startButtonText}
+                gradientColors={
+                  isHalloweenGame
+                    ? [HalloweenTheme.light.primary, HalloweenTheme.light.error]
+                    : ["#C41E3A", "#8B1538"]
+                }
+              />
+            </View>
+          </View>
+        )}
+
+        {/* Bouton "Je suis prêt" pour les non-hôtes */}
+        {!isHost && room.status === "waiting" && !currentPlayer?.isReady && (
+          <View style={styles.readyButtonContainer}>
+            <TouchableOpacity
+              style={styles.readyButtonFullWidth}
+              onPress={() => {
+                setShowRulesOnReady(true);
+                setIsRulesDrawerVisible(true);
+              }}
+            >
+              <LinearGradient
+                colors={
+                  isHalloweenGame
+                    ? [HalloweenTheme.light.primary, HalloweenTheme.light.error]
+                    : ["#C41E3A", "#8B1538"]
+                }
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.roundSelectorGradient}
+              >
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Text style={styles.roundSelectorText}>
+                    {t("room.iAmReady")}
+                  </Text>
+                  <View style={styles.roundSelectorIconContainer}>
+                    <MaterialCommunityIcons
+                      name="star-four-points"
+                      size={18}
+                      color="white"
+                      style={styles.starIcon}
+                    />
+                    <MaterialCommunityIcons
+                      name="star-four-points"
+                      size={12}
+                      color="white"
+                      style={styles.smallStarIcon}
+                    />
+                  </View>
+                </View>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Modals */}
+        <RulesDrawer
+          visible={isRulesDrawerVisible || showRulesOnReady}
+          onClose={handleRulesClose}
+          onConfirm={handleRulesConfirm}
+          gameId={room?.gameId}
+          isStartingGame={showRulesOnReady}
+        />
+
+        <InviteModal
+          visible={inviteModalVisible}
+          roomId={room?.code || ""}
+          onClose={() => setInviteModalVisible(false)}
+          onCopyCode={handleCopyCode}
+          onShareCode={handleShareRoom}
+        />
+      </LinearGradient>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create<RoomScreenStyles>({
-    container: {
-        flex: 1,
-    },
-    background: {
-        flex: 1,
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#4b277d',
-    },
-    loadingText: {
-        color: '#fff',
-        fontSize: 16,
-    },
-    topBar: {
-        paddingHorizontal: 20,
-        paddingTop: 50,
-        paddingBottom: 10,
-    },
-    topBarRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        width: '100%',
-        marginBottom: 8,
-    },
-    backButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: 'rgba(255,255,255,0.1)',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    topBarTitleContainer: {
-        width: '100%',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: 5,
-    },
-    topBarTitle: {
-        color: '#fff',
-        fontSize: 18,
-        fontWeight: 'bold',
-        textTransform: 'uppercase',
-        letterSpacing: 1,
-        textAlign: 'center',
-    },
-    shareButton: {
-        padding: 8,
-    },
-    codeContainer: {
-        alignItems: 'center',
-        marginBottom: 30,
-    },
-    codeLabel: {
-        color: '#fff',
-        fontSize: 16,
-        marginBottom: 10,
-    },
-    codeBox: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-        paddingHorizontal: 20,
-        paddingVertical: 10,
-        borderRadius: 8,
-    },
-    codeText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: 'bold',
-        marginRight: 10,
-        letterSpacing: 2,
-    },
-    playersContainer: {
-        flex: 1,
-        paddingHorizontal: 20,
-    },
-    playersHeaderRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginBottom: 15,
-    },
-    rulesButtonRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    rulesText: {
-        color: '#ccc',
-        fontSize: 16,
-        marginRight: 6,
-    },
-    rulesCircle: {
-        width: 18,
-        height: 18,
-        borderRadius: 14,
-        borderWidth: 1,
-        borderColor: '#ccc',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    rulesQuestionMark: {
-        color: '#ccc',
-        fontSize: 10,
-        fontWeight: 'bold',
-        marginTop: -2,
-    },
-    sectionTitle: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-    playerCard: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-        padding: 12,
-        borderRadius: 12,
-        marginBottom: 10,
-    },
-    playerAvatar: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        marginRight: 12,
-    },
-    playerInfo: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-    },
-    playerName: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: '500',
-    },
-    hostBadge: {
-        backgroundColor: '#6c5ce7',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 12,
-        marginRight: 6,
-    },
-    hostText: {
-        color: '#fff',
-        fontSize: 12,
-        fontWeight: '500',
-    },
-    readyBadge: {
-        backgroundColor: '#00c853',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 12,
-    },
-    readyText: {
-        color: '#fff',
-        fontSize: 12,
-        fontWeight: '500',
-    },
-    readyButton: {
-        width: '90%',
-        alignSelf: 'center',
-        borderRadius: 12,
-        overflow: 'hidden',
-        marginBottom: 15,
-    },
-    readyButtonGradient: {
-        paddingVertical: 15,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    readyButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: 'bold',
-        textTransform: 'uppercase',
-        letterSpacing: 1,
-    },
-    rightContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    headerButtons: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    inviteButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: 'rgba(93, 109, 255, 0.3)',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    gameControlsContainer: {
-        width: '100%',
-        paddingHorizontal: 20,
-        marginBottom: 15,
-        position: 'relative',
-        zIndex: 100,
-    },
-    roundSelectorContainer: {
-        width: '100%',
-        alignItems: 'flex-start',
-        marginBottom: 15,
-        position: 'relative',
-        zIndex: 100,
-    },
-    roundSelectorButton: {
-        width: 'auto',
-        borderRadius: 12,
-        overflow: 'hidden',
-        marginTop: 10,
-    },
-    readyButtonContainer: {
-        width: '100%',
-        alignItems: 'stretch',
-        paddingHorizontal: 20,
-        marginBottom: 15,
-        position: 'relative',
-        zIndex: 100,
-    },
-    readyButtonFullWidth: {
-        width: '100%',
-        borderRadius: 12,
-        overflow: 'hidden',
-        marginTop: 10,
-    },
-    roundSelectorGradient: {
-        paddingHorizontal: 20,
-        paddingVertical: 15,
-        borderRadius: 12,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    roundSelectorText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-    roundSelectorIconContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginLeft: 5,
-    },
-    starIcon: {
-        marginLeft: 2,
-    },
-    smallStarIcon: {
-        marginLeft: -4,
-        marginTop: -8,
-    },
-    roundOptionsContainer: {
-        position: 'absolute',
-        bottom: '120%',
-        left: 0,
-        backgroundColor: 'rgba(20, 20, 30, 0.8)',
-        borderRadius: 12,
-        padding: 10,
-        flexDirection: 'column',
-        justifyContent: 'space-around',
-        zIndex: 1000,
-        width: 220,
-    },
-    roundOptionsRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        marginBottom: 10,
-    },
-    roundOption: {
-        padding: 16,
-        margin: 5,
-        borderRadius: 12,
-        backgroundColor: 'rgba(80, 80, 100, 0.3)',
-        width: 60,
-        height: 60,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    roundOptionText: {
-        color: '#fff',
-        fontSize: 20,
-        fontWeight: 'bold',
-    },
-    selectedRoundOption: {
-        backgroundColor: '#C41E3A',
-    },
-    selectedRoundOptionText: {
-        color: '#fff',
-    },
-    startButtonContainer: {
-        width: '100%',
-        marginBottom: 15,
-    },
-    startButton: {
-        width: '100%',
-        alignSelf: 'stretch',
-    },
-    startButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-    leaveButton: {
-        marginHorizontal: 20,
-        marginBottom: 30,
-        paddingVertical: 15,
-        borderRadius: 12,
-        alignItems: 'center',
-    },
-    leaveButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: '500',
-    },
-    iconButton: {
-        width: 36,
-        height: 36,
-        borderRadius: 18,
-        justifyContent: "center",
-        alignItems: "center",
-        marginLeft: 10,
-    },
-    minPlayersWarning: {
-        color: '#ff6b6b',
-        fontSize: 14,
-        fontWeight: '500',
-    },
-    disabledButton: {
-        opacity: 0.5,
-    },
-    centeredWarning: {
-        textAlign: 'center',
-        marginBottom: 10,
-    },
-    gameOptionsContainer: {
-        width: '100%',
-        marginBottom: 15,
-        paddingHorizontal: 10,
-    },
-    optionLabel: {
-        color: '#fff',
-        fontSize: 14,
-        fontWeight: 'bold',
-        marginBottom: 8,
-        marginTop: 5,
-    },
-    optionsRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        gap: 8,
-        marginBottom: 10,
-    },
-    optionButton: {
-        flex: 1,
-        paddingVertical: 12,
-        paddingHorizontal: 8,
-        borderRadius: 12,
-        backgroundColor: 'rgba(80, 80, 100, 0.3)',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderWidth: 2,
-        borderColor: 'transparent',
-    },
-    selectedOptionButton: {
-        backgroundColor: '#C41E3A',
-        borderColor: '#E8B4B8',
-    },
-    optionButtonText: {
-        color: '#ccc',
-        fontSize: 12,
-        fontWeight: '600',
-        textAlign: 'center',
-    },
-    selectedOptionButtonText: {
-        color: '#fff',
-        fontWeight: 'bold',
-    },
-    minPlayersText: {
-        color: '#ccc', // Couleur grise pour l'information permanente
-        fontSize: 14,
-        marginTop: 5,
-        textAlign: 'center',
-    },
-    halloweenDecorations: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        width: '100%',
-        height: '100%',
-        zIndex: 1,
-        pointerEvents: 'none',
-    },
+  container: { flex: 1 },
+  background: { flex: 1 },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#4b277d",
+  },
+  loadingText: { color: "#fff", fontSize: 16 },
+  topBar: { paddingHorizontal: 20, paddingTop: 50, paddingBottom: 10 },
+  topBarRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
+    marginBottom: 8,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(255,255,255,0.1)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  topBarTitleContainer: {
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 5,
+  },
+  topBarTitle: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    textAlign: "center",
+  },
+  rightContainer: { flexDirection: "row", alignItems: "center" },
+  iconButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: 10,
+  },
+  playersContainer: { flex: 1, paddingHorizontal: 20 },
+  playersHeaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 15,
+  },
+  rulesButtonRow: { flexDirection: "row", alignItems: "center" },
+  rulesText: { color: "#ccc", fontSize: 16, marginRight: 6 },
+  rulesCircle: {
+    width: 18,
+    height: 18,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  rulesQuestionMark: {
+    color: "#ccc",
+    fontSize: 10,
+    fontWeight: "bold",
+    marginTop: -2,
+  },
+  sectionTitle: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+  gameControlsContainer: {
+    width: "100%",
+    paddingHorizontal: 20,
+    marginBottom: 15,
+    position: "relative",
+    zIndex: 100,
+  },
+  readyButtonContainer: {
+    width: "100%",
+    alignItems: "stretch",
+    paddingHorizontal: 20,
+    marginBottom: 15,
+    position: "relative",
+    zIndex: 100,
+  },
+  readyButtonFullWidth: {
+    width: "100%",
+    borderRadius: 12,
+    overflow: "hidden",
+    marginTop: 10,
+  },
+  roundSelectorGradient: {
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  roundSelectorText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+  roundSelectorIconContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginLeft: 5,
+  },
+  starIcon: { marginLeft: 2 },
+  smallStarIcon: { marginLeft: -4, marginTop: -8 },
+  startButtonContainer: { width: "100%", marginBottom: 15 },
+  startButton: { width: "100%", alignSelf: "stretch" },
+  startButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+  minPlayersWarning: { color: "#ff6b6b", fontSize: 14, fontWeight: "500" },
+  disabledButton: { opacity: 0.5 },
+  centeredWarning: { textAlign: "center", marginBottom: 10 },
+  halloweenDecorations: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: "100%",
+    height: "100%",
+    zIndex: 1,
+    pointerEvents: "none",
+  },
+
+  // Unused styles kept for compatibility
+  shareButton: {},
+  codeContainer: {},
+  codeLabel: {},
+  codeBox: {},
+  codeText: {},
+  playerCard: {},
+  playerAvatar: {},
+  playerInfo: {},
+  playerName: {},
+  hostBadge: {},
+  hostText: {},
+  readyBadge: {},
+  readyText: {},
+  readyButton: {},
+  readyButtonGradient: {},
+  readyButtonText: {},
+  headerButtons: {},
+  inviteButton: {},
+  roundSelectorContainer: {},
+  roundSelectorButton: {},
+  roundOptionsContainer: {},
+  roundOptionsRow: {},
+  roundOption: {},
+  roundOptionText: {},
+  selectedRoundOption: {},
+  selectedRoundOptionText: {},
+  leaveButton: {},
+  leaveButtonText: {},
+  minPlayersText: {},
 });

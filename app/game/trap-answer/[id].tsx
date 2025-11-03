@@ -12,6 +12,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import GameResults from '@/components/game/GameResults';
 import { usePoints } from '@/hooks/usePoints';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useGameEndPaywall } from '@/hooks/useGameEndPaywall';
 
 interface TrapGameState {
   phase: GamePhase;
@@ -48,6 +49,10 @@ export default function TrapAnswerGame() {
 
   // Utiliser le hook pour gérer les questions, en lui passant l'historique des questions posées
   const { questions, getRandomQuestion } = useTrapAnswerQuestions(gameState?.askedQuestionIds || []);
+
+  // Hook pour afficher le paywall après 2-3 parties gratuites
+  const isGameEnded = gameState?.phase === GamePhase.END;
+  useGameEndPaywall('trap-answer', isGameEnded);
 
   // Timer pour la barre de temps (UI only)
   const TIMER_DURATION = 20; // secondes

@@ -1,0 +1,153 @@
+import React from 'react';
+import { View, Text, Image, TouchableOpacity, StyleSheet, ViewStyle, TextStyle, ImageStyle } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+
+interface GameModeCardProps {
+  id: string;
+  name: string;
+  image: any;
+  colors: string[];
+  borderColor: string;
+  shadowColor: string;
+  fontFamily?: string;
+  premium: boolean;
+  onPress: () => void;
+  disabled?: boolean;
+}
+
+interface GameModeCardStyles {
+  container: ViewStyle;
+  gradient: ViewStyle;
+  content: ViewStyle;
+  premiumBadge: ViewStyle;
+  premiumBadgeText: TextStyle;
+  ageRestrictionContainer: ViewStyle;
+  ageRestrictionCircle: ViewStyle;
+  ageRestrictionLine: ViewStyle;
+  ageRestrictionText: TextStyle;
+  characterImage: ImageStyle;
+  titleContainer: ViewStyle;
+  title: TextStyle;
+}
+
+/**
+ * Carte de mode de jeu avec le design amélioré
+ */
+export default function GameModeCard({
+  id,
+  name,
+  image,
+  colors,
+  borderColor,
+  shadowColor,
+  fontFamily,
+  premium,
+  onPress,
+  disabled = false
+}: GameModeCardProps) {
+  return (
+    <TouchableOpacity
+      style={styles.container}
+      onPress={onPress}
+      activeOpacity={0.8}
+      disabled={disabled}
+      testID={`game-mode-${id}`}
+    >
+      <LinearGradient
+        colors={colors.length >= 2 ? (colors as [string, string, ...string[]]) : ['#C41E3A', '#8B1538']}
+        style={[
+          styles.gradient,
+          {
+            borderColor: borderColor,
+            shadowColor: shadowColor,
+          },
+        ]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
+        <View style={styles.content}>
+          {/* Image du personnage au centre */}
+          <Image
+            source={image}
+            style={styles.characterImage}
+            resizeMode="cover"
+          />
+
+          {/* Titre du jeu en bas */}
+          <View style={styles.titleContainer}>
+            <Text
+              style={[
+                styles.title,
+                fontFamily && { fontFamily }
+              ]}
+              numberOfLines={2}
+              adjustsFontSizeToFit
+            >
+              {name}
+            </Text>
+          </View>
+        </View>
+      </LinearGradient>
+    </TouchableOpacity>
+  );
+}
+
+const styles = StyleSheet.create<GameModeCardStyles>({
+  container: {
+    width: '100%',
+    height: 180,
+    borderRadius: 20,
+    marginBottom: 16,
+  },
+  gradient: {
+    flex: 1,
+    borderRadius: 20,
+    borderWidth: 2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  content: {
+    flex: 1,
+    position: 'relative',
+    overflow: 'hidden',
+    borderRadius: 18,
+  },
+  // Image du personnage
+  characterImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
+    height: '100%',
+    borderRadius: 18,
+    zIndex: 1,
+  },
+  // Titre du jeu
+  titleContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    borderBottomLeftRadius: 18,
+    borderBottomRightRadius: 18,
+    zIndex: 15,
+  },
+  title: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+    textShadowColor: 'rgba(0, 0, 0, 0.8)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 6,
+  },
+});

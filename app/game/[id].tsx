@@ -24,6 +24,11 @@ export default function GameRouter() {
       let mode = gameId;
       console.log("[DEBUG GameRouter] Starting redirect logic. Initial mode:", mode);
       if (!mode) {
+        if (!gameRoomId) {
+          const idStr = typeof id === 'string' ? id : Array.isArray(id) ? id[0] : 'unknown';
+          Alert.alert(t('game.error'), t('game.notFound', { id: idStr }));
+          return;
+        }
         const db = getFirestore();
         console.log("[DEBUG GameRouter] mode is undefined, fetching from Firestore for game ID:", gameRoomId);
         const gameDoc = await getDoc(doc(db, 'games', gameRoomId));
@@ -32,10 +37,13 @@ export default function GameRouter() {
           console.log("[DEBUG GameRouter] Fetched gameId from Firestore:", mode, "for gameRoomId:", gameRoomId);
           
           // Suivre le début du jeu
-          await gameAnalytics.trackGameStart(gameRoomId, mode);
+          if (mode && typeof mode === 'string' && gameRoomId) {
+            await gameAnalytics.trackGameStart(gameRoomId, mode);
+          }
         } else {
           console.log("[DEBUG GameRouter] Game document not found for ID:", gameRoomId);
-          Alert.alert(t('game.error'), t('game.notFound', { id }));
+          const idStr = typeof id === 'string' ? id : Array.isArray(id) ? id[0] : 'unknown';
+          Alert.alert(t('game.error'), t('game.notFound', { id: idStr }));
           return;
         }
       }

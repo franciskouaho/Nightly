@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTruthOrDareQuestions } from '@/hooks/truth-or-dare-questions';
 import { usePoints } from '@/hooks/usePoints';
+import { useGameEndPaywall } from '@/hooks/useGameEndPaywall';
 import GameResults from '@/components/game/GameResults';
 import SkewedButton from '@/components/game/SkewedButton';
 import Colors from '@/constants/Colors';
@@ -222,6 +223,9 @@ export default function TruthOrDareGameScreen() {
   const { t } = useTranslation();
   const { getGameContent, language } = useLanguage();
   const { getRandomQuestion, resetAskedQuestions, isLoadingQuestions } = useTruthOrDareQuestions();
+
+  // Hook pour afficher le paywall après 2-3 parties gratuites
+  useGameEndPaywall('truth-or-dare', isGameOver);
 
   const handleNextRound = async () => {
     if (!game || !user) return;
