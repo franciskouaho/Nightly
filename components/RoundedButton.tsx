@@ -19,7 +19,7 @@ interface RoundedButtonProps {
   style?: any;
   textStyle?: any;
   icon?: React.ReactNode;
-  gradientColors?: string[];
+  gradientColors?: readonly [string, string, ...string[]];
 }
 
 const RoundedButton: React.FC<RoundedButtonProps> = ({

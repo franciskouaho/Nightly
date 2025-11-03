@@ -12,6 +12,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useForbiddenDesireQuestions } from '@/hooks/forbidden-desire-questions';
 import { usePoints } from '@/hooks/usePoints';
 import GameResults from '@/components/game/GameResults';
+import ChristmasTheme from '@/constants/themes/Christmas';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface ForbiddenDesireGameState extends Omit<GameState, 'phase'> {
   currentPlayerId: string;
@@ -23,8 +25,11 @@ interface ForbiddenDesireGameState extends Omit<GameState, 'phase'> {
   partnerChallenge?: string;
 }
 
-const CARD_COLOR = '#8B0000';
-const CARD_ACCENT = '#DC143C';
+// Utilisation du thème Christmas/Glamour
+const GRADIENT_START = ChristmasTheme.light.backgroundDarker;
+const GRADIENT_END = ChristmasTheme.light.primary;
+const ACCENT_COLOR = ChristmasTheme.light.primary;
+const ACCENT_GOLD = ChristmasTheme.light.tertiary;
 
 // Composant carte de question
 const QuestionCard = ({
@@ -55,16 +60,16 @@ const QuestionCard = ({
   return (
     <View style={styles.cardContainer}>
       <LinearGradient
-        colors={["#8B0000", "#DC143C"]}
+        colors={[GRADIENT_START, GRADIENT_END]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={StyleSheet.absoluteFill}
       />
       <View style={{ alignItems: 'center', marginBottom: 16 }}>
-        <View style={{ backgroundColor: '#5A0000', borderRadius: 36, paddingVertical: 4, paddingHorizontal: 18, marginBottom: 8 }}>
+        <View style={{ backgroundColor: ChristmasTheme.light.backgroundDarker, borderRadius: 36, paddingVertical: 4, paddingHorizontal: 18, marginBottom: 8 }}>
           <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 20 }}>{playerName}</Text>
         </View>
-        <Text style={{ color: '#FFEDCC', fontSize: 16, fontWeight: '600', opacity: 0.9 }}>
+        <Text style={{ color: ACCENT_GOLD, fontSize: 16, fontWeight: '600', opacity: 0.9 }}>
           {intensityEmoji[intensity]} {intensityLabel[intensity]}
         </Text>
       </View>
@@ -89,6 +94,7 @@ export default function ForbiddenDesireGameScreen() {
   const router = useRouter();
   const { requestReview } = useInAppReview();
   const { awardGamePoints } = usePoints();
+  const insets = useSafeAreaInsets();
   const [game, setGame] = useState<ForbiddenDesireGameState | null>(null);
   const [loading, setLoading] = useState(true);
   const [isGameOver, setIsGameOver] = useState(false);
@@ -229,7 +235,7 @@ export default function ForbiddenDesireGameScreen() {
       setLoading(false);
     });
     return () => unsubscribe();
-  }, [id, getRandomQuestion]);
+  }, [id]);
 
   useEffect(() => {
     if (game && (game.currentRound > game.totalRounds || game.phase === 'end')) {
@@ -243,7 +249,8 @@ export default function ForbiddenDesireGameScreen() {
   if (loading || isLoadingQuestions) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={CARD_COLOR} />
+        <LinearGradient colors={[GRADIENT_START, GRADIENT_END]} style={StyleSheet.absoluteFill} />
+        <ActivityIndicator size="large" color={ACCENT_GOLD} />
         <Text style={styles.loadingText}>Chargement...</Text>
       </View>
     );
@@ -252,6 +259,7 @@ export default function ForbiddenDesireGameScreen() {
   if (!game) {
     return (
       <View style={styles.loadingContainer}>
+        <LinearGradient colors={[GRADIENT_START, GRADIENT_END]} style={StyleSheet.absoluteFill} />
         <Text style={styles.errorText}>Partie introuvable</Text>
       </View>
     );
@@ -279,12 +287,9 @@ export default function ForbiddenDesireGameScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <LinearGradient colors={[GRADIENT_START, GRADIENT_END]} style={StyleSheet.absoluteFill} />
       <StatusBar style="light" />
-      <LinearGradient
-        colors={["#1A0808", "#2D0A0A"]}
-        style={styles.gradient}
-      >
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.header}>
             <Text style={styles.title}>😈 DÉSIR INTERDIT</Text>
             <Text style={styles.subtitle}>
@@ -313,7 +318,7 @@ export default function ForbiddenDesireGameScreen() {
                   </TouchableOpacity>
 
                   <TouchableOpacity
-                    style={[styles.answerButton, { backgroundColor: '#DC143C' }]}
+                    style={[styles.answerButton, { backgroundColor: ACCENT_COLOR }]}
                     onPress={() => handleAnswer(false)}
                   >
                     <Text style={styles.answerButtonText}>❌ Je refuse (défi)</Text>
@@ -388,21 +393,23 @@ export default function ForbiddenDesireGameScreen() {
                   </Text>
                 </View>
               )}
-
-              {isCurrentPlayer && (
-                <TouchableOpacity
-                  style={styles.nextButton}
-                  onPress={handleNextRound}
-                >
-                  <Text style={styles.nextButtonText}>
-                    Tour suivant →
-                  </Text>
-                </TouchableOpacity>
-              )}
             </View>
           )}
-        </ScrollView>
-      </LinearGradient>
+      </ScrollView>
+
+      {/* Bouton Tour suivant en bas de l'écran */}
+      {game.phase === 'results' && isCurrentPlayer && (
+        <View style={[styles.bottomButtonContainer, { paddingBottom: insets.bottom + 20 }]}>
+          <TouchableOpacity
+            style={styles.nextButton}
+            onPress={handleNextRound}
+          >
+            <Text style={styles.nextButtonText}>
+              Tour suivant →
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -410,16 +417,11 @@ export default function ForbiddenDesireGameScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1A0808',
-  },
-  gradient: {
-    flex: 1,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#1A0808',
   },
   loadingText: {
     color: '#fff',
@@ -427,7 +429,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   errorText: {
-    color: '#DC143C',
+    color: ACCENT_COLOR,
     fontSize: 18,
   },
   scrollContent: {
@@ -439,10 +441,11 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#DC143C',
+    fontSize: 34,
+    fontFamily: 'Righteous-Regular',
+    color: ACCENT_GOLD,
     textAlign: 'center',
+    letterSpacing: 1,
   },
   subtitle: {
     fontSize: 16,
@@ -460,7 +463,7 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   cardContainer: {
-    backgroundColor: '#2D0A0A',
+    backgroundColor: GRADIENT_START,
     borderRadius: 20,
     padding: 24,
     marginBottom: 24,
@@ -487,7 +490,7 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     height: '100%',
-    backgroundColor: '#DC143C',
+    backgroundColor: ACCENT_COLOR,
     borderRadius: 4,
   },
   cardProgress: {
@@ -509,7 +512,7 @@ const styles = StyleSheet.create({
   },
   challengeTitle: {
     fontSize: 22,
-    color: '#DC143C',
+    color: ACCENT_COLOR,
     textAlign: 'center',
     marginBottom: 24,
     fontWeight: 'bold',
@@ -532,7 +535,7 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   submitButton: {
-    backgroundColor: '#DC143C',
+    backgroundColor: ACCENT_COLOR,
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -543,14 +546,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   resultCard: {
-    backgroundColor: 'rgba(220, 20, 60, 0.2)',
+    backgroundColor: `${ACCENT_COLOR}33`,
     borderRadius: 16,
     padding: 24,
     marginBottom: 24,
   },
   resultTitle: {
     fontSize: 28,
-    color: '#DC143C',
+    color: ACCENT_GOLD,
     textAlign: 'center',
     fontWeight: 'bold',
     marginBottom: 16,
@@ -567,11 +570,25 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     marginVertical: 16,
   },
+  bottomButtonContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    backgroundColor: 'transparent',
+  },
   nextButton: {
-    backgroundColor: '#DC143C',
+    backgroundColor: ACCENT_COLOR,
     padding: 20,
     borderRadius: 12,
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
   nextButtonText: {
     color: '#fff',

@@ -51,7 +51,7 @@ export default function SplashScreen() {
   return (
     <View style={styles.container}>
       <ImageBackground
-        source={require("@/assets/halloween/splash/splash.png")}
+        source={require("@/assets/christmas/splash/splash.png")}
         style={styles.background}
       >
         <LinearGradient
@@ -77,7 +77,7 @@ export default function SplashScreen() {
             <View style={styles.topContent}>
               <View style={styles.mascoContainer}>
                 <Image
-                  source={require("@/assets/halloween/splash/mascotte.png")}
+                  source={require("@/assets/christmas/splash/mascotte.png")}
                   style={styles.mascotte}
                 />
               </View>
@@ -117,18 +117,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   mascoContainer: {
-    shadowColor: "#fff",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 15,
-    elevation: 10,
+    // Shine removed
   },
   textContainer: {
-    shadowColor: "#fff",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.5,
-    shadowRadius: 10,
-    elevation: 8,
     alignItems: "center",
   },
   mascotte: {
@@ -137,20 +128,20 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
   },
   title: {
-    fontSize: 40,
-    fontWeight: "bold",
+    fontSize: 56,
+    fontFamily: "Righteous-Regular",
     color: "#fff",
     marginTop: 20,
-    textShadowColor: "rgba(255, 255, 255, 0.8)",
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 5,
+    letterSpacing: 2,
+    textShadowColor: "rgba(196, 30, 58, 0.8)",
+    textShadowOffset: { width: 0, height: 4 },
+    textShadowRadius: 15,
   },
   subtitle: {
-    fontSize: 18,
-    color: "rgba(255, 255, 255, 0.7)",
+    fontSize: 16,
+    fontFamily: "Montserrat-Regular",
+    color: "rgba(255, 255, 255, 0.9)",
     marginTop: 10,
-    textShadowColor: "rgba(255, 255, 255, 0.5)",
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 3,
+    letterSpacing: 0.5,
   },
 });

@@ -943,9 +943,9 @@ const styles = StyleSheet.create({
   },
   modeName: {
     color: "white",
-    fontSize: 16,
+    fontSize: 20,
     fontFamily: "BebasNeue-Regular", // Fallback par défaut - sera remplacé par game.fontFamily
-    marginBottom: 4,
+    marginBottom: 6,
     letterSpacing: 1.2,
     textTransform: "uppercase",
     textShadowColor: "rgba(0,0,0,0.7)",
@@ -954,8 +954,8 @@ const styles = StyleSheet.create({
   },
   modeDescription: {
     color: "rgba(255,255,255,0.95)",
-    fontSize: 13,
-    lineHeight: 18,
+    fontSize: 14,
+    lineHeight: 20,
     fontFamily: "Roboto-Regular",
     letterSpacing: 0.3,
   },

@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { useDoubleDareQuestions } from '@/hooks/double-dare-questions';
 import GameResults from '@/components/game/GameResults';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import ChristmasTheme from '@/constants/themes/Christmas';
 
 interface DoubleDareGameState extends Omit<GameState, 'phase'> {
   currentPlayerId: string;
@@ -23,9 +24,10 @@ interface DoubleDareGameState extends Omit<GameState, 'phase'> {
   penaltyAssigned?: boolean;
 }
 
-const PURPLE_DARK = '#4A1A66';
-const PURPLE_LIGHT = '#7B2CBF';
-const ACCENT_FIRE = '#FF6B35';
+// Utilisation du thème Christmas/Glamour
+const GRADIENT_START = ChristmasTheme.light.backgroundDarker;
+const GRADIENT_END = ChristmasTheme.light.primary;
+const ACCENT_GOLD = ChristmasTheme.light.tertiary;
 
 // Composant carte de défi
 const DareCard = ({
@@ -68,20 +70,20 @@ const DareCard = ({
   return (
     <View style={styles.cardContainer}>
       <LinearGradient
-        colors={[PURPLE_DARK, PURPLE_LIGHT]}
+        colors={[GRADIENT_START, GRADIENT_END]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={StyleSheet.absoluteFill}
       />
       <View style={{ alignItems: 'center', marginBottom: 16 }}>
-        <View style={{ backgroundColor: '#2D0A47', borderRadius: 36, paddingVertical: 4, paddingHorizontal: 18, marginBottom: 8 }}>
+        <View style={{ backgroundColor: ChristmasTheme.light.backgroundDarker, borderRadius: 36, paddingVertical: 4, paddingHorizontal: 18, marginBottom: 8 }}>
           <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 20 }}>{playerName}</Text>
         </View>
         <View style={{ flexDirection: 'row', gap: 12 }}>
-          <Text style={{ color: '#FFD700', fontSize: 16, fontWeight: '600', opacity: 0.9 }}>
+          <Text style={{ color: ACCENT_GOLD, fontSize: 16, fontWeight: '600', opacity: 0.9 }}>
             {levelEmoji[level]} {levelLabel[level]}
           </Text>
-          <Text style={{ color: '#FF6B35', fontSize: 16, fontWeight: '600', opacity: 0.9 }}>
+          <Text style={{ color: ChristmasTheme.light.textSecondary, fontSize: 16, fontWeight: '600', opacity: 0.9 }}>
             {modeEmoji[mode]} {modeLabel[mode]}
           </Text>
         </View>
@@ -197,8 +199,8 @@ export default function DoubleDareGame() {
   if (loading || !gameState) {
     return (
       <View style={styles.loadingContainer}>
-        <LinearGradient colors={[PURPLE_DARK, PURPLE_LIGHT]} style={StyleSheet.absoluteFill} />
-        <ActivityIndicator size="large" color="#FFD700" />
+        <LinearGradient colors={[GRADIENT_START, GRADIENT_END]} style={StyleSheet.absoluteFill} />
+        <ActivityIndicator size="large" color={ACCENT_GOLD} />
       </View>
     );
   }
@@ -213,14 +215,14 @@ export default function DoubleDareGame() {
         players={gameState.players}
         scores={gameState.playerScores || {}}
         userId={user?.uid || ''}
-        colors={[PURPLE_DARK, PURPLE_LIGHT]}
+        colors={[GRADIENT_START, GRADIENT_END]}
       />
     );
   }
 
   return (
     <View style={styles.container}>
-      <LinearGradient colors={[PURPLE_DARK, PURPLE_LIGHT]} style={StyleSheet.absoluteFill} />
+      <LinearGradient colors={[GRADIENT_START, GRADIENT_END]} style={StyleSheet.absoluteFill} />
       <StatusBar style="light" />
 
       <ScrollView
@@ -273,17 +275,6 @@ export default function DoubleDareGame() {
             )}
           </>
         )}
-
-        {/* Scores */}
-        <View style={styles.scoresContainer}>
-          <Text style={styles.scoresTitle}>Scores</Text>
-          {gameState.players.map(player => (
-            <View key={player.id} style={styles.scoreRow}>
-              <Text style={styles.scoreName}>{player.name}</Text>
-              <Text style={styles.scoreValue}>{gameState.playerScores?.[player.id] || 0} pts</Text>
-            </View>
-          ))}
-        </View>
       </ScrollView>
     </View>
   );
@@ -306,13 +297,14 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   headerTitle: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#FFD700',
+    fontSize: 38,
+    fontFamily: 'Righteous-Regular',
+    color: ACCENT_GOLD,
     textShadowColor: 'rgba(0, 0, 0, 0.5)',
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
     marginBottom: 8,
+    letterSpacing: 1,
   },
   headerSubtitle: {
     fontSize: 14,
@@ -322,15 +314,15 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   roundIndicator: {
-    backgroundColor: 'rgba(255, 215, 0, 0.2)',
+    backgroundColor: `${ACCENT_GOLD}20`,
     paddingVertical: 6,
     paddingHorizontal: 16,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#FFD700',
+    borderColor: ACCENT_GOLD,
   },
   roundText: {
-    color: '#FFD700',
+    color: ACCENT_GOLD,
     fontWeight: 'bold',
     fontSize: 16,
   },
@@ -381,11 +373,11 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     height: '100%',
-    backgroundColor: '#FFD700',
+    backgroundColor: ACCENT_GOLD,
     borderRadius: 4,
   },
   cardProgress: {
-    color: '#FFD700',
+    color: ACCENT_GOLD,
     fontWeight: 'bold',
     fontSize: 14,
   },
@@ -414,34 +406,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginVertical: 24,
     fontStyle: 'italic',
-  },
-  scoresContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    padding: 16,
-    borderRadius: 12,
-    marginTop: 12,
-  },
-  scoresTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  scoreRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  scoreName: {
-    color: 'white',
-    fontSize: 16,
-  },
-  scoreValue: {
-    color: '#FFD700',
-    fontSize: 16,
-    fontWeight: 'bold',
   },
 });

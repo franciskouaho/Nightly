@@ -1,3 +1,5 @@
+import { ViewStyle, TextStyle, ImageStyle } from 'react-native';
+
 // Type pour l'utilisateur
 export interface User {
     id: string | number;

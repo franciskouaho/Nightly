@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ViewStyle, TextStyle } from 'react-native';
+import ChristmasTheme from '@/constants/themes/Christmas';
 
 interface GameOptionsProps {
     gameId: string;
@@ -21,6 +22,9 @@ interface GameOptionsStyles {
     optionButtonText: TextStyle;
     selectedOptionButtonText: TextStyle;
 }
+
+const SELECTED_OPTION_BG_COLOR = ChristmasTheme.light.primary;
+const SELECTED_OPTION_BORDER_COLOR = ChristmasTheme.light.textSecondary;
 
 /**
  * Composant pour afficher les options spécifiques à chaque jeu
@@ -191,8 +195,8 @@ const styles = StyleSheet.create<GameOptionsStyles>({
         borderColor: 'transparent',
     },
     selectedOptionButton: {
-        backgroundColor: '#C41E3A',
-        borderColor: '#E8B4B8',
+        backgroundColor: SELECTED_OPTION_BG_COLOR,
+        borderColor: SELECTED_OPTION_BORDER_COLOR,
     },
     optionButtonText: {
         color: '#ccc',

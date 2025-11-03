@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import HalloweenTheme from '@/constants/themes/Halloween';
+import ChristmasTheme from '@/constants/themes/Christmas';
 
 interface RoundSelectorProps {
   selectedRounds: number;
@@ -34,6 +35,8 @@ const ROUND_OPTIONS = [
   [20, 25]
 ];
 
+const SELECTED_OPTION_COLOR = ChristmasTheme.light.primary;
+
 /**
  * Sélecteur de nombre de rounds pour la partie
  */
@@ -46,9 +49,9 @@ export default function RoundSelector({
 }: RoundSelectorProps) {
   const { t } = useTranslation();
 
-  const gradientColors = isHalloweenGame
+  const gradientColors = (isHalloweenGame
     ? [HalloweenTheme.light.primary, HalloweenTheme.light.error]
-    : ["#C41E3A", "#8B1538"];
+    : [ChristmasTheme.light.primary, ChristmasTheme.light.secondary]) as [string, string];
 
   return (
     <View style={styles.container}>
@@ -169,7 +172,7 @@ const styles = StyleSheet.create<RoundSelectorStyles>({
     fontWeight: 'bold',
   },
   selectedOption: {
-    backgroundColor: '#C41E3A',
+    backgroundColor: SELECTED_OPTION_COLOR,
   },
   selectedOptionText: {
     color: '#fff',

@@ -43,6 +43,7 @@ import {
 
 // Constants
 import HalloweenTheme from "@/constants/themes/Halloween";
+import ChristmasTheme from "@/constants/themes/Christmas";
 
 export default function RoomScreen() {
   const { id } = useLocalSearchParams();
@@ -295,7 +296,13 @@ export default function RoomScreen() {
                 HalloweenTheme.light.secondary,
                 HalloweenTheme.light.backgroundDarker,
               ]
-            : ["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]
+            : [
+                ChristmasTheme.light.backgroundDarker,
+                ChristmasTheme.light.backgroundDarker,
+                ChristmasTheme.light.primary,
+                ChristmasTheme.light.backgroundDarker,
+                ChristmasTheme.light.background,
+              ]
         }
         locations={[0, 0.2, 0.5, 0.8, 1]}
         style={styles.background}
@@ -328,7 +335,10 @@ export default function RoomScreen() {
                           HalloweenTheme.light.primary,
                           HalloweenTheme.light.error,
                         ]
-                      : ["#C41E3A", "#8B1538"]
+                      : [
+                          ChristmasTheme.light.primary,
+                          ChristmasTheme.light.secondary,
+                        ]
                   }
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
@@ -419,7 +429,10 @@ export default function RoomScreen() {
                 gradientColors={
                   isHalloweenGame
                     ? [HalloweenTheme.light.primary, HalloweenTheme.light.error]
-                    : ["#C41E3A", "#8B1538"]
+                    : [
+                        ChristmasTheme.light.primary,
+                        ChristmasTheme.light.secondary,
+                      ]
                 }
               />
             </View>
@@ -440,7 +453,10 @@ export default function RoomScreen() {
                 colors={
                   isHalloweenGame
                     ? [HalloweenTheme.light.primary, HalloweenTheme.light.error]
-                    : ["#C41E3A", "#8B1538"]
+                    : [
+                        ChristmasTheme.light.primary,
+                        ChristmasTheme.light.secondary,
+                      ]
                 }
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
