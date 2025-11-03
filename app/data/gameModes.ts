@@ -57,7 +57,7 @@ export const gameCategories: GameCategory[] = [
                 colors: ["rgba(50, 90, 150, 0.8)", "rgba(80, 120, 200, 0.9)"],
                 borderColor: "#3F51B5",
                 shadowColor: "#3F51B5",
-                fontFamily: 'Bangers-Regular',
+                fontFamily: 'Righteous-Regular',
                 tags: [{
                     text: 'home.games.truth-or-dare.tags.gratuit',
                     color: '#4CAF50'
@@ -79,7 +79,7 @@ export const gameCategories: GameCategory[] = [
                 colors: ["#1A2A5B", "#7B24B1"],
                 borderColor: "#2C2C2C",
                 shadowColor: "#2C2C2C",
-                fontFamily: 'Oswald-Bold',
+                fontFamily: 'SigmarOne-Regular',
                 tags: [{
                     text: 'home.games.trap-answer.tags.gratuit',
                     color: '#4CAF50'
@@ -115,7 +115,7 @@ export const gameCategories: GameCategory[] = [
                 colors: [HalloweenTheme.light?.primary || '#C41E3A', HalloweenTheme.light?.error || '#C41E3A'],
                 borderColor: HalloweenTheme.light?.primary || '#C41E3A',
                 shadowColor: HalloweenTheme.light?.error || '#C41E3A',
-                fontFamily: 'ArchivoBlack-Regular',
+                fontFamily: 'Creepster-Regular',
                 tags: [{
                     text: 'home.games.quiz-halloween.tags.saisonnier',
                     color: HalloweenTheme.light?.primary || '#C41E3A'
@@ -155,7 +155,7 @@ export const gameCategories: GameCategory[] = [
                 colors: ["rgba(74, 26, 102, 0.9)", "rgba(123, 44, 191, 0.9)"],
                 borderColor: "#4A1A66",
                 shadowColor: "#7B2CBF",
-                fontFamily: 'Anton-Regular',
+                fontFamily: 'RubikMoonrocks-Regular',
                 tags: [{
                     text: 'home.games.double-dare.tags.couple',
                     color: "#E91E63"
@@ -180,7 +180,7 @@ export const gameCategories: GameCategory[] = [
                 colors: ["rgba(139, 0, 0, 0.9)", "rgba(220, 20, 60, 0.9)"],
                 borderColor: "#8B0000",
                 shadowColor: "#DC143C",
-                fontFamily: 'Raleway-Bold',
+                fontFamily: 'Lobster-Regular',
                 tags: [{
                     text: 'home.games.forbidden-desire.tags.couple',
                     color: "#E91E63"
@@ -205,7 +205,7 @@ export const gameCategories: GameCategory[] = [
                 colors: ["rgba(90, 10, 50, 0.8)", "rgba(130, 20, 80, 0.9)"],
                 borderColor: "#D81B60",
                 shadowColor: "#D81B60",
-                fontFamily: 'FredokaOne-Regular',
+                fontFamily: 'Pacifico-Regular',
                 tags: [{
                     text: 'home.games.never-have-i-ever-hot.tags.couple',
                     color: "#E91E63"
@@ -227,7 +227,7 @@ export const gameCategories: GameCategory[] = [
                 colors: ["rgba(255, 152, 0, 0.8)", "rgba(255, 193, 7, 0.9)"],
                 borderColor: "#FF9800",
                 shadowColor: "#FF9800",
-                fontFamily: 'Poppins-Bold',
+                fontFamily: 'RockSalt-Regular',
                 tags: [{
                     text: 'home.games.never-have-i-ever-classic.tags.couple',
                     color: "#E91E63"
@@ -267,7 +267,7 @@ export const gameCategories: GameCategory[] = [
                 colors: ["rgba(17, 34, 78, 0.8)", "rgba(38, 56, 120, 0.9)"],
                 borderColor: "#3B5FD9",
                 shadowColor: "#3B5FD9",
-                fontFamily: 'Ubuntu-Bold',
+                fontFamily: 'PermanentMarker-Regular',
                 tags: [{
                     text: 'home.games.listen-but-don-t-judge.tags.soiree',
                     color: "#FF9800"
@@ -303,7 +303,7 @@ export const gameCategories: GameCategory[] = [
                 colors: ["rgba(20, 20, 40, 0.8)", "rgba(40, 40, 80, 0.9)"],
                 borderColor: "#212121",
                 shadowColor: "#212121",
-                fontFamily: 'Oswald-Bold',
+                fontFamily: 'Tourney-Regular',
                 tags: [{
                     text: 'home.games.genius-or-liar.tags.distance',
                     color: "#2196F3"
@@ -328,7 +328,7 @@ export const gameCategories: GameCategory[] = [
                 colors: ["rgba(40, 90, 120, 0.8)", "rgba(60, 120, 160, 0.9)"],
                 borderColor: "#2C7A9C",
                 shadowColor: "#2C7A9C",
-                fontFamily: 'BebasNeue-Regular',
+                fontFamily: 'Bangers-Regular',
                 tags: [{
                     text: 'home.games.word-guessing.tags.distance',
                     color: "#2196F3"

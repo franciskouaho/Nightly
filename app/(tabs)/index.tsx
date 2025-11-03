@@ -1010,7 +1010,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   gridModeCard: {
-    height: 140,
+    height: 180,
   },
   gridModeGradient: {
     height: "100%",

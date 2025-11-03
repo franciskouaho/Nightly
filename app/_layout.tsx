@@ -56,6 +56,33 @@ import {
 import {
   Bangers_400Regular,
 } from '@expo-google-fonts/bangers';
+import {
+  Righteous_400Regular,
+} from '@expo-google-fonts/righteous';
+import {
+  Creepster_400Regular,
+} from '@expo-google-fonts/creepster';
+import {
+  Lobster_400Regular,
+} from '@expo-google-fonts/lobster';
+import {
+  Pacifico_400Regular,
+} from '@expo-google-fonts/pacifico';
+import {
+  PermanentMarker_400Regular,
+} from '@expo-google-fonts/permanent-marker';
+import {
+  RockSalt_400Regular,
+} from '@expo-google-fonts/rock-salt';
+import {
+  RubikMoonrocks_400Regular,
+} from '@expo-google-fonts/rubik-moonrocks';
+import {
+  SigmarOne_400Regular,
+} from '@expo-google-fonts/sigmar-one';
+import {
+  Tourney_400Regular,
+} from '@expo-google-fonts/tourney';
 
 // Empêcher l'auto-hide du splash screen
 SplashScreen.preventAutoHideAsync();
@@ -83,6 +110,15 @@ function AppContent() {
     'Anton-Regular': Anton_400Regular,
     'FredokaOne-Regular': FredokaOne_400Regular,
     'Bangers-Regular': Bangers_400Regular,
+    'Righteous-Regular': Righteous_400Regular,
+    'Creepster-Regular': Creepster_400Regular,
+    'Lobster-Regular': Lobster_400Regular,
+    'Pacifico-Regular': Pacifico_400Regular,
+    'PermanentMarker-Regular': PermanentMarker_400Regular,
+    'RockSalt-Regular': RockSalt_400Regular,
+    'RubikMoonrocks-Regular': RubikMoonrocks_400Regular,
+    'SigmarOne-Regular': SigmarOne_400Regular,
+    'Tourney-Regular': Tourney_400Regular,
   });
 
   // Cacher le splash screen quand les polices sont chargées

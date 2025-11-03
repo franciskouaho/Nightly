@@ -1308,10 +1308,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@expo-google-fonts/creepster@npm:^0.4.0":
+  version: 0.4.0
+  resolution: "@expo-google-fonts/creepster@npm:0.4.0"
+  checksum: 10c0/f48346a53832568e4b67863a6364f5b748d1949eaaae02695711a77bc62c6e5530becababc9e81e4ebe40ecd23c4e88ae5a1c54cce8207d941f2d9061865aaf9
+  languageName: node
+  linkType: hard
+
 "@expo-google-fonts/fredoka-one@npm:^0.2.3":
   version: 0.2.3
   resolution: "@expo-google-fonts/fredoka-one@npm:0.2.3"
   checksum: 10c0/257c3fdd4811dab0c45d5403b8297588f677b8a7eb793a9e5f7713890c4e6794816d1cd0665361773b3076cd24ca7c369092c833364db2d7a2a03d0cf5fb6029
+  languageName: node
+  linkType: hard
+
+"@expo-google-fonts/lobster@npm:^0.4.1":
+  version: 0.4.1
+  resolution: "@expo-google-fonts/lobster@npm:0.4.1"
+  checksum: 10c0/d9f2f86c7314a2cc5fa890848869049061bcd41046d7ddb236cb7d1d23574fa17fbad0b5367d7101d9146b521885f4edbf1d51556c7e91b87af436a68e54eb2b
   languageName: node
   linkType: hard
 
@@ -1329,10 +1343,31 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@expo-google-fonts/pacifico@npm:^0.4.1":
+  version: 0.4.1
+  resolution: "@expo-google-fonts/pacifico@npm:0.4.1"
+  checksum: 10c0/a90c5275a2972292b4d61fc268c226cc6ca1426195e12670450dcd0bf518a2434d88050791bae3ae3bbd2b274a0281ba784f04f34322fba66b299243934c754c
+  languageName: node
+  linkType: hard
+
+"@expo-google-fonts/permanent-marker@npm:^0.4.0":
+  version: 0.4.0
+  resolution: "@expo-google-fonts/permanent-marker@npm:0.4.0"
+  checksum: 10c0/b98f02352afb5f22c7e6c98868d24558c30f4da37305d73f6e47f9fec66c274d96e865722c9d072048be96154775b8c5df09e8a4bab462fe8e911b5047ccb3df
+  languageName: node
+  linkType: hard
+
 "@expo-google-fonts/poppins@npm:^0.4.1":
   version: 0.4.1
   resolution: "@expo-google-fonts/poppins@npm:0.4.1"
   checksum: 10c0/068b995d7db0dab2a8884efe8b5d6ae1e78d1d52d86906e771d06af128718780bcf4b147d83cf4cc19fcd66e7a47bc6f867b877eaad6c095e9f7b5edf3bb50d4
+  languageName: node
+  linkType: hard
+
+"@expo-google-fonts/press-start-2p@npm:^0.4.1":
+  version: 0.4.1
+  resolution: "@expo-google-fonts/press-start-2p@npm:0.4.1"
+  checksum: 10c0/02a92ad522ab97dbbe1140fcfd6eea1c4dcaa25dc155093c788a991b69b87fab57801775cd3f0400b9443d6bdb490a2e60634f66a893665b12b8a6ebfd844f29
   languageName: node
   linkType: hard
 
@@ -1343,10 +1378,45 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@expo-google-fonts/righteous@npm:^0.4.1":
+  version: 0.4.1
+  resolution: "@expo-google-fonts/righteous@npm:0.4.1"
+  checksum: 10c0/ce56d137e3f19d7708c3fc01769ea2937dce97415e7ce10dc0746c52858aa23d8a8fd824349450c737bf4ca9dc2cd259ab7037173d3c57808bc59a55a41fa346
+  languageName: node
+  linkType: hard
+
 "@expo-google-fonts/roboto@npm:^0.4.1":
   version: 0.4.1
   resolution: "@expo-google-fonts/roboto@npm:0.4.1"
   checksum: 10c0/860c3a14e75c4459dcfecd5205898ed61f4425faa8d7a90184ae4e83ed959e119a02fb41fa717391fa79eed67d05a9a06e51daa65f2e75d6f646ce973f6d7b1a
+  languageName: node
+  linkType: hard
+
+"@expo-google-fonts/rock-salt@npm:^0.4.1":
+  version: 0.4.1
+  resolution: "@expo-google-fonts/rock-salt@npm:0.4.1"
+  checksum: 10c0/dadce2c59d43b114ae89c735561c115ef8a3f830f2b86b3593dfe57cfa95a3e3d5c7213f5df9e010db786259ed9ff1ca7710f14815a3ffa153832d70cad18c98
+  languageName: node
+  linkType: hard
+
+"@expo-google-fonts/rubik-moonrocks@npm:^0.4.2":
+  version: 0.4.2
+  resolution: "@expo-google-fonts/rubik-moonrocks@npm:0.4.2"
+  checksum: 10c0/0c564e8aea57d952b193633e7ae94c15232fbb7f24d03e50a4e5a7e3b4284dc1cde740dae0772f0e463cb78397427609da8d49069ba5211d06a0b7447657ec2b
+  languageName: node
+  linkType: hard
+
+"@expo-google-fonts/sigmar-one@npm:^0.4.1":
+  version: 0.4.1
+  resolution: "@expo-google-fonts/sigmar-one@npm:0.4.1"
+  checksum: 10c0/ce5724c68915792490a50852bec186016cf403584c4f0401e0bc50a35429daad308e08acd01c4f24cf43cd72370f10313c886facd590fded1151e3bcb24f6529
+  languageName: node
+  linkType: hard
+
+"@expo-google-fonts/tourney@npm:^0.4.2":
+  version: 0.4.2
+  resolution: "@expo-google-fonts/tourney@npm:0.4.2"
+  checksum: 10c0/480798c9127c46308c267fd35f5e513676d90bda5da80cba98a946d8a5f5808caa2917c108209e9fdf443d21b4fa7d49fc82184229acd2563e5edd971554974e
   languageName: node
   linkType: hard
 
@@ -11996,12 +12066,22 @@ __metadata:
     "@expo-google-fonts/archivo-black": "npm:^0.4.1"
     "@expo-google-fonts/bangers": "npm:^0.4.1"
     "@expo-google-fonts/bebas-neue": "npm:^0.4.1"
+    "@expo-google-fonts/creepster": "npm:^0.4.0"
     "@expo-google-fonts/fredoka-one": "npm:^0.2.3"
+    "@expo-google-fonts/lobster": "npm:^0.4.1"
     "@expo-google-fonts/montserrat": "npm:^0.4.2"
     "@expo-google-fonts/oswald": "npm:^0.4.2"
+    "@expo-google-fonts/pacifico": "npm:^0.4.1"
+    "@expo-google-fonts/permanent-marker": "npm:^0.4.0"
     "@expo-google-fonts/poppins": "npm:^0.4.1"
+    "@expo-google-fonts/press-start-2p": "npm:^0.4.1"
     "@expo-google-fonts/raleway": "npm:^0.4.2"
+    "@expo-google-fonts/righteous": "npm:^0.4.1"
     "@expo-google-fonts/roboto": "npm:^0.4.1"
+    "@expo-google-fonts/rock-salt": "npm:^0.4.1"
+    "@expo-google-fonts/rubik-moonrocks": "npm:^0.4.2"
+    "@expo-google-fonts/sigmar-one": "npm:^0.4.1"
+    "@expo-google-fonts/tourney": "npm:^0.4.2"
     "@expo-google-fonts/ubuntu": "npm:^0.4.1"
     "@expo/vector-icons": "npm:^14.1.0"
     "@react-native-async-storage/async-storage": "npm:2.1.2"
