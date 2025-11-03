@@ -29,7 +29,7 @@
       "googleServicesFile": "./google-services.json",
       "versionCode": 30,
       "permissions": [
-        "INTERNET", 
+        "INTERNET",
         "NOTIFICATIONS",
         "RECEIVE_BOOT_COMPLETED",
         "VIBRATE",
