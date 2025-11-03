@@ -22,6 +22,6 @@ export function useThemeColor(
       return themeColors[colorName];
     }
     // Fallback vers une couleur par défaut
-    return themeColors?.primary || '#FF6F00';
+    return themeColors?.primary || '#C41E3A';
   }
 }

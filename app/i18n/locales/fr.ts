@@ -162,55 +162,94 @@ const fr = {
     codePlaceholder: "Entrez le code de la partie",
     loading: "Connexion à la partie...",
     categories: {
-      events: "ÉVÉNEMENTS",
+      free_games: "JEUX GRATUITS",
+      couple: "COUPLE",
+      soirees: "SOIRÉES ENTRE POTES",
+      distance: "À DISTANCE",
+      events: "ÉVÉNEMENTS & SAISONNIERS",
       nightly_modes: "SUGGESTION DE LA SEMAINE",
       same_room: "DANS LA MÊME PIÈCE",
       online: "À DISTANCE",
     },
     subtitles: {
-      events: "Jeux spéciaux pour les occasions particulières",
+      free_games: "Accroche & découverte",
+      couple: "Faire rêver et convertir",
+      soirees: "Le cœur de Nightly",
+      distance: "Même à distance, la soirée continue",
+      events: "Édition limitée – disponible seulement quelques semaines !",
+      nightly_modes: "",
       same_room: "À jouer dans la même pièce, ensemble !",
       online: "Pour jouer même quand on n'est pas ensemble",
     },
     games: {
       "listen-but-don-t-judge": {
         name: "ON ÉCOUTE MAIS ON NE JUGE PAS",
-        description: "Un mode premium pour rigoler tranquillement entre potes.",
-        tags: { premium: "PREMIUM" },
+        description: "Mode tranquille et drôle — storytelling.",
+        tags: {
+          soiree: "SOIRÉE",
+          histoire: "HISTOIRE",
+          humour: "HUMOUR",
+          premium: "PREMIUM",
+        },
       },
       "truth-or-dare": {
         name: "ACTION OU VÉRITÉ",
-        description: "Le classique revisité avec des défis exclusifs.",
-        tags: { premium: "PREMIUM" },
+        description: "Classique de soirée — fun, rapide, parfait pour tester l'app.",
+        tags: {
+          gratuit: "GRATUIT",
+          fun: "FUN",
+          porte_entree: "PORTE D'ENTRÉE",
+        },
       },
       "never-have-i-ever-hot": {
-        name: "JE N'AI JAMAIS 🔞",
-        description: "Questions coquines et déplacées... Prêts à assumer ?",
-        tags: { premium: "PREMIUM" },
+        name: "HOT OR NOT",
+        description: "Le jeu des défis et confidences de couple — 100 % spicy 😏",
+        tags: {
+          couple: "COUPLE",
+          spicy: "SPICY",
+          premium: "PREMIUM",
+        },
       },
       "genius-or-liar": {
-        name: "GENIE OU MENTEUR",
-        description:
-          "Un mode ludique où vous devez prouver vos connaissances ou assumer vos gages.",
-        tags: { premium: "PREMIUM" },
+        name: "GENIUS OU MENTEUR",
+        description: "Pour tester qui bluffe le mieux.",
+        tags: {
+          distance: "DISTANCE",
+          bluff: "BLUFF",
+          fun: "FUN",
+          premium: "PREMIUM",
+        },
       },
       "the-hidden-village": {
         name: "LE VILLAGE CACHÉ",
-        description:
-          "Un jeu de bluff, de stratégie et de discussions... pour ceux qui aiment accuser leurs potes 😈",
-        tags: { premium: "PREMIUM" },
+        description: "Mode social, bluff et rires (inspiré Loup-Garou).",
+        tags: {
+          soiree: "SOIRÉE",
+          bluff: "BLUFF",
+          groupe: "GROUPE",
+          premium: "PREMIUM",
+        },
       },
       "trap-answer": {
         name: "QUESTION PIÈGE",
-        description:
-          "Un quiz où une mauvaise réponse te fait perdre des points... Pourras-tu éviter les pièges ?",
-        tags: { free: "GRATUIT" },
+        description: "Quiz fun où une mauvaise réponse fait perdre des points.",
+        tags: {
+          gratuit: "GRATUIT",
+          quiz: "QUIZ",
+          logique: "LOGIQUE",
+          fun: "FUN",
+        },
       },
       "quiz-halloween": {
-        name: "QUIZ HALLOWEEN 🎃",
+        name: "QUIZ HALLOWEEN",
         description:
-          "Testez vos connaissances sur Halloween avec des questions effrayantes !",
-        tags: { halloween: "HALLOWEEN", premium: "PREMIUM" },
+          "Jeux festifs, drôles et spicy autour d'Halloween 🎄",
+        tags: {
+          saisonnier: "SAISONNIER",
+          halloween: "HALLOWEEN",
+          exclu: "EXCLU",
+          premium: "PREMIUM",
+        },
       },
       "two-letters-one-word": {
         name: "2 LETTRES 1 MOT",
@@ -247,9 +286,43 @@ const fr = {
       },
       "word-guessing": {
         name: "DEVINE LE MOT",
-        description:
-          "Faites deviner un mot sans utiliser les mots interdits... Un jeu de mots et de rapidité !",
-        tags: { premium: "PREMIUM" },
+        description: "Jeu de rapidité et créativité.",
+        tags: {
+          distance: "DISTANCE",
+          rapidite: "RAPIDITÉ",
+          creatif: "CRÉATIF",
+          premium: "PREMIUM",
+        },
+      },
+      "qui-de-nous-deux": {
+        name: "QUI DE NOUS DEUX ?",
+        description: "Le jeu des vérités qui piquent et font rire.",
+        tags: {
+          couple: "COUPLE",
+          drole: "DRÔLE",
+          intime: "INTIME",
+          premium: "PREMIUM",
+        },
+      },
+      "romantic-truth": {
+        name: "ROMANTIC TRUTH",
+        description: "Mode plus doux, questions émotionnelles et complicité.",
+        tags: {
+          couple: "COUPLE",
+          romantique: "ROMANTIQUE",
+          emotion: "ÉMOTION",
+          premium: "PREMIUM",
+        },
+      },
+      "never-have-i-ever-classic": {
+        name: "JE N'AI JAMAIS",
+        description: "Les vérités qui tournent mal 😭",
+        tags: {
+          couple: "COUPLE",
+          drole: "DRÔLE",
+          gages: "GAGES",
+          premium: "PREMIUM",
+        },
       },
     },
   },

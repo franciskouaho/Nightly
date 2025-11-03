@@ -1,2 +1,2 @@
-import HalloweenTheme from "./themes/Halloween";
-export default HalloweenTheme;
+import ChristmasTheme from "./themes/Christmas";
+export default ChristmasTheme;

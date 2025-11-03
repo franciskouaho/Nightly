@@ -42,11 +42,6 @@ export const GAME_POINTS_CONFIG: PointsConfig = {
     secondPlace: 10,
     thirdPlace: 5,
   },
-  "the-hidden-village": {
-    firstPlace: 50,
-    secondPlace: 30,
-    thirdPlace: 15,
-  },
   "trap-answer": {
     firstPlace: 25,
     secondPlace: 15,

@@ -133,7 +133,7 @@ export default function NaughtyResults({
           title={t('navigation.home')}
           onPress={() => router.replace("/(tabs)")}
           icon={<Ionicons name="home" size={22} color="#fff" />}
-          gradientColors={["#8B0000", "#4B0082", "#2F1B69"]}
+          gradientColors={["#C41E3A", "#8B1538", "#A01D2E"]}
           style={{ width: '100%' }}
         />
       </View>

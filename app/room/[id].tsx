@@ -48,7 +48,6 @@ const generateTwoLettersOneWordRandomLetters = (): [string, string] => {
 const GAME_CONFIG = {
     'truth-or-dare': { minPlayers: 2 },
     'listen-but-don-t-judge': { minPlayers: 3 },
-    'the-hidden-village': { minPlayers: 5 },
     'trap-answer': { minPlayers: 2 },
     'never-have-i-ever-hot': { minPlayers: 2 },
     'genius-or-liar': { minPlayers: 2 },
@@ -322,8 +321,6 @@ export default function RoomScreen() {
                         router.replace(`/game/truth-or-dare/${roomData.gameDocId}`);
                     } else if (roomData.gameMode === 'listen-but-don-t-judge') {
                         router.replace(`/game/listen-but-don-t-judge/${roomData.gameDocId}`);
-                    } else if (roomData.gameMode === 'the-hidden-village') {
-                        router.replace(`/game/the-hidden-village/${roomData.gameDocId}`);
                     } else if (roomData.gameMode === 'trap-answer') {
                         router.replace(`/game/trap-answer/${roomData.gameDocId}`);
                     } else if (roomData.gameMode === 'never-have-i-ever-hot') {
@@ -591,7 +588,6 @@ export default function RoomScreen() {
                 case 'never-have-i-ever-hot':
                 case 'truth-or-dare':
                 case 'listen-but-don-t-judge':
-                case 'the-hidden-village':
                 case 'trap-answer':
                 case 'genius-or-liar':
                 case 'two-letters-one-word':
@@ -748,7 +744,7 @@ export default function RoomScreen() {
                                 onPress={handleInviteFriend}
                             >
                                 <LinearGradient
-                                    colors={isHalloweenGame ? [HalloweenTheme.light.primary, HalloweenTheme.light.error] : ["#A259FF", "#C471F5"]}
+                                    colors={isHalloweenGame ? [HalloweenTheme.light.primary, HalloweenTheme.light.error] : ["#C41E3A", "#8B1538"]}
                                     start={{ x: 0, y: 0 }}
                                     end={{ x: 1, y: 1 }}
                                     style={{ borderRadius: 12, padding: 7 }}
@@ -840,13 +836,13 @@ export default function RoomScreen() {
                     <>
                         <View style={styles.gameControlsContainer}>
                             <View style={styles.roundSelectorContainer}>
-                                {user?.uid === room.host && room.gameId !== 'the-hidden-village' && (
+                                {user?.uid === room.host && (
                                     <TouchableOpacity
                                         style={styles.roundSelectorButton}
                                         onPress={() => setShowRoundSelector(!showRoundSelector)}
                                     >
                                         <LinearGradient
-                                            colors={isHalloweenGame ? [HalloweenTheme.light.primary, HalloweenTheme.light.error] : ["#7B3FE4", "#8345E6"]}
+                                            colors={isHalloweenGame ? [HalloweenTheme.light.primary, HalloweenTheme.light.error] : ["#C41E3A", "#8B1538"]}
                                             start={{ x: 0, y: 0 }}
                                             end={{ x: 1, y: 0 }}
                                             style={styles.roundSelectorGradient}
@@ -1278,7 +1274,7 @@ const styles = StyleSheet.create<RoomScreenStyles>({
         fontWeight: 'bold',
     },
     selectedRoundOption: {
-        backgroundColor: '#A259FF',
+        backgroundColor: '#C41E3A',
     },
     selectedRoundOptionText: {
         color: '#fff',

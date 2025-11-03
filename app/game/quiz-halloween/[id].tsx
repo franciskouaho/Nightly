@@ -447,7 +447,7 @@ export default function QuizHalloweenGameOptimized() {
             <TouchableOpacity style={styles.startButton} onPress={startNewQuestion}>
               <LinearGradient
                 colors={[
-                  Colors.light?.primary || '#FF6F00',
+                  Colors.light?.primary || '#C41E3A',
                   Colors.light?.secondary || '#4B1E00',
                   Colors.light?.tertiary || '#FFD700'
                 ]}

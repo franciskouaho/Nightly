@@ -16,7 +16,6 @@ export const TWO_LETTERS_ONE_WORD_THEMES = [
 export const GAME_CONFIG = {
     'truth-or-dare': { minPlayers: 2 },
     'listen-but-don-t-judge': { minPlayers: 2 },
-    'the-hidden-village': { minPlayers: 5 },
     'trap-answer': { minPlayers: 1 },
     'never-have-i-ever-hot': { minPlayers: 2 },
     'genius-or-liar': { minPlayers: 2 },

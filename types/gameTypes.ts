@@ -38,7 +38,6 @@ export type GameMode =
   | 'never-have-i-ever-hot'
   | 'truth-or-dare'
   | 'genius-or-liar'
-  | 'the-hidden-village'
   | 'trap-answer'
   | 'listen-but-don-t-judge'
   | 'quiz-halloween';

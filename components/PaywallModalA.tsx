@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { getFirestore, doc, updateDoc } from '@react-native-firebase/firestore';
 import { useAuth } from '@/contexts/AuthContext';
 import HalloweenDecorations from './HalloweenDecorations';
-import HalloweenTheme from '@/constants/themes/Halloween';
+import ChristmasTheme from '@/constants/themes/Christmas';
 
 interface PaywallModalAProps {
   isVisible: boolean;
@@ -140,11 +140,11 @@ export default function PaywallModalA({ isVisible, onClose, onUpgradeToAnnual }:
         >
           <LinearGradient
             colors={[
-              HalloweenTheme.light?.backgroundDarker || '#120F1C',
-              HalloweenTheme.light?.secondary || '#4B1E00',
-              HalloweenTheme.light?.primary || '#FF6F00',
-              HalloweenTheme.light?.secondary || '#4B1E00',
-              HalloweenTheme.light?.backgroundDarker || '#120F1C',
+              ChristmasTheme.light?.backgroundDarker || '#0D0D1A',
+              ChristmasTheme.light?.secondary || '#8B1538',
+              ChristmasTheme.light?.primary || '#C41E3A',
+              ChristmasTheme.light?.secondary || '#8B1538',
+              ChristmasTheme.light?.backgroundDarker || '#0D0D1A',
             ]}
             locations={[0, 0.2, 0.5, 0.8, 1]}
             style={styles.gradientOverlay}
@@ -256,7 +256,7 @@ export default function PaywallModalA({ isVisible, onClose, onUpgradeToAnnual }:
               >
                 <View style={styles.gradientButton}>
                   {loading ? (
-                    <ActivityIndicator color="#E66F50" size="small" />
+                    <ActivityIndicator color="#C41E3A" size="small" />
                   ) : (
                     <Text style={styles.ctaButtonText}>
                       {t('paywall.cta')}
@@ -368,7 +368,7 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: HalloweenTheme.light?.secondary || '#4B1E00',
+    backgroundColor: ChristmasTheme.light?.secondary || '#8B1538',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 6,
@@ -412,10 +412,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   weeklyBadge: {
-    backgroundColor: HalloweenTheme.light?.primary || '#FF6F00',
+    backgroundColor: ChristmasTheme.light?.primary || '#C41E3A',
   },
   monthlyBadge: {
-    backgroundColor: HalloweenTheme.light?.secondary || '#4B1E00',
+    backgroundColor: ChristmasTheme.light?.secondary || '#8B1538',
   },
   badgeText: {
     color: '#FFFFFF',
@@ -452,7 +452,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginVertical: 10,
     overflow: 'hidden',
-    backgroundColor: HalloweenTheme.light?.secondary || '#4B1E00',
+    backgroundColor: ChristmasTheme.light?.secondary || '#8B1538',
   },
   gradientButton: {
     paddingVertical: 6,

@@ -1,4 +1,3 @@
-import HalloweenDecorations from "@/components/HalloweenDecorations";
 import { useAuth } from "@/contexts/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import {
@@ -211,13 +210,13 @@ export default function LeaderboardScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <LinearGradient
-          colors={["#120F1C", "#4B1E00", "#FF6F00", "#4B1E00", "#120F1C"]}
+          colors={["#1A1A2E", "#8B1538", "#C41E3A", "#8B1538", "#0D0D1A"]}
           locations={[0, 0.2, 0.5, 0.8, 1]}
           style={styles.background}
         >
           <View style={styles.content}>
             <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color="#FF6F00" />
+              <ActivityIndicator size="large" color="#C41E3A" />
               <Text style={styles.loadingText}>
                 Chargement du classement...
               </Text>
@@ -231,13 +230,10 @@ export default function LeaderboardScreen() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={["#120F1C", "#4B1E00", "#FF6F00", "#4B1E00", "#120F1C"]}
+        colors={["#1A1A2E", "#8B1538", "#C41E3A", "#8B1538", "#0D0D1A"]}
         locations={[0, 0.2, 0.5, 0.8, 1]}
         style={styles.background}
       >
-        <View style={styles.halloweenDecorations}>
-          <HalloweenDecorations />
-        </View>
 
         <SafeAreaView style={styles.safeArea}>
           <View style={styles.content}>
@@ -402,7 +398,7 @@ export default function LeaderboardScreen() {
                 <RefreshControl
                   refreshing={refreshing}
                   onRefresh={onRefresh}
-                  tintColor="#FF6F00"
+                  tintColor="#C41E3A"
                 />
               }
             >
@@ -490,7 +486,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   testButton: {
-    backgroundColor: "#FF6F00",
+    backgroundColor: "#C41E3A",
     borderRadius: 20,
     paddingHorizontal: 20,
     paddingVertical: 10,
@@ -531,7 +527,7 @@ const styles = StyleSheet.create({
   },
   emptySubtext: {
     fontSize: 16,
-    color: "#FFB347",
+    color: "#E8B4B8",
     opacity: 0.9,
     marginTop: 8,
     textAlign: "center",
@@ -710,7 +706,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: -5,
     right: -5,
-    backgroundColor: "#FF6F00",
+    backgroundColor: "#C41E3A",
     width: 24,
     height: 24,
     borderRadius: 12,
@@ -774,7 +770,7 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   yourPositionRank: {
-    backgroundColor: "#FF6F00",
+    backgroundColor: "#C41E3A",
     borderRadius: 20,
     width: 40,
     height: 40,
@@ -812,7 +808,7 @@ const styles = StyleSheet.create({
   },
   yourPositionStats: {
     fontSize: 13,
-    color: "#FFB347",
+    color: "#E8B4B8",
     fontWeight: "500",
     textShadowColor: "rgba(0, 0, 0, 0.8)",
     textShadowOffset: { width: 1, height: 1 },

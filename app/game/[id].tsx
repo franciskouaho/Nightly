@@ -66,11 +66,6 @@ export default function GameRouter() {
         return;
       }
 
-      if (mode === 'the-hidden-village') {
-        router.replace(`/game/the-hidden-village/${id}`);
-        return;
-      }
-
        if (mode === 'trap-answer') {
         router.replace(`/game/trap-answer/${id}`);
         return;

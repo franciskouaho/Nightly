@@ -1,7 +1,6 @@
 "use client";
 
 import { gameCategories, GameCategory, GameMode } from "@/app/data/gameModes";
-import HalloweenDecorations from "@/components/HalloweenDecorations";
 import TopBar from "@/components/TopBar";
 import Colors from "@/constants/Colors";
 import { useAuth } from "@/contexts/AuthContext";
@@ -155,7 +154,8 @@ export default function HomeScreen() {
   };
 
   const createGameRoom = async (game: GameMode) => {
-    console.log("👉 Fonction createGameRoom appelée pour:", game.name);
+    const gameName = game.nameKey ? t(game.nameKey) : (t(`home.games.${game.id}.name`) || game.name || game.id);
+    console.log("👉 Fonction createGameRoom appelée pour:", gameName);
 
     if (!user) {
       console.log("❌ Utilisateur non connecté");
@@ -205,7 +205,7 @@ export default function HomeScreen() {
       const shortCode = generateRoomCode(6);
 
       const roomData: Omit<Room, "id"> & { code: string } = {
-        name: game.name,
+        name: gameName,
         gameId: game.id,
         createdBy: user.uid,
         host: user.uid,
@@ -383,12 +383,15 @@ export default function HomeScreen() {
   };
 
   const renderGameModeCard = (game: GameMode, isGridItem = false) => {
+    const isPremiumLocked = game.premium && !user?.hasActiveSubscription && !isProMember;
+
     const handlePress = async () => {
-      if (game.premium && !user?.hasActiveSubscription) {
+      if (isPremiumLocked) {
         showPaywallA();
         return;
       }
-      console.log("🖱️ Clic sur le mode de jeu:", game.name);
+      const gameName = game.nameKey ? t(game.nameKey) : (t(`home.games.${game.id}.name`) || game.name || game.id);
+      console.log("🖱️ Clic sur le mode de jeu:", gameName);
       console.log("📊 État de création:", isCreatingRoom);
 
       if (isCreatingRoom) {
@@ -427,25 +430,29 @@ export default function HomeScreen() {
             imageStyle={{ borderRadius: 20 }}
             resizeMode="cover"
           >
-            {game.tags && game.tags.length > 0 && (
-              <View style={styles.tagsContainer}>
-                {game.tags.map((tag, index) => (
+            {game.tags && game.tags.length > 0 && (() => {
+              // Ne garder que le tag premium ou gratuit (le plus important)
+              const importantTag = game.tags.find(tag => 
+                tag.text.includes('premium') || tag.text.includes('gratuit')
+              ) || game.tags[0]; // Fallback sur le premier tag si aucun premium/gratuit
+              
+              return importantTag ? (
+                <View style={styles.tagsContainer}>
                   <View
-                    key={index}
                     style={[
                       styles.modeTagContainer,
                       styles.gridModeTagContainer,
-                      { backgroundColor: tag.color },
+                      { backgroundColor: importantTag.color },
                     ]}
                   >
-                    <Text style={styles.modeTagText}>{t(tag.text)}</Text>
+                    <Text style={styles.modeTagText}>{t(importantTag.text)}</Text>
                   </View>
-                ))}
-              </View>
-            )}
+                </View>
+              ) : null;
+            })()}
             <View style={styles.overlay}>
               <Text style={styles.cardTitle}>
-                {t(`home.games.${game.id}.name`)}
+                {game.nameKey ? t(game.nameKey) : (t(`home.games.${game.id}.name`) || game.name || '')}
               </Text>
             </View>
           </ImageBackground>
@@ -471,8 +478,8 @@ export default function HomeScreen() {
             game.colors && game.colors.length >= 2
               ? (game.colors as [string, string, ...string[]])
               : [
-                  Colors.light?.gradient?.pumpkin?.from || "#FF6F00",
-                  Colors.light?.gradient?.pumpkin?.to || "#FFD700",
+                  Colors.light?.gradient?.christmas?.from || "#C41E3A",
+                  Colors.light?.gradient?.christmas?.to || "#8B1538",
                 ]
           }
           style={[
@@ -514,72 +521,110 @@ export default function HomeScreen() {
               <Text
                 style={[styles.modeName, isGridItem && styles.gridModeName]}
               >
-                {t(`home.games.${game.id}.name`)}
+                {game.nameKey ? t(game.nameKey) : (t(`home.games.${game.id}.name`) || game.name || '')}
               </Text>
               {!isGridItem && (
                 <Text style={styles.modeDescription}>
-                  {t(`home.games.${game.id}.description`)}
+                  {game.descriptionKey ? t(game.descriptionKey) : (t(`home.games.${game.id}.description`) || game.description || '')}
                 </Text>
               )}
             </View>
-            {game.tags && game.tags.length > 0 && (
-              <View style={styles.tagsContainer}>
-                {game.tags.map((tag, index) => (
+            {game.tags && game.tags.length > 0 && (() => {
+              // Ne garder que le tag premium ou gratuit (le plus important)
+              const importantTag = game.tags.find(tag => 
+                tag.text.includes('premium') || tag.text.includes('gratuit')
+              ) || game.tags[0]; // Fallback sur le premier tag si aucun premium/gratuit
+              
+              return importantTag ? (
+                <View style={styles.tagsContainer}>
                   <View
-                    key={index}
                     style={[
                       styles.modeTagContainer,
                       styles.gridModeTagContainer,
-                      { backgroundColor: tag.color },
+                      { backgroundColor: importantTag.color },
                     ]}
                   >
-                    <Text style={styles.modeTagText}>{t(tag.text)}</Text>
+                    <Text style={styles.modeTagText}>{t(importantTag.text) || importantTag.text}</Text>
                   </View>
-                ))}
-              </View>
-            )}
+                </View>
+              ) : null;
+            })()}
           </View>
         </LinearGradient>
       </TouchableOpacity>
     );
   };
 
-  const renderGameCategory = (category: GameCategory) => (
-    <View key={category.id} style={styles.categorySection}>
-      <View style={styles.categoryHeader}>
-        <View>
-          <Text style={styles.categoryTitle}>
-            {t(`home.categories.${category.id}`)}
-          </Text>
-          {category.subtitle ? (
-            <Text style={styles.categorySubtitle}>
-              {t(`home.subtitles.${category.id}`)}
-            </Text>
-          ) : null}
-        </View>
-      </View>
+  const renderGameCategory = (category: GameCategory) => {
+    const isPremiumCategory = category.categoryType === 'premium';
+    const hasPremiumGames = category.games.some(g => g.premium);
+    const showCTA = isPremiumCategory && hasPremiumGames && (!user?.hasActiveSubscription && !isProMember);
+    const useGrid = ["couple", "soirees"].includes(category.id);
 
-      {["packs", "same_room", "online"].includes(category.id) ? (
-        <View style={styles.gridContainer}>
-          {category.games.map((game: GameMode) => (
-            <View key={game.id} style={styles.gridItem}>
-              {renderGameModeCard(game, true)}
-            </View>
-          ))}
+    return (
+      <View key={category.id} style={styles.categorySection}>
+        {showCTA && category.cta && (
+          <TouchableOpacity
+            style={[
+              styles.ctaButton,
+              category.dominantColor && { borderColor: category.dominantColor }
+            ]}
+            onPress={() => showPaywallA()}
+            activeOpacity={0.8}
+          >
+            <LinearGradient
+              colors={
+                category.dominantColor
+                  ? [category.dominantColor, category.dominantColor + 'AA']
+                  : ["#C41E3A", "#8B1538"]
+              }
+              style={styles.ctaGradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+            >
+              <Text style={styles.ctaMainText}>{category.cta.mainText}</Text>
+              {category.cta.subText && (
+                <Text style={styles.ctaSubText}>{category.cta.subText}</Text>
+              )}
+            </LinearGradient>
+          </TouchableOpacity>
+        )}
+
+        <View style={styles.categoryHeader}>
+          <View>
+            <Text style={styles.categoryTitle}>
+              {category.title || t(`home.categories.${category.id}`)}
+            </Text>
+            {category.subtitle ? (
+              <Text style={styles.categorySubtitle}>
+                {category.subtitle}
+              </Text>
+            ) : null}
+          </View>
         </View>
-      ) : (
-        <View style={styles.gameModesColumn}>
-          {category.games.map((game: GameMode) => renderGameModeCard(game))}
-        </View>
-      )}
-    </View>
-  );
+
+        {useGrid ? (
+          <View style={styles.gridContainer}>
+            {category.games.map((game: GameMode) => (
+              <View key={game.id} style={styles.gridItem}>
+                {renderGameModeCard(game, true)}
+              </View>
+            ))}
+          </View>
+        ) : (
+          <View style={styles.gameModesColumn}>
+            {category.games.map((game: GameMode) => renderGameModeCard(game, false))}
+          </View>
+        )}
+      </View>
+    );
+  };
 
   // Vérification de sécurité pour les couleurs
-  const midnightGradient = Colors.light?.gradient?.midnight || {
+  const midnightGradient = Colors.light?.gradient?.luxury || {
     from: "#1A1A2E",
-    to: "#120F1C",
-    middle: "#4B1E00",
+    to: "#C41E3A",
+    middle: "#8B1538",
   };
 
   return (
@@ -595,22 +640,6 @@ export default function HomeScreen() {
         locations={[0, 0.2, 0.5, 0.8, 1]}
         style={styles.background}
       >
-        {/* Décorations Halloween - Toilettes d'araignées géantes */}
-        <View
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            width: "100%",
-            height: "100%",
-            zIndex: 5,
-            pointerEvents: "none", // Permet le scroll et les interactions
-          }}
-        >
-          <HalloweenDecorations />
-        </View>
 
         <View style={{ zIndex: 20 }}>
           <TopBar />
@@ -670,7 +699,7 @@ export default function HomeScreen() {
               placeholderTextColor="#C7B8F5"
               value={partyCode}
               onChangeText={setPartyCode}
-              selectionColor="#A259FF"
+              selectionColor="#C41E3A"
               autoCapitalize="characters"
               maxLength={8}
               returnKeyType="done"
@@ -683,7 +712,7 @@ export default function HomeScreen() {
             activeOpacity={0.85}
           >
             <LinearGradient
-              colors={["#A259FF", "#C471F5"]}
+              colors={["#C41E3A", "#8B1538"]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={styles.qrGradient}
@@ -758,9 +787,6 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   categoryHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
     marginBottom: 16,
   },
   categoryTitle: {
@@ -892,6 +918,45 @@ const styles = StyleSheet.create({
   disabledCard: {
     opacity: 0.6,
   },
+  lockOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 20,
+    zIndex: 10,
+  },
+  ctaButton: {
+    marginBottom: 16,
+    marginTop: 0,
+    borderRadius: 16,
+    overflow: "hidden",
+    borderWidth: 2,
+    borderColor: "#D81B60",
+  },
+  ctaGradient: {
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  ctaMainText: {
+    color: "white",
+    fontSize: 15,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 4,
+  },
+  ctaSubText: {
+    color: "rgba(255, 255, 255, 0.9)",
+    fontSize: 12,
+    textAlign: "center",
+    fontWeight: "600",
+  },
   codeRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -1006,7 +1071,7 @@ const styles = StyleSheet.create({
     zIndex: 15,
   },
   simpleTestButton: {
-    backgroundColor: "#FF6F00",
+    backgroundColor: "#C41E3A",
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 15,
@@ -1017,7 +1082,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   halloweenTestButton: {
-    backgroundColor: "#DC143C",
+    backgroundColor: "#C41E3A",
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 15,
@@ -1028,7 +1093,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   halloweenScheduleButton: {
-    backgroundColor: "#4B1E00",
+    backgroundColor: "#C41E3A",
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 15,
@@ -1039,7 +1104,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   paywallTestButton: {
-    backgroundColor: "#7B2CBF",
+    backgroundColor: "#C41E3A",
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 15,

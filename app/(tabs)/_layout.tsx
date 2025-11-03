@@ -112,24 +112,24 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: 'rgba(255, 111, 0, 0.8)', // Orange vif de l'app
+    backgroundColor: 'rgba(196, 30, 58, 0.8)', // Rouge glamour
     borderWidth: 1.5,
-    borderColor: 'rgba(255, 111, 0, 0.4)',
-    shadowColor: 'rgba(255, 111, 0, 0.5)',
+    borderColor: 'rgba(196, 30, 58, 0.4)',
+    shadowColor: 'rgba(196, 30, 58, 0.5)',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
     overflow: 'hidden',
   },
   buttonGlassBackgroundActive: {
-    backgroundColor: 'rgba(255, 215, 0, 0.35)', // Doré de l'app
+    backgroundColor: 'rgba(255, 215, 0, 0.35)', // Doré
     borderColor: 'rgba(255, 215, 0, 0.6)',
   },
   buttonGlassInner: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255, 250, 240, 0.15)', // Ivoire de l'app
+    backgroundColor: 'rgba(255, 250, 240, 0.15)', // Ivoire
     position: 'relative',
     borderRadius: 30,
   },
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: '40%',
-    backgroundColor: 'rgba(255, 179, 71, 0.15)', // Orange pâle de l'app
+    backgroundColor: 'rgba(232, 180, 184, 0.15)', // Rose doux
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
   },

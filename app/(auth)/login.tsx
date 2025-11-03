@@ -1,6 +1,5 @@
 "use client";
 
-import HalloweenDecorations from "@/components/HalloweenDecorations";
 import { analyticsInstance } from "@/config/firebase";
 import Colors from "@/constants/Colors";
 import { useAuth } from "@/contexts/AuthContext";
@@ -336,10 +335,6 @@ export default function LoginScreen() {
         locations={[0, 0.2, 0.5, 0.8, 1]}
         style={styles.background}
       >
-        {/* Décorations Halloween */}
-        <View style={styles.halloweenDecorationsContainer}>
-          <HalloweenDecorations />
-        </View>
 
         {/* Effets de particules flottantes */}
         <View style={[styles.floatingParticles, { zIndex: 1, opacity: 0.2 }]}>

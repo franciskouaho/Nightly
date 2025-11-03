@@ -2,7 +2,6 @@
 
 import { usePaywall } from "@/contexts/PaywallContext";
 import PointsDisplay from "@/components/PointsDisplay";
-import HalloweenDecorations from "@/components/HalloweenDecorations";
 import { useAuth } from "@/contexts/AuthContext";
 import { ExpoNotificationService } from "@/services/expoNotificationService";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -116,12 +115,10 @@ export default function ProfileScreen() {
       <StatusBar style="light" />
 
       <LinearGradient
-        colors={['#120F1C', '#4B1E00', '#FF6F00', '#4B1E00', '#120F1C']}
+        colors={['#1A1A2E', '#8B1538', '#C41E3A', '#8B1538', '#0D0D1A']}
         locations={[0, 0.2, 0.5, 0.8, 1]}
         style={styles.background}
       >
-        {/* Décorations Halloween */}
-        <HalloweenDecorations />
       </LinearGradient>
 
       <View style={styles.header}>
@@ -175,7 +172,7 @@ export default function ProfileScreen() {
             <MaterialCommunityIcons
               name="chevron-right"
               size={24}
-              color="#FFB347"
+              color="#E8B4B8"
             />
           </TouchableOpacity>
 
@@ -194,7 +191,7 @@ export default function ProfileScreen() {
             <MaterialCommunityIcons
               name="chevron-right"
               size={24}
-              color="#FFB347"
+              color="#E8B4B8"
             />
           </TouchableOpacity>
 
@@ -211,7 +208,7 @@ export default function ProfileScreen() {
             <MaterialCommunityIcons
               name="chevron-right"
               size={24}
-              color="#FFB347"
+              color="#E8B4B8"
             />
           </TouchableOpacity>
 
@@ -241,8 +238,8 @@ export default function ProfileScreen() {
             <Switch
               value={notificationsEnabled}
               onValueChange={handleToggleNotifications}
-              thumbColor={notificationsEnabled ? "#FF6F00" : "#ccc"}
-              trackColor={{ false: "#888", true: "#FF6F00" }}
+              thumbColor={notificationsEnabled ? "#C41E3A" : "#ccc"}
+              trackColor={{ false: "#888", true: "#C41E3A" }}
             />
           </View>
 
@@ -497,7 +494,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   premiumButton: {
-    backgroundColor: "#FF6F00",
+    backgroundColor: "#C41E3A",
     borderRadius: 12,
     paddingVertical: 12,
     paddingHorizontal: 22,

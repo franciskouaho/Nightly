@@ -1,4 +1,4 @@
-import HalloweenTheme from "@/constants/themes/Halloween";
+import ChristmasTheme from "@/constants/themes/Christmas";
 import { useAuth } from "@/contexts/AuthContext";
 import usePricing from "@/hooks/usePricing";
 import useRevenueCat from "@/hooks/useRevenueCat";
@@ -159,11 +159,11 @@ export default function PaywallModalB({
         >
           <LinearGradient
             colors={[
-              HalloweenTheme.light?.backgroundDarker || "#120F1C",
-              HalloweenTheme.light?.secondary || "#4B1E00",
-              HalloweenTheme.light?.primary || "#FF6F00",
-              HalloweenTheme.light?.secondary || "#4B1E00",
-              HalloweenTheme.light?.backgroundDarker || "#120F1C",
+              ChristmasTheme.light?.backgroundDarker || "#0D0D1A",
+              ChristmasTheme.light?.secondary || "#8B1538",
+              ChristmasTheme.light?.primary || "#C41E3A",
+              ChristmasTheme.light?.secondary || "#8B1538",
+              ChristmasTheme.light?.backgroundDarker || "#0D0D1A",
             ]}
             locations={[0, 0.2, 0.5, 0.8, 1]}
             style={styles.gradientOverlay}
@@ -329,7 +329,7 @@ export default function PaywallModalB({
                       <Ionicons
                         name="trending-down"
                         size={16}
-                        color="#4CAF50"
+                        color="#C41E3A"
                       />
                       <Text style={styles.savingsText}>
                         {t("paywall.annual.savingsText", {
@@ -354,7 +354,7 @@ export default function PaywallModalB({
               >
                 <View style={styles.gradientButton}>
                   {loading ? (
-                    <ActivityIndicator color="#E66F50" size="small" />
+                    <ActivityIndicator color="#C41E3A" size="small" />
                   ) : (
                     <Text style={styles.ctaButtonText}>
                       {t("paywall.annual.cta")}
@@ -451,7 +451,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   discountBadge: {
-    backgroundColor: "#FF1744",
+    backgroundColor: "#C41E3A",
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -483,7 +483,7 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: HalloweenTheme.light?.secondary || "#4B1E00",
+    backgroundColor: ChristmasTheme.light?.secondary || "#8B1538",
     justifyContent: "center",
     alignItems: "center",
     marginRight: 6,
@@ -570,7 +570,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   savingsText: {
-    color: "#4CAF50",
+    color: "#C41E3A",
     fontSize: 14,
     fontWeight: "bold",
     marginLeft: 4,
@@ -580,7 +580,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginVertical: 10,
     overflow: "hidden",
-    backgroundColor: "#FF6F00",
+    backgroundColor: "#C41E3A",
   },
   gradientButton: {
     paddingVertical: 16,

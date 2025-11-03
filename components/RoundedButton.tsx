@@ -32,7 +32,7 @@ const RoundedButton: React.FC<RoundedButtonProps> = ({
   style,
   textStyle,
   icon,
-  gradientColors = ["#D80B96", "#B707A7", "#A90BB2", "#8E08C1"],
+  gradientColors = ["#C41E3A", "#8B1538", "#A01D2E"],
 }) => {
   return (
     <TouchableOpacity
