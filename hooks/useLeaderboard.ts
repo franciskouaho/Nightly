@@ -15,7 +15,8 @@ interface LeaderboardEntry {
 }
 
 interface GameResult {
-  gameId: string;
+  userId: string; // ID de l'utilisateur pour lequel mettre à jour les stats
+  gameId?: string;
   points: number;
   won: boolean;
   timestamp: Date;
@@ -32,9 +33,10 @@ export default function useLeaderboard() {
       setLoading(true);
       const db = getFirestore();
       const usersRef = collection(db, 'users');
+      // Utiliser gamePoints au lieu de points pour le leaderboard (séparé de l'argent)
       const q = query(
         usersRef,
-        orderBy('totalPoints', 'desc'),
+        orderBy('gamePoints', 'desc'),
         limit(limitCount)
       );
       
@@ -43,7 +45,9 @@ export default function useLeaderboard() {
       
       querySnapshot.forEach((doc, index) => {
         const userData = doc.data();
-        if (userData.totalPoints > 0) {
+        // Utiliser gamePoints (points de jeu) au lieu de points (argent)
+        const gamePoints = userData.gamePoints || 0;
+        if (gamePoints > 0 || (userData.gamesPlayed || 0) > 0) {
           const gamesPlayed = userData.gamesPlayed || 0;
           const gamesWon = userData.gamesWon || 0;
           
@@ -52,7 +56,7 @@ export default function useLeaderboard() {
             username: userData.pseudo || 'Joueur',
             displayName: userData.displayName || userData.pseudo || 'Joueur',
             avatar: userData.avatar || 'default',
-            totalPoints: userData.totalPoints || 0,
+            totalPoints: gamePoints, // Utiliser gamePoints au lieu de points
             gamesPlayed,
             gamesWon,
             winRate: gamesPlayed > 0 ? (gamesWon / gamesPlayed) * 100 : 0,
@@ -79,14 +83,17 @@ export default function useLeaderboard() {
   };
 
   const updateUserStats = async (gameResult: GameResult) => {
-    if (!user?.uid) return;
+    if (!gameResult.userId) {
+      console.error('updateUserStats: userId is required');
+      return;
+    }
 
     try {
       const db = getFirestore();
-      const userRef = doc(db, 'users', user.uid);
+      const userRef = doc(db, 'users', gameResult.userId);
       
       const updateData: any = {
-        points: increment(gameResult.points),
+        gamePoints: increment(gameResult.points), // Utiliser gamePoints au lieu de points (séparé de l'argent)
         gamesPlayed: increment(1),
         lastGamePlayed: gameResult.timestamp,
       };
@@ -96,6 +103,8 @@ export default function useLeaderboard() {
       }
 
       await updateDoc(userRef, updateData);
+      
+      console.log(`✅ Stats mises à jour pour l'utilisateur ${gameResult.userId}: +${gameResult.points} gamePoints, partie jouée: +1`);
       
       // Recharger le leaderboard après mise à jour
       await fetchLeaderboard();
@@ -116,7 +125,7 @@ export default function useLeaderboard() {
         const gamesWon = userData.gamesWon || 0;
         
         return {
-          totalPoints: userData.points || 0,
+          totalPoints: userData.gamePoints || 0, // Utiliser gamePoints au lieu de points
           gamesPlayed,
           gamesWon,
           winRate: gamesPlayed > 0 ? (gamesWon / gamesPlayed) * 100 : 0,
@@ -157,5 +166,3 @@ export default function useLeaderboard() {
     getPlayersAroundUser,
   };
 }
-
-export default useLeaderboard;

@@ -53,7 +53,8 @@ export default function LeaderboardScreen() {
   useEffect(() => {
     const db = getFirestore();
     const usersRef = collection(db, "users");
-    const q = query(usersRef, orderBy("points", "desc"), limit(50));
+    // Utiliser gamePoints au lieu de points pour le leaderboard (séparé de l'argent)
+    const q = query(usersRef, orderBy("gamePoints", "desc"), limit(50));
 
     console.log("🔄 Démarrage du listener temps réel pour le leaderboard");
 
@@ -64,17 +65,19 @@ export default function LeaderboardScreen() {
 
         querySnapshot.forEach((doc, index) => {
           const userData = doc.data();
+          // Utiliser gamePoints (points de jeu) au lieu de points (argent)
+          const gamePoints = userData.gamePoints || 0;
           console.log(`👤 Utilisateur ${index + 1}:`, {
             id: doc.id,
             pseudo: userData.pseudo,
             username: userData.username,
             displayName: userData.displayName,
-            totalPoints: userData.points,
+            totalPoints: gamePoints,
             gamesPlayed: userData.gamesPlayed,
             gamesWon: userData.gamesWon,
           });
 
-          if (userData.points && userData.points > 0) {
+          if (gamePoints > 0 || (userData.gamesPlayed || 0) > 0) {
             const gamesPlayed = userData.gamesPlayed || 0;
             const gamesWon = userData.gamesWon || 0;
 
@@ -87,7 +90,7 @@ export default function LeaderboardScreen() {
                 userData.username ||
                 "Joueur",
               avatar: userData.avatar || "https://via.placeholder.com/40",
-              totalPoints: userData.points || 0,
+              totalPoints: gamePoints, // Utiliser gamePoints au lieu de points
               gamesPlayed,
               gamesWon,
               winRate: gamesPlayed > 0 ? (gamesWon / gamesPlayed) * 100 : 0,
@@ -95,7 +98,7 @@ export default function LeaderboardScreen() {
             });
           } else {
             console.log(
-              `❌ Utilisateur ${doc.id} exclu: points = ${userData.points}`,
+              `❌ Utilisateur ${doc.id} exclu: gamePoints = ${gamePoints}`,
             );
           }
         });
@@ -242,33 +245,11 @@ export default function LeaderboardScreen() {
               <Text style={styles.subtitle}>
                 Les meilleurs joueurs de Nightly
               </Text>
-
-              {/* Bouton de test pour ajouter des points */}
-              {__DEV__ && user && (
-                <TouchableOpacity
-                  style={styles.testButton}
-                  onPress={async () => {
-                    console.log(
-                      "🧪 Test - Ajout de points pour l'utilisateur:",
-                      user.uid,
-                    );
-                    await updateUserStats({
-                      userId: user.uid,
-                      points: 1000,
-                      won: true,
-                      timestamp: new Date(),
-                    });
-                  }}
-                >
-                  <Text style={styles.testButtonText}>🧪 +1000 pts (Test)</Text>
-                </TouchableOpacity>
-              )}
             </View>
 
             {/* Top 3 Players */}
             {leaderboard.length >= 3 && (
               <View style={styles.topThreeContainer}>
-                <Text style={styles.topThreeTitle}>🏆 Podium</Text>
                 <View style={styles.podium}>
                   {/* 2ème place */}
                   {leaderboard[1] && (
@@ -349,6 +330,7 @@ export default function LeaderboardScreen() {
                 );
                 if (userIndex > 2) {
                   const userEntry = leaderboard[userIndex];
+                  if (!userEntry) return null;
                   return (
                     <View style={styles.yourPositionContainer}>
                       <Text style={styles.yourPositionTitle}>
@@ -467,8 +449,8 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: "center",
-    paddingTop: 60,
-    paddingBottom: 20,
+    paddingTop: 10,
+    paddingBottom: 5,
     paddingHorizontal: 20,
     zIndex: 10,
   },
@@ -485,18 +467,107 @@ const styles = StyleSheet.create({
     opacity: 0.8,
     textAlign: "center",
   },
-  testButton: {
-    backgroundColor: "#C41E3A",
-    borderRadius: 20,
+  // Styles pour le podium
+  topThreeContainer: {
+    marginBottom: 20,
     paddingHorizontal: 20,
-    paddingVertical: 10,
-    marginTop: 15,
-    alignSelf: "center",
+    marginTop: -20,
   },
-  testButtonText: {
-    color: "#FFFFFF",
+  topThreeTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#FFD700",
+    textAlign: "center",
+    marginBottom: 20,
+    textShadowColor: "rgba(0, 0, 0, 0.5)",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+  },
+  podium: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "flex-end",
+    height: 200,
+  },
+  podiumPlayer: {
+    alignItems: "center",
+    marginHorizontal: 8,
+  },
+  podiumAvatar: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 4,
+    justifyContent: "center",
+    alignItems: "center",
+    position: "relative",
+    marginBottom: 12,
+    shadowColor: "rgba(0, 0, 0, 0.3)",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  firstPlace: {
+    backgroundColor: "rgba(255, 215, 0, 0.3)",
+    borderColor: "#FFD700",
+    zIndex: 3,
+    transform: [{ translateY: -20 }],
+  },
+  secondPlace: {
+    backgroundColor: "rgba(192, 192, 192, 0.3)",
+    borderColor: "#C0C0C0",
+    zIndex: 2,
+    transform: [{ translateY: -10 }],
+  },
+  thirdPlace: {
+    backgroundColor: "rgba(205, 127, 50, 0.3)",
+    borderColor: "#CD7F32",
+    zIndex: 1,
+  },
+  crown: {
+    position: "absolute",
+    top: -15,
+    fontSize: 20,
+    zIndex: 4,
+  },
+  podiumRankBadge: {
+    position: "absolute",
+    bottom: -5,
+    right: -5,
+    backgroundColor: "#C41E3A",
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "#FFFAF0",
+  },
+  podiumRankText: {
+    color: "#FFFAF0",
+    fontWeight: "bold",
+    fontSize: 14,
+  },
+  podiumName: {
     fontSize: 14,
     fontWeight: "bold",
+    color: "#FFFAF0",
+    textAlign: "center",
+    marginBottom: 4,
+    maxWidth: 80,
+    textShadowColor: "rgba(0, 0, 0, 0.5)",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+  },
+  podiumScore: {
+    fontSize: 12,
+    color: "#FFFFFF",
+    fontWeight: "600",
+    textAlign: "center",
+    textShadowColor: "rgba(0, 0, 0, 0.8)",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
   scrollView: {
     flex: 1,
@@ -635,107 +706,6 @@ const styles = StyleSheet.create({
     opacity: 0.9,
     fontWeight: "600",
     marginTop: 2,
-    textShadowColor: "rgba(0, 0, 0, 0.8)",
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
-  },
-  // Styles pour le podium
-  topThreeContainer: {
-    marginBottom: 30,
-    paddingHorizontal: 20,
-  },
-  topThreeTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#FFD700",
-    textAlign: "center",
-    marginBottom: 20,
-    textShadowColor: "rgba(0, 0, 0, 0.5)",
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
-  },
-  podium: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "flex-end",
-    height: 200,
-  },
-  podiumPlayer: {
-    alignItems: "center",
-    marginHorizontal: 8,
-  },
-  podiumAvatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    borderWidth: 4,
-    justifyContent: "center",
-    alignItems: "center",
-    position: "relative",
-    marginBottom: 12,
-    shadowColor: "rgba(0, 0, 0, 0.3)",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  firstPlace: {
-    backgroundColor: "rgba(255, 215, 0, 0.3)",
-    borderColor: "#FFD700",
-    zIndex: 3,
-    transform: [{ translateY: -20 }],
-  },
-  secondPlace: {
-    backgroundColor: "rgba(192, 192, 192, 0.3)",
-    borderColor: "#C0C0C0",
-    zIndex: 2,
-    transform: [{ translateY: -10 }],
-  },
-  thirdPlace: {
-    backgroundColor: "rgba(205, 127, 50, 0.3)",
-    borderColor: "#CD7F32",
-    zIndex: 1,
-  },
-  crown: {
-    position: "absolute",
-    top: -15,
-    fontSize: 20,
-    zIndex: 4,
-  },
-  podiumRankBadge: {
-    position: "absolute",
-    bottom: -5,
-    right: -5,
-    backgroundColor: "#C41E3A",
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 2,
-    borderColor: "#FFFAF0",
-  },
-  podiumRankText: {
-    color: "#FFFAF0",
-    fontWeight: "bold",
-    fontSize: 14,
-  },
-  podiumName: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#FFFAF0",
-    textAlign: "center",
-    marginBottom: 4,
-    maxWidth: 80,
-    textShadowColor: "rgba(0, 0, 0, 0.5)",
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
-  },
-  podiumScore: {
-    fontSize: 12,
-    color: "#FFFFFF",
-    fontWeight: "600",
-    textAlign: "center",
     textShadowColor: "rgba(0, 0, 0, 0.8)",
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,

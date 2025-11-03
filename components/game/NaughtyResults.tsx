@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Player } from '@/types/gameTypes';
 import { useTranslation } from 'react-i18next';
 import { usePoints } from '@/hooks/usePoints';
+import useLeaderboard from '@/hooks/useLeaderboard';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -33,6 +33,7 @@ export default function NaughtyResults({
   const { t } = useTranslation();
   const router = useRouter();
   const { addPointsToUser, getUserPoints } = usePoints();
+  const { updateUserStats } = useLeaderboard();
   const [pointsGained, setPointsGained] = useState<number | null>(null);
 
   // Tri décroissant par nombre de réponses cochonnes
@@ -42,7 +43,7 @@ export default function NaughtyResults({
   const player3 = sorted[2];
   const others = sorted.slice(3);
 
-  // Calculer les points gagnés
+  // Calculer les points gagnés (Lumicoins - argent)
   useEffect(() => {
     const calculatePoints = async () => {
       const userRank = sorted.findIndex(p => p.id === userId);
@@ -60,6 +61,35 @@ export default function NaughtyResults({
 
     calculatePoints();
   }, [userId, sorted, pointsConfig, addPointsToUser]);
+
+  // Mettre à jour les statistiques du leaderboard (gamePoints - séparé de l'argent)
+  useEffect(() => {
+    const updateLeaderboardStats = async () => {
+      if (!userId) return;
+
+      const userRank = sorted.findIndex(p => p.id === userId);
+      const isWinner = userRank === 0;
+
+      // Calculer les points de classement selon la position finale (pour le leaderboard)
+      let leaderboardPoints = 0;
+      if (userRank === 0) leaderboardPoints = 25; // 1ère place
+      else if (userRank === 1) leaderboardPoints = 15; // 2ème place  
+      else if (userRank === 2) leaderboardPoints = 10; // 3ème place
+      else leaderboardPoints = 5; // Autres places
+
+      // Utiliser la fonction updateUserStats du hook useLeaderboard (met à jour gamePoints)
+      await updateUserStats({
+        userId,
+        points: leaderboardPoints,
+        won: isWinner,
+        timestamp: new Date()
+      });
+    };
+
+    if (sorted.length > 0) {
+      updateLeaderboardStats();
+    }
+  }, [userId, sorted, updateUserStats]);
 
   return (
     <View style={styles.bg}>
