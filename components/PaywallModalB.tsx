@@ -185,141 +185,56 @@ export default function PaywallModalB({
 
               <View style={styles.heroSection}>
                 <View style={styles.heroContent}>
-                  <Text style={styles.heroTitle}>
-                    {t("paywall.annual.title")}
-                  </Text>
-                  <Text style={styles.heroSubtitle}>
-                    {t("paywall.annual.subtitle")}
-                  </Text>
-                  <Text style={styles.tagline}>
-                    {t("paywall.annual.tagline")}
-                  </Text>
+                  <View style={styles.titleContainer}>
+                    <Text style={styles.heroTitle}>NIGHTLY</Text>
+                    <Text style={styles.heroTitle}>PREMIUM</Text>
+                    <Text style={styles.heroTitle}>CHAOS ILLIMITÉ</Text>
+                  </View>
                 </View>
               </View>
-
-              {/* Badge de réduction */}
-              {discountPercentage > 0 && (
-                <View style={styles.discountBadge}>
-                  <Text style={styles.discountText}>
-                    -{discountPercentage}% {t("paywall.annual.discount")}
-                  </Text>
-                </View>
-              )}
 
               <View style={styles.featuresContainer}>
                 <View style={styles.featureRow}>
                   <View style={styles.checkContainer}>
-                    <Ionicons name="checkmark" size={16} color="#ffffff" />
+                    <Ionicons name="checkmark" size={14} color="#ffffff" />
                   </View>
-                  <Text style={styles.featureText}>
-                    {t("paywall.features.unlimited")}
-                  </Text>
-                  <Ionicons
-                    name="game-controller"
-                    size={16}
-                    color="#ffffff"
-                    style={styles.featureIcon}
-                  />
+                  <Text style={styles.featureText}>Débloque tous les modes</Text>
                 </View>
                 <View style={styles.featureRow}>
                   <View style={styles.checkContainer}>
-                    <Ionicons name="checkmark" size={16} color="#ffffff" />
+                    <Ionicons name="checkmark" size={14} color="#ffffff" />
                   </View>
-                  <Text style={styles.featureText}>
-                    {t("paywall.features.weekly")}
-                  </Text>
-                  <Ionicons
-                    name="refresh"
-                    size={16}
-                    color="#ffffff"
-                    style={styles.featureIcon}
-                  />
+                  <Text style={styles.featureText}>Accès gratuit pour tes amis</Text>
                 </View>
                 <View style={styles.featureRow}>
                   <View style={styles.checkContainer}>
-                    <Ionicons name="checkmark" size={16} color="#ffffff" />
+                    <Ionicons name="checkmark" size={14} color="#ffffff" />
                   </View>
-                  <Text style={styles.featureText}>
-                    {t("paywall.features.visuals")}
-                  </Text>
-                  <Ionicons
-                    name="color-palette"
-                    size={16}
-                    color="#ffffff"
-                    style={styles.featureIcon}
-                  />
+                  <Text style={styles.featureText}>Plus de 4000 questions folles</Text>
                 </View>
                 <View style={styles.featureRow}>
                   <View style={styles.checkContainer}>
-                    <Ionicons name="checkmark" size={16} color="#ffffff" />
+                    <Ionicons name="checkmark" size={14} color="#ffffff" />
                   </View>
-                  <Text style={styles.featureText}>
-                    {t("paywall.features.characters")}
-                  </Text>
-                  <Ionicons
-                    name="person"
-                    size={16}
-                    color="#ffffff"
-                    style={styles.featureIcon}
-                  />
-                </View>
-                <View style={styles.featureRow}>
-                  <View style={styles.checkContainer}>
-                    <Ionicons name="checkmark" size={16} color="#ffffff" />
-                  </View>
-                  <Text style={styles.featureText}>
-                    {t("paywall.features.updates")}
-                  </Text>
-                  <Ionicons
-                    name="star"
-                    size={16}
-                    color="#ffffff"
-                    style={styles.featureIcon}
-                  />
-                </View>
-                <View style={styles.featureRow}>
-                  <View style={styles.checkContainer}>
-                    <Ionicons name="checkmark" size={16} color="#ffffff" />
-                  </View>
-                  <Text style={styles.featureText}>
-                    {t("paywall.annual.features.savings")}
-                  </Text>
-                  <Ionicons
-                    name="trending-down"
-                    size={16}
-                    color="#ffffff"
-                    style={styles.featureIcon}
-                  />
+                  <Text style={styles.featureText}>Annulable à tout moment</Text>
                 </View>
               </View>
 
               <View style={styles.annualPlanContainer}>
                 <View style={styles.annualPlanCard}>
-                  <View style={styles.annualBadge}>
-                    <Text style={styles.annualBadgeText}>
-                      {t("paywall.plans.annual.badge")}
-                    </Text>
+                  {discountPercentage > 0 && (
+                    <View style={styles.discountBadge}>
+                      <Text style={styles.discountText}>-{discountPercentage}%</Text>
+                    </View>
+                  )}
+                  <View style={styles.selectedCheckmark}>
+                    <Ionicons name="checkmark-circle" size={24} color={ChristmasTheme.light?.primary || '#C41E3A'} />
                   </View>
-
-                  <Text style={styles.annualTitle}>
-                    {t("paywall.plans.annual.title")}
+                  <Text style={styles.annualTitle}>ANNUEL</Text>
+                  <Text style={styles.discountedPrice}>
+                    {getFormattedPrice("annual")}
                   </Text>
-
-                  <View style={styles.priceContainer}>
-                    {pricing.monthly && (
-                      <Text style={styles.originalPrice}>
-                        {(pricing.monthly.priceNumber * 12).toFixed(2)}{" "}
-                        {pricing.monthly.currency}
-                      </Text>
-                    )}
-                    <Text style={styles.discountedPrice}>
-                      {getFormattedPrice("annual")}
-                    </Text>
-                  </View>
-
-                  <Text style={styles.annualPeriod}>
-                    {t("paywall.plans.annual.period")}
-                  </Text>
+                  <Text style={styles.annualPeriod}>par an</Text>
                   <Text style={styles.annualDescription}>
                     {t("paywall.plans.annual.description")}
                   </Text>
@@ -331,15 +246,13 @@ export default function PaywallModalB({
                 onPress={handleSubscribe}
                 disabled={loading}
               >
-                <View style={styles.gradientButton}>
-                  {loading ? (
-                    <ActivityIndicator color="#C41E3A" size="small" />
-                  ) : (
-                    <Text style={styles.ctaButtonText}>
-                      {t("paywall.annual.cta")}
-                    </Text>
-                  )}
-                </View>
+                {loading ? (
+                  <ActivityIndicator color={ChristmasTheme.light?.secondary || '#8B1538'} size="small" />
+                ) : (
+                  <Text style={styles.ctaButtonText}>
+                    COMMENCE TON ESSAI GRATUIT
+                  </Text>
+                )}
               </TouchableOpacity>
 
               <View style={styles.footerLinks}>
@@ -382,163 +295,135 @@ const styles = StyleSheet.create({
   contentContainer: {
     paddingHorizontal: 10,
     paddingTop: 0,
-    paddingBottom: 20,
+    paddingBottom: 40,
     minHeight: "100%",
+    justifyContent: "space-between",
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
-    paddingTop: 25,
+    paddingTop: 35,
     paddingBottom: 5,
     justifyContent: "flex-end",
+    paddingRight: 20,
   },
   backButton: {
     justifyContent: "center",
     alignItems: "center",
-    borderColor: "#000",
-    shadowColor: "#000",
-    marginTop: Platform.OS === "ios" ? 30 : 20,
+    marginTop: Platform.OS === "ios" ? 15 : 10,
     backgroundColor: "rgba(255, 255, 255, 0.2)",
     borderRadius: 20,
+    width: 40,
+    height: 40,
     padding: 8,
   },
   heroSection: {
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: 20,
+    marginTop: 10,
   },
   heroContent: {
     width: "100%",
-    alignItems: "center",
+    alignItems: "flex-start",
+    paddingHorizontal: 20,
+  },
+  titleContainer: {
+    width: "100%",
   },
   heroTitle: {
-    fontSize: 26,
-    fontWeight: "bold",
+    fontSize: 32,
+    fontWeight: "900",
     color: "#ffffff",
-    textAlign: "center",
-  },
-  heroSubtitle: {
-    fontSize: 20,
-    color: "#ffffff",
-    fontWeight: "bold",
-    textAlign: "center",
-    marginTop: 4,
-  },
-  tagline: {
-    fontSize: 15,
-    color: "#ffffff",
-    textAlign: "center",
-    marginTop: 8,
-  },
-  discountBadge: {
-    backgroundColor: "#C41E3A",
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    alignSelf: "center",
-    marginBottom: 16,
-  },
-  discountText: {
-    color: "#ffffff",
-    fontSize: 16,
-    fontWeight: "bold",
-    textAlign: "center",
+    textTransform: "uppercase",
+    letterSpacing: 1,
   },
   featuresContainer: {
     width: "100%",
-    marginBottom: 8,
+    marginBottom: 24,
+    paddingHorizontal: 20,
   },
   featureRow: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    borderRadius: 12,
-    padding: 10,
-    marginBottom: 6,
-    width: "100%",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.2)",
+    marginBottom: 12,
+    paddingVertical: 4,
   },
   checkContainer: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
     backgroundColor: ChristmasTheme.light?.secondary || "#8B1538",
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 6,
+    marginRight: 12,
   },
   featureText: {
-    fontSize: 15,
+    fontSize: 16,
     color: "#ffffff",
-    fontWeight: "600",
+    fontWeight: "500",
     flex: 1,
-  },
-  featureIcon: {
-    marginLeft: 4,
   },
   annualPlanContainer: {
     width: "100%",
+    paddingHorizontal: 20,
     marginBottom: 16,
   },
   annualPlanCard: {
-    backgroundColor: "rgba(255, 255, 255, 0.15)",
-    borderRadius: 20,
+    backgroundColor: "#ffffff",
+    borderRadius: 16,
     padding: 20,
     borderWidth: 2,
-    borderColor: "#FFD700",
+    borderColor: ChristmasTheme.light?.primary || "#C41E3A",
     position: "relative",
-    alignItems: "center",
+    shadowColor: ChristmasTheme.light?.primary || "#C41E3A",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
-  annualBadge: {
+  discountBadge: {
     position: "absolute",
-    top: -12,
-    backgroundColor: "#FF6F00",
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    top: 12,
+    right: 12,
+    backgroundColor: ChristmasTheme.light?.primary || "#C41E3A",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
   },
-  annualBadgeText: {
+  discountText: {
     color: "#FFFFFF",
     fontWeight: "bold",
     fontSize: 12,
   },
+  selectedCheckmark: {
+    position: "absolute",
+    top: 50,
+    right: 12,
+  },
   annualTitle: {
     fontSize: 20,
-    fontWeight: "bold",
-    color: "#ffffff",
-    marginTop: 12,
-    marginBottom: 12,
-    textAlign: "center",
-  },
-  priceContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    fontWeight: "800",
+    color: ChristmasTheme.light?.secondary || "#8B1538",
     marginBottom: 8,
-  },
-  originalPrice: {
-    fontSize: 18,
-    color: "#B0B0B0",
-    textDecorationLine: "line-through",
-    marginRight: 12,
+    marginTop: 20,
+    textTransform: "uppercase",
   },
   discountedPrice: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#FFD700",
+    fontSize: 18,
+    fontWeight: "600",
+    color: ChristmasTheme.light?.secondary || "#8B1538",
+    marginBottom: 4,
   },
   annualPeriod: {
     fontSize: 14,
-    color: "#ffffff",
-    opacity: 0.9,
-    marginBottom: 8,
+    color: ChristmasTheme.light?.secondary || "#8B1538",
+    marginBottom: 6,
   },
   annualDescription: {
     fontSize: 13,
-    color: "#ffffff",
+    color: ChristmasTheme.light?.secondary || "#8B1538",
     opacity: 0.8,
-    textAlign: "center",
-    marginBottom: 12,
+    marginTop: 6,
   },
   savingsContainer: {
     flexDirection: "row",
@@ -556,32 +441,34 @@ const styles = StyleSheet.create({
   },
   ctaButton: {
     width: "100%",
-    borderRadius: 12,
-    marginVertical: 10,
-    overflow: "hidden",
-    backgroundColor: "#C41E3A",
-  },
-  gradientButton: {
-    paddingVertical: 16,
-    paddingHorizontal: 10,
+    borderRadius: 16,
+    marginVertical: 20,
+    paddingVertical: 18,
+    backgroundColor: "#ffffff",
     alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 20,
   },
   ctaButtonText: {
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: "800",
-    color: "#FFFFFF",
+    color: ChristmasTheme.light?.secondary || "#8B1538",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   footerLinks: {
     flexDirection: "row",
     justifyContent: "space-around",
     width: "100%",
-    marginTop: 4,
-    marginBottom: 10,
+    marginTop: 16,
+    marginBottom: 20,
+    paddingHorizontal: 20,
   },
   footerText: {
-    color: "rgba(255, 255, 255, 0.9)",
+    color: "#ffffff",
     fontSize: 14,
     fontWeight: "600",
     textDecorationLine: "underline",
+    opacity: 0.9,
   },
 });

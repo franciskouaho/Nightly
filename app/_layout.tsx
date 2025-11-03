@@ -132,11 +132,6 @@ function AppContent() {
   useIsHasUpdates();
   const { track } = usePostHog();
 
-  // Ne pas rendre l'app si les polices ne sont pas chargées
-  if (!fontsLoaded && !fontError) {
-    return null;
-  }
-
   useEffect(() => {
     // Configuration Android 15 Edge-to-Edge
     ModernStatusBar.configureForAndroid15();
@@ -145,14 +140,22 @@ function AppContent() {
     HalloweenNotificationScheduler.scheduleHalloweenNotifications();
     
     // Envoyer un événement de test PostHog
-    setTimeout(() => {
-      track.custom('app_initialized', {
-        app_version: POSTHOG_CONFIG.options.appVersion,
-        platform: 'react-native',
-        timestamp: new Date().toISOString(),
-      });
-    }, 1000);
+    if (track && track.custom) {
+      setTimeout(() => {
+        track.custom('app_initialized', {
+          app_version: POSTHOG_CONFIG.options.appVersion,
+          platform: 'react-native',
+          timestamp: new Date().toISOString(),
+        });
+      }, 1000);
+    }
   }, [track]);
+
+  // Ne pas rendre l'app si les polices ne sont pas chargées
+  // Utiliser un View vide au lieu de null pour maintenir la cohérence des hooks
+  if (!fontsLoaded && !fontError) {
+    return <></>;
+  }
 
   return (
     <LanguageProvider>

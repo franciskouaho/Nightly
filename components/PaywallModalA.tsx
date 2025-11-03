@@ -20,7 +20,7 @@ interface PaywallModalAProps {
 }
 
 export default function PaywallModalA({ isVisible, onClose, onUpgradeToAnnual }: PaywallModalAProps) {
-  const [selectedPlan, setSelectedPlan] = useState('monthly');
+  const [selectedPlan, setSelectedPlan] = useState('weekly');
   const { currentOffering, isProMember } = useRevenueCat();
   const { pricing, getFormattedPrice } = usePricing();
   const [loading, setLoading] = useState(false);
@@ -35,8 +35,19 @@ export default function PaywallModalA({ isVisible, onClose, onUpgradeToAnnual }:
   const packageToUse = currentOffering?.availablePackages?.find((pkg: any) =>
     selectedPlan === 'weekly'
       ? pkg.packageType === 'WEEKLY'
-      : pkg.packageType === 'MONTHLY'
+      : pkg.packageType === 'ANNUAL'
   );
+
+  // Calculer le pourcentage de réduction annuel
+  const calculateDiscountPercentage = () => {
+    if (!pricing.weekly || !pricing.annual) return null;
+    const weeklyYearlyCost = pricing.weekly.priceNumber * 52; // 52 semaines dans une année
+    const savings = weeklyYearlyCost - pricing.annual.priceNumber;
+    const discountPercentage = Math.round((savings / weeklyYearlyCost) * 100);
+    return discountPercentage > 0 ? discountPercentage : null;
+  };
+
+  const discountPercentage = calculateDiscountPercentage();
 
   const handleSubscribe = async () => {
     if (!packageToUse) {
@@ -166,47 +177,38 @@ export default function PaywallModalA({ isVisible, onClose, onUpgradeToAnnual }:
 
               <View style={styles.heroSection}>
                 <View style={styles.heroContent}>
-                  <Text style={styles.heroTitle}>{t('paywall.title')}</Text>
-                  <Text style={styles.heroSubtitle}>{t('paywall.subtitle')}</Text>
-                  <Text style={styles.tagline}>{t('paywall.tagline')}</Text>
+                  <View style={styles.titleContainer}>
+                    <Text style={styles.heroTitle}>NIGHTLY</Text>
+                    <Text style={styles.heroTitle}>PREMIUM</Text>
+                    <Text style={styles.heroTitle}>CHAOS ILLIMITÉ</Text>
+                  </View>
                 </View>
               </View>
 
               <View style={styles.featuresContainer}>
                 <View style={styles.featureRow}>
                   <View style={styles.checkContainer}>
-                    <Ionicons name="checkmark" size={16} color="#ffffff" />
+                    <Ionicons name="checkmark" size={14} color="#ffffff" />
                   </View>
-                  <Text style={styles.featureText}>{t('paywall.features.unlimited')}</Text>
-                  <Ionicons name="game-controller" size={16} color="#ffffff" style={styles.featureIcon} />
+                  <Text style={styles.featureText}>Débloque tous les modes</Text>
                 </View>
                 <View style={styles.featureRow}>
                   <View style={styles.checkContainer}>
-                    <Ionicons name="checkmark" size={16} color="#ffffff" />
+                    <Ionicons name="checkmark" size={14} color="#ffffff" />
                   </View>
-                  <Text style={styles.featureText}>{t('paywall.features.weekly')}</Text>
-                  <Ionicons name="refresh" size={16} color="#ffffff" style={styles.featureIcon} />
+                  <Text style={styles.featureText}>Accès gratuit pour tes amis</Text>
                 </View>
                 <View style={styles.featureRow}>
                   <View style={styles.checkContainer}>
-                    <Ionicons name="checkmark" size={16} color="#ffffff" />
+                    <Ionicons name="checkmark" size={14} color="#ffffff" />
                   </View>
-                  <Text style={styles.featureText}>{t('paywall.features.visuals')}</Text>
-                  <Ionicons name="color-palette" size={16} color="#ffffff" style={styles.featureIcon} />
+                  <Text style={styles.featureText}>Plus de 4000 questions folles</Text>
                 </View>
                 <View style={styles.featureRow}>
                   <View style={styles.checkContainer}>
-                    <Ionicons name="checkmark" size={16} color="#ffffff" />
+                    <Ionicons name="checkmark" size={14} color="#ffffff" />
                   </View>
-                  <Text style={styles.featureText}>{t('paywall.features.characters')}</Text>
-                  <Ionicons name="person" size={16} color="#ffffff" style={styles.featureIcon} />
-                </View>
-                <View style={styles.featureRow}>
-                  <View style={styles.checkContainer}>
-                    <Ionicons name="checkmark" size={16} color="#ffffff" />
-                  </View>
-                  <Text style={styles.featureText}>{t('paywall.features.updates')}</Text>
-                  <Ionicons name="star" size={16} color="#ffffff" style={styles.featureIcon} />
+                  <Text style={styles.featureText}>Annulable à tout moment</Text>
                 </View>
               </View>
 
@@ -214,38 +216,60 @@ export default function PaywallModalA({ isVisible, onClose, onUpgradeToAnnual }:
                 <TouchableOpacity
                   style={[
                     styles.planOption,
-                    selectedPlan === 'weekly' && styles.selectedPlan
+                    styles.annualCard,
+                    selectedPlan === 'annual' && styles.selectedAnnual
                   ]}
-                  onPress={() => setSelectedPlan('weekly')}
+                  onPress={() => setSelectedPlan('annual')}
                 >
-                  <View style={[styles.planBadge, styles.weeklyBadge]}>
-                    <Text style={styles.badgeText}>{t('paywall.plans.weekly.badge')}</Text>
-                    <Text style={{color: '#FFFFFF', fontWeight: 'bold', fontSize: 9, marginTop: 1, textAlign: 'center'}}>{t('paywall.freeTrial')}</Text>
-                  </View>
-                  <Text style={[styles.planTitle, {marginTop: 18}]}>{t('paywall.plans.weekly.title')}</Text>
-                  <Text style={styles.planPrice}>
-                    {getFormattedPrice('weekly')}
+                  {discountPercentage && (
+                    <View style={[
+                      styles.discountBadge,
+                      selectedPlan === 'annual' && styles.discountBadgeSelected
+                    ]}>
+                      <Text style={styles.discountText}>-{discountPercentage}%</Text>
+                    </View>
+                  )}
+                  {selectedPlan === 'annual' && (
+                    <View style={styles.selectedCheckmarkAnnual}>
+                      <Ionicons name="checkmark-circle" size={24} color={ChristmasTheme.light?.primary || '#C41E3A'} />
+                    </View>
+                  )}
+                  <Text style={[
+                    styles.planTitleAnnual,
+                    selectedPlan === 'annual' && styles.planTitleAnnualSelected
+                  ]}>ANNUEL</Text>
+                  <Text style={[
+                    styles.planPriceAnnual,
+                    selectedPlan === 'annual' && styles.planPriceAnnualSelected
+                  ]}>
+                    {getFormattedPrice('annual')}
                   </Text>
-                  <Text style={styles.planPeriod}>{t('paywall.plans.weekly.period')}</Text>
-                  <Text style={styles.planDescription}>{t('paywall.plans.weekly.description')}</Text>
+                  <Text style={[
+                    styles.planPeriodAnnual,
+                    selectedPlan === 'annual' && styles.planPeriodAnnualSelected
+                  ]}>par an</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   style={[
                     styles.planOption,
-                    selectedPlan === 'monthly' && styles.selectedPlan
+                    styles.weeklyCard,
+                    selectedPlan === 'weekly' && styles.selectedWeekly
                   ]}
-                  onPress={() => setSelectedPlan('monthly')}
+                  onPress={() => setSelectedPlan('weekly')}
                 >
-                  <View style={[styles.planBadge, styles.monthlyBadge]}>
-                    <Text style={styles.badgeText}>{t('paywall.plans.monthly.badge')}</Text>
+                  <View style={styles.specialOfferBadge}>
+                    <Text style={styles.specialOfferText}>OFFRE SPÉCIALE</Text>
                   </View>
-                  <Text style={styles.planTitle}>{t('paywall.plans.monthly.title')}</Text>
-                  <Text style={styles.planPrice}>
-                    {getFormattedPrice('monthly')}
+                  {selectedPlan === 'weekly' && (
+                    <View style={styles.selectedCheckmark}>
+                      <Ionicons name="checkmark-circle" size={24} color={ChristmasTheme.light?.primary || '#C41E3A'} />
+                    </View>
+                  )}
+                  <Text style={styles.planTitleWeekly}>ESSAI GRATUIT</Text>
+                  <Text style={styles.planPriceWeekly}>
+                    3 jours gratuits, puis {getFormattedPrice('weekly')} par semaine
                   </Text>
-                  <Text style={styles.planPeriod}>{t('paywall.plans.monthly.period')}</Text>
-                  <Text style={styles.planDescription}>{t('paywall.plans.monthly.description')}</Text>
                 </TouchableOpacity>
               </View>
 
@@ -254,15 +278,13 @@ export default function PaywallModalA({ isVisible, onClose, onUpgradeToAnnual }:
                 onPress={handleSubscribe}
                 disabled={loading}
               >
-                <View style={styles.gradientButton}>
-                  {loading ? (
-                    <ActivityIndicator color="#C41E3A" size="small" />
-                  ) : (
-                    <Text style={styles.ctaButtonText}>
-                      {t('paywall.cta')}
-                    </Text>
-                  )}
-                </View>
+                {loading ? (
+                  <ActivityIndicator color={ChristmasTheme.light?.secondary || '#8B1538'} size="small" />
+                ) : (
+                  <Text style={styles.ctaButtonText}>
+                    COMMENCE TON ESSAI GRATUIT
+                  </Text>
+                )}
               </TouchableOpacity>
 
               <View style={styles.footerLinks}>
@@ -303,178 +325,233 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 10,
     paddingTop: 0,
-    paddingBottom: 10,
+    paddingBottom: 40,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingTop: 25,
+    paddingTop: 35,
     paddingBottom: 5,
     justifyContent: 'flex-end',
+    paddingRight: 20,
   },
   backButton: {
     justifyContent: 'center',
     alignItems: 'center',
-    borderColor: '#000',
-    shadowColor: '#000',
-    marginTop: Platform.OS === 'ios' ? 30 : 20,
+    marginTop: Platform.OS === 'ios' ? 15 : 10,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     borderRadius: 20,
+    width: 40,
+    height: 40,
     padding: 8,
   },
   heroSection: {
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 20,
+    marginTop: 10,
   },
   heroContent: {
     width: '100%',
+    alignItems: 'flex-start',
+    paddingHorizontal: 20,
+  },
+  titleContainer: {
+    width: '100%',
+  },
+  titleRow: {
+    flexDirection: 'row',
     alignItems: 'center',
+    gap: 8,
   },
   heroTitle: {
-    fontSize: 26,
-    fontWeight: 'bold',
+    fontSize: 32,
+    fontWeight: '900',
     color: '#ffffff',
-    textAlign: 'center',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
-  heroSubtitle: {
-    fontSize: 20,
-    color: '#ffffff',
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginTop: 4,
-  },
-  tagline: {
-    fontSize: 15,
-    color: '#ffffff',
-    textAlign: 'center',
-    marginTop: 8,
+  devilIcon: {
+    fontSize: 40,
   },
   featuresContainer: {
     width: '100%',
-    marginBottom: 8,
+    marginBottom: 24,
+    paddingHorizontal: 20,
   },
   featureRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 12,
-    padding: 10,
-    marginBottom: 6,
-    width: '100%',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    marginBottom: 12,
+    paddingVertical: 4,
   },
   checkContainer: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
     backgroundColor: ChristmasTheme.light?.secondary || '#8B1538',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 6,
+    marginRight: 12,
   },
   featureText: {
-    fontSize: 15,
+    fontSize: 16,
     color: '#ffffff',
-    fontWeight: '600',
+    fontWeight: '500',
     flex: 1,
-  },
-  featureIcon: {
-    marginLeft: 4,
   },
   subscriptionOptions: {
     width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 6,
+    paddingHorizontal: 20,
+    gap: 16,
   },
   planOption: {
-    flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 20,
-    padding: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    width: '100%',
+    borderRadius: 16,
+    padding: 20,
     position: 'relative',
-    minWidth: 80,
-  },
-  selectedPlan: {
-    borderColor: '#8B4513',
     borderWidth: 2,
-    backgroundColor: 'rgba(139, 69, 19, 0.1)',
   },
-  planBadge: {
+  annualCard: {
+    backgroundColor: 'rgba(240, 98, 146, 0.3)', // Light pink/purple
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  selectedAnnual: {
+    backgroundColor: '#ffffff', // Blanc quand sélectionné
+    borderColor: ChristmasTheme.light?.primary || '#C41E3A',
+    borderWidth: 2,
+    shadowColor: ChristmasTheme.light?.primary || '#C41E3A',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  weeklyCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.5)', // Semi-transparent quand non sélectionné
+    borderColor: 'rgba(139, 21, 56, 0.3)',
+  },
+  selectedWeekly: {
+    backgroundColor: '#ffffff', // Blanc complet quand sélectionné
+    borderColor: ChristmasTheme.light?.primary || '#C41E3A',
+    borderWidth: 2,
+    shadowColor: ChristmasTheme.light?.primary || '#C41E3A',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  discountBadge: {
     position: 'absolute',
-    top: -12,
-    right: 10,
-    paddingHorizontal: 8,
+    top: 12,
+    right: 12,
+    backgroundColor: ChristmasTheme.light?.secondary || '#8B1538',
+    paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 12,
+    borderRadius: 8,
   },
-  weeklyBadge: {
+  discountBadgeSelected: {
     backgroundColor: ChristmasTheme.light?.primary || '#C41E3A',
   },
-  monthlyBadge: {
-    backgroundColor: ChristmasTheme.light?.secondary || '#8B1538',
+  discountText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    fontSize: 12,
   },
-  badgeText: {
+  specialOfferBadge: {
+    position: 'absolute',
+    top: 12,
+    left: 12,
+    backgroundColor: '#FF8C00', // Orange
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  specialOfferText: {
     color: '#FFFFFF',
     fontWeight: 'bold',
     fontSize: 10,
   },
-  planTitle: {
-    fontSize: 15,
-    fontWeight: '700',
+  selectedCheckmark: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+  },
+  selectedCheckmarkAnnual: {
+    position: 'absolute',
+    top: 50, // Plus bas pour éviter le badge de réduction
+    right: 12,
+  },
+  planTitleAnnual: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#ffffff',
+    marginBottom: 8,
+    textTransform: 'uppercase',
+  },
+  planTitleAnnualSelected: {
+    color: ChristmasTheme.light?.secondary || '#8B1538',
+  },
+  planPriceAnnual: {
+    fontSize: 16,
+    fontWeight: '600',
     color: '#ffffff',
     marginBottom: 4,
-    marginTop: 12,
   },
-  planPrice: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    marginBottom: 4,
+  planPriceAnnualSelected: {
+    color: ChristmasTheme.light?.secondary || '#8B1538',
   },
-  planPeriod: {
-    fontSize: 13,
+  planPeriodAnnual: {
+    fontSize: 14,
     color: '#ffffff',
     opacity: 0.9,
-    marginBottom: 6,
   },
-  planDescription: {
-    fontSize: 11,
-    color: '#ffffff',
-    opacity: 0.8,
-    marginTop: 6,
+  planPeriodAnnualSelected: {
+    color: ChristmasTheme.light?.secondary || '#8B1538',
+    opacity: 1,
+  },
+  planTitleWeekly: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: ChristmasTheme.light?.secondary || '#8B1538',
+    marginBottom: 8,
+    marginTop: 20,
+    textTransform: 'uppercase',
+  },
+  planPriceWeekly: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: ChristmasTheme.light?.secondary || '#8B1538',
+    lineHeight: 20,
   },
   ctaButton: {
     width: '100%',
-    borderRadius: 12,
-    marginVertical: 10,
-    overflow: 'hidden',
-    backgroundColor: ChristmasTheme.light?.secondary || '#8B1538',
-  },
-  gradientButton: {
-    paddingVertical: 6,
-    paddingHorizontal: 10,
+    borderRadius: 16,
+    marginVertical: 20,
+    paddingVertical: 18,
+    backgroundColor: '#ffffff',
     alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
   },
   ctaButtonText: {
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: '800',
-    color: '#ffffff',
+    color: ChristmasTheme.light?.secondary || '#8B1538',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   footerLinks: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     width: '100%',
-    marginTop: 4,
-    marginBottom: 10,
+    marginTop: 16,
+    marginBottom: 20,
+    paddingHorizontal: 20,
   },
   footerText: {
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: '#ffffff',
     fontSize: 14,
     fontWeight: '600',
     textDecorationLine: 'underline',
+    opacity: 0.9,
   },
 });

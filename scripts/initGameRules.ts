@@ -1754,4 +1754,4 @@ const initGameRules = async () => {
 };
 
 // Lance l'initialisation
-initGameRules();
+initGameRules(); 
