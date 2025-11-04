@@ -11,11 +11,11 @@ export interface Question {
   text: string;
   theme: string;
   roundNumber: number;
-  type?: 'coquin' | 'sage';
+  type?: "coquin" | "sage";
   answer?: string;
-  intensity?: 'soft' | 'tension' | 'extreme';
-  level?: 'hot' | 'extreme' | 'chaos'; // For double-dare
-  mode?: 'versus' | 'fusion'; // For double-dare game modes
+  intensity?: "soft" | "tension" | "extreme";
+  level?: "hot" | "extreme" | "chaos"; // For double-dare
+  mode?: "versus" | "fusion"; // For double-dare game modes
 }
 
 export interface Answer {
@@ -27,25 +27,26 @@ export interface Answer {
 }
 
 export enum GamePhase {
-  LOADING = 'loading',
-  CHOIX = 'choix',
-  QUESTION = 'question',
-  WAITING = 'waiting',
-  VOTE = 'vote',
-  WAITING_FOR_VOTE = 'waiting_for_vote',
-  RESULTS = 'results',
-  END = 'end'
+  LOADING = "loading",
+  CHOIX = "choix",
+  QUESTION = "question",
+  WAITING = "waiting",
+  VOTE = "vote",
+  WAITING_FOR_VOTE = "waiting_for_vote",
+  RESULTS = "results",
+  END = "end",
 }
 
 export type GameMode =
-  | 'never-have-i-ever-hot'
-  | 'truth-or-dare'
-  | 'genius-or-liar'
-  | 'trap-answer'
-  | 'listen-but-don-t-judge'
-  | 'quiz-halloween'
-  | 'forbidden-desire'
-  | 'double-dare';
+  | "never-have-i-ever-hot"
+  | "truth-or-dare"
+  | "genius-or-liar"
+  | "trap-answer"
+  | "listen-but-don-t-judge"
+  | "quiz-halloween"
+  | "forbidden-desire"
+  | "double-dare"
+  | "word-guessing";
 
 export interface GameState {
   phase: GamePhase;
@@ -75,4 +76,4 @@ export interface GameState {
   currentPlayerId?: string;
   gameMode?: string;
   naughtyAnswers?: Record<string, number>;
-} 
+}

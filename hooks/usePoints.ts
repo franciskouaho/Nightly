@@ -14,7 +14,7 @@ import {
   updateDoc,
   where,
 } from "@react-native-firebase/firestore";
-import { httpsCallable } from "firebase/functions";
+import functions from "@react-native-firebase/functions";
 
 // Types pour la configuration des points
 type PointsConfig = {
@@ -177,7 +177,7 @@ export const usePoints = () => {
     rank_name: string,
   ) => {
     try {
-      const awardLumiCoinsFn = httpsCallable(cloudFunctions, "awardLumiCoins");
+      const awardLumiCoinsFn = functions().httpsCallable("awardLumiCoins");
       await awardLumiCoinsFn({ userId, amount, reason, rank_name });
     } catch (error) {
       console.error("Erreur lors de l'attribution des LumiCoins:", error);
