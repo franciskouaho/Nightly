@@ -1,15 +1,14 @@
 import { db } from '@/config/firebase';
-import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
-import { GameState, GamePhase } from '@/types/gameTypes';
+import { GamePhase, GameState } from '@/types/gameTypes';
 
 class GameService {
   private unsubscribe: (() => void) | null = null;
 
   async getGameState(gameId: string): Promise<GameState> {
     try {
-      const gameRef = doc(db, 'games', gameId);
-      const gameDoc = await getDoc(gameRef);
-      
+      const gameRef = db.collection('games').doc(gameId);
+      const gameDoc = await gameRef.get();
+
       if (!gameDoc.exists()) {
         throw new Error('Game not found');
       }
@@ -23,15 +22,15 @@ class GameService {
   }
 
   subscribeToGameState(gameId: string, callback: (state: GameState) => void): () => void {
-    const gameRef = doc(db, 'games', gameId);
-    
+    const gameRef = db.collection('games').doc(gameId);
+
     // Se désabonner de l'écoute précédente si elle existe
     if (this.unsubscribe) {
       this.unsubscribe();
     }
 
     // Créer une nouvelle écoute
-    this.unsubscribe = onSnapshot(gameRef, (doc) => {
+    this.unsubscribe = gameRef.onSnapshot((doc) => {
       if (doc.exists()) {
         const gameData = doc.data();
         callback(this.formatGameState(gameData));
@@ -76,21 +75,24 @@ class GameService {
 
   async submitAnswer(gameId: string, questionId: string, answer: string): Promise<void> {
     try {
-      const gameRef = doc(db, 'games', gameId);
-      const gameDoc = await getDoc(gameRef);
-      
+      const gameRef = db.collection('games').doc(gameId);
+      const gameDoc = await gameRef.get();
+
       if (!gameDoc.exists()) {
         throw new Error('Game not found');
       }
 
       const gameData = gameDoc.data();
+      if (!gameData) {
+        throw new Error('Game data not found');
+      }
       const answers = gameData.answers || [];
-      
+
       // Vérifier si l'utilisateur a déjà répondu
-      const hasAnswered = answers.some((answer: { playerId: string }) => 
+      const hasAnswered = answers.some((answer: { playerId: string }) =>
         answer.playerId === this.getCurrentUserId()
       );
-      
+
       if (hasAnswered) {
         throw new Error('You have already answered this question');
       }
@@ -104,7 +106,7 @@ class GameService {
         questionId
       };
 
-      await updateDoc(gameRef, {
+      await gameRef.update({
         answers: [...answers, newAnswer]
       });
     } catch (error) {
@@ -115,21 +117,24 @@ class GameService {
 
   async submitVote(gameId: string, answerId: string): Promise<void> {
     try {
-      const gameRef = doc(db, 'games', gameId);
-      const gameDoc = await getDoc(gameRef);
-      
+      const gameRef = db.collection('games').doc(gameId);
+      const gameDoc = await gameRef.get();
+
       if (!gameDoc.exists()) {
         throw new Error('Game not found');
       }
 
       const gameData = gameDoc.data();
+      if (!gameData) {
+        throw new Error('Game data not found');
+      }
       const votes = gameData.votes || [];
-      
+
       // Vérifier si l'utilisateur a déjà voté
-      const hasVoted = votes.some((vote: { playerId: string }) => 
+      const hasVoted = votes.some((vote: { playerId: string }) =>
         vote.playerId === this.getCurrentUserId()
       );
-      
+
       if (hasVoted) {
         throw new Error('You have already voted');
       }
@@ -141,7 +146,7 @@ class GameService {
         timestamp: Date.now()
       };
 
-      await updateDoc(gameRef, {
+      await gameRef.update({
         votes: [...votes, newVote]
       });
     } catch (error) {
@@ -162,8 +167,8 @@ class GameService {
 
   async forcePhaseTransition(gameId: string, phase: string): Promise<boolean> {
     try {
-      const gameRef = doc(db, 'games', gameId);
-      await updateDoc(gameRef, {
+      const gameRef = db.collection('games').doc(gameId);
+      await gameRef.update({
         currentPhase: phase
       });
       return true;
@@ -174,4 +179,4 @@ class GameService {
   }
 }
 
-export default new GameService(); 
+export default new GameService();

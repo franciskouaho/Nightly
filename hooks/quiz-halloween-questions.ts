@@ -1,14 +1,19 @@
-import { getFirestore, doc, getDoc } from '@react-native-firebase/firestore';
-import { TrapQuestion } from "@/types/types";
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useState, useEffect } from 'react';
+import { TrapQuestion } from "@/types/types";
+import { doc, getDoc, getFirestore } from '@react-native-firebase/firestore';
+import { useEffect, useState } from 'react';
 
 // Fonction pour mélanger un tableau (algorithme de Fisher-Yates)
 const shuffleArray = <T>(array: T[]): T[] => {
   const shuffled = [...array];
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    const tempI = shuffled[i];
+    const tempJ = shuffled[j];
+    if (tempI !== undefined && tempJ !== undefined) {
+      shuffled[i] = tempJ;
+      shuffled[j] = tempI;
+    }
   }
   return shuffled;
 };
@@ -38,11 +43,11 @@ export function useQuizHalloweenQuestions(askedQuestionIdsFromGame: string[]) {
   // Fonction pour obtenir une question aléatoire non posée
   const getRandomQuestion = (): TrapQuestion | null => {
     const availableQuestions = questions.filter(q => !askedQuestionIdsFromGame.includes(q.id));
-    
+
     if (availableQuestions.length === 0) {
       return null; // Plus de questions disponibles
     }
-    
+
     const randomIndex = Math.floor(Math.random() * availableQuestions.length);
     return availableQuestions[randomIndex] || null;
   };
@@ -54,19 +59,19 @@ export function useQuizHalloweenQuestions(askedQuestionIdsFromGame: string[]) {
         const db = getFirestore();
         const questionsRef = doc(db, 'gameRules', 'quiz-halloween');
         const questionsDoc = await getDoc(questionsRef);
-        
+
         if (questionsDoc.exists()) {
           const data = questionsDoc.data();
           if (!data) return;
-          
+
           const translations = data.translations;
-          
+
           // Utiliser la langue actuelle ou français par défaut
           const currentLang = language || 'fr';
           const langData = translations[currentLang] || translations['fr'];
-          
+
           if (langData && langData.questions) {
-            const transformedQuestions = langData.questions.map((q: any, index: number) => 
+            const transformedQuestions = langData.questions.map((q: any, index: number) =>
               transformHalloweenQuestion(q, index)
             );
             // Mélanger les questions pour éviter le même ordre

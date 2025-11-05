@@ -1,20 +1,20 @@
-import { GameState } from "@/types/gameTypes";
+import { GamePhase, GameState } from "@/types/gameTypes";
 import {
-  doc,
-  getDoc,
-  getFirestore,
-  onSnapshot,
-  runTransaction,
-  setDoc,
-  updateDoc,
+    doc,
+    getDoc,
+    getFirestore,
+    onSnapshot,
+    runTransaction,
+    setDoc,
+    updateDoc,
 } from "@react-native-firebase/firestore";
 import { useEffect, useState } from "react";
 
 export function useGame<T extends GameState = GameState>(gameId: string) {
   const [gameState, setGameState] = useState<T | null>(() => {
     // Initialiser avec un état par défaut pour éviter les flashes
-    return {
-      phase: "waiting",
+    const defaultState: GameState = {
+      phase: GamePhase.WAITING,
       currentRound: 0,
       totalRounds: 3,
       targetPlayer: null,
@@ -24,10 +24,9 @@ export function useGame<T extends GameState = GameState>(gameId: string) {
       scores: {},
       theme: "",
       timer: null,
-      questions: [],
-      askedQuestionIds: [],
-      history: {},
-    } as T;
+
+    };
+    return defaultState as T;
   });
   const db = getFirestore();
 
@@ -142,7 +141,7 @@ export function useGame<T extends GameState = GameState>(gameId: string) {
         }
 
         const currentData = gameSnap.data() as T;
-        const currentPlayerAnswers = currentData.playerAnswers || {};
+        const currentPlayerAnswers = (currentData as any).playerAnswers || {};
 
         // Vérifier si le joueur a déjà répondu
         if (currentPlayerAnswers[userId]) {

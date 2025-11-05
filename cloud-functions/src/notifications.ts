@@ -67,15 +67,17 @@ export const sendWeekendNotifications = functions.scheduler.onSchedule(
             const userData = doc.data() as UserNotificationPreferences;
             const message = messages[Math.floor(Math.random() * messages.length)];
 
-            promises.push(
-                sendNotification(
-                    userData.notificationToken,
-                    message.title,
-                    message.body,
-                    { type: 'weekend_reminder' }
-                )
-            );
-            batch.update(doc.ref, { lastNotificationDate: now });
+            if (message) {
+                promises.push(
+                    sendNotification(
+                        userData.notificationToken,
+                        message.title,
+                        message.body,
+                        { type: 'weekend_reminder' }
+                    )
+                );
+                batch.update(doc.ref, { lastNotificationDate: now });
+            }
         });
 
         await Promise.all(promises);
@@ -118,15 +120,17 @@ export const sendSundayNotification = functions.scheduler.onSchedule(
             const userData = doc.data() as UserNotificationPreferences;
             const message = messages[Math.floor(Math.random() * messages.length)];
 
-            promises.push(
-                sendNotification(
-                    userData.notificationToken,
-                    message.title,
-                    message.body,
-                    { type: 'sunday_reminder' }
-                )
-            );
-            batch.update(doc.ref, { lastNotificationDate: now });
+            if (message) {
+                promises.push(
+                    sendNotification(
+                        userData.notificationToken,
+                        message.title,
+                        message.body,
+                        { type: 'sunday_notification' }
+                    )
+                );
+                batch.update(doc.ref, { lastNotificationDate: now });
+            }
         });
 
         await Promise.all(promises);
@@ -168,15 +172,17 @@ export const sendTuesdayTeaser = functions.scheduler.onSchedule(
             const userData = doc.data() as UserNotificationPreferences;
             const message = messages[Math.floor(Math.random() * messages.length)];
 
-            promises.push(
-                sendNotification(
-                    userData.notificationToken,
-                    message.title,
-                    message.body,
-                    { type: 'tuesday_teaser' }
-                )
-            );
-            batch.update(doc.ref, { lastNotificationDate: now });
+            if (message) {
+                promises.push(
+                    sendNotification(
+                        userData.notificationToken,
+                        message.title,
+                        message.body,
+                        { type: 'tuesday_teaser' }
+                    )
+                );
+                batch.update(doc.ref, { lastNotificationDate: now });
+            }
         });
 
         await Promise.all(promises);
@@ -218,15 +224,17 @@ export const sendMidweekReminder = functions.scheduler.onSchedule(
             const userData = doc.data() as UserNotificationPreferences;
             const message = messages[Math.floor(Math.random() * messages.length)];
 
-            promises.push(
-                sendNotification(
-                    userData.notificationToken,
-                    message.title,
-                    message.body,
-                    { type: 'midweek_reminder' }
-                )
-            );
-            batch.update(doc.ref, { lastNotificationDate: now });
+            if (message) {
+                promises.push(
+                    sendNotification(
+                        userData.notificationToken,
+                        message.title,
+                        message.body,
+                        { type: 'midweek_reminder' }
+                    )
+                );
+                batch.update(doc.ref, { lastNotificationDate: now });
+            }
         });
 
         await Promise.all(promises);
@@ -435,6 +443,10 @@ async function sendGameReminderNotification(day: 'wednesday' | 'saturday') {
     }
 
     const game = gamesSnapshot.docs[0];
+    if (!game) {
+        console.log(`Aucun document de jeu trouvé pour ${dayLabel}`);
+        return;
+    }
     const gameData = game.data();
 
     const title = "Tu as vu le nouveau jeu ?";
@@ -453,7 +465,7 @@ async function sendGameReminderNotification(day: 'wednesday' | 'saturday') {
                 userData.notificationToken,
                 title,
                 body,
-                { type: 'new_game_reminder', gameId: game.id }
+                { type: 'new_game_reminder', gameId: game?.id }
             )
         );
         batch.update(doc.ref, { lastNotificationDate: now });

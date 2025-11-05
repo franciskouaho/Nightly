@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Dimensions, Animated, Easing, Platform } from 'react-native';
+import { Animated, Dimensions, Easing, Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface Player {
   id: string;
@@ -58,7 +58,7 @@ export default function VillageTable({ players, selectedId, onSelect, centerCont
     const indices = bancsCentrage[players.length] || [0, 1, 2, 3];
     positions = players.map((_, i) => {
       const idx = indices[i];
-      const pos = BENCH_POSITIONS[idx];
+      const pos = idx !== undefined ? BENCH_POSITIONS[idx] : undefined;
       if (!pos) {
         // fallback au centre si jamais
         return {
@@ -102,9 +102,9 @@ export default function VillageTable({ players, selectedId, onSelect, centerCont
   }
 
   return (
-    <View style={[styles.container, { width: largeurEcran, height: hauteurEcran * 0.7 }]}> 
+    <View style={[styles.container, { width: largeurEcran, height: hauteurEcran * 0.7 }]}>
       {/* Centre de la place (feu de camp animé, logo, etc.) */}
-      <Animated.View style={[styles.center, { left: largeurEcran / 2 - 36, top: hauteurEcran * 0.45 - 36, transform: [{ scale: campfireAnim }] }]}> 
+      <Animated.View style={[styles.center, { left: largeurEcran / 2 - 36, top: hauteurEcran * 0.45 - 36, transform: [{ scale: campfireAnim }] }]}>
         {centerContent ||
           (mode !== "day" ? (
             <View style={styles.campfireGlow}>
@@ -141,7 +141,7 @@ export default function VillageTable({ players, selectedId, onSelect, centerCont
               activeOpacity={0.8}
               disabled={isDisabled}
             >
-              <View style={[styles.avatarCircle, isSelected && styles.selectedAvatarCircle]}> 
+              <View style={[styles.avatarCircle, isSelected && styles.selectedAvatarCircle]}>
                 <Image
                   source={{ uri: player.avatar || 'https://via.placeholder.com/64' }}
                   style={styles.avatar}
@@ -248,4 +248,4 @@ const styles = StyleSheet.create({
     opacity: 0.7,
     zIndex: 0,
   },
-}); 
+});

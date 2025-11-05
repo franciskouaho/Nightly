@@ -431,13 +431,17 @@ export default function TruthOrDareGameScreen() {
       // Reset du flag quand on sort de la phase vote
       voteValidationInProgressRef.current = false;
       if (voteHandled) setVoteHandled(false);
-      return;
+      return undefined;
     }
 
     // Si déjà en cours de validation, ne pas re-déclencher
-    if (voteValidationInProgressRef.current || voteHandled) return;
+    if (voteValidationInProgressRef.current || voteHandled) return undefined;
 
-    const totalVoters = game.players.length - 1;
+    // ⚠️ FIX: Les autres joueurs votent (pas le joueur ciblé)
+    const eligibleVoters = game.players.filter(
+      (p: any) => String(p.id) !== String(game.currentPlayerId)
+    );
+    const totalVoters = eligibleVoters.length;
     const votes = game.votes || {};
     const votesCount = Object.keys(votes).length;
 
@@ -446,6 +450,8 @@ export default function TruthOrDareGameScreen() {
       totalVoters,
       votesCount,
       votes,
+      currentPlayerId: game.currentPlayerId,
+      eligibleVoters: eligibleVoters.map((p: any) => p.id),
     });
 
     // Si tous ont voté (ou aucun votant), valider automatiquement
@@ -464,16 +470,17 @@ export default function TruthOrDareGameScreen() {
           const no = Object.values(votes).filter((v) => v === "no").length;
 
           // Si le joueur courant n'existe pas, prendre le premier
-          let currentPlayerId = game.currentPlayerId;
+          let currentPlayerId: string = game.currentPlayerId;
           if (
             !currentPlayerId ||
             !game.players.some((p) => String(p.id) === String(currentPlayerId))
           ) {
-            currentPlayerId = game.players[0]?.id;
-            if (!currentPlayerId) {
+            const firstPlayerId = game.players[0]?.id;
+            if (!firstPlayerId) {
               console.error("[DEBUG] Aucun joueur dans la partie");
               return;
             }
+            currentPlayerId = firstPlayerId;
           }
 
           // Calcul des points
@@ -518,7 +525,9 @@ export default function TruthOrDareGameScreen() {
 
       return () => clearTimeout(validationTimeout);
     }
-  }, [game, game?.votes, game?.phase, voteHandled, user, id]);
+
+    return undefined;
+  }, [game?.phase, voteHandled, user, id]);
 
   if (loading || !game || !user || isLoadingQuestions) {
     return (
@@ -693,7 +702,11 @@ export default function TruthOrDareGameScreen() {
       (p: any) => String(p.id) === String(game.currentPlayerId),
     );
     const playerName = player?.name || t("game.player", "Le joueur");
-    const totalVoters = game.players.length - 1;
+    // ⚠️ FIX: Seuls les autres joueurs votent (pas le joueur ciblé)
+    const eligibleVoters = game.players.filter(
+      (p: any) => String(p.id) !== String(game.currentPlayerId)
+    );
+    const totalVoters = eligibleVoters.length;
     const votes = game.votes || {};
     const votesCount = Object.keys(votes).length;
     const hasVoted = !!votes[user.uid];
@@ -982,6 +995,12 @@ export default function TruthOrDareGameScreen() {
       return;
     }
 
+    // ⚠️ FIX: Le joueur ciblé ne peut pas voter
+    if (String(user.uid) === String(game.currentPlayerId)) {
+      console.log("[DEBUG] Le joueur ciblé ne peut pas voter");
+      return;
+    }
+
     try {
       const db = getFirestore();
       // On vérifie si l'utilisateur est un spectateur en utilisant le champ spectators s'il existe, sinon on vérifie dans la liste des joueurs
@@ -1014,7 +1033,10 @@ export default function TruthOrDareGameScreen() {
       console.log("[DEBUG] Vote enregistré avec succès");
 
       // Vérifions immédiatement si tous les joueurs ont voté
-      const totalVoters = game.players.length - 1;
+      const eligibleVoters = game.players.filter(
+        (p: any) => String(p.id) !== String(game.currentPlayerId)
+      );
+      const totalVoters = eligibleVoters.length;
       const votesCount = Object.keys(updatedVotes).length;
 
       console.log("[DEBUG] Vérification des votes après enregistrement:", {
@@ -1024,14 +1046,66 @@ export default function TruthOrDareGameScreen() {
         voteHandled,
       });
 
-      // Si tous les joueurs ont voté ou s'il n'y a qu'un joueur, signalons que les votes sont complets
-      // Mais ne tentons pas d'appeler directement handleValidateVote
+      // ⚠️ FIX: Si tous ont voté, valider immédiatement
       if ((votesCount >= totalVoters && totalVoters > 0) || totalVoters === 0) {
         console.log(
-          "[DEBUG] Tous les votes sont présents, marquage pour validation",
+          "[DEBUG] Tous les votes sont présents, validation immédiate",
         );
-        // Au lieu d'appeler directement handleValidateVote, on met à jour l'état pour que l'effet s'en occupe
-        setVoteHandled(true);
+
+        // Validation immédiate
+        setTimeout(async () => {
+          try {
+            const yes = Object.values(updatedVotes).filter((v) => v === "yes").length;
+            const no = Object.values(updatedVotes).filter((v) => v === "no").length;
+
+            let currentPlayerId: string = game.currentPlayerId;
+            if (
+              !currentPlayerId ||
+              !game.players.some((p) => String(p.id) === String(currentPlayerId))
+            ) {
+              const firstPlayerId = game.players[0]?.id;
+              if (!firstPlayerId) {
+                console.error("[DEBUG] Aucun joueur dans la partie");
+                return;
+              }
+              currentPlayerId = firstPlayerId;
+            }
+
+            let points = 0;
+            if (yes > no) points = 1;
+            else if (no > yes) points = 0;
+            if (totalVoters === 0) points = 1;
+
+            const scores = { ...(game.scores || {}) };
+            scores[currentPlayerId] = (scores[currentPlayerId] || 0) + points;
+
+            const currentIndex = game.players.findIndex(
+              (p: any) => String(p.id) === String(currentPlayerId),
+            );
+            const nextIndex = (currentIndex + 1) % game.players.length;
+            const nextPlayer = game.players[nextIndex];
+
+            if (!nextPlayer) {
+              console.error("[DEBUG] Aucun joueur suivant trouvé");
+              return;
+            }
+
+            await updateDoc(doc(db, "games", String(id)), {
+              scores,
+              currentPlayerId: nextPlayer.id,
+              phase: "choix",
+              currentChoice: null,
+              currentQuestion: null,
+              currentRound: game.currentRound + 1,
+              votes: {},
+              spectatorVotes: {},
+            });
+
+            console.log("[DEBUG] Validation terminée avec succès");
+          } catch (error) {
+            console.error("[DEBUG] Erreur validation:", error);
+          }
+        }, 1000);
       }
 
       // Track le vote

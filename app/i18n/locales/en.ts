@@ -3,6 +3,13 @@ const en = {
   app: {
     name: "Nightly",
   },
+  common: {
+    cancel: "Cancel",
+    validate: "Validate",
+    ok: "OK",
+    loading: "Loading...",
+    lumicoins: "Lumicoins",
+  },
 
   // Language screen
   language: {
@@ -153,14 +160,25 @@ const en = {
     },
     codePlaceholder: "Enter game code",
     loading: "Connecting to game...",
+    or: "or",
+    scanQR: "Scan QR",
     categories: {
+      free_games: "FREE GAMES",
+      couple: "COUPLE",
+      soirees: "PARTIES WITH FRIENDS",
+      distance: "REMOTE",
       events: "EVENTS",
       nightly_modes: "WEEKLY SUGGESTION",
       same_room: "SAME ROOM",
       online: "REMOTE",
     },
     subtitles: {
+      free_games: "Hook & discovery",
+      couple: "Make them dream and convert",
+      soirees: "The heart of Nightly",
+      distance: "Even remotely, the party continues",
       events: "Special games for special occasions",
+      nightly_modes: "",
       same_room: "To play in the same room, together!",
       online: "To play even when you're not together",
     },
@@ -168,37 +186,90 @@ const en = {
       "listen-but-don-t-judge": {
         name: "LISTEN BUT DON'T JUDGE",
         description: "A premium mode to laugh with friends.",
-        tags: { premium: "PREMIUM" },
+        tags: {
+          soiree: "PARTY",
+          histoire: "STORY",
+          humour: "HUMOR",
+          premium: "PREMIUM",
+        },
       },
       "truth-or-dare": {
         name: "TRUTH OR DARE",
         description: "The classic revisited with exclusive challenges.",
-        tags: { premium: "PREMIUM" },
+        tags: {
+          gratuit: "FREE",
+          fun: "FUN",
+          porte_entree: "ENTRY POINT",
+        },
+      },
+      "double-dare": {
+        name: "DOUBLE DARE",
+        description: "Two players. Zero limits. One word: dare 💀",
+        tags: {
+          couple: "COUPLE",
+          defis: "CHALLENGES",
+          extreme: "EXTREME",
+          premium: "PREMIUM",
+        },
+      },
+      "forbidden-desire": {
+        name: "FORBIDDEN DESIRE",
+        description: "Dare to say everything… or assume your forbidden desires 🔥",
+        tags: {
+          couple: "COUPLE",
+          extreme: "EXTREME",
+          revelations: "REVELATIONS",
+          premium: "PREMIUM",
+        },
       },
       "never-have-i-ever-hot": {
         name: "NEVER HAVE I EVER 🔞",
         description: "Naughty and inappropriate questions... Ready to own up?",
-        tags: { premium: "PREMIUM" },
+        tags: {
+          couple: "COUPLE",
+          spicy: "SPICY",
+          premium: "PREMIUM",
+        },
       },
       "genius-or-liar": {
         name: "GENIUS OR LIAR",
         description: "A fun mode where you must prove your knowledge or face forfeits.",
-        tags: { premium: "PREMIUM" },
+        tags: {
+          distance: "REMOTE",
+          bluff: "BLUFF",
+          fun: "FUN",
+          premium: "PREMIUM",
+        },
       },
       "the-hidden-village": {
         name: "THE HIDDEN VILLAGE",
         description: "A game of bluff, strategy and discussion... for those who like to accuse their friends 😈",
-        tags: { premium: "PREMIUM" },
+        tags: {
+          soiree: "PARTY",
+          bluff: "BLUFF",
+          groupe: "GROUP",
+          premium: "PREMIUM",
+        },
       },
       "trap-answer": {
         name: "TRAP QUESTION",
         description: "A quiz where a wrong answer loses you points... Can you avoid the traps?",
-        tags: { free: "FREE" },
+        tags: {
+          gratuit: "FREE",
+          quiz: "QUIZ",
+          logique: "LOGIC",
+          fun: "FUN",
+        },
       },
       "quiz-halloween": {
         name: "HALLOWEEN QUIZ 🎃",
         description: "Test your Halloween knowledge with spooky questions!",
-        tags: { halloween: "HALLOWEEN", premium: "PREMIUM" },
+        tags: {
+          saisonnier: "SEASONAL",
+          halloween: "HALLOWEEN",
+          exclu: "EXCLUSIVE",
+          premium: "PREMIUM",
+        },
       },
       "two-letters-one-word": {
         name: "2 LETTERS 1 WORD",
@@ -234,16 +305,44 @@ const en = {
       "word-guessing": {
         name: "GUESS THE WORD",
         description: "Make others guess a word without using forbidden words... A game of words and speed!",
-        tags: { premium: "PREMIUM" },
+        tags: {
+          distance: "REMOTE",
+          rapidite: "SPEED",
+          creatif: "CREATIVE",
+          premium: "PREMIUM",
+        },
+      },
+      "qui-de-nous-deux": {
+        name: "WHO OF US TWO?",
+        description: "The game of stinging truths that make you laugh.",
+        tags: {
+          couple: "COUPLE",
+          drole: "FUNNY",
+          intime: "INTIMATE",
+          premium: "PREMIUM",
+        },
+      },
+      "romantic-truth": {
+        name: "ROMANTIC TRUTH",
+        description: "Softer mode, emotional questions and complicity.",
+        tags: {
+          couple: "COUPLE",
+          romantique: "ROMANTIC",
+          emotion: "EMOTION",
+          premium: "PREMIUM",
+        },
+      },
+      "never-have-i-ever-classic": {
+        name: "NEVER HAVE I EVER",
+        description: "Truths that go wrong 😭",
+        tags: {
+          couple: "COUPLE",
+          drole: "FUNNY",
+          gages: "FORFEITS",
+          premium: "PREMIUM",
+        },
       },
     },
-  },
-
-  // Common translations
-  common: {
-    ok: "OK",
-    loading: "Loading...",
-    lumicoins: "Lumicoins",
   },
 
   // Settings

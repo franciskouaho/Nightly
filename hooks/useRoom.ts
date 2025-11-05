@@ -1,24 +1,22 @@
-import { useState, useEffect } from 'react';
-import { Alert } from 'react-native';
-import { router } from 'expo-router';
-import { 
-  collection, 
-  doc, 
-  onSnapshot, 
-  updateDoc, 
-  getFirestore, 
-  getDoc, 
-  setDoc 
-} from '@react-native-firebase/firestore';
+import { GAME_CONFIG } from '@/constants/room';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { GAME_CONFIG } from '@/constants/room';
-import { Room, LocalPlayer } from '@/types/room';
-import { GamePhase } from '@/types/gameTypes';
+import { transformQuestion as transformListenButDontJudgeQuestion } from '@/hooks/listen-but-don-t-judge-questions';
+import { transformQuestion as transformNeverHaveIEverHotQuestion } from '@/hooks/never-have-i-ever-hot-questions';
 import { transformQuestion as transformTrapAnswerQuestion } from '@/hooks/trap-answer-questions';
 import { transformQuestion as transformWordGuessingQuestion } from '@/hooks/word-guessing-questions';
-import { transformQuestion as transformNeverHaveIEverHotQuestion } from '@/hooks/never-have-i-ever-hot-questions';
-import { transformQuestion as transformListenButDontJudgeQuestion } from '@/hooks/listen-but-don-t-judge-questions';
+import { GamePhase } from '@/types/gameTypes';
+import { Room } from '@/types/room';
+import {
+    doc,
+    getFirestore,
+    onSnapshot,
+    setDoc,
+    updateDoc
+} from '@react-native-firebase/firestore';
+import { router } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { Alert } from 'react-native';
 
 export function useRoom(roomId: string) {
   const { user } = useAuth();
@@ -33,14 +31,14 @@ export function useRoom(roomId: string) {
 
     const db = getFirestore();
     const roomRef = doc(db, 'rooms', roomId);
-    
+
     const unsubscribe = onSnapshot(roomRef, (docSnap) => {
       if (docSnap.exists()) {
         const roomData = docSnap.data() as Room;
         setRoom(roomData);
         console.log('[DEBUG ROOM] roomData:', roomData);
         console.log('[DEBUG ROOM] Statut:', roomData.status, 'gameDocId:', roomData.gameDocId, 'gameMode:', roomData.gameMode);
-        
+
         // Rediriger vers le jeu si le statut est "playing"
         if (roomData.status === 'playing' && roomData.gameDocId) {
           console.log('[DEBUG] Redirection vers le jeu:', roomData.gameMode, roomData.gameDocId);
@@ -67,11 +65,11 @@ export function useRoom(roomId: string) {
     if (!room || !user || isStartingGame) return;
 
     setIsStartingGame(true);
-    
+
     try {
       const db = getFirestore();
       const roomRef = doc(db, 'rooms', room.id);
-      
+
       // Vérifier les conditions de démarrage
       if (!canStartGame(room.gameId, room.players.length)) {
         const config = GAME_CONFIG[room.gameId as keyof typeof GAME_CONFIG];
@@ -117,18 +115,19 @@ export function useRoom(roomId: string) {
       if (room.gameId === 'two-letters-one-word') {
         const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         const firstLetter = alphabet[Math.floor(Math.random() * alphabet.length)];
-        let secondLetter: string;
+        let secondLetter: string = '';
         do {
-          secondLetter = alphabet[Math.floor(Math.random() * alphabet.length)];
+          const randomIndex = Math.floor(Math.random() * alphabet.length);
+          secondLetter = alphabet[randomIndex] || 'B';
         } while (secondLetter === firstLetter);
-        
-        gameData.letters = [firstLetter, secondLetter];
-        gameData.theme = 'un objet';
+
+        (gameData as any).letters = [firstLetter, secondLetter];
+        (gameData as any).theme = 'un objet';
       }
 
       // Créer le document de jeu
       const gameRef = await setDoc(doc(db, 'games', room.id), gameData);
-      
+
       // Mettre à jour la salle avec l'ID du jeu
       await updateDoc(roomRef, {
         gameDocId: room.id,
@@ -176,7 +175,7 @@ export function useRoom(roomId: string) {
 
       const db = getFirestore();
       const gameRef = doc(db, 'games', gameDocId);
-      
+
       await updateDoc(gameRef, {
         currentQuestion: transformedFirstQuestion,
         phase: GamePhase.QUESTION
@@ -196,9 +195,9 @@ export function useRoom(roomId: string) {
     try {
       const db = getFirestore();
       const roomRef = doc(db, 'rooms', room.id);
-      
-      const updatedPlayers = room.players.map(player => 
-        player.id === user.uid 
+
+      const updatedPlayers = room.players.map(player =>
+        player.id === user.uid
           ? { ...player, isReady: !player.isReady }
           : player
       );

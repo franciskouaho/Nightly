@@ -3,6 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useNeverHaveIEverHotQuestions } from "@/hooks/never-have-i-ever-hot-questions";
 import { useGame } from "@/hooks/useGame";
+import { useGameEndPaywall } from "@/hooks/useGameEndPaywall";
 import { useInAppReview } from "@/hooks/useInAppReview";
 import { useNeverHaveIEverHotAnalytics } from "@/hooks/useNeverHaveIEverHotAnalytics";
 import { usePoints } from "@/hooks/usePoints";
@@ -11,22 +12,22 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
 } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  ActivityIndicator,
-  Alert,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Platform,
+    Pressable,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 interface NeverHaveIEverHotGameState {

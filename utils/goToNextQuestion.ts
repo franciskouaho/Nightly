@@ -1,9 +1,8 @@
-import { doc, setDoc } from "firebase/firestore";
 import { db } from "@/config/firebase";
 
 
 export async function goToNextQuestion(gameId: string, gameState: any, newQuestion: any) {
-  const ref = doc(db, "games", gameId);
+  const gameRef = db.collection("games").doc(gameId);
 
   console.log("[goToNextQuestion] Appelée avec:", {
     gameId,
@@ -32,7 +31,7 @@ export async function goToNextQuestion(gameId: string, gameState: any, newQuesti
 
   console.log("[goToNextQuestion] Mise à jour du gameState avec:", nextRoundState);
 
-  await setDoc(ref, nextRoundState, { merge: false });
+  await gameRef.set(nextRoundState, { merge: false });
 
   console.log(`[goToNextQuestion] setDoc terminé pour round ${nextRound}`);
 }

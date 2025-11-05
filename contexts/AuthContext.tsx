@@ -1,19 +1,19 @@
 "use client";
 
 import { useAnalytics } from "@/hooks/useAnalytics";
-import { usePostHog } from "@/hooks/usePostHog";
 import { useAppsFlyer } from "@/hooks/useAppsFlyer";
+import { usePostHog } from "@/hooks/usePostHog";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
-  getAuth,
-  onAuthStateChanged,
-  signInAnonymously,
+    getAuth,
+    onAuthStateChanged,
+    signInAnonymously,
 } from "@react-native-firebase/auth";
 import {
-  doc,
-  getDoc,
-  getFirestore,
-  setDoc,
+    doc,
+    getDoc,
+    getFirestore,
+    setDoc,
 } from "@react-native-firebase/firestore";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { Alert } from "react-native";
@@ -104,12 +104,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (userDoc.exists()) {
           const userData = userDoc.data() as User;
-          
+
           // Vérifier si c'est un compte reviewer
           if (REVIEWER_PSEUDOS.includes(userData.pseudo)) {
             console.log('🤖 Session reviewer restaurée:', userData.pseudo);
           }
-          
+
           setUser(userData);
           identifyUser(userData.uid, {
             pseudo: userData.pseudo,
@@ -223,7 +223,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         uid,
         avatar,
       });
-      
+
       // Track PostHog login event
       track.login("anonymous", true);
       identify(uid, {
@@ -258,7 +258,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null);
       resetUser();
       trackEvent("user_signed_out");
-      
+
       // Track PostHog logout event
       track.logout();
     } catch (err) {
@@ -312,10 +312,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const uid = userCredential.user.uid;
         await createReviewerAccount(pseudo, uid);
         // Tracking Google Analytics sign_up event pour reviewer
-        await analyticsInstance().logEvent("sign_up", {
+        await analyticsInstance.logEvent("sign_up", {
           method: "reviewer",
         });
-        await analyticsInstance().setUserId(pseudo);
+        await analyticsInstance.setUserId(pseudo);
         // Track AppsFlyer registration for reviewer
         await logCompleteRegistration("reviewer");
         await setCustomerUserId(uid);
@@ -350,10 +350,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       // Tracking Google Analytics sign_up event
-      await analyticsInstance().logEvent("sign_up", {
+      await analyticsInstance.logEvent("sign_up", {
         method: "username",
       });
-      await analyticsInstance().setUserId(pseudo);
+      await analyticsInstance.setUserId(pseudo);
 
       // Track AppsFlyer registration
       await logCompleteRegistration("username");

@@ -124,14 +124,6 @@ export const setAnnualSubscription = functions.https.onCall(async (request: Call
 });
 
 export const awardLumiCoins = functions.https.onCall(async (request: CallableRequest<AwardLumiCoinsData>) => {
-  // Vérification de l'authentification
-  if (!request.auth) {
-    throw new functions.https.HttpsError(
-      'unauthenticated',
-      'Vous devez être authentifié pour effectuer cette action'
-    );
-  }
-
   const { userId, amount, reason, rank_name } = request.data;
 
   if (!userId || !amount || !reason) {

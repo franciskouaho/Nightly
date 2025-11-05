@@ -15,10 +15,12 @@ export function useTurnManager(players: Player[], currentTurnIndex: number, orde
     if (order === 'random') {
       for (let i = indices.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        const tempI = typeof indices[i] === 'number' ? indices[i] : 0;
-        const tempJ = typeof indices[j] === 'number' ? indices[j] : 0;
-        indices.splice(Math.max(0, Number(i)), 1, tempJ);
-        indices.splice(Math.max(0, Number(j)), 1, tempI);
+        const tempI = indices[i];
+        const tempJ = indices[j];
+        if (tempI !== undefined && tempJ !== undefined) {
+          indices[i] = tempJ;
+          indices[j] = tempI;
+        }
       }
     }
     return indices;
@@ -64,4 +66,4 @@ export function useTurnManager(players: Player[], currentTurnIndex: number, orde
  * import { useTurnManager } from '@/hooks/useTurnManager';
  *
  * const { currentPlayer, getNextTurnIndex, isPlayerTurn, getOrder } = useTurnManager(players, currentTurnIndex, 'sequential');
- */ 
+ */

@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Animated } from 'react-native';
 import Colors from '@/constants/Colors';
+import React, { useEffect, useRef } from 'react';
+import { Animated, StyleSheet, View } from 'react-native';
 
 interface HalloweenDecorationsProps {
   style?: any;
@@ -37,7 +37,7 @@ const Spider: React.FC<{ style?: any; delay?: number }> = ({ style, delay = 0 })
   });
 
   return (
-    <Animated.View 
+    <Animated.View
       style={[
         styles.spider,
         {
@@ -55,9 +55,9 @@ const Spider: React.FC<{ style?: any; delay?: number }> = ({ style, delay = 0 })
   );
 };
 
-const SpiderWeb: React.FC<{ style?: any; size?: number; rotation?: number; delay?: number; showSpider?: boolean }> = ({ 
-  style, 
-  size = 40, 
+const SpiderWeb: React.FC<{ style?: any; size?: number; rotation?: number; delay?: number; showSpider?: boolean }> = ({
+  style,
+  size = 40,
   rotation = 0,
   delay = 0,
   showSpider = true
@@ -111,11 +111,11 @@ const SpiderWeb: React.FC<{ style?: any; size?: number; rotation?: number; delay
   });
 
   return (
-    <Animated.View 
+    <Animated.View
       style={[
-        styles.spiderWeb, 
-        { 
-          width: size, 
+        styles.spiderWeb,
+        {
+          width: size,
           height: size,
           opacity: fadeAnim,
           transform: [
@@ -123,7 +123,7 @@ const SpiderWeb: React.FC<{ style?: any; size?: number; rotation?: number; delay
             { rotate: rotateInterpolate },
             { rotate: `${rotation}deg` }
           ]
-        }, 
+        },
         style
       ]}
     >
@@ -136,15 +136,15 @@ const SpiderWeb: React.FC<{ style?: any; size?: number; rotation?: number; delay
       <View style={[styles.webRay, styles.ray6, { transform: [{ rotate: '225deg' }] }]} />
       <View style={[styles.webRay, styles.ray7, { transform: [{ rotate: '270deg' }] }]} />
       <View style={[styles.webRay, styles.ray8, { transform: [{ rotate: '315deg' }] }]} />
-      
+
       {/* Cercles concentriques */}
       <View style={[styles.webCircle, styles.circle1]} />
       <View style={[styles.webCircle, styles.circle2]} />
       <View style={[styles.webCircle, styles.circle3]} />
-      
+
       {/* Centre de la toile */}
       <View style={styles.webCenter} />
-      
+
       {/* Araignée qui se déplace */}
       {showSpider && <Spider style={styles.spiderOnWeb} delay={delay + 2000} />}
     </Animated.View>
@@ -159,41 +159,41 @@ const HalloweenDecorations: React.FC<HalloweenDecorationsProps> = ({ style }) =>
       <View style={[styles.star, styles.star2]} />
       <View style={[styles.star, styles.star3]} />
       <View style={[styles.star, styles.star4]} />
-      
+
       {/* Lignes mystérieuses */}
       <View style={[styles.mysteryLine, styles.line1]} />
       <View style={[styles.mysteryLine, styles.line2]} />
       <View style={[styles.mysteryLine, styles.line3]} />
-      
+
       {/* Toilettes d'araignées géantes qui couvrent toute la page */}
       {/* Toile principale au centre */}
       <SpiderWeb style={styles.mainSpiderWeb} size={120} rotation={0} delay={0} showSpider={true} />
-      
+
       {/* Toilettes secondaires qui se connectent */}
       <SpiderWeb style={styles.spiderWeb1} size={80} rotation={15} delay={500} showSpider={false} />
       <SpiderWeb style={styles.spiderWeb2} size={70} rotation={-30} delay={1000} showSpider={true} />
       <SpiderWeb style={styles.spiderWeb3} size={90} rotation={60} delay={1500} showSpider={false} />
       <SpiderWeb style={styles.spiderWeb4} size={60} rotation={-45} delay={2000} showSpider={true} />
       <SpiderWeb style={styles.spiderWeb5} size={85} rotation={120} delay={2500} showSpider={false} />
-      
+
       {/* Toilettes supplémentaires pour couvrir les zones */}
       <SpiderWeb style={styles.spiderWeb6} size={65} rotation={200} delay={3000} showSpider={true} />
       <SpiderWeb style={styles.spiderWeb7} size={75} rotation={280} delay={3500} showSpider={false} />
       <SpiderWeb style={styles.spiderWeb8} size={55} rotation={320} delay={4000} showSpider={true} />
-      
+
       {/* Toilettes supplémentaires pour couvrir les cartes de jeux */}
       <SpiderWeb style={styles.spiderWeb9} size={70} rotation={45} delay={4500} showSpider={false} />
       <SpiderWeb style={styles.spiderWeb10} size={60} rotation={135} delay={5000} showSpider={true} />
       <SpiderWeb style={styles.spiderWeb11} size={80} rotation={225} delay={5500} showSpider={false} />
       <SpiderWeb style={styles.spiderWeb12} size={55} rotation={315} delay={6000} showSpider={true} />
-      
+
       {/* Toilettes spécifiques sur les cartes de jeux */}
       <SpiderWeb style={styles.gameCardWeb1} size={50} rotation={30} delay={6500} showSpider={true} />
       <SpiderWeb style={styles.gameCardWeb2} size={45} rotation={150} delay={7000} showSpider={false} />
       <SpiderWeb style={styles.gameCardWeb3} size={55} rotation={270} delay={7500} showSpider={true} />
       <SpiderWeb style={styles.gameCardWeb4} size={40} rotation={60} delay={8000} showSpider={false} />
       <SpiderWeb style={styles.gameCardWeb5} size={50} rotation={180} delay={8500} showSpider={true} />
-      
+
       {/* Lignes de connexion entre les toilettes */}
       <View style={[styles.connectionLine, styles.connection1]} />
       <View style={[styles.connectionLine, styles.connection2]} />
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 2,
     height: 2,
-    backgroundColor: Colors.tertiary,
+    backgroundColor: Colors.light.tertiary,
     borderRadius: 1,
     opacity: 0.6,
   },
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
   mysteryLine: {
     position: 'absolute',
     height: 1,
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.light.primary,
     opacity: 0.2,
   },
   line1: {

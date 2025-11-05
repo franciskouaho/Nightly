@@ -1,6 +1,6 @@
-import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, ViewStyle, TextStyle, ImageStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import React from 'react';
+import { Image, ImageStyle, StyleSheet, Text, TextStyle, TouchableOpacity, View, ViewStyle } from 'react-native';
 
 interface GameModeCardProps {
   id: string;
@@ -149,5 +149,48 @@ const styles = StyleSheet.create<GameModeCardStyles>({
     textShadowColor: 'rgba(0, 0, 0, 0.8)',
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 6,
+  },
+  premiumBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: '#FFD700',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    zIndex: 20,
+  },
+  premiumBadgeText: {
+    color: '#000',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  ageRestrictionContainer: {
+    position: 'absolute',
+    bottom: 8,
+    left: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    zIndex: 20,
+  },
+  ageRestrictionCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#FF4444',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 4,
+  },
+  ageRestrictionLine: {
+    width: 2,
+    height: 16,
+    backgroundColor: '#FF4444',
+  },
+  ageRestrictionText: {
+    color: '#FF4444',
+    fontSize: 10,
+    fontWeight: 'bold',
+    marginLeft: 4,
   },
 });

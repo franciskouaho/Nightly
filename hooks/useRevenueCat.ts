@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 import Purchases, { CustomerInfo, PurchasesOffering } from 'react-native-purchases';
 
@@ -17,17 +17,18 @@ function useRevenueCat() {
     const [currentOffering, setCurrentOffering] = useState<PurchasesOffering | null>(null);
     const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
 
-    const isProMember =
+    const isProMember = !!(
         customerInfo?.activeSubscriptions?.includes(typesOfMembership.monthly) ||
         customerInfo?.activeSubscriptions?.includes(typesOfMembership.yearly) ||
-        customerInfo?.activeSubscriptions?.includes(typesOfMembership.weekly);
+        customerInfo?.activeSubscriptions?.includes(typesOfMembership.weekly)
+    );
 
 
     useEffect(() => {
         const fetchData = async () => {
             // Désactiver les logs de debug RevenueCat
             Purchases.setLogLevel(Purchases.LOG_LEVEL.ERROR);
-            
+
             if (Platform.OS === 'android') {
                 Purchases.configure({apiKey: APIKeys.google});
             } else {

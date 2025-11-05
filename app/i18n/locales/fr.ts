@@ -270,7 +270,7 @@ const fr = {
       "quiz-halloween": {
         name: "QUIZ HALLOWEEN",
         description:
-          "Jeux festifs, drôles et spicy autour d'Halloween 🎄",
+          "Jeux festifs, drôles et spicy autour d'Halloween 🎃",
         tags: {
           saisonnier: "SAISONNIER",
           halloween: "HALLOWEEN",
@@ -354,12 +354,7 @@ const fr = {
     },
   },
 
-  // Common translations
-  common: {
-    ok: "OK",
-    loading: "Chargement...",
-    lumicoins: "Lumicoins",
-  },
+
 
   // Settings
   settings: {

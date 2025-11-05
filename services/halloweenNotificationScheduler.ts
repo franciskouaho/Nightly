@@ -1,5 +1,5 @@
-import * as Notifications from 'expo-notifications';
 import HalloweenTheme from '@/constants/themes/Halloween';
+import * as Notifications from 'expo-notifications';
 
 // Messages Halloween répartis sur le mois avec heures spécifiques
 const HALLOWEEN_NOTIFICATIONS = [
@@ -75,12 +75,12 @@ export class HalloweenNotificationScheduler {
       for (let i = 0; i < HALLOWEEN_NOTIFICATIONS.length; i++) {
         const notification = HALLOWEEN_NOTIFICATIONS[i];
         if (!notification) continue;
-        
+
         // Calculer la date de déclenchement avec l'heure spécifique
         const triggerDate = new Date();
         triggerDate.setDate(triggerDate.getDate() + (notification.delay / (24 * 60 * 60 * 1000)));
         triggerDate.setHours(notification.hour, 0, 0, 0); // Heure spécifique, minutes=0, secondes=0
-        
+
         await Notifications.scheduleNotificationAsync({
           content: {
             title: notification.title,
@@ -89,14 +89,17 @@ export class HalloweenNotificationScheduler {
               type: 'halloween-promotion',
               theme: 'halloween',
               gameId: 'quiz-halloween',
-              color: HalloweenTheme.primary,
+              color: HalloweenTheme.light.primary,
               notificationId: `halloween-${i + 1}`,
               scheduledTime: triggerDate.toISOString(),
             },
             sound: 'default',
-            color: HalloweenTheme.primary,
+            color: HalloweenTheme.light.primary,
           },
-          trigger: triggerDate,
+          trigger: {
+            type: Notifications.SchedulableTriggerInputTypes.DATE,
+            date: triggerDate,
+          },
         });
 
         console.log(`🎃 Notification Halloween ${i + 1} programmée pour ${triggerDate.toLocaleDateString()} à ${notification.hour}h`);
@@ -112,7 +115,7 @@ export class HalloweenNotificationScheduler {
   async cancelHalloweenNotifications() {
     try {
       const scheduledNotifications = await Notifications.getAllScheduledNotificationsAsync();
-      
+
       for (const notification of scheduledNotifications) {
         if (notification.content.data?.type === 'halloween-promotion') {
           await Notifications.cancelScheduledNotificationAsync(notification.identifier);
@@ -133,10 +136,10 @@ export class HalloweenNotificationScheduler {
         data: {
           type: 'halloween-test',
           theme: 'halloween',
-          color: HalloweenTheme.primary,
+          color: HalloweenTheme.light.primary,
         },
         sound: 'default',
-        color: HalloweenTheme.primary,
+        color: HalloweenTheme.light.primary,
       },
       trigger: null, // Immédiat
     });
@@ -149,7 +152,7 @@ export class HalloweenNotificationScheduler {
       const halloweenNotifications = scheduledNotifications.filter(
         n => n.content.data?.type === 'halloween-promotion'
       );
-      
+
       return {
         total: halloweenNotifications.length,
         notifications: halloweenNotifications.map(n => ({

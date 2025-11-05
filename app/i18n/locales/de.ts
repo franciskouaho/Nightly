@@ -3,6 +3,13 @@ const de = {
   app: {
     name: "Nightly",
   },
+  common: {
+    cancel: "Abbrechen",
+    validate: "Bestätigen",
+    ok: "OK",
+    loading: "Wird geladen...",
+    lumicoins: "Lumicoins",
+  },
 
   // Sprachbildschirm
   language: {
@@ -237,13 +244,6 @@ const de = {
         tags: { premium: "PREMIUM" },
       },
     },
-  },
-
-  // Allgemeine Übersetzungen
-  common: {
-    ok: "OK",
-    loading: "Lädt...",
-    lumicoins: "Lumicoins",
   },
 
   // Einstellungen

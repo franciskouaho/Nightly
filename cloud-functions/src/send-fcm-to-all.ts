@@ -51,33 +51,36 @@ async function main() {
   const results = await Promise.allSettled(
     messages.map(message => admin.messaging().send(message))
   );
-  
+
   const successCount = results.filter(r => r.status === 'fulfilled').length;
   const failureCount = results.filter(r => r.status === 'rejected').length;
-  
+
   console.log('Notifications envoyées:', successCount, 'réussies,', failureCount, 'échecs');
 
   // Gérer les tokens invalides
   for (let i = 0; i < results.length; i++) {
     const result = results[i];
+    const token = tokens[i];
+    if (!result || !token) continue;
+
     if (result.status === 'rejected') {
-      const error = result.reason as Error & { code?: string };
-      if (error.code === 'messaging/registration-token-not-registered' || 
+      const error = (result as PromiseRejectedResult).reason as Error & { code?: string };
+      if (error.code === 'messaging/registration-token-not-registered' ||
           error.code === 'messaging/third-party-auth-error') {
-        console.log(`Token invalide ou problème d'authentification pour l'utilisateur ${tokens[i].userId}, suppression...`);
+        console.log(`Token invalide ou problème d'authentification pour l'utilisateur ${token.userId}, suppression...`);
         try {
-          await db.collection('users').doc(tokens[i].userId).update({
+          await db.collection('users').doc(token.userId).update({
             notificationToken: admin.firestore.FieldValue.delete()
           });
-          console.log(`Token supprimé pour l'utilisateur ${tokens[i].userId}`);
+          console.log(`Token supprimé pour l'utilisateur ${token.userId}`);
         } catch (updateError) {
-          console.error(`Erreur lors de la suppression du token pour l'utilisateur ${tokens[i].userId}:`, updateError);
+          console.error(`Erreur lors de la suppression du token pour l'utilisateur ${token.userId}:`, updateError);
         }
       } else {
-        console.error(`Erreur pour le token ${tokens[i].token}:`, error);
+        console.error(`Erreur pour le token ${token.token}:`, error);
       }
     }
   }
 }
 
-main().catch(console.error); 
+main().catch(console.error);
