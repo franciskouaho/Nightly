@@ -143,41 +143,98 @@ export default function DoubleDareGame() {
   }, [id]);
 
 
+  // ⚠️ FIX: handleDareCompleted avec protection contre les doubles clics
+  const isProcessingDareRef = React.useRef(false);
+
   const handleDareCompleted = async (completed: boolean) => {
-    if (!gameState || !user) return;
+    if (!gameState || !user) {
+      console.log('🎯 [Double Dare] handleDareCompleted annulé - pas de gameState ou user');
+      return;
+    }
 
-    const currentPlayerIndex = gameState.players.findIndex(p => p.id === gameState.currentPlayerId);
-    const pointsEarned = completed ? (gameState.selectedLevel === 'chaos' ? 30 : gameState.selectedLevel === 'extreme' ? 20 : 10) : 0;
+    // ⚠️ FIX: Protection contre les doubles clics
+    if (isProcessingDareRef.current) {
+      console.log('🎯 [Double Dare] Défi déjà en cours de traitement');
+      return;
+    }
 
-    const updatedScores = { ...gameState.playerScores };
-    updatedScores[gameState.currentPlayerId] = (updatedScores[gameState.currentPlayerId] || 0) + pointsEarned;
-
-    const nextRound = gameState.currentRound + 1;
-    const isGameOver = nextRound > gameState.totalRounds;
-
-    if (isGameOver) {
-      await updateDoc(gameRef, {
-        phase: 'end',
-        playerScores: updatedScores,
-        scores: updatedScores,
+    // ⚠️ FIX: Vérifier que c'est bien le joueur courant qui complète le défi
+    if (String(user.uid) !== String(gameState.currentPlayerId)) {
+      console.log('🎯 [Double Dare] Ce n\'est pas le tour de ce joueur:', {
+        userUid: user.uid,
+        currentPlayerId: gameState.currentPlayerId
       });
-    } else {
-      const nextPlayerIndex = (currentPlayerIndex + 1) % gameState.players.length;
-      const nextPlayer = gameState.players[nextPlayerIndex];
-      if (!nextPlayer) return;
+      return;
+    }
 
-      // Générer une nouvelle question pour le prochain joueur avec les mêmes paramètres
-      const nextQuestion = getRandomQuestion(gameState.selectedLevel || 'hot', gameState.selectedMode || 'versus');
+    isProcessingDareRef.current = true;
+    console.log('🎯 [Double Dare] Traitement du défi:', { completed, currentPlayerId: gameState.currentPlayerId });
 
-      await updateDoc(gameRef, {
-        phase: 'dare',
-        currentRound: nextRound,
-        currentPlayerId: nextPlayer.id,
-        playerScores: updatedScores,
-        currentQuestion: nextQuestion,
-        dareCompleted: false,
-        penaltyAssigned: false,
-      });
+    try {
+      const currentPlayerIndex = gameState.players.findIndex(p => String(p.id) === String(gameState.currentPlayerId));
+      if (currentPlayerIndex === -1) {
+        console.error('🎯 [Double Dare] Joueur courant non trouvé');
+        isProcessingDareRef.current = false;
+        return;
+      }
+
+      const pointsEarned = completed ? (gameState.selectedLevel === 'chaos' ? 30 : gameState.selectedLevel === 'extreme' ? 20 : 10) : 0;
+
+      const updatedScores = { ...gameState.playerScores };
+      updatedScores[gameState.currentPlayerId] = (updatedScores[gameState.currentPlayerId] || 0) + pointsEarned;
+
+      const nextRound = gameState.currentRound + 1;
+      const isGameOver = nextRound > gameState.totalRounds;
+
+      if (isGameOver) {
+        console.log('🎯 [Double Dare] Fin du jeu');
+        await updateDoc(gameRef, {
+          phase: 'end',
+          playerScores: updatedScores,
+          scores: updatedScores,
+        });
+      } else {
+        const nextPlayerIndex = (currentPlayerIndex + 1) % gameState.players.length;
+        const nextPlayer = gameState.players[nextPlayerIndex];
+        if (!nextPlayer) {
+          console.error('🎯 [Double Dare] Prochain joueur non trouvé');
+          isProcessingDareRef.current = false;
+          return;
+        }
+
+        // Générer une nouvelle question pour le prochain joueur avec les mêmes paramètres
+        const nextQuestion = getRandomQuestion(gameState.selectedLevel || 'hot', gameState.selectedMode || 'versus');
+        if (!nextQuestion) {
+          console.error('🎯 [Double Dare] Aucune nouvelle question disponible');
+          isProcessingDareRef.current = false;
+          return;
+        }
+
+        console.log('🎯 [Double Dare] Passage au tour suivant:', {
+          nextRound,
+          nextPlayerId: nextPlayer.id,
+          nextPlayerName: nextPlayer.name
+        });
+
+        await updateDoc(gameRef, {
+          phase: 'dare',
+          currentRound: nextRound,
+          currentPlayerId: nextPlayer.id,
+          playerScores: updatedScores,
+          currentQuestion: nextQuestion,
+          dareCompleted: false,
+          penaltyAssigned: false,
+        });
+
+        console.log('🎯 [Double Dare] Firebase mis à jour avec succès');
+      }
+    } catch (error) {
+      console.error('🎯 [Double Dare] Erreur lors du traitement du défi:', error);
+    } finally {
+      // ⚠️ FIX: Réinitialiser le flag après un court délai
+      setTimeout(() => {
+        isProcessingDareRef.current = false;
+      }, 1000);
     }
   };
 
@@ -205,8 +262,20 @@ export default function DoubleDareGame() {
     );
   }
 
-  const currentPlayer = gameState.players.find(p => p.id === gameState.currentPlayerId);
-  const isCurrentUser = user?.uid === gameState.currentPlayerId;
+  // ⚠️ FIX: Comparaison robuste des IDs (string conversion pour éviter les problèmes de type)
+  const currentPlayer = gameState.players.find(p => String(p.id) === String(gameState.currentPlayerId));
+  const isCurrentUser = user?.uid && gameState.currentPlayerId && String(user.uid) === String(gameState.currentPlayerId);
+
+  // ⚠️ FIX: Debug pour comprendre pourquoi les boutons ne s'affichent pas
+  console.log('🎯 [Double Dare] Debug:', {
+    isCurrentUser,
+    currentPlayerId: gameState.currentPlayerId,
+    userUid: user?.uid,
+    dareCompleted: gameState.dareCompleted,
+    phase: gameState.phase,
+    hasCurrentQuestion: !!gameState.currentQuestion,
+    questionText: gameState.currentQuestion?.text || gameState.currentQuestion?.question || 'N/A'
+  });
 
   // Phase: Fin de partie
   if (gameState.phase === 'end') {
@@ -250,34 +319,43 @@ export default function DoubleDareGame() {
               playerName={currentPlayer?.name || ''}
               level={gameState.selectedLevel || 'hot'}
               mode={gameState.selectedMode || 'versus'}
-              question={gameState.currentQuestion.text}
+              question={(gameState.currentQuestion as any)?.text || (gameState.currentQuestion as any)?.question || 'Question en cours de chargement...'}
               currentRound={gameState.currentRound}
               totalRounds={gameState.totalRounds}
             />
 
-            {isCurrentUser && !gameState.dareCompleted && (
+            {/* ⚠️ FIX: Afficher les boutons si c'est le joueur courant ET que le défi n'est pas déjà complété */}
+            {isCurrentUser && !gameState.dareCompleted ? (
               <View style={styles.actionButtons}>
                 <TouchableOpacity
                   style={[styles.actionButton, { backgroundColor: '#00C853' }]}
-                  onPress={() => handleDareCompleted(true)}
+                  onPress={() => {
+                    console.log('🎯 [Double Dare] Bouton "Défi réalisé" pressé');
+                    handleDareCompleted(true);
+                  }}
                 >
                   <Text style={styles.actionButtonText}>✅ Défi réalisé</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   style={[styles.actionButton, { backgroundColor: '#D32F2F' }]}
-                  onPress={handleSafeWord}
+                  onPress={() => {
+                    console.log('🎯 [Double Dare] Bouton "Safe Word" pressé');
+                    handleSafeWord();
+                  }}
                 >
                   <Text style={styles.actionButtonText}>⚠️ Safe Word</Text>
                 </TouchableOpacity>
               </View>
-            )}
-
-            {!isCurrentUser && (
+            ) : !isCurrentUser ? (
               <Text style={styles.waitingText}>
-                {currentPlayer?.name} réalise le défi...
+                {currentPlayer?.name || 'Le joueur'} réalise le défi...
               </Text>
-            )}
+            ) : gameState.dareCompleted ? (
+              <Text style={styles.waitingText}>
+                Défi complété, passage au tour suivant...
+              </Text>
+            ) : null}
           </>
         )}
       </ScrollView>

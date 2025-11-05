@@ -48,19 +48,68 @@ const RulesDrawer = ({ visible, onClose, onConfirm, gameId, isStartingGame }: Ru
 
   const fetchRules = async () => {
     try {
+      // ⚠️ FIX: Vérifier que gameId est défini avant de chercher les règles
+      if (!gameId) {
+        console.warn('[RulesDrawer] gameId non défini, utilisation des règles par défaut');
+        setRules([
+          {
+            title: t('rules.general.title', "RÈGLES GÉNÉRALES"),
+            description: t('rules.general.description', "Un joueur est désigné aléatoirement à chaque tour."),
+            emoji: "🎲"
+          },
+          {
+            title: t('rules.participation.title', "PARTICIPATION"),
+            description: t('rules.participation.description', "Tous les joueurs doivent participer activement."),
+            emoji: "👥"
+          },
+          {
+            title: t('rules.scoring.title', "SCORING"),
+            description: t('rules.scoring.description', "Les points sont attribués selon les règles spécifiques du jeu."),
+            emoji: "🏆"
+          }
+        ]);
+        setLoading(false);
+        return;
+      }
+
       const db = getFirestore();
-      const rulesRef = doc(db, 'rules', gameId || '');
+      const rulesRef = doc(db, 'rules', gameId);
+      console.log(`[RulesDrawer] Recherche des règles pour gameId: "${gameId}"`);
+      
       const rulesDoc = await getDoc(rulesRef);
       
       if (rulesDoc.exists()) {
         const data = rulesDoc.data();
         // Récupérer les règles dans la langue actuelle, avec fallback sur le français
         const currentLangRules = data?.translations?.[language]?.rules || data?.translations?.fr?.rules || [];
-        setRules(currentLangRules);
         
-        console.log(`Règles trouvées (${language}):`, currentLangRules.length);
+        if (currentLangRules.length > 0) {
+          setRules(currentLangRules);
+          console.log(`[RulesDrawer] ✅ Règles trouvées (${language}):`, currentLangRules.length);
+        } else {
+          console.warn(`[RulesDrawer] ⚠️ Document trouvé mais aucune règle pour la langue "${language}", utilisation des règles par défaut`);
+          // Règles par défaut si aucune règle n'est trouvée dans la langue
+          setRules([
+            {
+              title: t('rules.general.title', "RÈGLES GÉNÉRALES"),
+              description: t('rules.general.description', "Un joueur est désigné aléatoirement à chaque tour."),
+              emoji: "🎲"
+            },
+            {
+              title: t('rules.participation.title', "PARTICIPATION"),
+              description: t('rules.participation.description', "Tous les joueurs doivent participer activement."),
+              emoji: "👥"
+            },
+            {
+              title: t('rules.scoring.title', "SCORING"),
+              description: t('rules.scoring.description', "Les points sont attribués selon les règles spécifiques du jeu."),
+              emoji: "🏆"
+            }
+          ]);
+        }
       } else {
-        console.error('Aucune règle trouvée pour ce mode de jeu dans Firestore');
+        // ⚠️ FIX: Utiliser console.warn au lieu de console.error car il y a un fallback
+        console.warn(`[RulesDrawer] ⚠️ Aucune règle trouvée dans Firestore pour le mode de jeu "${gameId}", utilisation des règles par défaut`);
         // Règles par défaut si aucune règle n'est trouvée
         setRules([
           {
@@ -81,8 +130,25 @@ const RulesDrawer = ({ visible, onClose, onConfirm, gameId, isStartingGame }: Ru
         ]);
       }
     } catch (error) {
-      console.error('Erreur lors du chargement des règles:', error);
-      setLoading(false);
+      console.error('[RulesDrawer] ❌ Erreur lors du chargement des règles:', error);
+      // En cas d'erreur, utiliser les règles par défaut
+      setRules([
+        {
+          title: t('rules.general.title', "RÈGLES GÉNÉRALES"),
+          description: t('rules.general.description', "Un joueur est désigné aléatoirement à chaque tour."),
+          emoji: "🎲"
+        },
+        {
+          title: t('rules.participation.title', "PARTICIPATION"),
+          description: t('rules.participation.description', "Tous les joueurs doivent participer activement."),
+          emoji: "👥"
+        },
+        {
+          title: t('rules.scoring.title', "SCORING"),
+          description: t('rules.scoring.description', "Les points sont attribués selon les règles spécifiques du jeu."),
+          emoji: "🏆"
+        }
+      ]);
     } finally {
       setLoading(false);
     }

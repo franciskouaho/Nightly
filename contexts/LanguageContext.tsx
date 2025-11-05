@@ -106,21 +106,28 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       const currentLanguage = language || i18n.language || 'fr';
       console.log(`[DEBUG LanguageContext] Fetching game content for ${gameId} in ${currentLanguage}`);
 
+      // ⚠️ FIX: never-have-i-ever-classic utilise les questions de never-have-i-ever-hot comme fallback
+      let actualGameId = gameId;
+      if (gameId === 'never-have-i-ever-classic') {
+        actualGameId = 'never-have-i-ever-hot';
+        console.log(`[DEBUG LanguageContext] never-have-i-ever-classic will use questions from never-have-i-ever-hot`);
+      }
+
       // Récupération des questions du jeu
-      const questionsDoc = await getDoc(doc(db, 'gameQuestions', gameId));
+      const questionsDoc = await getDoc(doc(db, 'gameQuestions', actualGameId));
       let questions = [];
 
       if (questionsDoc.exists()) {
         const questionsData = questionsDoc.data() || { translations: {} };
-        console.log(`[DEBUG LanguageContext] Found questions data for ${gameId}`);
+        console.log(`[DEBUG LanguageContext] Found questions data for ${actualGameId}`);
 
         // Essayer d'obtenir les questions dans la langue actuelle, sinon utiliser le français
         questions = questionsData.translations[currentLanguage] || questionsData.translations['fr'] || [];
 
         // Les questions sont transformées avec des IDs par les hooks spécifiques à chaque jeu
-        console.log(`[DEBUG LanguageContext] Loaded ${questions.length} questions for ${gameId}`);
+        console.log(`[DEBUG LanguageContext] Loaded ${questions.length} questions for ${actualGameId}`);
       } else {
-        console.warn(`[DEBUG LanguageContext] No questions found for game ${gameId}`);
+        console.warn(`[DEBUG LanguageContext] No questions found for game ${actualGameId}`);
       }
 
       return {

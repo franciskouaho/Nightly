@@ -40,15 +40,16 @@ yarn-error.*
 .env
 .env*.local
 
+# Google service account keys (sensitive)
+nightly-*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+!tsconfig.*.json
+
 # typescript
 *.tsbuildinfo
 
 app-example
 /.idea/
 /.idea/*
-
-# Android
-android/
-
-# iOS
-ios/

@@ -79,10 +79,11 @@ export default function RoomScreen() {
     (p) => String(p.id) === String(user?.uid),
   );
   const minPlayers = room ? getMinPlayersForGame(room.gameId) : 2;
+  // ⚠️ FIX: L'hôte n'a pas besoin d'être "prêt", seulement les autres joueurs doivent l'être
   const canStart =
     room &&
-    room.players.every((p) => p.isReady) &&
-    room.players.length >= minPlayers;
+    room.players.length >= minPlayers &&
+    room.players.filter(p => p.id !== room.host).every((p) => p.isReady);
 
   // Listener pour les changements de la room
     useEffect(() => {
@@ -131,10 +132,23 @@ export default function RoomScreen() {
     const handleStartGame = async () => {
         if (!room || !user) return;
 
+        // ⚠️ FIX: Vérifier le nombre minimum de joueurs avec un message clair
         if (room.players.length < minPlayers) {
             Alert.alert(
         t("room.notEnoughPlayers"),
-        t("room.minPlayersRequired", { count: minPlayers }),
+        t("room.minPlayersRequired", { count: minPlayers }) + ` (Actuellement: ${room.players.length})`,
+            );
+            return;
+        }
+
+        // ⚠️ FIX: Vérifier que tous les joueurs non-hôtes sont prêts
+        const nonHostPlayers = room.players.filter(p => p.id !== room.host);
+        const allNonHostReady = nonHostPlayers.length > 0 && nonHostPlayers.every(p => p.isReady);
+        
+        if (!allNonHostReady) {
+            Alert.alert(
+                t("room.notAllReady", "Tous les joueurs ne sont pas prêts"),
+                t("room.waitingForPlayers", "En attente que tous les joueurs soient prêts") + ` (${nonHostPlayers.filter(p => p.isReady).length}/${nonHostPlayers.length} prêts)`,
             );
             return;
         }
@@ -361,9 +375,9 @@ export default function RoomScreen() {
                 </View>
 
         {/* Warning minimum de joueurs */}
-        {room.players.length <= minPlayers && (
+        {room.players.length < minPlayers && (
                     <Text style={[styles.minPlayersWarning, styles.centeredWarning]}>
-            {t("room.minPlayersRequired", { count: minPlayers })}
+            {t("room.minPlayersRequired", { count: minPlayers })} ({room.players.length}/{minPlayers})
                     </Text>
                 )}
 
@@ -421,7 +435,7 @@ export default function RoomScreen() {
             {/* Bouton Démarrer */}
             <View style={styles.startButtonContainer}>
                             <RoundedButton
-                title={t("room.startGame")}
+                title={canStart ? t("room.startGame") : `${t("room.startGame")} (${room.players.length}/${minPlayers})`}
                                 onPress={handleStartGame}
                 disabled={!canStart}
                 style={[styles.startButton, !canStart && styles.disabledButton]}
@@ -435,6 +449,14 @@ export default function RoomScreen() {
                       ]
                                 }
                             />
+                            {/* Message informatif si le bouton est désactivé */}
+                            {!canStart && (
+                                <Text style={styles.helpText}>
+                                    {room.players.length < minPlayers 
+                                        ? `${minPlayers - room.players.length} joueur(s) manquant(s)`
+                                        : "En attente que tous les joueurs soient prêts"}
+                                </Text>
+                            )}
                         </View>
           </View>
                 )}
@@ -629,6 +651,13 @@ const styles = StyleSheet.create<RoomScreenStyles>({
   minPlayersWarning: { color: "#ff6b6b", fontSize: 14, fontWeight: "500" },
   disabledButton: { opacity: 0.5 },
   centeredWarning: { textAlign: "center", marginBottom: 10 },
+  helpText: {
+    color: "#ccc",
+    fontSize: 12,
+    textAlign: "center",
+    marginTop: 8,
+    fontStyle: "italic",
+  },
     halloweenDecorations: {
     position: "absolute",
         top: 0,

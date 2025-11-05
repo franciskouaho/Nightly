@@ -11,6 +11,7 @@ export const GAME_CONFIG = {
     'listen-but-don-t-judge': { minPlayers: 3 },
     'trap-answer': { minPlayers: 2 },
     'never-have-i-ever-hot': { minPlayers: 2 },
+    'never-have-i-ever-classic': { minPlayers: 2 }, // ⚠️ FIX: Ajout du mode classic
     'genius-or-liar': { minPlayers: 2 },
     'two-letters-one-word': { minPlayers: 1 },
     'word-guessing': { minPlayers: 2 },
@@ -279,6 +280,7 @@ const initializeGenericQuestionGame = async (options: GameInitializationOptions)
             transformedFirstQuestion = transformTrapAnswerQuestion(firstQuestion, 0);
             break;
         case 'never-have-i-ever-hot':
+        case 'never-have-i-ever-classic': // ⚠️ FIX: classic utilise la même transformation que hot
             transformedFirstQuestion = transformNeverHaveIEverHotQuestion(firstQuestion, 0);
             break;
         default:

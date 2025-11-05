@@ -18,6 +18,7 @@ export interface GameMode {
     premium: boolean;
     interactive?: 'write' | 'choice' | 'action';
     fontFamily?: string; // Police personnalisée pour le titre du jeu
+    comingSoon?: boolean; // ⚠️ FIX: Indique si le jeu est bientôt disponible
 }
 
 export interface GameCategory {
@@ -242,7 +243,8 @@ export const gameCategories: GameCategory[] = [
                     color: "#D81B60"
                 }],
                 premium: true,
-                interactive: 'write'
+                interactive: 'write',
+                comingSoon: true // ⚠️ FIX: Jeu bientôt disponible
             }
         ]
     },

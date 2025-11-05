@@ -117,6 +117,39 @@ esac
 CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
 
 
+# ⚠️ FIX: Forcer l'utilisation de Java 21 (JBR d'Android Studio) car Java 25 n'est pas supporté par Kotlin
+# Toujours utiliser le JBR d'Android Studio pour éviter les problèmes de compatibilité
+if [ -d "/Users/francis/Applications/Android Studio.app/Contents/jbr/Contents/Home" ] ; then
+    export JAVA_HOME="/Users/francis/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+elif [ -z "$JAVA_HOME" ] ; then
+    # Essayer de trouver le JBR d'Android Studio (plusieurs emplacements possibles)
+    # Note: Le JBR peut être dans jbr/Contents/Home ou directement dans jbr
+    if [ -d "/Users/francis/Applications/Android Studio.app/Contents/jbr/Contents/Home" ] ; then
+        export JAVA_HOME="/Users/francis/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+    elif [ -d "/Users/francis/Applications/Android Studio.app/Contents/jbr" ] ; then
+        export JAVA_HOME="/Users/francis/Applications/Android Studio.app/Contents/jbr"
+    elif [ -d "/Applications/Android Studio.app/Contents/jbr/Contents/Home" ] ; then
+        export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+    elif [ -d "/Applications/Android Studio.app/Contents/jbr" ] ; then
+        export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr"
+    elif [ -d "$HOME/Applications/Android Studio.app/Contents/jbr/Contents/Home" ] ; then
+        export JAVA_HOME="$HOME/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+    elif [ -d "$HOME/Applications/Android Studio.app/Contents/jbr" ] ; then
+        export JAVA_HOME="$HOME/Applications/Android Studio.app/Contents/jbr"
+    elif [ -d "$HOME/Library/Application Support/Google/AndroidStudio*/jbr" ] ; then
+        export JAVA_HOME=$(ls -d "$HOME/Library/Application Support/Google/AndroidStudio"*/jbr 2>/dev/null | head -1)
+    elif command -v /usr/libexec/java_home >/dev/null 2>&1 ; then
+        # Essayer d'utiliser java_home sur macOS
+        JAVA_HOME=$(/usr/libexec/java_home 2>/dev/null) && export JAVA_HOME
+    elif [ -d "/opt/homebrew/opt/openjdk" ] ; then
+        # Homebrew OpenJDK
+        export JAVA_HOME="/opt/homebrew/opt/openjdk"
+    elif [ -d "/usr/local/opt/openjdk" ] ; then
+        # Homebrew OpenJDK (ancien emplacement)
+        export JAVA_HOME="/usr/local/opt/openjdk"
+    fi
+fi
+
 # Determine the Java command to use to start the JVM.
 if [ -n "$JAVA_HOME" ] ; then
     if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
@@ -137,8 +170,10 @@ else
     then
         die "ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH.
 
-Please set the JAVA_HOME variable in your environment to match the
-location of your Java installation."
+Please install Java or set JAVA_HOME. You can install Java via Homebrew:
+  brew install --cask temurin
+
+Or set JAVA_HOME to point to your Java installation."
     fi
 fi
 
@@ -201,6 +236,10 @@ if "$cygwin" || "$msys" ; then
 fi
 
 
+# ⚠️ FIX: Configurer le PATH pour que node soit trouvé par les plugins Expo
+# Ajouter le chemin de node au PATH avant d'exécuter Gradle
+export PATH="/Users/francis/.nvm/versions/node/v25.1.0/bin:$PATH"
+
 # Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
 DEFAULT_JVM_OPTS='"-Xmx64m" "-Xms64m"'
 
@@ -209,6 +248,10 @@ DEFAULT_JVM_OPTS='"-Xmx64m" "-Xms64m"'
 #     and any embedded shellness will be escaped.
 #   * For example: A user cannot expect ${Hostname} to be expanded, as it is an environment variable and will be
 #     treated as '${Hostname}' itself on the command line.
+
+# ⚠️ FIX: Configurer le PATH pour que node Homebrew soit trouvé
+# Node est maintenant installé via Homebrew et se trouve dans /opt/homebrew/bin
+export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
 
 set -- \
         "-Dorg.gradle.appname=$APP_BASE_NAME" \

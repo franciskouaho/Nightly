@@ -74,6 +74,12 @@ export default function GameRouter() {
         return;
       }
 
+      // ⚠️ FIX: never-have-i-ever-classic utilise le même écran que never-have-i-ever-hot
+      if (mode === 'never-have-i-ever-classic') {
+        router.replace(`/game/never-have-i-ever-hot/${id}`);
+        return;
+      }
+
        if (mode === 'trap-answer') {
         router.replace(`/game/trap-answer/${id}`);
         return;

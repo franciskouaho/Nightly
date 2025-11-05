@@ -139,32 +139,54 @@ export default function ListenButDontJudgeScreen() {
     return game.answers.some(answer => answer.playerId === user.uid);
   }, [game?.answers, user?.uid]);
 
-  // Écoute des changements de jeu dans Firebase
+  // ⚠️ FIX: Écoute des changements de jeu dans Firebase avec meilleure gestion de l'initialisation
   useEffect(() => {
     if (!id) return;
     
     const db = getFirestore();
     const gameRef = doc(db, "games", String(id));
     
-    const unsubscribe = onSnapshot(gameRef, (docSnap) => {
+    const unsubscribe = onSnapshot(gameRef, async (docSnap) => {
       if (docSnap.exists()) {
         const gameData = docSnap.data() as GameState;
         
+        console.log('[DEBUG ListenButDontJudge] Game data:', {
+          phase: gameData.phase,
+          hasQuestion: !!gameData.currentQuestion,
+          questionsLoaded: questions.length,
+          playersCount: gameData.players?.length || 0,
+        });
+        
         // S'assurer que le gameMode est défini
         if (!gameData.gameMode) {
-          updateDoc(gameRef, {
+          await updateDoc(gameRef, {
             gameMode: "listen-but-don-t-judge",
           }).catch((e) => console.error("Error updating gameMode:", e));
         }
         
-        // Initialiser la première question si nécessaire
+        // ⚠️ FIX: Vérifier que les questions sont chargées avant d'initialiser
+        if (questions.length === 0) {
+          console.log('[DEBUG ListenButDontJudge] Questions not loaded yet, waiting...');
+          setGame(gameData);
+          setLoading(false);
+          return;
+        }
         
-        // Initialiser la première question si le jeu n'a pas encore de question
-        if (
-          !gameData.currentQuestion && 
-          questions.length > 0 &&
-          gameData.players && gameData.players.length > 0
-        ) {
+        // ⚠️ FIX: Vérifier le nombre minimum de joueurs (3 pour ce jeu)
+        if (!gameData.players || gameData.players.length < 3) {
+          console.warn('[DEBUG ListenButDontJudge] Not enough players:', gameData.players?.length || 0);
+          setGame(gameData);
+          setLoading(false);
+          return;
+        }
+        
+        // ⚠️ FIX: Initialiser la première question si nécessaire (logique unifiée)
+        const needsInitialization = !gameData.currentQuestion || 
+                                    gameData.phase === "choix" || 
+                                    !gameData.phase;
+        
+        if (needsInitialization) {
+          console.log('[DEBUG ListenButDontJudge] Initializing first question...');
           const firstQuestion = getRandomQuestion();
           if (firstQuestion) {
             const randomPlayerIndex = Math.floor(Math.random() * gameData.players.length);
@@ -178,55 +200,27 @@ export default function ListenButDontJudgeScreen() {
               roundNumber: firstQuestion.roundNumber || 1
             };
             
-            updateDoc(gameRef, {
-              currentQuestion: questionToStore,
-              targetPlayer: targetPlayer,
-              phase: "question", // Passer directement à la phase question
-              currentRound: gameData.currentRound || 1,
-              totalRounds: gameData.totalRounds || 5,
-            }).catch((e) => console.error("Error initializing first question:", e));
-          }
-        }
-        
-        setGame(gameData);
-
-        // Changer la phase de 'choix' à 'question' si nécessaire
-        if (gameData.phase === "choix" && game?.phase !== "choix") {
-          updateDoc(gameRef, {
-            phase: "question",
-          }).catch((e) => console.error("Error updating phase:", e));
-        }
-        
-        // Si le jeu n'a pas de phase définie ou n'a pas de question, initialiser
-        if ((!gameData.phase || gameData.phase === "choix") && !gameData.currentQuestion && questions.length > 0) {
-          const firstQuestion = getRandomQuestion();
-          if (firstQuestion) {
-            const randomPlayerIndex = Math.floor(Math.random() * gameData.players.length);
-            const targetPlayer = gameData.players[randomPlayerIndex];
-            
-            // S'assurer que la question a la bonne structure avant de la stocker
-            const questionToStore = {
-              id: firstQuestion.id,
-              text: firstQuestion.text,
-              theme: firstQuestion.theme || "general",
-              roundNumber: firstQuestion.roundNumber || 1
-            };
-            
-            updateDoc(gameRef, {
+            await updateDoc(gameRef, {
               currentQuestion: questionToStore,
               targetPlayer: targetPlayer,
               phase: "question",
               currentRound: gameData.currentRound || 1,
               totalRounds: gameData.totalRounds || 5,
-            }).catch((e) => console.error("Error initializing question:", e));
+            }).catch((e) => console.error("Error initializing first question:", e));
+            
+            console.log('[DEBUG ListenButDontJudge] First question initialized');
+          } else {
+            console.error('[DEBUG ListenButDontJudge] No question available from getRandomQuestion');
           }
         }
+        
+        setGame(gameData);
       }
       setLoading(false);
     });
     
     return unsubscribe;
-  }, [id, game?.phase, questions.length]);
+  }, [id, questions.length, getRandomQuestion]);
 
   // Gestion de la fin de jeu
   useEffect(() => {
@@ -469,6 +463,38 @@ export default function ListenButDontJudgeScreen() {
         />
         <Text style={styles.errorText}>
           {safeTranslate("game.error", "Une erreur est survenue")}
+        </Text>
+      </View>
+    );
+  }
+
+  // ⚠️ FIX: Afficher un message si pas assez de joueurs
+  if (game.players && game.players.length < 3) {
+    return (
+      <View style={styles.container}>
+        <LinearGradient
+          colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
+          locations={[0, 0.2, 0.5, 0.8, 1]}
+          style={styles.background}
+        />
+        <Text style={styles.errorText}>
+          {safeTranslate("game.listenButDontJudge.notEnoughPlayers", `Ce jeu nécessite au moins 3 joueurs. Actuellement: ${game.players.length}`)}
+        </Text>
+      </View>
+    );
+  }
+
+  // ⚠️ FIX: Afficher un message si les questions ne sont pas chargées
+  if (questions.length === 0) {
+    return (
+      <View style={styles.container}>
+        <LinearGradient
+          colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
+          locations={[0, 0.2, 0.5, 0.8, 1]}
+          style={styles.background}
+        />
+        <Text style={styles.loadingText}>
+          {safeTranslate("game.listenButDontJudge.loadingQuestions", "Chargement des questions...")}
         </Text>
       </View>
     );

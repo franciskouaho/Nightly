@@ -39,6 +39,7 @@ export enum GamePhase {
 
 export type GameMode =
   | "never-have-i-ever-hot"
+  | "never-have-i-ever-classic"
   | "truth-or-dare"
   | "genius-or-liar"
   | "trap-answer"

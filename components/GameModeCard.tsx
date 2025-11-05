@@ -13,6 +13,7 @@ interface GameModeCardProps {
   premium: boolean;
   onPress: () => void;
   disabled?: boolean;
+  comingSoon?: boolean; // ⚠️ FIX: Indique si le jeu est bientôt disponible
 }
 
 interface GameModeCardStyles {
@@ -43,23 +44,28 @@ export default function GameModeCard({
   fontFamily,
   premium,
   onPress,
-  disabled = false
+  disabled = false,
+  comingSoon = false
 }: GameModeCardProps) {
   return (
     <TouchableOpacity
-      style={styles.container}
-      onPress={onPress}
-      activeOpacity={0.8}
-      disabled={disabled}
+      style={[styles.container, comingSoon && styles.comingSoonContainer]}
+      onPress={comingSoon ? undefined : onPress}
+      activeOpacity={comingSoon ? 1 : 0.8}
+      disabled={disabled || comingSoon}
       testID={`game-mode-${id}`}
     >
       <LinearGradient
-        colors={colors.length >= 2 ? (colors as [string, string, ...string[]]) : ['#C41E3A', '#8B1538']}
+        colors={comingSoon 
+          ? ['rgba(100, 100, 100, 0.6)', 'rgba(80, 80, 80, 0.7)'] 
+          : (colors.length >= 2 ? (colors as [string, string, ...string[]]) : ['#C41E3A', '#8B1538'])
+        }
         style={[
           styles.gradient,
           {
-            borderColor: borderColor,
-            shadowColor: shadowColor,
+            borderColor: comingSoon ? '#666' : borderColor,
+            shadowColor: comingSoon ? '#666' : shadowColor,
+            opacity: comingSoon ? 0.6 : 1,
           },
         ]}
         start={{ x: 0, y: 0 }}
@@ -69,16 +75,24 @@ export default function GameModeCard({
           {/* Image du personnage au centre */}
           <Image
             source={image}
-            style={styles.characterImage}
+            style={[styles.characterImage, comingSoon && styles.comingSoonImage]}
             resizeMode="cover"
           />
+
+          {/* Badge "Bientôt disponible" */}
+          {comingSoon && (
+            <View style={styles.comingSoonBadge}>
+              <Text style={styles.comingSoonBadgeText}>Bientôt disponible</Text>
+            </View>
+          )}
 
           {/* Titre du jeu en bas */}
           <View style={styles.titleContainer}>
             <Text
               style={[
                 styles.title,
-                fontFamily && { fontFamily }
+                fontFamily && { fontFamily },
+                comingSoon && styles.comingSoonTitle
               ]}
               numberOfLines={2}
               adjustsFontSizeToFit
@@ -192,5 +206,36 @@ const styles = StyleSheet.create<GameModeCardStyles>({
     fontSize: 10,
     fontWeight: 'bold',
     marginLeft: 4,
+  },
+  // ⚠️ FIX: Styles pour les jeux "Bientôt disponible"
+  comingSoonContainer: {
+    opacity: 0.7,
+  },
+  comingSoonImage: {
+    opacity: 0.5,
+  },
+  comingSoonBadge: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    backgroundColor: 'rgba(255, 193, 7, 0.95)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    zIndex: 25,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  comingSoonBadgeText: {
+    color: '#000',
+    fontSize: 11,
+    fontWeight: 'bold',
+    letterSpacing: 0.5,
+  },
+  comingSoonTitle: {
+    opacity: 0.7,
   },
 });

@@ -555,6 +555,7 @@ export default function HomeScreen() {
           premium={game.premium}
           onPress={handlePress}
           disabled={isCreatingRoom}
+          comingSoon={game.comingSoon}
         />
       );
     }
@@ -566,32 +567,42 @@ export default function HomeScreen() {
           styles.modeCard,
           isGridItem && styles.gridModeCard,
           isCreatingRoom && styles.disabledCard,
+          game.comingSoon && styles.comingSoonCard,
         ]}
-        onPress={handlePress}
-        activeOpacity={0.7}
-        disabled={isCreatingRoom}
+        onPress={game.comingSoon ? undefined : handlePress}
+        activeOpacity={game.comingSoon ? 1 : 0.7}
+        disabled={isCreatingRoom || game.comingSoon}
         testID={`game-mode-${game.id}`}
       >
         <LinearGradient
           colors={
-            game.colors && game.colors.length >= 2
-              ? (game.colors as [string, string, ...string[]])
-              : [
-                  Colors.light?.gradient?.christmas?.from || "#C41E3A",
-                  Colors.light?.gradient?.christmas?.to || "#8B1538",
-                ]
+            game.comingSoon
+              ? ['rgba(100, 100, 100, 0.6)', 'rgba(80, 80, 80, 0.7)']
+              : (game.colors && game.colors.length >= 2
+                  ? (game.colors as [string, string, ...string[]])
+                  : [
+                      Colors.light?.gradient?.christmas?.from || "#C41E3A",
+                      Colors.light?.gradient?.christmas?.to || "#8B1538",
+                    ])
           }
           style={[
             styles.modeGradient,
             {
-              borderColor: game.borderColor || Colors.light.primary,
-              shadowColor: game.shadowColor || Colors.light.secondary,
+              borderColor: game.comingSoon ? '#666' : (game.borderColor || Colors.light.primary),
+              shadowColor: game.comingSoon ? '#666' : (game.shadowColor || Colors.light.secondary),
+              opacity: game.comingSoon ? 0.6 : 1,
             },
             isGridItem && styles.gridModeGradient,
           ]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
         >
+          {/* Badge "Bientôt disponible" */}
+          {game.comingSoon && (
+            <View style={styles.comingSoonBadge}>
+              <Text style={styles.comingSoonBadgeText}>Bientôt disponible</Text>
+            </View>
+          )}
           <View
             style={[styles.modeContent, isGridItem && styles.gridModeContent]}
           >
@@ -599,7 +610,7 @@ export default function HomeScreen() {
               <View style={styles.characterContainer}>
                 <Image
                   source={game.image}
-                  style={styles.characterImage}
+                  style={[styles.characterImage, game.comingSoon && styles.comingSoonImage]}
                   resizeMode="contain"
                 />
               </View>
@@ -613,7 +624,7 @@ export default function HomeScreen() {
               {isGridItem && (
                 <Image
                   source={game.image}
-                  style={styles.gridCharacterImage}
+                  style={[styles.gridCharacterImage, game.comingSoon && styles.comingSoonImage]}
                   resizeMode="contain"
                 />
               )}
@@ -621,7 +632,8 @@ export default function HomeScreen() {
                 style={[
                   styles.modeName, 
                   isGridItem && styles.gridModeName,
-                  game.fontFamily && { fontFamily: game.fontFamily }
+                  game.fontFamily && { fontFamily: game.fontFamily },
+                  game.comingSoon && styles.comingSoonText
                 ]}
               >
                 {game.nameKey ? t(game.nameKey) : (t(`home.games.${game.id}.name`) || game.name || '')}
@@ -847,6 +859,37 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  // ⚠️ FIX: Styles pour les jeux "Bientôt disponible"
+  comingSoonCard: {
+    opacity: 0.7,
+  },
+  comingSoonImage: {
+    opacity: 0.5,
+  },
+  comingSoonBadge: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    backgroundColor: 'rgba(255, 193, 7, 0.95)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    zIndex: 25,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  comingSoonBadgeText: {
+    color: '#000',
+    fontSize: 11,
+    fontWeight: 'bold',
+    letterSpacing: 0.5,
+  },
+  comingSoonText: {
+    opacity: 0.7,
+  },
   container: {
     flex: 1,
   },
