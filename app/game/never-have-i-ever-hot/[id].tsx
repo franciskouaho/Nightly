@@ -587,8 +587,9 @@ export default function NeverHaveIEverHotGame() {
   }
 
   if (gameState.phase === GamePhase.END) {
-    // Les points sont attribués par GameResults.tsx via useLeaderboard
+    // ⚠️ FIX: Les points sont attribués par GameResults.tsx via useLeaderboard
     // Pas besoin d'appeler awardGamePoints ici pour éviter les doublons
+    // Le paywall est géré par useGameEndPaywall qui attend que la partie soit terminée
 
     return (
       <View style={{ flex: 1 }}>

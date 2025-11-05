@@ -19,8 +19,9 @@ export const useGameEndPaywall = (gameId: string, isGameEnded: boolean) => {
   const { showPaywallA, isProMember } = usePaywall();
   const hasTriggeredPaywall = useRef(false);
 
-  // Déterminer si le jeu est gratuit
-  const FREE_GAMES = ['truth-or-dare', 'trap-answer'];
+  // ⚠️ FIX: Déterminer si le jeu est gratuit
+  // Note: Les jeux utilisant useGameEndPaywall ne doivent PAS utiliser useSmartPaywall dans GameResults
+  const FREE_GAMES = ['truth-or-dare', 'trap-answer', 'never-have-i-ever-hot'];
   const isFreeGame = FREE_GAMES.includes(gameId);
 
   useEffect(() => {
@@ -55,10 +56,11 @@ export const useGameEndPaywall = (gameId: string, isGameEnded: boolean) => {
           // Marquer comme déclenché pour éviter les doublons
           hasTriggeredPaywall.current = true;
 
-          // Attendre un peu avant d'afficher le paywall (pour une meilleure UX)
+          // ⚠️ FIX: Attendre plus longtemps (5 secondes) pour laisser l'utilisateur voir l'écran de fin
+          // Cela évite que le paywall s'affiche de manière intempestive
           setTimeout(() => {
             showPaywallA();
-          }, 1500);
+          }, 5000); // ⚠️ FIX: Augmenté de 1500ms à 5000ms
         } else {
           const remaining = 3 - newCount;
           console.log(`✅ ${remaining} partie(s) gratuite(s) restante(s) avant le paywall`);

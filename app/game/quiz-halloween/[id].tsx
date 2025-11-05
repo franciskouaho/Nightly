@@ -231,47 +231,48 @@ export default function QuizHalloweenGameOptimized() {
 
   // Correction : Seul l'hôte choisit et enregistre la prochaine question
   const isHost = user?.uid === gameState?.players[0]?.id;
+  // ⚠️ FIX: handleNextQuestion - SEUL L'HÔTE peut changer la question
+  // Firebase est la seule source de vérité
   const handleNextQuestion = useCallback(() => {
-    console.log('🎃 handleNextQuestion appelé - gameState:', !!gameState, 'isHost:', isHost);
+    // ⚠️ FIX: Seul l'hôte peut réellement changer la question
+    if (!isHost) {
+      console.log('🎃 [CLIENT] handleNextQuestion ignoré - ce client n\'est pas l\'hôte');
+      return;
+    }
+
+    console.log('🎃 [HÔTE] handleNextQuestion appelé - gameState:', !!gameState);
     if (!gameState || nextQuestionHandled.current) {
-      console.log('🎃 handleNextQuestion annulé - pas de gameState ou déjà traité');
+      console.log('🎃 [HÔTE] handleNextQuestion annulé - pas de gameState ou déjà traité');
       return;
     }
     nextQuestionHandled.current = true;
 
     const nextRound = gameState.currentRound + 1;
-    console.log('🎃 Passage à la question suivante - Round:', nextRound, '/', gameState.totalRounds);
+    console.log('🎃 [HÔTE] Passage à la question suivante - Round:', nextRound, '/', gameState.totalRounds);
 
     if (nextRound <= gameState.totalRounds) {
-      if (isHost) {
         const newQuestion = getRandomQuestion();
-        console.log('🎃 Nouvelle question choisie par l\'hôte:', !!newQuestion);
+      console.log('🎃 [HÔTE] Nouvelle question choisie:', !!newQuestion);
         if (newQuestion) {
+        // ⚠️ FIX: Firebase est la seule source de vérité - on met à jour Firebase directement
           const nextRoundState = {
             ...gameState,
             currentRound: nextRound,
             currentQuestion: newQuestion,
             askedQuestionIds: [...gameState.askedQuestionIds, newQuestion.id],
-            playerAnswers: {}, // Reset pour la nouvelle question
+          playerAnswers: {}, // ⚠️ FIX: Reset complet pour la nouvelle question
             phase: GamePhase.QUESTION,
             _allAnswered: false,
           };
-          console.log('🎃 Mise à jour du gameState avec nextRoundState (hôte)');
+        console.log('🎃 [HÔTE] Mise à jour Firebase avec nouvelle question (source de vérité unique)');
           updateGameState(nextRoundState);
         } else {
-          console.log('🎃 Aucune nouvelle question disponible (hôte)');
-        }
-      } else {
-        console.log('🎃 Ce client n\'est pas l\'hôte, il attend la question depuis Firebase');
+        console.log('🎃 [HÔTE] Aucune nouvelle question disponible');
       }
-      setSelectedAnswer(null);
-      setShowResult(false);
-      setCanAnswer(true);
-      setTimer(15);
     } else {
       // Fin du jeu - sauvegarder les scores finaux (une seule fois)
       if (!gameEndHandled.current) {
-        console.log('🎃 Fin du jeu - sauvegarde des scores');
+        console.log('🎃 [HÔTE] Fin du jeu - sauvegarde des scores');
         gameEndHandled.current = true;
         saveFinalScoresToFirebase();
       }
@@ -303,13 +304,18 @@ export default function QuizHalloweenGameOptimized() {
     return undefined;
   }, [timer, allPlayersAnswered, gameState?.currentQuestion?.id, handleNextQuestion]);
 
-  // Effet optimisé pour passer à la question suivante quand tous ont répondu (Cas 2)
+  // ⚠️ FIX: Effet optimisé pour passer à la question suivante quand tous ont répondu
+  // SEUL L'HÔTE déclenche réellement le passage - les autres clients attendent Firebase
   const allAnsweredHandled = useRef(false);
 
   useEffect(() => {
     if (allPlayersAnswered && !(gameState as any)?._allAnswered && !allAnsweredHandled.current) {
-      console.log('🎃 Tous les joueurs ont répondu - passage à la question suivante après 3s');
       allAnsweredHandled.current = true;
+
+      // ⚠️ FIX: Seul l'hôte déclenche le passage à la question suivante
+      // Les autres clients attendent que Firebase se mette à jour
+      if (isHost) {
+        console.log('🎃 [HÔTE] Tous les joueurs ont répondu - passage à la question suivante après 2s');
 
       // Mettre à jour Firebase avec _allAnswered = true
       const updatedState = {
@@ -318,20 +324,75 @@ export default function QuizHalloweenGameOptimized() {
       };
       updateGameState(updatedState);
 
+        // ⚠️ FIX: Seul l'hôte appelle handleNextQuestion
       setTimeout(() => {
-        console.log('🎃 Appel de handleNextQuestion après délai de 3s');
+          console.log('🎃 [HÔTE] Appel de handleNextQuestion après délai de 2s');
         handleNextQuestion();
-      }, 3000);
+        }, 2000);
+      } else {
+        console.log('🎃 [CLIENT] Tous ont répondu - attente de la mise à jour Firebase par l\'hôte');
+        // Les clients non-hôtes ne font rien - ils attendent que l'hôte mette à jour Firebase
+        // Firebase est la seule source de vérité
+      }
     }
-  }, [allPlayersAnswered, gameState, handleNextQuestion, updateGameState]);
+  }, [allPlayersAnswered, gameState, handleNextQuestion, updateGameState, isHost]);
 
-  // Reset les flags quand on change de question
+  // Reset les flags quand on change de question ou de round
   useEffect(() => {
     allAnsweredHandled.current = false;
     timerAtZeroHandled.current = false;
     gameEndHandled.current = false; // Reset aussi le flag de fin de jeu
     nextQuestionHandled.current = false; // Reset le flag de passage à la question suivante
-  }, [gameState?.currentQuestion?.id]);
+  }, [gameState?.currentQuestion?.id, gameState?.currentRound]);
+
+  // ⚠️ FIX: Réinitialiser les états locaux quand la question change
+  // Firebase est la seule source de vérité - on synchronise toujours avec Firebase
+  const lastQuestionRoundRef = useRef<string>('');
+
+  useEffect(() => {
+    if (gameState?.currentQuestion?.id && gameState?.currentRound) {
+      // ⚠️ FIX: Vérifier à la fois l'ID de la question ET le round pour détecter un vrai changement
+      const questionRoundKey = `${gameState.currentQuestion.id}_${gameState.currentRound}`;
+      
+      // Si c'est la même question au même round, ne rien faire
+      if (questionRoundKey === lastQuestionRoundRef.current) {
+        return;
+      }
+      
+      // Mettre à jour le ref
+      lastQuestionRoundRef.current = questionRoundKey;
+      
+      // ⚠️ FIX: Firebase est la seule source de vérité - on lit toujours depuis Firebase
+      const userAnswer = gameState.playerAnswers?.[user?.uid || ''];
+      
+      // ⚠️ FIX: Si playerAnswers est vide, c'est une nouvelle question - réinitialiser
+      const playerAnswersEmpty = !gameState.playerAnswers || Object.keys(gameState.playerAnswers).length === 0;
+      
+      if (userAnswer && !playerAnswersEmpty) {
+        // Si l'utilisateur a déjà répondu à cette question dans Firebase, restaurer l'état depuis Firebase
+        setSelectedAnswer(userAnswer.answer);
+        setIsAnswerCorrect(userAnswer.isCorrect || false);
+        setShowResult(true);
+        setCanAnswer(false);
+        console.log('🎃 [SYNC] État restauré depuis Firebase (source de vérité):', {
+          questionId: gameState.currentQuestion.id,
+          round: gameState.currentRound,
+          answer: userAnswer.answer
+        });
+      } else {
+        // Nouvelle question ou pas encore répondu - réinitialiser complètement
+        setSelectedAnswer(null);
+        setShowResult(false);
+        setIsAnswerCorrect(false);
+        setCanAnswer(true);
+        console.log('🎃 [SYNC] Nouvelle question - états réinitialisés depuis Firebase:', {
+          questionId: gameState.currentQuestion.id,
+          round: gameState.currentRound,
+          playerAnswersEmpty
+        });
+      }
+    }
+  }, [gameState?.currentQuestion?.id, gameState?.currentRound, gameState?.playerAnswers, user?.uid]);
 
   // Démarrer le jeu (première question)
   const startNewQuestion = useCallback(() => {
@@ -360,7 +421,14 @@ export default function QuizHalloweenGameOptimized() {
   const submitAnswer = useCallback((answerText: string) => {
     if (!gameState?.currentQuestion || !user || !gameState.currentQuestion.answers || !canAnswer || selectedAnswer) return;
 
-    console.log('🎃 Réponse soumise:', answerText);
+    // ⚠️ FIX: Vérifier que le joueur n'a pas déjà répondu à cette question dans Firebase
+    const userAnswer = gameState.playerAnswers?.[user.uid];
+    if (userAnswer) {
+      console.log('⚠️ Le joueur a déjà répondu à cette question, réponse ignorée');
+      return;
+    }
+
+    console.log('🎃 Réponse soumise:', answerText, 'pour question:', gameState.currentQuestion.id, 'round:', gameState.currentRound);
     setSelectedAnswer(answerText);
 
     const isCorrect = gameState.currentQuestion.answers.find(a => a.text === answerText)?.isCorrect || false;

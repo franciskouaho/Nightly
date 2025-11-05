@@ -158,9 +158,20 @@ export default function GameResults({
   // ⚠️ FIX: Attribution automatique des lumicoins à l'ouverture de l'écran
   useEffect(() => {
     const awardCoinsAutomatically = async () => {
-      if (lumicoinsAwarded || !userId) return;
+      // ⚠️ FIX: Vérifier que userId existe et que les lumicoins n'ont pas déjà été attribués
+      if (lumicoinsAwarded || !userId || userId === "") {
+        console.log("⏭️ Lumicoins déjà attribués ou userId manquant:", { lumicoinsAwarded, userId });
+        return;
+      }
+
+      // ⚠️ FIX: Vérifier que le rang est valide (doit être > 0)
+      if (currentUserRank <= 0) {
+        console.log("⏭️ Rang invalide pour attribuer les lumicoins:", currentUserRank);
+        return;
+      }
 
       try {
+        console.log(`🎁 Attribution des lumicoins: userId=${userId}, montant=${lumicoinsReward}, rang=${currentUserRank}`);
         await awardLumiCoins(userId, lumicoinsReward, "game_reward", rank_name);
         setLumicoinsAwarded(true);
         console.log(
@@ -169,24 +180,37 @@ export default function GameResults({
       } catch (error) {
         console.error("❌ Erreur lors de l'attribution des lumicoins:", error);
         // En cas d'erreur, on laisse le bouton manuel disponible
+        setLumicoinsAwarded(false);
       }
     };
 
     // Attendre 1 seconde pour laisser l'utilisateur voir l'écran
     const timer = setTimeout(awardCoinsAutomatically, 1000);
     return () => clearTimeout(timer);
-  }, [userId, lumicoinsReward, rank_name, awardLumiCoins, lumicoinsAwarded]);
+  }, [userId, lumicoinsReward, rank_name, awardLumiCoins, lumicoinsAwarded, currentUserRank]);
 
-  // Déclencher le smart paywall après la partie
+  // ⚠️ FIX: Déclencher le smart paywall après la partie UNIQUEMENT si le jeu n'utilise pas useGameEndPaywall
+  // Les jeux suivants utilisent useGameEndPaywall : 'truth-or-dare', 'trap-answer', 'never-have-i-ever-hot'
+  // Pour éviter les doublons, on ne déclenche pas useSmartPaywall pour ces jeux
   useEffect(() => {
     const triggerSmartPaywall = async () => {
-      console.log("🎮 Partie terminée - vérification smart paywall");
-      await onFreeGameCompleted();
+      // ⚠️ FIX: Ne pas déclencher si le jeu utilise déjà useGameEndPaywall
+      // Les jeux qui utilisent useGameEndPaywall gèrent leur propre paywall
+      const GAMES_WITH_OWN_PAYWALL = ['truth-or-dare', 'trap-answer', 'never-have-i-ever-hot'];
+      
+      // On ne peut pas savoir quel jeu est en cours depuis GameResults, donc on laisse
+      // useGameEndPaywall gérer les jeux gratuits et useSmartPaywall pour les autres
+      // Pour éviter les doublons, on désactive temporairement useSmartPaywall ici
+      // et on laisse useGameEndPaywall gérer tous les jeux gratuits
+      
+      console.log("🎮 Partie terminée - vérification smart paywall (désactivé pour éviter doublons avec useGameEndPaywall)");
+      // await onFreeGameCompleted(); // ⚠️ DÉSACTIVÉ pour éviter les doublons
     };
 
     // Attendre un peu pour laisser l'utilisateur voir les résultats
-    const timer = setTimeout(triggerSmartPaywall, 2000);
-    return () => clearTimeout(timer);
+    // ⚠️ DÉSACTIVÉ pour éviter les doublons
+    // const timer = setTimeout(triggerSmartPaywall, 2000);
+    // return () => clearTimeout(timer);
   }, [onFreeGameCompleted]);
 
   return (

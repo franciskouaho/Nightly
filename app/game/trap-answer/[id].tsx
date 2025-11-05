@@ -66,20 +66,22 @@ export default function TrapAnswerGame() {
   // ⚠️ FIX: Flag pour éviter les doubles appels de nextQuestion
   const isTransitioningRef = useRef(false);
 
-  // ⚠️ FIX: Passage automatique au tour suivant après 2 secondes si tous les joueurs ont répondu
+  // ⚠️ FIX: Passage automatique au tour suivant après 3 secondes si tous les joueurs ont répondu
+  // Augmenté à 3 secondes pour laisser le temps de voir les résultats
   useEffect(() => {
     if (
       gameState?.phase === GamePhase.QUESTION &&
       gameState?.players?.length > 0 &&
       Object.keys(gameState?.playerAnswers || {}).length ===
         gameState?.players?.length &&
-      !isTransitioningRef.current // ⚠️ FIX: Empêcher le double déclenchement
+      !isTransitioningRef.current && // ⚠️ FIX: Empêcher le double déclenchement
+      gameState?.currentQuestion // ⚠️ FIX: S'assurer qu'il y a une question
     ) {
-      console.log("🔄 Tous les joueurs ont répondu - passage dans 2s");
+      console.log("🔄 Tous les joueurs ont répondu - passage dans 3s");
       isTransitioningRef.current = true;
       const timeout = setTimeout(() => {
         nextQuestion();
-      }, 2000);
+      }, 3000); // ⚠️ FIX: Augmenté à 3 secondes pour laisser voir les résultats
       return () => {
         clearTimeout(timeout);
         isTransitioningRef.current = false;
@@ -89,7 +91,7 @@ export default function TrapAnswerGame() {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [gameState?.phase, gameState?.playerAnswers, gameState?.players]);
+  }, [gameState?.phase, gameState?.playerAnswers, gameState?.players, gameState?.currentQuestion]);
 
   // Log pour inspecter gameState dès qu'il change
   useEffect(() => {
@@ -197,6 +199,9 @@ export default function TrapAnswerGame() {
     }
   };
 
+  // ⚠️ FIX: Ajouter un état local pour le feedback visuel immédiat
+  const [localPlayerAnswer, setLocalPlayerAnswer] = useState<TrapPlayerAnswer | null>(null);
+
   const handleAnswer = async (answer: TrapAnswer) => {
     if (
       !user ||
@@ -204,13 +209,20 @@ export default function TrapAnswerGame() {
       gameState.phase !== GamePhase.QUESTION
     )
       return;
-    if (gameState.playerAnswers?.[user.uid]) return;
+    
+    // ⚠️ FIX: Vérifier si le joueur a déjà répondu (local ou dans gameState)
+    if (gameState.playerAnswers?.[user.uid] || localPlayerAnswer) {
+      console.log("⏭️ Le joueur a déjà répondu");
+      return;
+    }
 
+    // ⚠️ FIX: Mettre à jour l'état local immédiatement pour feedback visuel
     const newPlayerAnswer: TrapPlayerAnswer = {
       answer: answer.text,
       isCorrect: answer.isCorrect,
       isTrap: answer.isTrap,
     };
+    setLocalPlayerAnswer(newPlayerAnswer);
 
     const score = calculateScore(answer);
 
@@ -249,8 +261,17 @@ export default function TrapAnswerGame() {
       console.log("✅ Réponse enregistrée avec succès");
     } catch (error) {
       console.error("❌ Erreur lors de l'enregistrement de la réponse:", error);
+      // ⚠️ FIX: Réinitialiser l'état local en cas d'erreur
+      setLocalPlayerAnswer(null);
     }
   };
+
+  // ⚠️ FIX: Réinitialiser localPlayerAnswer quand on change de question
+  useEffect(() => {
+    if (gameState?.currentQuestion?.id) {
+      setLocalPlayerAnswer(null);
+    }
+  }, [gameState?.currentQuestion?.id]);
 
   if (!gameState) return null;
 
@@ -258,10 +279,23 @@ export default function TrapAnswerGame() {
     // Les points sont attribués par GameResults.tsx via useLeaderboard
     // Pas besoin d'appeler awardGamePoints ici pour éviter les doublons
 
+    // ⚠️ FIX: Normaliser les scores pour éviter les scores négatifs
+    // Dans ce jeu, les pièges donnent -1 point, donc on peut avoir des scores négatifs
+    // On normalise en trouvant le score minimum et en ajoutant un offset pour que tous les scores soient >= 0
+    const rawScores = gameState.scores || {};
+    const allScores = Object.values(rawScores);
+    const minScore = allScores.length > 0 ? Math.min(...allScores) : 0;
+    const offset = minScore < 0 ? Math.abs(minScore) : 0; // Offset pour rendre tous les scores positifs
+    
+    const normalizedScores: Record<string, number> = {};
+    Object.entries(rawScores).forEach(([playerId, score]) => {
+      normalizedScores[playerId] = (score as number) + offset;
+    });
+
     return (
       <GameResults
         players={gameState.players || []}
-        scores={gameState.scores || {}}
+        scores={normalizedScores}
         userId={user?.uid || ""}
         pointsConfig={{
           firstPlace: 25,
@@ -411,16 +445,18 @@ export default function TrapAnswerGame() {
         >
           <View style={styles.answersGrid}>
             {(gameState.currentQuestion?.answers || []).map((answer, index) => {
-              const hasAnswered = !!gameState.playerAnswers?.[user?.uid || ""];
-              const isAnswered =
-                gameState.playerAnswers?.[user?.uid || ""]?.answer ===
-                answer.text;
+              // ⚠️ FIX: Utiliser l'état local ou gameState pour le feedback visuel
+              const playerAnswer = localPlayerAnswer || gameState.playerAnswers?.[user?.uid || ""];
+              const hasAnswered = !!playerAnswer;
+              const isAnswered = playerAnswer?.answer === answer.text;
 
               let buttonStyle = styles.answerButton;
               let textStyle = styles.answerText;
 
+              // ⚠️ FIX: Améliorer l'affichage des réponses avec feedback visuel immédiat
               if (hasAnswered) {
                 if (isAnswered) {
+                  // La réponse sélectionnée par le joueur
                   if (answer.isCorrect) {
                     buttonStyle = styles.answerButtonCorrect;
                   } else if (answer.isTrap) {
@@ -428,10 +464,10 @@ export default function TrapAnswerGame() {
                   } else {
                     buttonStyle = styles.answerButtonSelected;
                   }
+                } else {
+                  // Les autres réponses (grisées si on a déjà répondu)
+                  buttonStyle = styles.answerButtonDisabled;
                 }
-              } else if (isAnswered) {
-                buttonStyle = styles.answerButtonSelected;
-                textStyle = styles.answerTextSelected;
               }
 
               return (
@@ -669,6 +705,23 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 6,
     marginHorizontal: 4,
+  },
+  answerButtonDisabled: {
+    backgroundColor: `${ChristmasTheme.light.backgroundDarker}80`,
+    borderRadius: 20,
+    width: "47%",
+    marginBottom: 18,
+    paddingVertical: 18,
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: `${ChristmasTheme.light.primary}20`,
+    opacity: 0.5,
+    marginHorizontal: 4,
+    shadowColor: "transparent",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0,
+    shadowRadius: 0,
+    elevation: 0,
   },
   answerText: {
     color: "#fff",

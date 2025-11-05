@@ -309,6 +309,8 @@ export default function TruthOrDareGameScreen() {
   const [voteTimer, setVoteTimer] = useState(10);
   const [canValidateVote, setCanValidateVote] = useState(false);
   const [voteHandled, setVoteHandled] = useState(false);
+  // ⚠️ FIX: Ajouter un état pour désactiver les boutons pendant le traitement
+  const [isProcessingAnswer, setIsProcessingAnswer] = useState(false);
   const gameStartTime = useRef(Date.now());
   const { t } = useTranslation();
   const { getGameContent, language } = useLanguage();
@@ -426,11 +428,19 @@ export default function TruthOrDareGameScreen() {
   // ⚠️ FIX: Vérification simplifiée si tous ont voté - logique unifiée
   const voteValidationInProgressRef = useRef(false);
 
+  // ⚠️ FIX: Réinitialiser isProcessingAnswer quand on change de phase
+  useEffect(() => {
+    if (game?.phase !== "question" && game?.phase !== "action") {
+      setIsProcessingAnswer(false);
+    }
+  }, [game?.phase]);
+
   useEffect(() => {
     if (!game || game.phase !== "vote") {
       // Reset du flag quand on sort de la phase vote
       voteValidationInProgressRef.current = false;
       if (voteHandled) setVoteHandled(false);
+      setIsProcessingAnswer(false); // ⚠️ FIX: Réinitialiser aussi isProcessingAnswer
       return undefined;
     }
 
@@ -673,7 +683,7 @@ export default function TruthOrDareGameScreen() {
                 backgroundColor="#00B7FF"
                 skewDirection="left"
                 onPress={handleValidate}
-                disabled={game.phase !== "question" && game.phase !== "action"}
+                disabled={(game.phase !== "question" && game.phase !== "action") || isProcessingAnswer}
                 style={styles.choiceButtonLeft}
                 textStyle={styles.choiceButtonText}
                 iconSource={require("@/assets/jeux/action-verite/dare.png")}
@@ -684,7 +694,7 @@ export default function TruthOrDareGameScreen() {
                 backgroundColor="#FF6600"
                 skewDirection="right"
                 onPress={handleRefuse}
-                disabled={game.phase !== "question" && game.phase !== "action"}
+                disabled={(game.phase !== "question" && game.phase !== "action") || isProcessingAnswer}
                 style={styles.choiceButtonRight}
                 textStyle={styles.choiceButtonText}
                 iconSource={require("@/assets/jeux/action-verite/truth.png")}
@@ -959,22 +969,46 @@ export default function TruthOrDareGameScreen() {
     }
   }
 
+  // ⚠️ FIX: Améliorer handleValidate avec feedback immédiat et protection contre les doubles clics
   async function handleValidate() {
-    if (!id) return;
+    if (!id || isProcessingAnswer) return;
+    
+    // ⚠️ FIX: Désactiver immédiatement les boutons pour feedback visuel
+    setIsProcessingAnswer(true);
+    
+    try {
     const db = getFirestore();
     await updateDoc(doc(db, "games", String(id)), {
       phase: "vote",
       votes: {},
     });
+      console.log("[DEBUG] Réponse validée - passage au vote");
+    } catch (error) {
+      console.error("[DEBUG] Erreur lors de la validation:", error);
+      Alert.alert(t("game.error"), t("game.truthOrDare.errorValidating"));
+      setIsProcessingAnswer(false); // Réactiver en cas d'erreur
+    }
   }
 
+  // ⚠️ FIX: Améliorer handleRefuse avec feedback immédiat et protection contre les doubles clics
   async function handleRefuse() {
-    if (!id) return;
+    if (!id || isProcessingAnswer) return;
+    
+    // ⚠️ FIX: Désactiver immédiatement les boutons pour feedback visuel
+    setIsProcessingAnswer(true);
+    
+    try {
     const db = getFirestore();
     await updateDoc(doc(db, "games", String(id)), {
       phase: "vote",
       votes: {},
     });
+      console.log("[DEBUG] Réponse refusée - passage au vote");
+    } catch (error) {
+      console.error("[DEBUG] Erreur lors du refus:", error);
+      Alert.alert(t("game.error"), t("game.truthOrDare.errorRefusing"));
+      setIsProcessingAnswer(false); // Réactiver en cas d'erreur
+    }
   }
 
   async function handleVote(vote: "yes" | "no") {
