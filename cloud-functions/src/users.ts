@@ -1,10 +1,17 @@
-import { admin } from './firebase-admin-init';
 import * as functions from 'firebase-functions';
 import { CallableRequest } from 'firebase-functions/v2/https';
+import { admin } from './firebase-admin-init';
 
 interface UserData {
   uid: string;
   pseudo?: string;
+}
+
+interface AwardLumiCoinsData {
+  userId: string;
+  amount: number;
+  reason: string;
+  rank_name: string;
 }
 
 export const deleteUser = functions.https.onCall(async (request: CallableRequest<UserData>) => {
@@ -31,7 +38,7 @@ export const deleteUser = functions.https.onCall(async (request: CallableRequest
     // Supprimer l'utilisateur de la collection users
     const userRef = db.collection('users').doc(uid);
     const userDoc = await userRef.get();
-    
+
     if (!userDoc.exists) {
       throw new functions.https.HttpsError(
         'not-found',
@@ -114,4 +121,78 @@ export const setAnnualSubscription = functions.https.onCall(async (request: Call
       'Une erreur est survenue lors de l\'activation de l\'abonnement'
     );
   }
-}); 
+});
+
+export const awardLumiCoins = functions.https.onCall(async (request: CallableRequest<AwardLumiCoinsData>) => {
+  // Vérification de l'authentification
+  if (!request.auth) {
+    throw new functions.https.HttpsError(
+      'unauthenticated',
+      'Vous devez être authentifié pour effectuer cette action'
+    );
+  }
+
+  const { userId, amount, reason, rank_name } = request.data;
+
+  if (!userId || !amount || !reason) {
+    throw new functions.https.HttpsError(
+      'invalid-argument',
+      'userId, amount et reason sont requis'
+    );
+  }
+
+  if (amount <= 0) {
+    throw new functions.https.HttpsError(
+      'invalid-argument',
+      'Le montant doit être positif'
+    );
+  }
+
+  try {
+    const db = admin.firestore();
+    const userRef = db.collection('users').doc(userId);
+    const userDoc = await userRef.get();
+
+    if (!userDoc.exists) {
+      throw new functions.https.HttpsError(
+        'not-found',
+        'Utilisateur non trouvé'
+      );
+    }
+
+    const userData = userDoc.data();
+    const currentPoints = userData?.points || 0;
+    const newPoints = currentPoints + amount;
+
+    // Mettre à jour les points de l'utilisateur
+    await userRef.update({
+      points: newPoints,
+    });
+
+    // Enregistrer la transaction
+    await db.collection('pointTransactions').add({
+      userId,
+      amount,
+      previousBalance: currentPoints,
+      newBalance: newPoints,
+      reason,
+      rank_name: rank_name || null,
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    console.log(`✅ LumiCoins attribués: ${amount} à ${userId}. Nouveau total: ${newPoints}`);
+
+    return {
+      success: true,
+      message: `${amount} LumiCoins attribués avec succès`,
+      newBalance: newPoints,
+      previousBalance: currentPoints
+    };
+  } catch (error) {
+    console.error('Erreur lors de l\'attribution des LumiCoins:', error);
+    throw new functions.https.HttpsError(
+      'internal',
+      'Une erreur est survenue lors de l\'attribution des LumiCoins'
+    );
+  }
+});

@@ -2,17 +2,17 @@ import { db } from "@/config/firebase";
 import { useAuth } from "@/contexts/AuthContext";
 import { GameMode, Player } from "@/types/gameTypes";
 import {
-  addDoc,
-  collection,
-  doc,
-  limit as firestoreLimit,
-  getDoc,
-  getDocs,
-  orderBy,
-  query,
-  serverTimestamp,
-  updateDoc,
-  where,
+    addDoc,
+    collection,
+    doc,
+    limit as firestoreLimit,
+    getDoc,
+    getDocs,
+    orderBy,
+    query,
+    serverTimestamp,
+    updateDoc,
+    where,
 } from "@react-native-firebase/firestore";
 import functions from "@react-native-firebase/functions";
 
