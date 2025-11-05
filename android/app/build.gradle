@@ -106,15 +106,28 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            // Utiliser le keystore à la racine du projet
+            def keystoreFile = rootProject.file('../store')
+            if (keystoreFile.exists()) {
+                storeFile keystoreFile
+                storePassword findProperty('NIGHTLY_STORE_PASSWORD') ?: System.getenv('NIGHTLY_STORE_PASSWORD') ?: ''
+                keyAlias findProperty('NIGHTLY_KEY_ALIAS') ?: System.getenv('NIGHTLY_KEY_ALIAS') ?: ''
+                keyPassword findProperty('NIGHTLY_KEY_PASSWORD') ?: System.getenv('NIGHTLY_KEY_PASSWORD') ?: ''
+            }
+        }
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            // Utiliser le keystore de production si configuré, sinon fallback sur debug
+            if (signingConfigs.release.storeFile != null && signingConfigs.release.storeFile.exists()) {
+                signingConfig signingConfigs.release
+            } else {
+                signingConfig signingConfigs.debug
+            }
             shrinkResources (findProperty('android.enableShrinkResourcesInReleaseBuilds')?.toBoolean() ?: false)
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
@@ -181,3 +194,27 @@ dependencies {
 }
 
 apply plugin: 'com.google.gms.google-services'
+
+// ⚠️ FIX: Corriger automatiquement l'import ExpoModulesPackage après génération
+tasks.whenTaskAdded { task ->
+    if (task.name == 'compileReleaseJavaWithJavac' || task.name == 'compileDebugJavaWithJavac') {
+        task.dependsOn(fixPackageList)
+    }
+}
+
+task fixPackageList {
+    doLast {
+        def packageListFile = file('build/generated/autolinking/src/main/java/com/facebook/react/PackageList.java')
+        if (packageListFile.exists()) {
+            def content = packageListFile.text
+            content = content.replace('import expo.core.ExpoModulesPackage;', 'import expo.modules.ExpoModulesPackage;')
+            packageListFile.text = content
+            println "✅ PackageList.java corrigé : expo.core → expo.modules"
+        }
+    }
+}
+
+// Exécuter la correction après la génération de PackageList
+tasks.named('generateAutolinkingPackageList').configure {
+    finalizedBy fixPackageList
+}

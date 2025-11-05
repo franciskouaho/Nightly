@@ -251,7 +251,8 @@ DEFAULT_JVM_OPTS='"-Xmx64m" "-Xms64m"'
 
 # ⚠️ FIX: Configurer le PATH pour que node Homebrew soit trouvé
 # Node est maintenant installé via Homebrew et se trouve dans /opt/homebrew/bin
-export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+# ~/bin contient aussi un symlink vers node
+export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$HOME/bin:$PATH"
 
 set -- \
         "-Dorg.gradle.appname=$APP_BASE_NAME" \

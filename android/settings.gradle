@@ -1,6 +1,6 @@
 pluginManagement {
-  // ⚠️ FIX: Utiliser node de Homebrew (dans le PATH système)
-  def nodePath = "node"
+  // ⚠️ FIX: Utiliser le chemin absolu de node Homebrew pour éviter les problèmes de PATH
+  def nodePath = "/opt/homebrew/bin/node"
   
   def reactNativeGradlePlugin = new File(
     providers.exec {
