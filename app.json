@@ -12,6 +12,7 @@
       "bundleIdentifier": "com.emplica.nightly",
       "googleServicesFile": "./GoogleService-Info.plist",
       "appleTeamId": "NAN7MFNMT7",
+      "deploymentTarget": "15.1",
       "infoPlist": {
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true

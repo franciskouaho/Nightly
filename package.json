@@ -16,7 +16,8 @@
     "test": "jest --watchAll",
     "lint": "expo lint",
     "init-rules": "ts-node scripts/initGameRules.ts",
-    "upload-questions": "ts-node scripts/uploadQuestionsToFirebase.ts"
+    "upload-questions": "ts-node scripts/uploadQuestionsToFirebase.ts",
+    "reset-leaderboard": "ts-node scripts/resetLeaderboard.ts"
   },
   "jest": {
     "preset": "jest-expo"
@@ -118,6 +119,7 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-unused-imports": "^4.1.4",
+    "firebase": "^12.5.0",
     "jest": "^29.2.1",
     "jest-expo": "~53.0.10",
     "plist": "^3.1.0",

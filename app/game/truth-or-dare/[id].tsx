@@ -9,10 +9,10 @@ import { usePoints } from "@/hooks/usePoints";
 import { useTruthOrDareAnalytics } from "@/hooks/useTruthOrDareAnalytics";
 import { GamePhase, GameState } from "@/types/gameTypes";
 import {
-  doc,
-  getFirestore,
-  onSnapshot,
-  updateDoc,
+    doc,
+    getFirestore,
+    onSnapshot,
+    updateDoc,
 } from "@react-native-firebase/firestore";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -20,14 +20,14 @@ import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  ActivityIndicator,
-  Alert,
-  Animated,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
+    ActivityIndicator,
+    Alert,
+    Animated,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 
@@ -539,7 +539,7 @@ export default function TruthOrDareGameScreen() {
         />
         <GameResults
           players={game?.players || []}
-          scores={game?.playerScores || {}}
+          scores={game?.scores || {}}
           userId={user?.uid || ""}
           pointsConfig={{
             firstPlace: 30,

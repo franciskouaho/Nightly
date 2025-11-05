@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, Alert, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { getFirestore, doc, onSnapshot, updateDoc } from '@react-native-firebase/firestore';
-import { useAuth } from '@/contexts/AuthContext';
-import { GameState, Question } from '@/types/gameTypes';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useTranslation } from 'react-i18next';
-import { useDoubleDareQuestions } from '@/hooks/double-dare-questions';
 import GameResults from '@/components/game/GameResults';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ChristmasTheme from '@/constants/themes/Christmas';
+import { useAuth } from '@/contexts/AuthContext';
+import { useDoubleDareQuestions } from '@/hooks/double-dare-questions';
+import { GameState } from '@/types/gameTypes';
+import { doc, getFirestore, onSnapshot, updateDoc } from '@react-native-firebase/firestore';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface DoubleDareGameState extends Omit<GameState, 'phase'> {
   currentPlayerId: string;
@@ -121,7 +121,7 @@ export default function DoubleDareGame() {
       if (snapshot.exists()) {
         const data = snapshot.data() as DoubleDareGameState;
         setGameState(data);
-        
+
         // Si le niveau et le mode sont déjà définis mais pas de question, en générer une
         if (data.selectedLevel && data.selectedMode && !data.currentQuestion && data.phase === 'dare') {
           const question = getRandomQuestion(data.selectedLevel, data.selectedMode);
@@ -131,7 +131,7 @@ export default function DoubleDareGame() {
             }).catch(console.error);
           }
         }
-        
+
         setLoading(false);
       } else {
         Alert.alert('Erreur', 'La partie n\'existe pas');
@@ -165,10 +165,10 @@ export default function DoubleDareGame() {
       const nextPlayerIndex = (currentPlayerIndex + 1) % gameState.players.length;
       const nextPlayer = gameState.players[nextPlayerIndex];
       if (!nextPlayer) return;
-      
+
       // Générer une nouvelle question pour le prochain joueur avec les mêmes paramètres
       const nextQuestion = getRandomQuestion(gameState.selectedLevel || 'hot', gameState.selectedMode || 'versus');
-      
+
       await updateDoc(gameRef, {
         phase: 'dare',
         currentRound: nextRound,
@@ -213,7 +213,7 @@ export default function DoubleDareGame() {
     return (
       <GameResults
         players={gameState.players}
-        scores={gameState.playerScores || {}}
+        scores={gameState.scores || {}}
         userId={user?.uid || ''}
         colors={[GRADIENT_START, GRADIENT_END]}
       />
