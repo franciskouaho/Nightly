@@ -100,12 +100,21 @@ export default function GameResults({
     [sortedPlayers, userId],
   );
 
+  // LumiCoins (monnaie) - toujours les mêmes valeurs pour tous les jeux
   const lumicoinsReward = useMemo(() => {
     if (currentUserRank === 1) return 30;
     if (currentUserRank === 2) return 20;
     if (currentUserRank === 3) return 10;
     return 5;
   }, [currentUserRank]);
+
+  // Points de leaderboard - utilisent la config spécifique du jeu
+  const leaderboardPoints = useMemo(() => {
+    if (currentUserRank === 1) return pointsConfig.firstPlace || 25;
+    if (currentUserRank === 2) return pointsConfig.secondPlace || 15;
+    if (currentUserRank === 3) return pointsConfig.thirdPlace || 10;
+    return 5; // Participation
+  }, [currentUserRank, pointsConfig]);
 
   const rank_name = `rang ${currentUserRank}`;
 
@@ -121,32 +130,23 @@ export default function GameResults({
 
       const isWinner = currentUserRank === 1;
 
-      // Calculer les points de classement selon la position finale
-      let leaderboardPoints = 0;
-      if (currentUserRank === 1)
-        leaderboardPoints = 25; // 1ère place
-      else if (currentUserRank === 2)
-        leaderboardPoints = 15; // 2ème place
-      else if (currentUserRank === 3)
-        leaderboardPoints = 10; // 3ème place
-      else leaderboardPoints = 5; // Autres places
-
       try {
-        // Utiliser la fonction updateUserStats du hook useLeaderboard
+        // ✅ FIX: Utiliser leaderboardPoints calculé depuis pointsConfig
         await updateUserStats({
           userId,
-          points: leaderboardPoints,
+          points: leaderboardPoints, // Utilise la config du jeu
           won: isWinner,
           timestamp: new Date(),
         });
-        setStatsUpdated(true); // ⚠️ FIX: Marquer comme mis à jour pour éviter les doublons
+        setStatsUpdated(true);
+        console.log(`✅ Stats leaderboard mises à jour: +${leaderboardPoints} gamePoints pour rang ${currentUserRank}`);
       } catch (error) {
         console.error("Erreur lors de la mise à jour des stats:", error);
       }
     };
 
     updateLeaderboardStats();
-  }, [userId, scores, currentUserRank, updateUserStats, statsUpdated]);
+  }, [userId, scores, currentUserRank, updateUserStats, statsUpdated, leaderboardPoints]);
 
   useEffect(() => {
     if (currentUserRank === 1 && !reviewRequested) {

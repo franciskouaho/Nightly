@@ -1,17 +1,17 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Animated, Platform, Alert } from 'react-native';
-import Svg, { Circle } from 'react-native-svg';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useTranslation } from 'react-i18next';
-import { GamePhase, Player, GameState, GameMode } from '@/types/gameTypes';
-import { useGame } from '@/hooks/useGame';
-import { useAuth } from '@/contexts/AuthContext';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useWordGuessingQuestions, WordGuessingQuestion } from '@/hooks/word-guessing-questions';
-import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import GameResults from '@/components/game/GameResults';
-import { usePoints } from '@/hooks/usePoints';
+import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useGame } from '@/hooks/useGame';
+import { usePoints } from '@/hooks/usePoints';
+import { useWordGuessingQuestions, WordGuessingQuestion } from '@/hooks/word-guessing-questions';
+import { GameMode, GamePhase, GameState, Player } from '@/types/gameTypes';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Alert, Animated, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Svg, { Circle } from 'react-native-svg';
 
 interface WordGuessingGameState extends Omit<GameState, 'currentQuestion' | 'answers'> {
   currentQuestion: WordGuessingQuestion | null;
@@ -64,15 +64,15 @@ const TimerCircle = ({ timeLeft, totalTime }: { timeLeft: number; totalTime: num
 
   return (
     <View style={styles.timerContainer}>
-      <Svg width={svgDimension} height={svgDimension} style={styles.svgCentered}> 
-        {/* Cercle d'arrière-plan (jaune plein) */} 
+      <Svg width={svgDimension} height={svgDimension} style={styles.svgCentered}>
+        {/* Cercle d'arrière-plan (jaune plein) */}
         <Circle
           fill={backgroundColor}
           cx={centerX}
           cy={centerY}
           r={yellowCircleRadius}
         />
-        {/* Arc de progression (vert) */} 
+        {/* Arc de progression (vert) */}
         <AnimatedCircle
           stroke={progressColor}
           fill="transparent"
@@ -200,14 +200,14 @@ export default function WordGuessingGame() {
 
   // Effet pour gérer le timer
   useEffect(() => {
-    
+
     if (gameState?.phase === GamePhase.QUESTION) {
       setTimeLeft(TIMER_DURATION);
-      
+
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
-      
+
       timerRef.current = setInterval(() => {
         setTimeLeft(prev => {
           if (prev <= 1) {
@@ -233,7 +233,7 @@ export default function WordGuessingGame() {
     if (gameState?.phase === GamePhase.QUESTION && gameState.currentQuestion) {
       // Déferre la self-correction tant que les questions ne sont pas chargées.
       if (questions.length === 0) {
-        return; 
+        return;
       }
 
       const isComplete = gameState.currentQuestion.word && (gameState.currentQuestion.forbiddenWords?.length ?? 0) > 0;
@@ -293,16 +293,16 @@ export default function WordGuessingGame() {
 
   const calculateScore = (answer: string, question: WordGuessingQuestion): number => {
     // Vérifier si la réponse contient un mot interdit
-    const hasForbiddenWord = (question.forbiddenWords ?? []).some(word => 
+    const hasForbiddenWord = (question.forbiddenWords ?? []).some(word =>
       answer.toLowerCase().includes(word.toLowerCase())
     );
-    
+
     if (hasForbiddenWord) return -1;
-    
+
     // Vérifier si la réponse contient le mot à deviner
     const hasCorrectWord = answer.toLowerCase().includes(question.word.toLowerCase());
     if (hasCorrectWord) return 1;
-    
+
     return 0;
   };
 
@@ -356,7 +356,7 @@ export default function WordGuessingGame() {
     }
 
     const score = calculateScore(answer, gameState.currentQuestion);
-    
+
     // Mettre à jour les réponses des joueurs
     const newPlayerAnswers = {
       ...gameState.playerAnswers,
@@ -381,7 +381,7 @@ export default function WordGuessingGame() {
     // Vérifier si on a atteint le nombre maximum de rounds
     const nextRound = (gameState.currentRound || 0) + 1;
     if (nextRound > (gameState.totalRounds || 5)) {
-      updateGameState({ 
+      updateGameState({
         phase: GamePhase.END,
         playerAnswers: newPlayerAnswers,
         scores: newScores,
@@ -393,7 +393,7 @@ export default function WordGuessingGame() {
     // Sélectionner une nouvelle question
     const nextQ = getRandomQuestion();
     if (!nextQ) {
-      updateGameState({ 
+      updateGameState({
         phase: GamePhase.END,
         playerAnswers: newPlayerAnswers,
         scores: newScores,
@@ -506,7 +506,7 @@ export default function WordGuessingGame() {
           players={gameState.players}
           scores={gameState.scores}
           userId={user?.uid || ''}
-          pointsConfig={{ firstPlace: 25, secondPlace: 15, thirdPlace: 10 }}
+          pointsConfig={{ firstPlace: 3, secondPlace: 2, thirdPlace: 1 }}
         />
       </View>
     );
@@ -529,12 +529,12 @@ export default function WordGuessingGame() {
             </View>
             <Text style={styles.roundLabel}>Tour</Text>
           </View>
-          
+
           <View style={styles.timerSection}>
             <TimerCircle timeLeft={timeLeft} totalTime={TIMER_DURATION} />
             <Text style={styles.timerLabel}>Temps</Text>
           </View>
-          
+
           <View style={styles.scoreSection}>
             <View style={styles.scoreBadge}>
               <MaterialCommunityIcons name="star-four-points" size={18} color="#FFD700" />
@@ -686,7 +686,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  svgCentered: { 
+  svgCentered: {
     position: 'absolute',
   },
   timerText: {
@@ -832,4 +832,4 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
   },
-}); 
+});

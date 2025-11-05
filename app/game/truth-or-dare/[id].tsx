@@ -542,9 +542,9 @@ export default function TruthOrDareGameScreen() {
           scores={game?.scores || {}}
           userId={user?.uid || ""}
           pointsConfig={{
-            firstPlace: 30,
-            secondPlace: 20,
-            thirdPlace: 10,
+            firstPlace: 20,
+            secondPlace: 10,
+            thirdPlace: 5,
           }}
         />
       </View>

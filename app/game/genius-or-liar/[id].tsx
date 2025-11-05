@@ -1,16 +1,16 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput, Animated, KeyboardAvoidingView, Platform } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { getFirestore, doc, onSnapshot, updateDoc } from '@react-native-firebase/firestore';
+import GameResults from '@/components/game/GameResults';
 import { useAuth } from '@/contexts/AuthContext';
-import { LinearGradient } from 'expo-linear-gradient';
-import { GamePhase, Player } from '@/types/gameTypes';
-import { useInAppReview } from '@/hooks/useInAppReview';
-import { useGeniusOrLiarAnalytics } from '@/hooks/useGeniusOrLiarAnalytics';
-import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useGeniusOrLiarQuestions } from '@/hooks/genius-or-liar-questions';
-import GameResults from '@/components/game/GameResults';
+import { useGeniusOrLiarAnalytics } from '@/hooks/useGeniusOrLiarAnalytics';
+import { useInAppReview } from '@/hooks/useInAppReview';
+import { GamePhase, Player } from '@/types/gameTypes';
+import { doc, getFirestore, onSnapshot, updateDoc } from '@react-native-firebase/firestore';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useLocalSearchParams } from 'expo-router';
+import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Alert, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 interface FirebaseQuestion {
   type: string;
@@ -109,11 +109,11 @@ export default function KnowOrDrinkGame() {
 
   const handleSubmitAnswer = async () => {
     if (!gameState || !user || !answer.trim()) return;
-    
+
     try {
       const db = getFirestore();
       const gameRef = doc(db, 'games', String(id));
-      
+
       // Track la réponse du joueur
       await gameAnalytics.trackAnswer(String(id), user.uid, answer.trim());
 
@@ -135,11 +135,11 @@ export default function KnowOrDrinkGame() {
 
   const handleDontKnow = async () => {
     if (!gameState || !user) return;
-    
+
     try {
       const db = getFirestore();
       const gameRef = doc(db, 'games', String(id));
-      
+
       // Track la réponse du joueur (ne sait pas)
       await gameAnalytics.trackAnswer(String(id), user.uid, 'dont_know');
 
@@ -159,11 +159,11 @@ export default function KnowOrDrinkGame() {
 
   const handleAccuse = async (targetPlayerId: string) => {
     if (!gameState || !user) return;
-    
+
     try {
       const db = getFirestore();
       const gameRef = doc(db, 'games', String(id));
-      
+
       // Track le vote du joueur
       await gameAnalytics.trackVote(String(id), user.uid, targetPlayerId, 'liar');
 
@@ -182,7 +182,7 @@ export default function KnowOrDrinkGame() {
     try {
       const db = getFirestore();
       const gameRef = doc(db, 'games', String(id));
-      
+
       // Track le vote du joueur (pas d'accusation)
       await gameAnalytics.trackVote(String(id), user.uid, 'none', 'genius');
 
@@ -218,7 +218,7 @@ export default function KnowOrDrinkGame() {
     if (gameState.gameMode === 'points') {
       if (playerAnswer.knows) {
         // Vérifie si la réponse est correcte (en tenant compte des variations)
-        const isCorrect = correctAnswer && playerResponse && 
+        const isCorrect = correctAnswer && playerResponse &&
           normalizeAnswer(playerResponse) === normalizeAnswer(correctAnswer);
 
         if (isCorrect) {
@@ -337,7 +337,7 @@ export default function KnowOrDrinkGame() {
                     questionText = t('game.geniusOrLiar.incorrectQuestionFormat', { id: questionData.id || 'inconnu' });
                   }
                 }
-                
+
                 return questionText;
               })()}
             </Text>
@@ -357,8 +357,8 @@ export default function KnowOrDrinkGame() {
                 multiline
                 numberOfLines={3}
               />
-              <TouchableOpacity 
-                style={[styles.button, !answer.trim() && styles.buttonDisabled]} 
+              <TouchableOpacity
+                style={[styles.button, !answer.trim() && styles.buttonDisabled]}
                 onPress={handleSubmitAnswer}
                 disabled={!answer.trim()}
               >
@@ -477,19 +477,19 @@ export default function KnowOrDrinkGame() {
     const isTargetCorrect = targetAnswer.knows && targetResponse === correctAnswer;
     if (!targetAnswer.knows || !isTargetCorrect) {
       // L'accusation était juste
-      return { 
-        label: t('game.geniusOrLiar.accuserStatus.correctAccusation'), 
-        icon: '⚡️', 
-        color: '#4CAF50', 
-        target: targetId 
+      return {
+        label: t('game.geniusOrLiar.accuserStatus.correctAccusation'),
+        icon: '⚡️',
+        color: '#4CAF50',
+        target: targetId
       };
     } else {
       // L'accusation était fausse
-      return { 
-        label: t('game.geniusOrLiar.accuserStatus.wrongAccusation'), 
-        icon: '❌', 
-        color: '#FF5252', 
-        target: targetId 
+      return {
+        label: t('game.geniusOrLiar.accuserStatus.wrongAccusation'),
+        icon: '❌',
+        color: '#FF5252',
+        target: targetId
       };
     }
   };
@@ -504,7 +504,7 @@ export default function KnowOrDrinkGame() {
     try {
       const db = getFirestore();
       const gameRef = doc(db, 'games', String(id));
-      
+
       // Track la fin du round
       await gameAnalytics.trackRoundComplete(
         String(id),
@@ -515,7 +515,7 @@ export default function KnowOrDrinkGame() {
 
       // Obtenir une nouvelle question aléatoire
       const nextQuestion = getRandomQuestion();
-      
+
       if (!nextQuestion) {
         Alert.alert(t('game.error'), t('game.geniusOrLiar.noQuestions'));
         return;
@@ -571,7 +571,7 @@ export default function KnowOrDrinkGame() {
             return (
               <View key={player.id} style={styles.resultCard}>
                 <Text style={styles.playerName}>{player.name}</Text>
-                
+
                 {/* Afficher la réponse donnée par le joueur s'il a choisi de savoir */}
                 {playerAnswer?.knows && playerAnswer?.answer && (
                   <Text style={styles.resultText}>{t('game.geniusOrLiar.givenAnswerLabel', { answer: playerAnswer.answer })}</Text>
@@ -622,8 +622,8 @@ export default function KnowOrDrinkGame() {
           <TouchableOpacity style={styles.nextButton} onPress={handleNextRound}>
             <LinearGradient colors={["#A259FF", "#C471F5"]} style={styles.buttonGradient}>
               <Text style={styles.buttonText}>
-                {gameState.currentRound >= gameState.totalRounds 
-                  ? t('game.geniusOrLiar.endGame') 
+                {gameState.currentRound >= gameState.totalRounds
+                  ? t('game.geniusOrLiar.endGame')
                   : t('game.geniusOrLiar.nextRound')}
               </Text>
             </LinearGradient>
@@ -693,7 +693,7 @@ export default function KnowOrDrinkGame() {
     if (!gameState) return {};
 
     const scores: Record<string, number> = {};
-    
+
     // Initialiser tous les scores à 0
     gameState.players.forEach(player => {
       scores[player.id] = 0;
@@ -798,7 +798,7 @@ export default function KnowOrDrinkGame() {
         console.log('[DEBUG GeniusOrLiarGame] Initial random question selected:', firstQuestion.id);
         const db = getFirestore();
         const gameRef = doc(db, 'games', String(id));
-        updateDoc(gameRef, { 
+        updateDoc(gameRef, {
           currentQuestion: firstQuestion,
           askedQuestions: [firstQuestion.id] // Marquer la première question comme posée
         });
@@ -840,8 +840,8 @@ export default function KnowOrDrinkGame() {
             scores={gameState.scores || {}}
             userId={user?.uid || ''}
             pointsConfig={{
-              firstPlace: 30,
-              secondPlace: 20,
+              firstPlace: 25,
+              secondPlace: 15,
               thirdPlace: 10
             }}
           />
@@ -1138,4 +1138,4 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 6,
   },
-}); 
+});

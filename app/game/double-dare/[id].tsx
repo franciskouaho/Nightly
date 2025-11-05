@@ -216,6 +216,11 @@ export default function DoubleDareGame() {
         scores={gameState.scores || {}}
         userId={user?.uid || ''}
         colors={[GRADIENT_START, GRADIENT_END]}
+        pointsConfig={{
+          firstPlace: 20,
+          secondPlace: 10,
+          thirdPlace: 5,
+        }}
       />
     );
   }

@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, Dimensions, Image, Modal, KeyboardAvoidingView, Platform, ViewStyle, TextStyle, ImageStyle, ScrollView } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { verifyWord } from '@/hooks/word-verification';
-import { doc, getFirestore, onSnapshot, updateDoc, getDoc } from '@react-native-firebase/firestore';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useTranslation } from 'react-i18next';
 import GameResults from '@/components/game/GameResults';
 import { useAuth } from '@/contexts/AuthContext';
-import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
+import { verifyWord } from '@/hooks/word-verification';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { doc, getDoc, getFirestore, onSnapshot, updateDoc } from '@react-native-firebase/firestore';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Alert, Dimensions, Image, ImageStyle, KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, TextStyle, TouchableOpacity, View, ViewStyle } from 'react-native';
 
 // Define an interface for the styles
 interface ComponentStyles {
@@ -443,7 +443,7 @@ export default function TwoLettersOneWord() {
                         return acc;
                     }, {} as { [key: string]: number })}
                     userId={user?.uid || ''}
-                    pointsConfig={{ firstPlace: 25, secondPlace: 15, thirdPlace: 10 }}
+                    pointsConfig={{ firstPlace: 20, secondPlace: 10, thirdPlace: 5 }}
                 />
             </View>
         );

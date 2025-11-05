@@ -1,21 +1,21 @@
-import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Animated } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useTranslation } from 'react-i18next';
-import { GamePhase, Player } from '@/types/gameTypes';
-import { useGame } from '@/hooks/useGame';
-import { useAuth } from '@/contexts/AuthContext';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useQuizHalloweenQuestions } from '@/hooks/quiz-halloween-questions';
-import { TrapAnswer, TrapPlayerAnswer, TrapQuestion } from "@/types/types";
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import GameResults from '@/components/game/GameResults';
-import { usePoints } from '@/hooks/usePoints';
-import { useLanguage } from '@/contexts/LanguageContext';
 import HalloweenDecorations from '@/components/HalloweenDecorations';
-import { useInAppReview } from '@/hooks/useInAppReview';
 import Colors from '@/constants/Colors';
+import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useQuizHalloweenQuestions } from '@/hooks/quiz-halloween-questions';
+import { useGame } from '@/hooks/useGame';
+import { useInAppReview } from '@/hooks/useInAppReview';
+import { usePoints } from '@/hooks/usePoints';
+import { GamePhase, Player } from '@/types/gameTypes';
+import { TrapPlayerAnswer, TrapQuestion } from "@/types/types";
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Animated, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface HalloweenQuizGameState {
   phase: GamePhase;
@@ -73,9 +73,9 @@ export default function QuizHalloweenGameOptimized() {
   const [animationValue] = useState(new Animated.Value(0));
   const [timer, setTimer] = useState(15);
   const [canAnswer, setCanAnswer] = useState(true);
-  
+
   // Scores locaux - seulement mis à jour localement, sauvegardés à la fin
-  const [localScores, setLocalScores] = useState<Record<string, number>>(() => 
+  const [localScores, setLocalScores] = useState<Record<string, number>>(() =>
     gameState?.scores || {}
   );
 
@@ -107,12 +107,12 @@ export default function QuizHalloweenGameOptimized() {
   // Synchronisation des scores avec useMemo pour éviter les re-renders
   const firebaseScores = useMemo(() => gameState?.scores || {}, [gameState?.scores]);
   const lastSyncedScores = useRef<string>('');
-  
+
   useEffect(() => {
     const scoresKey = JSON.stringify(firebaseScores);
     if (Object.keys(firebaseScores).length > 0 && scoresKey !== lastSyncedScores.current) {
       lastSyncedScores.current = scoresKey;
-      
+
       setLocalScores(prevScores => {
         // Utiliser les scores de Firebase comme source de vérité
         const mergedScores = { ...firebaseScores };
@@ -122,7 +122,7 @@ export default function QuizHalloweenGameOptimized() {
             mergedScores[userId] = prevScores[userId] || 0;
           }
         });
-        
+
         console.log('🎃 Synchronisation scores:', { firebaseScores, prevScores, mergedScores });
         return mergedScores;
       });
@@ -138,13 +138,13 @@ export default function QuizHalloweenGameOptimized() {
       if (newScore !== currentScore) {
         console.log('🎃 Score local mis à jour:', userId, 'de', currentScore, 'à', newScore);
       }
-      
+
       // Synchroniser immédiatement avec Firebase
       const updatedScores = {
         ...prevScores,
         [userId]: newScore,
       };
-      
+
       // Mettre à jour Firebase en arrière-plan
       if (gameState) {
         updateGameState({
@@ -154,7 +154,7 @@ export default function QuizHalloweenGameOptimized() {
           console.error('❌ Erreur synchronisation score:', error);
         });
       }
-      
+
       return updatedScores;
     });
   }, [gameState, updateGameState]);
@@ -162,20 +162,20 @@ export default function QuizHalloweenGameOptimized() {
   // Fonction pour sauvegarder les scores finaux dans Firebase
   const saveFinalScoresToFirebase = useCallback(async () => {
     if (!gameState || Object.keys(localScores).length === 0) return;
-    
+
     try {
       console.log('🎃 Sauvegarde des scores finaux:', localScores);
-      
+
       const finalState = {
         ...gameState,
         scores: localScores,
         phase: 'end' as GamePhase,
       };
-      
+
       await updateGameState(finalState);
       // Les points sont attribués par GameResults.tsx via useLeaderboard
       // Pas besoin d'appeler awardGamePoints ici pour éviter les doublons
-      
+
       console.log('✅ Scores finaux sauvegardés avec succès');
     } catch (error) {
       console.error('❌ Erreur lors de la sauvegarde des scores:', error);
@@ -188,7 +188,7 @@ export default function QuizHalloweenGameOptimized() {
       console.log('🎃 Timer démarré pour nouvelle question:', gameState.currentQuestion.id);
       setTimer(15);
       setCanAnswer(true);
-      
+
       const timerInterval = setInterval(() => {
         setTimer((prevTimer) => {
           if (prevTimer <= 1) {
@@ -215,7 +215,7 @@ export default function QuizHalloweenGameOptimized() {
     const totalPlayers = gameState.players.length;
     const answeredPlayers = Object.keys(gameState.playerAnswers).length;
     const result = answeredPlayers >= totalPlayers && answeredPlayers > 0;
-    
+
     // Log seulement quand ça change vraiment
     if (result && answeredPlayers === totalPlayers) {
       console.log('🎃 ✅ Tous les joueurs ont répondu:', {
@@ -225,7 +225,7 @@ export default function QuizHalloweenGameOptimized() {
         players: gameState.players.map(p => p.id)
       });
     }
-    
+
     return result;
   }, [gameState?.playerAnswers, gameState?.players]);
 
@@ -283,12 +283,12 @@ export default function QuizHalloweenGameOptimized() {
   const gameEndHandled = useRef(false);
   const questionChangeHandled = useRef(false);
   const nextQuestionHandled = useRef(false);
-  
+
   useEffect(() => {
     if (gameState?.currentQuestion?.id && timer === 0 && !timerAtZeroHandled.current) {
       console.log('🎃 Timer à 0 - vérification des réponses');
       timerAtZeroHandled.current = true;
-      
+
       // Cas 1: Timer à 0 ET personne n'a répondu → passage automatique
       if (!allPlayersAnswered) {
         console.log('🎃 Temps écoulé et pas tous répondu - passage automatique');
@@ -299,25 +299,25 @@ export default function QuizHalloweenGameOptimized() {
         console.log('🎃 Temps écoulé mais tous ont répondu - laisser la logique normale gérer');
       }
     }
-    
+
     return undefined;
   }, [timer, allPlayersAnswered, gameState?.currentQuestion?.id, handleNextQuestion]);
 
   // Effet optimisé pour passer à la question suivante quand tous ont répondu (Cas 2)
   const allAnsweredHandled = useRef(false);
-  
+
   useEffect(() => {
     if (allPlayersAnswered && !(gameState as any)?._allAnswered && !allAnsweredHandled.current) {
       console.log('🎃 Tous les joueurs ont répondu - passage à la question suivante après 3s');
       allAnsweredHandled.current = true;
-      
+
       // Mettre à jour Firebase avec _allAnswered = true
       const updatedState = {
         ...gameState,
         _allAnswered: true,
       };
       updateGameState(updatedState);
-      
+
       setTimeout(() => {
         console.log('🎃 Appel de handleNextQuestion après délai de 3s');
         handleNextQuestion();
@@ -362,7 +362,7 @@ export default function QuizHalloweenGameOptimized() {
 
     console.log('🎃 Réponse soumise:', answerText);
     setSelectedAnswer(answerText);
-    
+
     const isCorrect = gameState.currentQuestion.answers.find(a => a.text === answerText)?.isCorrect || false;
     setIsAnswerCorrect(isCorrect);
 
@@ -418,7 +418,7 @@ export default function QuizHalloweenGameOptimized() {
         <LinearGradient
           colors={[
             Colors.light?.backgroundDarker || '#120F1C',
-            Colors.light?.background || '#1A1A2E', 
+            Colors.light?.background || '#1A1A2E',
             Colors.light?.backgroundLighter || '#2D223A'
           ]}
           style={styles.background}
@@ -435,7 +435,7 @@ export default function QuizHalloweenGameOptimized() {
         <LinearGradient
           colors={[
             Colors.light?.backgroundDarker || '#120F1C',
-            Colors.light?.background || '#1A1A2E', 
+            Colors.light?.background || '#1A1A2E',
             Colors.light?.backgroundLighter || '#2D223A'
           ]}
           style={styles.background}
@@ -469,6 +469,11 @@ export default function QuizHalloweenGameOptimized() {
         scores={localScores} // Utiliser les scores locaux
         userId={user?.uid || ''}
         colors={['#2D1810', '#8B4513', '#D2691E']}
+        pointsConfig={{
+          firstPlace: 30,
+          secondPlace: 20,
+          thirdPlace: 10,
+        }}
       />
     );
   }
@@ -480,7 +485,7 @@ export default function QuizHalloweenGameOptimized() {
         <LinearGradient
           colors={[
             Colors.light?.backgroundDarker || '#120F1C',
-            Colors.light?.background || '#1A1A2E', 
+            Colors.light?.background || '#1A1A2E',
             Colors.light?.backgroundLighter || '#2D223A'
           ]}
           style={styles.background}
@@ -498,7 +503,7 @@ export default function QuizHalloweenGameOptimized() {
         style={styles.background}
       >
         <HalloweenDecorations />
-        
+
         {/* Header avec score et round */}
         <View style={styles.header}>
           <View style={styles.scoreContainer}>
@@ -515,7 +520,7 @@ export default function QuizHalloweenGameOptimized() {
         </View>
 
         {/* Question */}
-        <Animated.View 
+        <Animated.View
           style={[
             styles.questionContainer,
             {
@@ -546,10 +551,10 @@ export default function QuizHalloweenGameOptimized() {
           {currentQuestion.answers && currentQuestion.answers.length > 0 ? currentQuestion.answers.map((answer, index) => {
             const isSelected = selectedAnswer === answer.text;
             const showCorrectness = showResult && isSelected;
-            
+
             let buttonColors = ['#8B4513', '#A0522D'];
             let borderColor = '#D2691E';
-            
+
             if (showResult) {
               if (answer.isCorrect) {
                 buttonColors = ['#228B22', '#32CD32'];
@@ -597,8 +602,8 @@ export default function QuizHalloweenGameOptimized() {
               {isAnswerCorrect ? '🎉 Correct ! 🎉' : '💀 Incorrect ! 💀'}
             </Text>
             <Text style={styles.resultSubtext}>
-              {isAnswerCorrect 
-                ? 'Vous connaissez bien Halloween !' 
+              {isAnswerCorrect
+                ? 'Vous connaissez bien Halloween !'
                 : 'Les esprits vous jouent des tours...'
               }
             </Text>

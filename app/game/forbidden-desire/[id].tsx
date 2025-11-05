@@ -1,18 +1,18 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, ActivityIndicator, Alert, StyleSheet, ScrollView, SafeAreaView, Platform, TextInput, TouchableOpacity } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { getFirestore, doc, onSnapshot, updateDoc } from '@react-native-firebase/firestore';
-import { useAuth } from '@/contexts/AuthContext';
-import { GameState } from '@/types/gameTypes';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useInAppReview } from '@/hooks/useInAppReview';
-import { useTranslation } from 'react-i18next';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { useForbiddenDesireQuestions } from '@/hooks/forbidden-desire-questions';
-import { usePoints } from '@/hooks/usePoints';
 import GameResults from '@/components/game/GameResults';
 import ChristmasTheme from '@/constants/themes/Christmas';
+import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useForbiddenDesireQuestions } from '@/hooks/forbidden-desire-questions';
+import { useInAppReview } from '@/hooks/useInAppReview';
+import { usePoints } from '@/hooks/usePoints';
+import { GameState } from '@/types/gameTypes';
+import { doc, getFirestore, onSnapshot, updateDoc } from '@react-native-firebase/firestore';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { ActivityIndicator, Alert, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface ForbiddenDesireGameState extends Omit<GameState, 'phase'> {
@@ -126,7 +126,7 @@ export default function ForbiddenDesireGameScreen() {
       const currentPlayerIndex = game.players.findIndex(p => p.id === game.currentPlayerId);
       const nextPlayerIndex = (currentPlayerIndex + 1) % game.players.length;
       const nextPlayer = game.players[nextPlayerIndex];
-      
+
       if (!nextPlayer) {
         console.error('Next player not found');
         return;
@@ -134,7 +134,7 @@ export default function ForbiddenDesireGameScreen() {
 
       // Générer une nouvelle question pour le prochain joueur avec la même intensité
       const nextQuestion = getRandomQuestion(game.selectedIntensity || 'soft');
-      
+
       await updateDoc(gameRef, {
         currentRound: nextRound,
         currentPlayerId: nextPlayer.id,
@@ -160,8 +160,8 @@ export default function ForbiddenDesireGameScreen() {
 
       if (answered) {
         // Le joueur a répondu à la question - attribuer des points selon l'intensité
-        const pointsEarned = game.selectedIntensity === 'extreme' ? 30 
-          : game.selectedIntensity === 'tension' ? 20 
+        const pointsEarned = game.selectedIntensity === 'extreme' ? 30
+          : game.selectedIntensity === 'tension' ? 20
           : 10; // soft
 
         const updatedPlayerScores = { ...(game.playerScores || {}) };
@@ -218,7 +218,7 @@ export default function ForbiddenDesireGameScreen() {
             gameMode: 'forbidden-desire'
           }).catch(e => console.error("Error updating gameMode:", e));
         }
-        
+
 
         if (gameData.selectedIntensity && !gameData.currentQuestion && gameData.phase !== 'end' && gameData.phase !== 'results' && gameData.phase !== 'challenge') {
           const question = getRandomQuestion(gameData.selectedIntensity);
@@ -229,7 +229,7 @@ export default function ForbiddenDesireGameScreen() {
             }).catch(e => console.error("Error generating initial question:", e));
           }
         }
-        
+
         setGame(gameData);
       }
       setLoading(false);
@@ -272,9 +272,9 @@ export default function ForbiddenDesireGameScreen() {
         scores={game?.playerScores || game?.scores || {}}
         userId={user?.uid || ''}
         pointsConfig={{
-          firstPlace: 30,
-          secondPlace: 20,
-          thirdPlace: 10
+          firstPlace: 20,
+          secondPlace: 10,
+          thirdPlace: 5
         }}
       />
     );
