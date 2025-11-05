@@ -156,57 +156,73 @@ export default function usePaywallManager(config: Partial<PaywallConfig> = {}) {
   }, [isProMember, paywallState, finalConfig]);
 
   // Afficher le PaywallA (plan court)
-  const showPaywallA = useCallback((forceShow = false) => {
-    // Si forceShow est true, on affiche même pour les membres pro (pour gérer les abonnements)
-    if (!forceShow && isProMember) return;
+  const showPaywallA = useCallback(
+    (forceShow = false) => {
+      // Si forceShow est true, on affiche même pour les membres pro (pour gérer les abonnements)
+      if (!forceShow && isProMember) return;
 
-    console.log('💰 showPaywallA appelé - forceShow:', forceShow, 'isProMember:', isProMember);
+      console.log(
+        "💰 showPaywallA appelé - forceShow:",
+        forceShow,
+        "isProMember:",
+        isProMember,
+      );
 
-    setPaywallState((prev) => ({
-      ...prev,
-      showPaywallA: true,
-      hasSeenPaywallA: true,
-    }));
-  }, [isProMember]);
+      setPaywallState((prev) => ({
+        ...prev,
+        showPaywallA: true,
+        hasSeenPaywallA: true,
+      }));
+    },
+    [isProMember],
+  );
 
   // Afficher le PaywallB (plan annuel)
-  const showPaywallB = useCallback(async (forceShow = false) => {
-    // Si forceShow est true, on affiche même pour les membres pro et on ignore les restrictions (pour dev)
-    if (!forceShow && isProMember) return;
+  const showPaywallB = useCallback(
+    async (forceShow = false) => {
+      // Si forceShow est true, on affiche même pour les membres pro et on ignore les restrictions (pour dev)
+      if (!forceShow && isProMember) return;
 
-    if (!forceShow) {
-      const canShow = await canShowPaywallB();
-      if (!canShow) return;
-    }
-
-    console.log('💎 showPaywallB appelé - forceShow:', forceShow, 'isProMember:', isProMember);
-
-    setPaywallState((prev) => ({
-      ...prev,
-      showPaywallB: true,
-      hasSeenPaywallB: true,
-      lastPaywallBShown: Date.now(),
-    }));
-
-    // Incrémenter le compteur de session seulement si ce n'est pas un forceShow
-    if (!forceShow) {
-      try {
-        const countStr = await AsyncStorage.getItem(
-          `${STORAGE_KEYS.PAYWALL_B_COUNT}_${paywallState.sessionId}`,
-        );
-        const count = countStr ? parseInt(countStr) : 0;
-        await AsyncStorage.setItem(
-          `${STORAGE_KEYS.PAYWALL_B_COUNT}_${paywallState.sessionId}`,
-          (count + 1).toString(),
-        );
-      } catch (error) {
-        console.error(
-          "Erreur lors de l'incrémentation du compteur PaywallB:",
-          error,
-        );
+      if (!forceShow) {
+        const canShow = await canShowPaywallB();
+        if (!canShow) return;
       }
-    }
-  }, [isProMember, canShowPaywallB, paywallState.sessionId]);
+
+      console.log(
+        "💎 showPaywallB appelé - forceShow:",
+        forceShow,
+        "isProMember:",
+        isProMember,
+      );
+
+      setPaywallState((prev) => ({
+        ...prev,
+        showPaywallB: true,
+        hasSeenPaywallB: true,
+        lastPaywallBShown: Date.now(),
+      }));
+
+      // Incrémenter le compteur de session seulement si ce n'est pas un forceShow
+      if (!forceShow) {
+        try {
+          const countStr = await AsyncStorage.getItem(
+            `${STORAGE_KEYS.PAYWALL_B_COUNT}_${paywallState.sessionId}`,
+          );
+          const count = countStr ? parseInt(countStr) : 0;
+          await AsyncStorage.setItem(
+            `${STORAGE_KEYS.PAYWALL_B_COUNT}_${paywallState.sessionId}`,
+            (count + 1).toString(),
+          );
+        } catch (error) {
+          console.error(
+            "Erreur lors de l'incrémentation du compteur PaywallB:",
+            error,
+          );
+        }
+      }
+    },
+    [isProMember, canShowPaywallB, paywallState.sessionId],
+  );
 
   // Fermer le PaywallA
   const closePaywallA = useCallback(() => {
@@ -224,15 +240,12 @@ export default function usePaywallManager(config: Partial<PaywallConfig> = {}) {
     }));
   }, []);
 
-  // Gérer la fermeture du PaywallA (suggérer l'annuel)
+  // Gérer la fermeture du PaywallA
   const handlePaywallAClose = useCallback(async () => {
     closePaywallA();
-
-    // Attendre plus longtemps avant de suggérer l'annuel (30-60s)
-    setTimeout(async () => {
-      await showPaywallB();
-    }, 45000); // 45 secondes au lieu de 5
-  }, [closePaywallA, showPaywallB]);
+    // ⚠️ FIX: Suppression du timer automatique pour éviter les doubles paywalls
+    // Le PaywallB sera géré uniquement par useSmartPaywall dans GameResults
+  }, [closePaywallA]);
 
   // Marquer qu'on est dans une partie active
   const setInActiveGame = useCallback((inGame: boolean) => {

@@ -16,9 +16,7 @@
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true
         },
-        "UIBackgroundModes": [
-          "remote-notification"
-        ],
+        "UIBackgroundModes": ["remote-notification"],
         "NSCameraUsageDescription": "Allow Nightly to access your camera to scan QR codes and join game rooms."
       },
       "requireFullScreen": true
@@ -58,10 +56,7 @@
             "useFrameworks": "static"
           },
           "android": {
-            "permissions": [
-              "com.android.vending.BILLING",
-              "CAMERA"
-            ],
+            "permissions": ["com.android.vending.BILLING", "CAMERA"],
             "enableProguardInReleaseBuilds": true,
             "enableShrinkResourcesInReleaseBuilds": true,
             "compileSdkVersion": 35,
@@ -97,9 +92,7 @@
       ],
       "expo-font"
     ],
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "experiments": {
       "typedRoutes": true
     },

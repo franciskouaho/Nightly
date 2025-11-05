@@ -1,19 +1,33 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { View, Text, StyleSheet, Pressable, ActivityIndicator, Alert, TouchableOpacity, Platform} from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import {  Question as GameQuestion, GamePhase, Player, GameMode } from '@/types/gameTypes';
-import { useGame } from '@/hooks/useGame';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useAuth } from '@/contexts/AuthContext';
-import { useInAppReview } from '@/hooks/useInAppReview';
-import { useNeverHaveIEverHotAnalytics } from '@/hooks/useNeverHaveIEverHotAnalytics';
-import { useTranslation } from 'react-i18next';
-import { useLanguage } from '@/contexts/LanguageContext';
-import GameResults from '@/components/game/GameResults';
-import { usePoints } from '@/hooks/usePoints';
-import { useNeverHaveIEverHotQuestions } from '@/hooks/never-have-i-ever-hot-questions';
-import NaughtyResults from '@/components/game/NaughtyResults';
-import { Ionicons } from '@expo/vector-icons';
+import GameResults from "@/components/game/GameResults";
+import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useNeverHaveIEverHotQuestions } from "@/hooks/never-have-i-ever-hot-questions";
+import { useGame } from "@/hooks/useGame";
+import { useInAppReview } from "@/hooks/useInAppReview";
+import { useNeverHaveIEverHotAnalytics } from "@/hooks/useNeverHaveIEverHotAnalytics";
+import { usePoints } from "@/hooks/usePoints";
+import { GamePhase, Question as GameQuestion, Player } from "@/types/gameTypes";
+import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { useTranslation } from "react-i18next";
+import {
+  ActivityIndicator,
+  Alert,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 interface NeverHaveIEverHotGameState {
   phase: GamePhase;
@@ -31,49 +45,79 @@ interface NeverHaveIEverHotGameState {
   }>;
   theme: string;
   timer: number | null;
-  gameMode: 'never-have-i-ever-hot';
+  gameMode: "never-have-i-ever-hot";
   naughtyAnswers: Record<string, number>;
 }
 
-function ModeSelector({ onSelect, isTarget }: { onSelect: (mode: 'never' | 'ever' | null) => void, isTarget: boolean }) {
+function ModeSelector({
+  onSelect,
+  isTarget,
+}: {
+  onSelect: (mode: "never" | "ever" | null) => void;
+  isTarget: boolean;
+}) {
   const { t } = useTranslation();
   if (!isTarget) {
     return (
-      <LinearGradient colors={["#0E1117", "#661A59"]} style={styles.modeSelectorContainer}>
+      <LinearGradient
+        colors={["#0E1117", "#661A59"]}
+        style={styles.modeSelectorContainer}
+      >
         <View style={styles.waitingCard}>
-          <ActivityIndicator size="large" color="#D81B60" style={styles.loadingIndicator} />
-          <Text style={styles.waitingText}>{t('game.neverHaveIEverHot.waiting')}</Text>
-          <Text style={styles.waitingSubtext}>{t('game.neverHaveIEverHot.prepare')}</Text>
+          <ActivityIndicator
+            size="large"
+            color="#D81B60"
+            style={styles.loadingIndicator}
+          />
+          <Text style={styles.waitingText}>
+            {t("game.neverHaveIEverHot.waiting")}
+          </Text>
+          <Text style={styles.waitingSubtext}>
+            {t("game.neverHaveIEverHot.prepare")}
+          </Text>
         </View>
       </LinearGradient>
     );
   }
 
   return (
-    <LinearGradient colors={["#0E1117", "#661A59"]} style={styles.modeSelectorContainer}>
+    <LinearGradient
+      colors={["#0E1117", "#661A59"]}
+      style={styles.modeSelectorContainer}
+    >
       <View style={styles.modeSelectorColumn}>
         <Pressable
           style={({ pressed }) => [
             styles.modeCardWrapper,
-            pressed && { transform: [{ scale: 0.97 }], opacity: 0.85 }
+            pressed && { transform: [{ scale: 0.97 }], opacity: 0.85 },
           ]}
-          onPress={() => onSelect('never')}
+          onPress={() => onSelect("never")}
         >
-          <LinearGradient colors={["#D81B60", "#F44336", "#E040FB"]} style={styles.modeCard}>
+          <LinearGradient
+            colors={["#D81B60", "#F44336", "#E040FB"]}
+            style={styles.modeCard}
+          >
             <Text style={styles.emoji}>❤️‍🔥</Text>
-            <Text style={styles.modeLabel}>{t('game.neverHaveIEverHot.never')}</Text>
+            <Text style={styles.modeLabel}>
+              {t("game.neverHaveIEverHot.never")}
+            </Text>
           </LinearGradient>
         </Pressable>
         <Pressable
           style={({ pressed }) => [
             styles.modeCardWrapper,
-            pressed && { transform: [{ scale: 0.97 }], opacity: 0.85 }
+            pressed && { transform: [{ scale: 0.97 }], opacity: 0.85 },
           ]}
-          onPress={() => onSelect('ever')}
+          onPress={() => onSelect("ever")}
         >
-          <LinearGradient colors={["#8e0038", "#661A59", "#D81B60"]} style={styles.modeCard}>
+          <LinearGradient
+            colors={["#8e0038", "#661A59", "#D81B60"]}
+            style={styles.modeCard}
+          >
             <Text style={styles.emoji}>💋</Text>
-            <Text style={styles.modeLabel}>{t('game.neverHaveIEverHot.ever')}</Text>
+            <Text style={styles.modeLabel}>
+              {t("game.neverHaveIEverHot.ever")}
+            </Text>
           </LinearGradient>
         </Pressable>
       </View>
@@ -84,7 +128,7 @@ function ModeSelector({ onSelect, isTarget }: { onSelect: (mode: 'never' | 'ever
 export default function NeverHaveIEverHotGame() {
   // Hooks pour les paramètres et les contextes - Toujours dans le même ordre
   const { id } = useLocalSearchParams();
-  const gameId = typeof id === 'string' ? id : id?.[0] || '';
+  const gameId = typeof id === "string" ? id : id?.[0] || "";
   const { t } = useTranslation();
   const { getGameContent } = useLanguage();
   const { gameState, updateGameState } = useGame(gameId);
@@ -93,16 +137,23 @@ export default function NeverHaveIEverHotGame() {
   const { requestReview } = useInAppReview();
   const gameAnalytics = useNeverHaveIEverHotAnalytics();
   const { awardGamePoints } = usePoints();
-  const { getRandomQuestion, resetAskedQuestions } = useNeverHaveIEverHotQuestions();
-  
+  const { getRandomQuestion, resetAskedQuestions } =
+    useNeverHaveIEverHotQuestions();
+
+  // ⚠️ FIX: Hook pour gérer le paywall de fin de partie
+  const isGameEnded = gameState?.phase === GamePhase.END;
+  useGameEndPaywall("never-have-i-ever-hot", isGameEnded);
+
   // State hooks - Garder un ordre constant
-  const [currentQuestion, setCurrentQuestion] = useState<GameQuestion | null>(null);
+  const [currentQuestion, setCurrentQuestion] = useState<GameQuestion | null>(
+    null,
+  );
   const [isInverted, setIsInverted] = useState(false);
   const [answers, setAnswers] = useState<Record<string, boolean | null>>({});
-  const [mode, setMode] = useState<'never' | 'ever' | null>(null);
+  const [mode, setMode] = useState<"never" | "ever" | null>(null);
   const [askedQuestions, setAskedQuestions] = useState<string[]>([]);
   const [isQuestionTracked, setIsQuestionTracked] = useState(false);
-  
+
   // Refs - Après tous les useState
   const gameStartTime = useRef(Date.now());
   const previousQuestionId = useRef<string | null>(null);
@@ -110,13 +161,16 @@ export default function NeverHaveIEverHotGame() {
   const initialAnswersRef = useRef<Record<string, boolean | null>>({});
   const latestScores = useRef(gameState?.scores);
   const latestNaughtyAnswers = useRef(gameState?.naughtyAnswers);
-  
+
   // Constantes
   const userId = user?.uid;
   const isTarget = userId === gameState?.targetPlayer?.id;
   const TOTAL_ROUNDS = gameState?.totalRounds || 4;
 
-  console.log("[DEBUG NeverHaveIEverHotGame] Component rendered. Game State:", gameState);
+  console.log(
+    "[DEBUG NeverHaveIEverHotGame] Component rendered. Game State:",
+    gameState,
+  );
   console.log("[DEBUG NeverHaveIEverHotGame] User ID:", userId);
   console.log("[DEBUG NeverHaveIEverHotGame] Is Target Player:", isTarget);
   console.log("[DEBUG NeverHaveIEverHotGame] Total Rounds:", TOTAL_ROUNDS);
@@ -124,27 +178,27 @@ export default function NeverHaveIEverHotGame() {
   // Mémoriser les joueurs qui ne sont pas @ne la cible
   const nonTargetPlayers = useMemo(() => {
     if (!gameState?.players || !gameState?.targetPlayer) return [];
-    return gameState.players.filter(p => p.id !== gameState.targetPlayer?.id);
+    return gameState.players.filter((p) => p.id !== gameState.targetPlayer?.id);
   }, [gameState?.players, gameState?.targetPlayer]);
 
   // Extraire la logique du texte de la question - sans useCallback pour l'instant
   function getQuestionText() {
-    if (!currentQuestion) return '';
+    if (!currentQuestion) return "";
 
-    let questionText = '';
-    if (typeof currentQuestion.text === 'string') {
+    let questionText = "";
+    if (typeof currentQuestion.text === "string") {
       questionText = currentQuestion.text;
     } else if (
       currentQuestion.text &&
-      typeof currentQuestion.text === 'object' &&
+      typeof currentQuestion.text === "object" &&
       (currentQuestion.text as { text?: string }).text
     ) {
       questionText = (currentQuestion.text as { text: string }).text;
     }
 
-    if (!questionText) return '';
+    if (!questionText) return "";
 
-    if (mode === 'ever') {
+    if (mode === "ever") {
       return questionText.replace("Je n'ai jamais", "J'ai déjà");
     }
     return isInverted
@@ -155,91 +209,108 @@ export default function NeverHaveIEverHotGame() {
   // Initialiser les réponses
   const initializeAnswers = useCallback(() => {
     if (questionUpdateInProgress.current) return;
-    
+
     const initialAnswers: Record<string, boolean | null> = {};
     nonTargetPlayers.forEach((p) => {
       initialAnswers[p.id] = null;
     });
-    
+
     initialAnswersRef.current = initialAnswers;
     return initialAnswers;
   }, [nonTargetPlayers]);
 
   // Tracker le début d'une question
-  const trackQuestionStart = useCallback((questionId: string) => {
-    if (!isQuestionTracked && questionId && questionId !== previousQuestionId.current) {
-      gameAnalytics.trackQuestionStart(String(gameId), questionId);
-      setIsQuestionTracked(true);
-      previousQuestionId.current = questionId;
-    }
-  }, [gameId, gameAnalytics, isQuestionTracked]);
+  const trackQuestionStart = useCallback(
+    (questionId: string) => {
+      if (
+        !isQuestionTracked &&
+        questionId &&
+        questionId !== previousQuestionId.current
+      ) {
+        gameAnalytics.trackQuestionStart(String(gameId), questionId);
+        setIsQuestionTracked(true);
+        previousQuestionId.current = questionId;
+      }
+    },
+    [gameId, gameAnalytics, isQuestionTracked],
+  );
 
   // Gérer les réponses aux questions
-  const handleAnswer = useCallback((playerId: string, value: boolean) => {
-    setAnswers(prev => ({ ...prev, [playerId]: value }));
-    gameAnalytics.trackPlayerResponse(String(gameId), playerId, value ? 'yes' : 'no');
+  const handleAnswer = useCallback(
+    (playerId: string, value: boolean) => {
+      setAnswers((prev) => ({ ...prev, [playerId]: value }));
+      gameAnalytics.trackPlayerResponse(
+        String(gameId),
+        playerId,
+        value ? "yes" : "no",
+      );
 
-    // Mettre à jour le compteur de réponses cochonnes et le score si la réponse est "J'ai déjà"
-    if (value) {
-      const newScores = { ...(latestScores.current || {}) };
-      const newNaughty = { ...(latestNaughtyAnswers.current || {}) };
-      
-      newScores[playerId] = (newScores[playerId] || 0) + 1;
-      newNaughty[playerId] = (newNaughty[playerId] || 0) + 1;
+      // Mettre à jour le compteur de réponses cochonnes et le score si la réponse est "J'ai déjà"
+      if (value) {
+        const newScores = { ...(latestScores.current || {}) };
+        const newNaughty = { ...(latestNaughtyAnswers.current || {}) };
 
-      latestScores.current = newScores;
-      latestNaughtyAnswers.current = newNaughty;
-    }
-  }, [gameId, gameAnalytics]);
+        newScores[playerId] = (newScores[playerId] || 0) + 1;
+        newNaughty[playerId] = (newNaughty[playerId] || 0) + 1;
+
+        latestScores.current = newScores;
+        latestNaughtyAnswers.current = newNaughty;
+      }
+    },
+    [gameId, gameAnalytics],
+  );
 
   // Passer au round suivant
   const handleNextRound = useCallback(async () => {
-    console.log('[DEBUG] handleNextRound appelé');
-    
+    console.log("[DEBUG] handleNextRound appelé");
+
     if (!gameState) {
-      console.log('[DEBUG] handleNextRound: gameState est null');
+      console.log("[DEBUG] handleNextRound: gameState est null");
       return;
     }
-    
+
     if (questionUpdateInProgress.current) {
-      console.log('[DEBUG] handleNextRound: verrou actif, action ignorée');
+      console.log("[DEBUG] handleNextRound: verrou actif, action ignorée");
       return;
     }
 
     // Activer le verrou pour empêcher les mises à jour multiples
     questionUpdateInProgress.current = true;
-    console.log('[DEBUG] handleNextRound: verrou activé');
+    console.log("[DEBUG] handleNextRound: verrou activé");
 
     try {
       // Track la fin du round
-      const responseCounts = Object.values(answers).reduce((acc, val) => {
-        if (val === true) acc.yes++;
-        if (val === false) acc.no++;
-        return acc;
-      }, { yes: 0, no: 0 });
-      
-      console.log('[DEBUG] Tracking fin de round:', {
+      const responseCounts = Object.values(answers).reduce(
+        (acc, val) => {
+          if (val === true) acc.yes++;
+          if (val === false) acc.no++;
+          return acc;
+        },
+        { yes: 0, no: 0 },
+      );
+
+      console.log("[DEBUG] Tracking fin de round:", {
         gameId,
         round: gameState.currentRound,
         totalRounds: TOTAL_ROUNDS,
-        responses: responseCounts
+        responses: responseCounts,
       });
-      
+
       try {
         await gameAnalytics.trackRoundComplete(
           String(gameId),
           gameState.currentRound,
           TOTAL_ROUNDS,
-          responseCounts
+          responseCounts,
         );
-        console.log('[DEBUG] Analytics pour fin de round envoyé');
+        console.log("[DEBUG] Analytics pour fin de round envoyé");
       } catch (analyticsError) {
-        console.error('[DEBUG] Erreur analytics:', analyticsError);
+        console.error("[DEBUG] Erreur analytics:", analyticsError);
       }
 
       // Vérifier si c'est le dernier round
       if (gameState.currentRound >= TOTAL_ROUNDS) {
-        console.log('[DEBUG] Dernier round atteint, fin du jeu');
+        console.log("[DEBUG] Dernier round atteint, fin du jeu");
         const endGameState = {
           ...gameState,
           phase: GamePhase.END,
@@ -252,86 +323,112 @@ export default function NeverHaveIEverHotGame() {
       }
 
       // Récupérer une nouvelle question aléatoire
-      console.log('[DEBUG] Récupération du contenu du jeu');
+      console.log("[DEBUG] Récupération du contenu du jeu");
       let gameContent;
       try {
-        gameContent = await getGameContent('never-have-i-ever-hot');
-        console.log("[DEBUG NeverHaveIEverHotGame] getGameContent result:", gameContent);
+        gameContent = await getGameContent("never-have-i-ever-hot");
+        console.log(
+          "[DEBUG NeverHaveIEverHotGame] getGameContent result:",
+          gameContent,
+        );
       } catch (error) {
-        console.error('[DEBUG] Erreur lors de la récupération du contenu du jeu:', error);
-        Alert.alert(t('game.error'), t('game.neverHaveIEver.errorNext'));
+        console.error(
+          "[DEBUG] Erreur lors de la récupération du contenu du jeu:",
+          error,
+        );
+        Alert.alert(t("game.error"), t("game.neverHaveIEver.errorNext"));
         questionUpdateInProgress.current = false;
         return;
       }
-      
+
       const questionsArr = gameContent.questions;
-      
-      if (!questionsArr || !Array.isArray(questionsArr) || questionsArr.length === 0) {
-        console.log('[DEBUG] Aucune question disponible');
-        Alert.alert(t('game.error'), t('game.neverHaveIEver.noQuestions'));
+
+      if (
+        !questionsArr ||
+        !Array.isArray(questionsArr) ||
+        questionsArr.length === 0
+      ) {
+        console.log("[DEBUG] Aucune question disponible");
+        Alert.alert(t("game.error"), t("game.neverHaveIEver.noQuestions"));
         questionUpdateInProgress.current = false;
         return;
       }
-      
+
       // Filtrer les questions déjà posées
-      const availableQuestions = questionsArr.filter(q => {
-        const questionText = typeof q.text === 'string' 
-          ? q.text 
-          : (q.text && typeof q.text === 'object' && 'text' in q.text)
-            ? q.text.text
-            : '';
+      const availableQuestions = questionsArr.filter((q) => {
+        const questionText =
+          typeof q.text === "string"
+            ? q.text
+            : q.text && typeof q.text === "object" && "text" in q.text
+              ? q.text.text
+              : "";
         return !askedQuestions.includes(questionText);
       });
-      
+
       let nextQuestion: GameQuestion;
-      
+
       if (availableQuestions.length === 0) {
         setAskedQuestions([]);
-        const randomQuestion = questionsArr[Math.floor(Math.random() * questionsArr.length)];
+        const randomQuestion =
+          questionsArr[Math.floor(Math.random() * questionsArr.length)];
         if (!randomQuestion) {
-          console.log('[DEBUG] Aucune question aléatoire trouvée');
+          console.log("[DEBUG] Aucune question aléatoire trouvée");
           questionUpdateInProgress.current = false;
           return;
         }
-        
-        const questionText = typeof randomQuestion.text === 'string' 
-          ? randomQuestion.text 
-          : (randomQuestion.text && typeof randomQuestion.text === 'object' && 'text' in randomQuestion.text)
-            ? randomQuestion.text.text
-            : '';
-        
+
+        const questionText =
+          typeof randomQuestion.text === "string"
+            ? randomQuestion.text
+            : randomQuestion.text &&
+                typeof randomQuestion.text === "object" &&
+                "text" in randomQuestion.text
+              ? randomQuestion.text.text
+              : "";
+
         nextQuestion = {
           id: String(Math.random()),
           text: questionText,
-          theme: 'hot',
-          roundNumber: gameState.currentRound + 1
+          theme: "hot",
+          roundNumber: gameState.currentRound + 1,
         };
       } else {
-        const randomQuestion = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
+        const randomQuestion =
+          availableQuestions[
+            Math.floor(Math.random() * availableQuestions.length)
+          ];
         if (!randomQuestion) {
-          console.log('[DEBUG] Aucune question aléatoire disponible trouvée');
+          console.log("[DEBUG] Aucune question aléatoire disponible trouvée");
           questionUpdateInProgress.current = false;
           return;
         }
-        
-        const questionText = typeof randomQuestion.text === 'string' 
-          ? randomQuestion.text 
-          : (randomQuestion.text && typeof randomQuestion.text === 'object' && 'text' in randomQuestion.text)
-            ? randomQuestion.text.text
-            : '';
-        
+
+        const questionText =
+          typeof randomQuestion.text === "string"
+            ? randomQuestion.text
+            : randomQuestion.text &&
+                typeof randomQuestion.text === "object" &&
+                "text" in randomQuestion.text
+              ? randomQuestion.text.text
+              : "";
+
         nextQuestion = {
           id: String(Math.random()),
           text: questionText,
-          theme: 'hot',
-          roundNumber: gameState.currentRound + 1
+          theme: "hot",
+          roundNumber: gameState.currentRound + 1,
         };
       }
-      
+
       // Mise à jour de l'état du jeu avec le nouveau round
-      const nextPlayerIndex = (gameState.players.findIndex(p => p.id === gameState.targetPlayer?.id) + 1) % gameState.players.length;
+      const nextPlayerIndex =
+        (gameState.players.findIndex(
+          (p) => p.id === gameState.targetPlayer?.id,
+        ) +
+          1) %
+        gameState.players.length;
       const nextPlayer = gameState.players[nextPlayerIndex];
-      
+
       if (nextPlayer) {
         const newGameState = {
           ...gameState,
@@ -342,38 +439,54 @@ export default function NeverHaveIEverHotGame() {
           scores: latestScores.current,
           naughtyAnswers: latestNaughtyAnswers.current,
         };
-        
+
         // Réinitialiser les états locaux
         setMode(null);
         setIsQuestionTracked(false);
         previousQuestionId.current = null;
         setAnswers({});
-        
+
         // Mettre à jour l'état du jeu
         await updateGameState(newGameState);
-        console.log('[DEBUG] État du jeu mis à jour avec succès');
+        console.log("[DEBUG] État du jeu mis à jour avec succès");
       } else {
-        console.log('[DEBUG] Joueur suivant non trouvé');
+        console.log("[DEBUG] Joueur suivant non trouvé");
       }
     } catch (error) {
-      console.error('[DEBUG] Erreur globale lors du passage au round suivant:', error);
-      Alert.alert(t('game.error'), t('game.neverHaveIEver.errorNext'));
+      console.error(
+        "[DEBUG] Erreur globale lors du passage au round suivant:",
+        error,
+      );
+      Alert.alert(t("game.error"), t("game.neverHaveIEver.errorNext"));
     } finally {
       setTimeout(() => {
         questionUpdateInProgress.current = false;
-        console.log('[DEBUG] Verrou désactivé');
+        console.log("[DEBUG] Verrou désactivé");
       }, 500);
     }
-  }, [gameState, updateGameState, gameAnalytics, gameId, getGameContent, t, askedQuestions, answers, TOTAL_ROUNDS]);
+  }, [
+    gameState,
+    updateGameState,
+    gameAnalytics,
+    gameId,
+    getGameContent,
+    t,
+    askedQuestions,
+    answers,
+    TOTAL_ROUNDS,
+  ]);
 
   // Nouvelle fonction pour répondre et passer au tour suivant (doit être après handleNextRound)
-  const handleAnswerAndNext = useCallback(async (playerId: string, value: boolean) => {
-    handleAnswer(playerId, value);
-    // Petit délai pour feedback visuel
-    setTimeout(() => {
-      handleNextRound();
-    }, 300);
-  }, [handleAnswer, handleNextRound]);
+  const handleAnswerAndNext = useCallback(
+    async (playerId: string, value: boolean) => {
+      handleAnswer(playerId, value);
+      // Petit délai pour feedback visuel
+      setTimeout(() => {
+        handleNextRound();
+      }, 300);
+    },
+    [handleAnswer, handleNextRound],
+  );
 
   // Gestion du changement de question - avec protection contre les mises à jour cycliques
   useEffect(() => {
@@ -385,7 +498,10 @@ export default function NeverHaveIEverHotGame() {
     const questionId = question.id;
 
     // Si la question n'a pas changé, ne rien faire
-    if (questionId === previousQuestionId.current && currentQuestion?.id === questionId) {
+    if (
+      questionId === previousQuestionId.current &&
+      currentQuestion?.id === questionId
+    ) {
       return;
     }
 
@@ -405,9 +521,10 @@ export default function NeverHaveIEverHotGame() {
 
       // Ajouter la question à la liste des questions posées
       if (question.text) {
-        const questionText = typeof question.text === 'string' ? question.text : '';
+        const questionText =
+          typeof question.text === "string" ? question.text : "";
         if (questionText && !askedQuestions.includes(questionText)) {
-          setAskedQuestions(prev => [...prev, questionText]);
+          setAskedQuestions((prev) => [...prev, questionText]);
         }
       }
 
@@ -421,7 +538,13 @@ export default function NeverHaveIEverHotGame() {
         questionUpdateInProgress.current = false;
       }, 0);
     }
-  }, [gameState?.currentQuestion?.id, initializeAnswers, trackQuestionStart, askedQuestions, currentQuestion?.id]);
+  }, [
+    gameState?.currentQuestion?.id,
+    initializeAnswers,
+    trackQuestionStart,
+    askedQuestions,
+    currentQuestion?.id,
+  ]);
 
   useEffect(() => {
     latestScores.current = gameState?.scores;
@@ -430,34 +553,34 @@ export default function NeverHaveIEverHotGame() {
 
   const handleQuit = () => {
     Alert.alert(
-      t('game.quit.title', 'Quitter le jeu'),
-      t('game.quit.message', 'Êtes-vous sûr de vouloir quitter la partie ?'),
+      t("game.quit.title", "Quitter le jeu"),
+      t("game.quit.message", "Êtes-vous sûr de vouloir quitter la partie ?"),
       [
         {
-          text: t('game.quit.cancel', 'Annuler'),
-          style: 'cancel',
+          text: t("game.quit.cancel", "Annuler"),
+          style: "cancel",
         },
         {
-          text: t('game.quit.confirm', 'Quitter'),
-          onPress: () => router.push('/(tabs)'),
-          style: 'destructive',
+          text: t("game.quit.confirm", "Quitter"),
+          onPress: () => router.push("/(tabs)"),
+          style: "destructive",
         },
       ],
-      { cancelable: true }
+      { cancelable: true },
     );
   };
 
   // Gestion des rendus conditionnels
   if (!gameState) {
     return (
-      <LinearGradient 
+      <LinearGradient
         colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
         style={styles.container}
       >
         <TouchableOpacity onPress={handleQuit} style={styles.quitButton}>
           <Ionicons name="exit-outline" size={32} color="white" />
         </TouchableOpacity>
-        <Text style={styles.loadingText}>{t('game.loading')}</Text>
+        <Text style={styles.loadingText}>{t("game.loading")}</Text>
       </LinearGradient>
     );
   }
@@ -467,21 +590,21 @@ export default function NeverHaveIEverHotGame() {
     // Pas besoin d'appeler awardGamePoints ici pour éviter les doublons
 
     return (
-      <View style={{flex: 1}}>
+      <View style={{ flex: 1 }}>
         <TouchableOpacity onPress={handleQuit} style={styles.quitButton}>
           <Ionicons name="exit-outline" size={32} color="white" />
         </TouchableOpacity>
         <GameResults
           players={gameState.players || []}
           scores={gameState.scores || {}}
-          userId={user?.uid || ''}
+          userId={user?.uid || ""}
           pointsConfig={{
             firstPlace: 30,
             secondPlace: 20,
             thirdPlace: 10,
           }}
           secondaryScores={gameState.naughtyAnswers}
-          secondaryScoresTitle={t('game.results.naughty.title')}
+          secondaryScoresTitle={t("game.results.naughty.title")}
           colors={["#0E1117", "#661A59", "#21101C"]}
         />
       </View>
@@ -493,7 +616,7 @@ export default function NeverHaveIEverHotGame() {
   }
 
   return (
-    <LinearGradient 
+    <LinearGradient
       colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
       style={styles.container}
     >
@@ -501,24 +624,58 @@ export default function NeverHaveIEverHotGame() {
         <Ionicons name="exit-outline" size={32} color="white" />
       </TouchableOpacity>
       <View style={styles.header}>
-        <Text style={styles.title}>JEU DE CARTES : {t('game.neverHaveIEverHot.never').toUpperCase()} {mode === 'ever' ? t('game.neverHaveIEverHot.ever').toUpperCase() : ''} 🔞</Text>
+        <Text style={styles.title}>
+          JEU DE CARTES : {t("game.neverHaveIEverHot.never").toUpperCase()}{" "}
+          {mode === "ever"
+            ? t("game.neverHaveIEverHot.ever").toUpperCase()
+            : ""}{" "}
+          🔞
+        </Text>
         <View style={styles.progressRow}>
           <View style={styles.progressBarTrack}>
-            <View style={[styles.progressBarFill, { width: `${(gameState.currentRound / TOTAL_ROUNDS) * 100}%` }]} />
+            <View
+              style={[
+                styles.progressBarFill,
+                { width: `${(gameState.currentRound / TOTAL_ROUNDS) * 100}%` },
+              ]}
+            />
           </View>
-          <Text style={styles.progressTextRight}>{`${gameState.currentRound}/${TOTAL_ROUNDS}`}</Text>
+          <Text
+            style={styles.progressTextRight}
+          >{`${gameState.currentRound}/${TOTAL_ROUNDS}`}</Text>
         </View>
         {isTarget ? (
-          <Text style={styles.subtitle}>{t('game.neverHaveIEverHot.readAloud')}</Text>
+          <Text style={styles.subtitle}>
+            {t("game.neverHaveIEverHot.readAloud")}
+          </Text>
         ) : (
-          <Text style={styles.subtitle}>{t('game.neverHaveIEverHot.targetReads', { name: gameState.targetPlayer?.name || t('game.player') })}</Text>
+          <Text style={styles.subtitle}>
+            {t("game.neverHaveIEverHot.targetReads", {
+              name: gameState.targetPlayer?.name || t("game.player"),
+            })}
+          </Text>
         )}
       </View>
 
       <View style={styles.cardStack}>
-        <View style={[styles.card, styles.cardBack, { transform: [{ rotate: '-6deg' }, { translateY: 16 }] }]} />
-        <View style={[styles.card, styles.cardBack, { transform: [{ rotate: '6deg' }, { translateY: 8 }] }]} />
-        <LinearGradient colors={['#D81B60', '#661A59', '#21101C']} style={styles.card}>
+        <View
+          style={[
+            styles.card,
+            styles.cardBack,
+            { transform: [{ rotate: "-6deg" }, { translateY: 16 }] },
+          ]}
+        />
+        <View
+          style={[
+            styles.card,
+            styles.cardBack,
+            { transform: [{ rotate: "6deg" }, { translateY: 8 }] },
+          ]}
+        />
+        <LinearGradient
+          colors={["#D81B60", "#661A59", "#21101C"]}
+          style={styles.card}
+        >
           <Text style={styles.cardText}>{getQuestionText()}</Text>
         </LinearGradient>
       </View>
@@ -530,22 +687,26 @@ export default function NeverHaveIEverHotGame() {
               styles.answerButton,
               styles.neverButton,
               pressed && styles.buttonPressed,
-              { shadowColor: '#8e0038' }
+              { shadowColor: "#8e0038" },
             ]}
             onPress={() => handleAnswerAndNext(userId, false)}
           >
-            <Text style={styles.answerButtonText}>🙅‍♂️ {t('game.neverHaveIEverHot.no')}</Text>
+            <Text style={styles.answerButtonText}>
+              🙅‍♂️ {t("game.neverHaveIEverHot.no")}
+            </Text>
           </Pressable>
           <Pressable
             style={({ pressed }) => [
               styles.answerButton,
               styles.everButton,
               pressed && styles.buttonPressed,
-              { shadowColor: '#D81B60' }
+              { shadowColor: "#D81B60" },
             ]}
             onPress={() => handleAnswerAndNext(userId, true)}
           >
-            <Text style={styles.answerButtonText}>🔥 {t('game.neverHaveIEverHot.yes')}</Text>
+            <Text style={styles.answerButtonText}>
+              🔥 {t("game.neverHaveIEverHot.yes")}
+            </Text>
           </Pressable>
         </View>
       )}
@@ -557,12 +718,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   loadingText: {
-    color: '#ffffff',
+    color: "#ffffff",
     fontSize: 18,
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: 20,
   },
   header: {
@@ -571,22 +732,22 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    color: '#ffffff',
-    fontWeight: 'bold',
-    textAlign: 'center',
-    textTransform: 'uppercase',
+    color: "#ffffff",
+    fontWeight: "bold",
+    textAlign: "center",
+    textTransform: "uppercase",
     letterSpacing: 1,
   },
   subtitle: {
     fontSize: 18,
-    color: '#ffffff',
-    textAlign: 'center',
+    color: "#ffffff",
+    textAlign: "center",
     marginTop: 10,
     opacity: 0.8,
   },
   cardStack: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginVertical: 32,
     minHeight: 220,
   },
@@ -594,34 +755,34 @@ const styles = StyleSheet.create({
     width: 300,
     height: 180,
     borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.25,
     shadowRadius: 16,
     elevation: 12,
-    position: 'absolute',
+    position: "absolute",
   },
   cardBack: {
-    backgroundColor: '#18192b',
+    backgroundColor: "#18192b",
     opacity: 0.7,
   },
   cardText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 22,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
     lineHeight: 32,
     zIndex: 2,
   },
   invertButton: {
-    backgroundColor: '#D81B60',
+    backgroundColor: "#D81B60",
     padding: 12,
     borderRadius: 25,
     minWidth: 200,
-    alignItems: 'center',
-    shadowColor: '#D81B60',
+    alignItems: "center",
+    shadowColor: "#D81B60",
     shadowOffset: {
       width: 0,
       height: 4,
@@ -632,28 +793,28 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   invertButtonText: {
-    color: '#ffffff',
+    color: "#ffffff",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   answersContainer: {
     marginBottom: 20,
   },
   answerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 10,
   },
   playerName: {
     fontSize: 16,
-    color: '#ffffff',
+    color: "#ffffff",
     flex: 1,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   answerButtonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
     paddingHorizontal: 20,
     marginTop: 20,
   },
@@ -663,9 +824,9 @@ const styles = StyleSheet.create({
     paddingVertical: 18,
     paddingHorizontal: 18,
     borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 4,
@@ -675,32 +836,32 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   neverButton: {
-    backgroundColor: '#8e0038',
+    backgroundColor: "#8e0038",
   },
   everButton: {
-    backgroundColor: '#D81B60',
+    backgroundColor: "#D81B60",
   },
   buttonPressed: {
     transform: [{ scale: 0.95 }],
     opacity: 0.9,
   },
   answerButtonText: {
-    color: '#ffffff',
+    color: "#ffffff",
     fontSize: 18,
-    fontWeight: 'bold',
-    textTransform: 'uppercase',
+    fontWeight: "bold",
+    textTransform: "uppercase",
   },
   waitingCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
     borderRadius: 24,
     padding: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
     maxWidth: 320,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    shadowColor: '#D81B60',
+    borderColor: "rgba(255, 255, 255, 0.1)",
+    shadowColor: "#D81B60",
     shadowOffset: {
       width: 0,
       height: 4,
@@ -713,25 +874,25 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   waitingText: {
-    color: '#ffffff',
+    color: "#ffffff",
     fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
     marginBottom: 8,
-    fontFamily: 'Montserrat_700Bold',
+    fontFamily: "Montserrat_700Bold",
   },
   waitingSubtext: {
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: "rgba(255, 255, 255, 0.7)",
     fontSize: 16,
-    textAlign: 'center',
-    fontFamily: 'Montserrat_500Medium',
+    textAlign: "center",
+    fontFamily: "Montserrat_500Medium",
   },
   nextButton: {
-    width: '100%',
+    width: "100%",
     padding: 16,
     borderRadius: 25,
-    alignItems: 'center',
-    shadowColor: '#D81B60',
+    alignItems: "center",
+    shadowColor: "#D81B60",
     shadowOffset: {
       width: 0,
       height: 4,
@@ -741,29 +902,29 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   nextButtonText: {
-    color: '#ffffff',
+    color: "#ffffff",
     fontSize: 18,
-    fontWeight: 'bold',
-    textTransform: 'uppercase',
+    fontWeight: "bold",
+    textTransform: "uppercase",
     letterSpacing: 1,
   },
   modeSelectorContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 32,
   },
   modeSelectorColumn: {
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
-    height: '100%',
+    flexDirection: "column",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    height: "100%",
     paddingVertical: 32,
     gap: 32,
   },
   modeCardWrapper: {
-    width: '100%',
+    width: "100%",
     flex: 1,
     marginBottom: 0,
   },
@@ -771,13 +932,13 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     paddingVertical: 48,
     paddingHorizontal: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-    height: '100%',
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    height: "100%",
     minWidth: 260,
     elevation: 6,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.18,
     shadowRadius: 8,
@@ -787,42 +948,42 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   modeLabel: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    fontFamily: 'Montserrat_700Bold',
+    fontWeight: "bold",
+    textAlign: "center",
+    fontFamily: "Montserrat_700Bold",
   },
   progressRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '100%',
+    flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
     marginVertical: 12,
     gap: 12,
   },
   progressBarTrack: {
     flex: 1,
     height: 8,
-    backgroundColor: 'rgba(255,255,255,0.12)',
+    backgroundColor: "rgba(255,255,255,0.12)",
     borderRadius: 8,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   progressBarFill: {
     height: 8,
-    backgroundColor: '#D81B60',
+    backgroundColor: "#D81B60",
     borderRadius: 8,
   },
   progressTextRight: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
     fontSize: 16,
     marginLeft: 8,
     opacity: 0.8,
   },
   endContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 32,
   },
   celebrationEmoji: {
@@ -830,36 +991,36 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   endTitle: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 32,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
     marginBottom: 12,
-    textShadowColor: '#D81B60',
+    textShadowColor: "#D81B60",
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 8,
   },
   endSubtitle: {
-    color: 'rgba(255,255,255,0.85)',
+    color: "rgba(255,255,255,0.85)",
     fontSize: 20,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 32,
   },
   endButton: {
     paddingVertical: 16,
     borderRadius: 25,
-    alignItems: 'center',
-    shadowColor: '#D81B60',
+    alignItems: "center",
+    shadowColor: "#D81B60",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 4.65,
     elevation: 8,
   },
   endButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 18,
-    fontWeight: 'bold',
-    textTransform: 'uppercase',
+    fontWeight: "bold",
+    textTransform: "uppercase",
     letterSpacing: 1,
   },
   resultsContainer: {
@@ -868,9 +1029,9 @@ const styles = StyleSheet.create({
   },
   resultsTitle: {
     fontSize: 32,
-    color: '#ffffff',
-    fontWeight: 'bold',
-    textAlign: 'center',
+    color: "#ffffff",
+    fontWeight: "bold",
+    textAlign: "center",
     marginBottom: 30,
     marginTop: 50,
   },
@@ -878,39 +1039,39 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   naughtySection: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: "rgba(255,255,255,0.1)",
     borderRadius: 15,
     padding: 20,
   },
   sectionTitle: {
     fontSize: 24,
-    color: '#ffffff',
-    fontWeight: 'bold',
+    color: "#ffffff",
+    fontWeight: "bold",
     marginBottom: 15,
-    textAlign: 'center',
+    textAlign: "center",
   },
   naughtyRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.1)',
+    borderBottomColor: "rgba(255,255,255,0.1)",
   },
   rankText: {
     fontSize: 18,
-    color: '#D81B60',
-    fontWeight: 'bold',
+    color: "#D81B60",
+    fontWeight: "bold",
     width: 40,
   },
   naughtyCount: {
     fontSize: 18,
-    color: '#D81B60',
-    fontWeight: 'bold',
+    color: "#D81B60",
+    fontWeight: "bold",
   },
   quitButton: {
-    position: 'absolute',
-    top: Platform.OS === 'android' ? 40 : 60,
+    position: "absolute",
+    top: Platform.OS === "android" ? 40 : 60,
     right: 20,
     zIndex: 10,
   },
-}); 
+});

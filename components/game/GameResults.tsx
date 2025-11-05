@@ -1,7 +1,7 @@
 import RoundedButton from "@/components/RoundedButton";
 import { useInAppReview } from "@/hooks/useInAppReview";
-import { usePoints } from "@/hooks/usePoints";
 import useLeaderboard from "@/hooks/useLeaderboard";
+import { usePoints } from "@/hooks/usePoints";
 import { useSmartPaywall } from "@/hooks/useSmartPaywall";
 import { Player } from "@/types/gameTypes";
 import { Ionicons } from "@expo/vector-icons";
@@ -10,7 +10,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const PlayerRankDisplay: React.FC<{
@@ -109,34 +109,44 @@ export default function GameResults({
 
   const rank_name = `rang ${currentUserRank}`;
 
-  // Flag local pour éviter le spam de requestReview
+  // Flags locaux pour éviter les appels multiples
   const [reviewRequested, setReviewRequested] = useState(false);
+  const [statsUpdated, setStatsUpdated] = useState(false);
+  const [lumicoinsAwarded, setLumicoinsAwarded] = useState(false);
 
-  // Mettre à jour les statistiques du leaderboard
+  // ⚠️ FIX: Mettre à jour les statistiques du leaderboard une seule fois
   useEffect(() => {
     const updateLeaderboardStats = async () => {
-      if (!userId || !scores[userId]) return;
+      if (!userId || !scores[userId] || statsUpdated) return;
 
       const isWinner = currentUserRank === 1;
-      
+
       // Calculer les points de classement selon la position finale
       let leaderboardPoints = 0;
-      if (currentUserRank === 1) leaderboardPoints = 25; // 1ère place
-      else if (currentUserRank === 2) leaderboardPoints = 15; // 2ème place  
-      else if (currentUserRank === 3) leaderboardPoints = 10; // 3ème place
+      if (currentUserRank === 1)
+        leaderboardPoints = 25; // 1ère place
+      else if (currentUserRank === 2)
+        leaderboardPoints = 15; // 2ème place
+      else if (currentUserRank === 3)
+        leaderboardPoints = 10; // 3ème place
       else leaderboardPoints = 5; // Autres places
-      
-      // Utiliser la fonction updateUserStats du hook useLeaderboard
-      await updateUserStats({
-        userId,
-        points: leaderboardPoints,
-        won: isWinner,
-        timestamp: new Date()
-      });
+
+      try {
+        // Utiliser la fonction updateUserStats du hook useLeaderboard
+        await updateUserStats({
+          userId,
+          points: leaderboardPoints,
+          won: isWinner,
+          timestamp: new Date(),
+        });
+        setStatsUpdated(true); // ⚠️ FIX: Marquer comme mis à jour pour éviter les doublons
+      } catch (error) {
+        console.error("Erreur lors de la mise à jour des stats:", error);
+      }
     };
 
     updateLeaderboardStats();
-  }, [userId, scores, currentUserRank, updateUserStats]);
+  }, [userId, scores, currentUserRank, updateUserStats, statsUpdated]);
 
   useEffect(() => {
     if (currentUserRank === 1 && !reviewRequested) {
@@ -145,10 +155,32 @@ export default function GameResults({
     }
   }, [currentUserRank, requestReview, reviewRequested]);
 
+  // ⚠️ FIX: Attribution automatique des lumicoins à l'ouverture de l'écran
+  useEffect(() => {
+    const awardCoinsAutomatically = async () => {
+      if (lumicoinsAwarded || !userId) return;
+
+      try {
+        await awardLumiCoins(userId, lumicoinsReward, "game_reward", rank_name);
+        setLumicoinsAwarded(true);
+        console.log(
+          `✅ Lumicoins attribués automatiquement: +${lumicoinsReward}`,
+        );
+      } catch (error) {
+        console.error("❌ Erreur lors de l'attribution des lumicoins:", error);
+        // En cas d'erreur, on laisse le bouton manuel disponible
+      }
+    };
+
+    // Attendre 1 seconde pour laisser l'utilisateur voir l'écran
+    const timer = setTimeout(awardCoinsAutomatically, 1000);
+    return () => clearTimeout(timer);
+  }, [userId, lumicoinsReward, rank_name, awardLumiCoins, lumicoinsAwarded]);
+
   // Déclencher le smart paywall après la partie
   useEffect(() => {
     const triggerSmartPaywall = async () => {
-      console.log('🎮 Partie terminée - vérification smart paywall');
+      console.log("🎮 Partie terminée - vérification smart paywall");
       await onFreeGameCompleted();
     };
 
@@ -189,21 +221,18 @@ export default function GameResults({
           )}
         </View>
 
-        <Pressable
-          onPress={() =>
-            awardLumiCoins(userId, lumicoinsReward, "game_reward", rank_name)
-          }
-          style={styles.lumicoinsButton}
-        >
+        <View style={styles.lumicoinsButton}>
           <MaterialCommunityIcons
             name="currency-btc"
             size={22}
             color="#FDD835"
           />
           <Text style={styles.lumicoinsButtonText}>
-            +{lumicoinsReward} {t("common.lumicoins", "Lumicoins")}
+            {lumicoinsAwarded
+              ? `✓ ${lumicoinsReward} ${t("common.lumicoins", "Lumicoins")}`
+              : `+${lumicoinsReward} ${t("common.lumicoins", "Lumicoins")}...`}
           </Text>
-        </Pressable>
+        </View>
 
         {currentUserRank > 0 && (
           <View style={styles.currentUserRankContainer}>
