@@ -42,12 +42,6 @@ public class AppDelegate: ExpoAppDelegate {
         open url: URL,
         options: [UIApplication.OpenURLOptionsKey: Any] = [:]
     ) -> Bool {
-// @generated begin @react-native-firebase/auth-openURL - expo prebuild (DO NOT MODIFY)
-    if url.host.toLowerCase() == "firebaseauth" {
-      // invocations for Firebase Auth are handled elsewhere and should not be forwarded to Expo Router
-      return false
-    }
-// @generated end @react-native-firebase/auth-openURL
         // @generated begin @react-native-firebase/auth-openURL - expo prebuild (DO NOT MODIFY)
         if url.host?.lowercased() == "firebaseauth" {
             // invocations for Firebase Auth are handled elsewhere and should not be forwarded to Expo Router

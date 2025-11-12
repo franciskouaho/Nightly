@@ -23,6 +23,7 @@ import {
   ActivityIndicator,
   Alert,
   Animated,
+  Image,
   Modal,
   SafeAreaView,
   ScrollView,
@@ -43,16 +44,26 @@ const CoinFlip = ({
   isFlipping,
   result,
   onFlipComplete,
+  onTap,
+  canFlip,
 }: {
   isFlipping: boolean;
   result: "pile" | "face" | null;
   onFlipComplete: () => void;
+  onTap?: () => void;
+  canFlip?: boolean;
 }) => {
   const rotateAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
+  const [currentSide, setCurrentSide] = useState<"pile" | "face">("face");
 
   useEffect(() => {
     if (isFlipping) {
+      // Alterner entre pile et face pendant l'animation
+      const flipInterval = setInterval(() => {
+        setCurrentSide((prev) => (prev === "pile" ? "face" : "pile"));
+      }, 150); // Change toutes les 150ms
+
       // Animation de rotation avec rebonds
       Animated.sequence([
         Animated.parallel([
@@ -75,8 +86,11 @@ const CoinFlip = ({
           ]),
         ]),
       ]).start(() => {
+        clearInterval(flipInterval);
         onFlipComplete();
       });
+
+      return () => clearInterval(flipInterval);
     }
   }, [isFlipping]);
 
@@ -85,24 +99,48 @@ const CoinFlip = ({
     outputRange: ["0deg", "360deg"],
   });
 
+  // Déterminer quelle image afficher
+  const getCoinImage = () => {
+    if (result) {
+      // Si on a un résultat final, l'afficher
+      return result === "pile"
+        ? require("@/assets/jeux/pile.png")
+        : require("@/assets/jeux/face.png");
+    }
+    // Sinon, alterner pendant l'animation
+    return currentSide === "pile"
+      ? require("@/assets/jeux/pile.png")
+      : require("@/assets/jeux/face.png");
+  };
+
+  const handlePress = () => {
+    if (canFlip && !isFlipping && !result && onTap) {
+      onTap();
+    }
+  };
+
   return (
-    <Animated.View
-      style={[
-        styles.coin,
-        {
-          transform: [{ rotateY: spin }, { scale: scaleAnim }],
-        },
-      ]}
+    <TouchableOpacity
+      activeOpacity={0.8}
+      onPress={handlePress}
+      disabled={!canFlip || isFlipping || !!result}
     >
-      <LinearGradient
-        colors={[ACCENT_GOLD, "#FFD700", ACCENT_GOLD]}
-        style={styles.coinGradient}
+      <Animated.View
+        style={[
+          styles.coin,
+          {
+            transform: [{ rotateY: spin }, { scale: scaleAnim }],
+          },
+        ]}
       >
-        <Text style={styles.coinText}>
-          {result === null ? "?" : result === "pile" ? "PILE" : "FACE"}
-        </Text>
-      </LinearGradient>
-    </Animated.View>
+        <Image source={getCoinImage()} style={styles.coinImage} />
+        {canFlip && !isFlipping && !result && (
+          <View style={styles.tapHint}>
+            <Text style={styles.tapHintText}>👆 Touche la pièce</Text>
+          </View>
+        )}
+      </Animated.View>
+    </TouchableOpacity>
   );
 };
 
@@ -160,12 +198,12 @@ export default function PileOuFaceGameScreen() {
     usePileOuFaceQuestions();
 
   // Sélectionner un joueur aléatoire au début de chaque round avec animation de roue
-  const selectRandomPlayer = async () => {
-    if (!game || !user) return;
+  const selectRandomPlayer = async (gameData: PileOuFaceGameState) => {
+    if (!gameData || !user) return;
     try {
       // Choisir un joueur aléatoire
-      const randomIndex = Math.floor(Math.random() * game.players.length);
-      const selectedPlayer = game.players[randomIndex];
+      const randomIndex = Math.floor(Math.random() * gameData.players.length);
+      const selectedPlayer = gameData.players[randomIndex];
 
       if (!selectedPlayer) {
         console.error("No player selected");
@@ -326,12 +364,12 @@ export default function PileOuFaceGameScreen() {
       if (docSnap.exists()) {
         const gameData = docSnap.data() as PileOuFaceGameState;
 
+        setGame(gameData);
+
         // Si on est en phase loading et qu'il n'y a pas de joueur sélectionné, on en sélectionne un
         if (gameData.phase === "loading" && !gameData.currentPlayerId) {
-          selectRandomPlayer();
+          selectRandomPlayer(gameData);
         }
-
-        setGame(gameData);
       }
       setLoading(false);
     });
@@ -483,20 +521,39 @@ export default function PileOuFaceGameScreen() {
               Mais quelle était la question ? 🤔
             </Text>
 
-            <CoinFlip
-              isFlipping={isFlipping}
-              result={game.coinFlipResult}
-              onFlipComplete={() => {}}
-            />
+            {!game.coinFlipResult && (
+              <CoinFlip
+                isFlipping={isFlipping}
+                result={game.coinFlipResult}
+                onFlipComplete={() => {}}
+                onTap={handleCoinFlip}
+                canFlip={isCurrentPlayer}
+              />
+            )}
 
-            <Text style={styles.coinFlipInfo}>
-              Si c'est FACE, la question sera révélée ! 😱
-            </Text>
+            {game.coinFlipResult && (
+              <View style={styles.resultCoin}>
+                <Image
+                  source={
+                    game.coinFlipResult === "pile"
+                      ? require("@/assets/jeux/pile.png")
+                      : require("@/assets/jeux/face.png")
+                  }
+                  style={styles.resultCoinImage}
+                />
+              </View>
+            )}
 
-            {!isFlipping && !game.coinFlipResult && (
-              <TouchableOpacity style={styles.button} onPress={handleCoinFlip}>
-                <Text style={styles.buttonText}>🪙 Lancer la pièce</Text>
-              </TouchableOpacity>
+            <View style={styles.infoTextContainer}>
+              <Text style={styles.coinFlipInfo}>
+                Si c'est FACE, la question sera révélée ! 😱
+              </Text>
+            </View>
+
+            {!isCurrentPlayer && !isFlipping && !game.coinFlipResult && (
+              <Text style={styles.waitingSubtext}>
+                {currentPlayer?.name} va lancer la pièce...
+              </Text>
             )}
           </View>
         )}
@@ -755,21 +812,35 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
   },
   coin: {
-    width: 150,
-    height: 150,
-    borderRadius: 75,
+    width: 200,
+    height: 200,
     marginVertical: 30,
-    overflow: "hidden",
-  },
-  coinGradient: {
-    flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
-  coinText: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "white",
+  coinImage: {
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+  },
+  tapHint: {
+    position: "absolute",
+    bottom: -50,
+    alignSelf: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  tapHintText: {
+    color: ACCENT_GOLD,
+    fontSize: 14,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  infoTextContainer: {
+    marginTop: 60,
+    paddingHorizontal: 20,
   },
   coinFlipInfo: {
     fontSize: 16,
@@ -908,5 +979,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     textAlign: "center",
+  },
+  resultCoin: {
+    width: 250,
+    height: 250,
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: 30,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.6,
+    shadowRadius: 12,
+    elevation: 15,
+  },
+  resultCoinImage: {
+    width: 250,
+    height: 250,
+    borderRadius: 125,
   },
 });
