@@ -7,6 +7,7 @@ const ar = {
     cancel: "إلغاء",
     validate: "تأكيد",
     ok: "موافق",
+    newBadge: "جديد",
   },
 
   // شاشة اللغة

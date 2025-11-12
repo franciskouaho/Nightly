@@ -7,6 +7,7 @@ const de = {
     cancel: "Abbrechen",
     validate: "Bestätigen",
     ok: "OK",
+    newBadge: "NEU",
   },
 
   // Sprachbildschirm

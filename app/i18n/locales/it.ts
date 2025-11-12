@@ -7,6 +7,7 @@ const it = {
     cancel: "Annulla",
     validate: "Conferma",
     ok: "OK",
+    newBadge: "NUOVO",
   },
 
   // Schermata lingua

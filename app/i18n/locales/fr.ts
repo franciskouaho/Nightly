@@ -7,6 +7,7 @@ const fr = {
     cancel: "Annuler",
     validate: "Valider",
     ok: "OK",
+    newBadge: "NOUVEAU",
   },
 
   // Écran de langue

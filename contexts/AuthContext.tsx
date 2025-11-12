@@ -340,6 +340,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         createdAt: new Date().toISOString(),
       });
 
+      // Créer le document utilisateur
+      const userData = {
+        uid,
+        pseudo,
+        createdAt: new Date().toISOString(),
+        avatar: DEFAULT_AVATAR,
+        points: 0,
+      };
+      await setDoc(doc(db, "users", uid), userData);
+      setUser(userData);
+
       // Sauvegarder l'UID dans le localStorage
       await saveUserUid(uid);
 
@@ -468,16 +479,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       );
 
       if (usernameDoc.exists()) {
-        // Le pseudo est déjà pris par quelqu'un d'autre
+        // Le pseudo existe - se reconnecter avec cet utilisateur
+        const usernameData = usernameDoc.data();
+        const existingUid = usernameData?.uid;
+        
+        if (existingUid) {
+          // S'authentifier d'abord pour avoir les permissions de lecture
+          const auth = getAuth();
+          await signInAnonymously(auth);
+          
+          // Maintenant on peut lire les données utilisateur
+          const userDoc = await getDoc(doc(db, "users", existingUid));
+          if (userDoc.exists()) {
+            const userData = userDoc.data() as User;
+            
+            setUser(userData);
+            await saveUserUid(existingUid);
+            identifyUser(userData.uid, {
+              pseudo: userData.pseudo,
+              createdAt: userData.createdAt,
+            });
+            await setCustomerUserId(existingUid);
+            await logLogin();
+            
+            console.log('✅ Reconnexion réussie avec:', pseudo);
+            return true;
+          }
+        }
+        
+        // Le pseudo existe mais pas de données utilisateur trouvées
         Alert.alert(
-          "Pseudo déjà utilisé",
-          "Ce pseudo est déjà utilisé par un autre joueur. Veuillez choisir un autre pseudo.",
+          "Erreur",
+          "Impossible de récupérer les données de ce compte.",
           [{ text: "OK", onPress: () => false }]
         );
         return false;
       }
 
-      // Le pseudo est disponible
+      // Le pseudo est disponible - on peut créer un nouveau compte
       return false;
     } catch (err) {
       console.error("Erreur lors de la vérification de l'utilisateur:", err);

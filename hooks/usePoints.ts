@@ -175,12 +175,35 @@ export const usePoints = () => {
     amount: number,
     reason: string,
     rank_name: string,
+    retryCount = 0,
   ) => {
+    const MAX_RETRIES = 2;
+
     try {
       const awardLumiCoinsFn = functions().httpsCallable("awardLumiCoins");
-      await awardLumiCoinsFn({ userId, amount, reason, rank_name });
-    } catch (error) {
-      console.error("Erreur lors de l'attribution des LumiCoins:", error);
+      const result = await awardLumiCoinsFn({ userId, amount, reason, rank_name });
+      console.log("✅ LumiCoins attribués avec succès:", result.data);
+      return true;
+    } catch (error: any) {
+      const errorCode = error?.code || error?.message || "UNKNOWN";
+
+      // Erreurs réseau temporaires - on peut retry
+      if (
+        (errorCode === "UNAVAILABLE" ||
+         errorCode === "DEADLINE_EXCEEDED" ||
+         errorCode === "INTERNAL") &&
+        retryCount < MAX_RETRIES
+      ) {
+        console.log(`⚠️ Erreur temporaire (${errorCode}), retry ${retryCount + 1}/${MAX_RETRIES}...`);
+        await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1))); // Attendre 1s, 2s, etc.
+        return awardLumiCoins(userId, amount, reason, rank_name, retryCount + 1);
+      }
+
+      // Pour les autres erreurs ou si on a dépassé le max de retries
+      console.warn("⚠️ Impossible d'attribuer les LumiCoins (erreur ignorée):", errorCode);
+
+      // On retourne false mais on ne bloque pas l'UX
+      return false;
     }
   };
 

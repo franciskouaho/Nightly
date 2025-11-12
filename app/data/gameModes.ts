@@ -19,6 +19,7 @@ export interface GameMode {
   interactive?: "write" | "choice" | "action";
   fontFamily?: string; // Police personnalisée pour le titre du jeu
   comingSoon?: boolean; // ⚠️ FIX: Indique si le jeu est bientôt disponible
+  isNew?: boolean; // Badge "NEW" pour les nouveaux jeux
 }
 
 export interface GameCategory {
@@ -89,6 +90,7 @@ export const gameCategories: GameCategory[] = [
         borderColor: "#6432A0",
         shadowColor: "#6432A0",
         fontFamily: "Righteous-Regular",
+        isNew: true, // 🆕 Nouveau jeu !
         tags: [
           {
             text: "home.games.pile-ou-face.tags.soiree",

@@ -7,6 +7,7 @@ const en = {
     cancel: "Cancel",
     validate: "Validate",
     ok: "OK",
+    newBadge: "NEW",
   },
 
   // Language screen

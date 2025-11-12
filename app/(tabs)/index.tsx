@@ -556,6 +556,7 @@ export default function HomeScreen() {
           onPress={handlePress}
           disabled={isCreatingRoom}
           comingSoon={game.comingSoon}
+          isNew={game.isNew}
         />
       );
     }
@@ -601,6 +602,12 @@ export default function HomeScreen() {
           {game.comingSoon && (
             <View style={styles.comingSoonBadge}>
               <Text style={styles.comingSoonBadgeText}>Bientôt disponible</Text>
+            </View>
+          )}
+          {/* Badge "NEW" pour les nouveaux jeux */}
+          {game.isNew && !game.comingSoon && (
+            <View style={styles.newBadge}>
+              <Text style={styles.newBadgeText}>{t('common.newBadge')}</Text>
             </View>
           )}
           <View
@@ -889,6 +896,30 @@ const styles = StyleSheet.create({
   },
   comingSoonText: {
     opacity: 0.7,
+  },
+  // Badge "NEW"
+  newBadge: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: '#FF4757',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    zIndex: 25,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 4,
+    elevation: 5,
+    borderWidth: 1.5,
+    borderColor: '#FFF',
+  },
+  newBadgeText: {
+    color: '#FFF',
+    fontSize: 10,
+    fontWeight: 'bold',
+    letterSpacing: 0.5,
   },
   container: {
     flex: 1,
