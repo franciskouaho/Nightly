@@ -37,7 +37,82 @@ export interface GameCategory {
 
 // Configuration des catégories de jeu
 export const gameCategories: GameCategory[] = [
-  // SECTION 1 : Jeux gratuits – Accroche & découverte
+  // SECTION 1 : Soirées entre potes (Premium)
+  {
+    id: "soirees",
+    title: "SOIRÉES ENTRE POTES",
+    subtitle: "Le cœur de Nightly",
+    categoryType: "premium",
+    dominantColor: "#FF9800",
+    icon: "🍻",
+    cta: {
+      mainText: "Pour des soirées encore plus folles",
+      subText: "Débloque le pack Soirée Premium",
+    },
+    games: [
+      {
+        id: "listen-but-don-t-judge",
+        nameKey: "home.games.listen-but-don-t-judge.name",
+        descriptionKey: "home.games.listen-but-don-t-judge.description",
+        image: require("@/assets/jeux/listen-but-don-t-judge.png"),
+        colors: ["rgba(17, 34, 78, 0.8)", "rgba(38, 56, 120, 0.9)"],
+        borderColor: "#3B5FD9",
+        shadowColor: "#3B5FD9",
+        fontFamily: "PermanentMarker-Regular",
+        tags: [
+          {
+            text: "home.games.listen-but-don-t-judge.tags.soiree",
+            color: "#FF9800",
+          },
+          {
+            text: "home.games.listen-but-don-t-judge.tags.histoire",
+            color: "#3B5FD9",
+          },
+          {
+            text: "home.games.listen-but-don-t-judge.tags.humour",
+            color: "#FFC107",
+          },
+          {
+            text: "home.games.listen-but-don-t-judge.tags.premium",
+            color: "#D81B60",
+          },
+        ],
+        premium: true,
+        interactive: "write",
+      },
+      {
+        id: "pile-ou-face",
+        nameKey: "home.games.pile-ou-face.name",
+        descriptionKey: "home.games.pile-ou-face.description",
+        image: require("@/assets/jeux/pile-ou-face.png"),
+        colors: ["rgba(100, 50, 150, 0.8)", "rgba(150, 100, 200, 0.9)"],
+        borderColor: "#6432A0",
+        shadowColor: "#6432A0",
+        fontFamily: "Righteous-Regular",
+        tags: [
+          {
+            text: "home.games.pile-ou-face.tags.soiree",
+            color: "#FF9800",
+          },
+          {
+            text: "home.games.pile-ou-face.tags.hasard",
+            color: "#FFC107",
+          },
+          {
+            text: "home.games.pile-ou-face.tags.fun",
+            color: "#4CAF50",
+          },
+          {
+            text: "home.games.pile-ou-face.tags.revelations",
+            color: "#F44336",
+          },
+        ],
+        premium: false,
+        interactive: "choice",
+      },
+    ],
+  },
+  // SECTION 2 : Jeux gratuits – Accroche & découverte
   {
     id: "free_games",
     title: "JEUX GRATUITS",
@@ -108,7 +183,7 @@ export const gameCategories: GameCategory[] = [
       },
     ],
   },
-  // SECTION 2 : Événements & saisonniers
+  // SECTION 3 : Événements & saisonniers
   {
     id: "events",
     title: "ÉVÉNEMENTS & SAISONNIERS",
@@ -152,7 +227,7 @@ export const gameCategories: GameCategory[] = [
       },
     ],
   },
-  // SECTION 3 : Couple 💋 (Premium)
+  // SECTION 4 : Couple 💋 (Premium)
   {
     id: "couple",
     title: "COUPLE",
@@ -281,81 +356,6 @@ export const gameCategories: GameCategory[] = [
         premium: true,
         interactive: "write",
         comingSoon: true, // ⚠️ FIX: Jeu bientôt disponible
-      },
-    ],
-  },
-  // SECTION 4 : Soirées entre potes (Premium)
-  {
-    id: "soirees",
-    title: "SOIRÉES ENTRE POTES",
-    subtitle: "Le cœur de Nightly",
-    categoryType: "premium",
-    dominantColor: "#FF9800",
-    icon: "🍻",
-    cta: {
-      mainText: "Pour des soirées encore plus folles",
-      subText: "Débloque le pack Soirée Premium",
-    },
-    games: [
-      {
-        id: "listen-but-don-t-judge",
-        nameKey: "home.games.listen-but-don-t-judge.name",
-        descriptionKey: "home.games.listen-but-don-t-judge.description",
-        image: require("@/assets/jeux/listen-but-don-t-judge.png"),
-        colors: ["rgba(17, 34, 78, 0.8)", "rgba(38, 56, 120, 0.9)"],
-        borderColor: "#3B5FD9",
-        shadowColor: "#3B5FD9",
-        fontFamily: "PermanentMarker-Regular",
-        tags: [
-          {
-            text: "home.games.listen-but-don-t-judge.tags.soiree",
-            color: "#FF9800",
-          },
-          {
-            text: "home.games.listen-but-don-t-judge.tags.histoire",
-            color: "#3B5FD9",
-          },
-          {
-            text: "home.games.listen-but-don-t-judge.tags.humour",
-            color: "#FFC107",
-          },
-          {
-            text: "home.games.listen-but-don-t-judge.tags.premium",
-            color: "#D81B60",
-          },
-        ],
-        premium: true,
-        interactive: "write",
-      },
-      {
-        id: "pile-ou-face",
-        nameKey: "home.games.pile-ou-face.name",
-        descriptionKey: "home.games.pile-ou-face.description",
-        image: require("@/assets/jeux/pile-ou-face.png"),
-        colors: ["rgba(100, 50, 150, 0.8)", "rgba(150, 100, 200, 0.9)"],
-        borderColor: "#6432A0",
-        shadowColor: "#6432A0",
-        fontFamily: "Righteous-Regular",
-        tags: [
-          {
-            text: "home.games.pile-ou-face.tags.soiree",
-            color: "#FF9800",
-          },
-          {
-            text: "home.games.pile-ou-face.tags.hasard",
-            color: "#FFC107",
-          },
-          {
-            text: "home.games.pile-ou-face.tags.fun",
-            color: "#4CAF50",
-          },
-          {
-            text: "home.games.pile-ou-face.tags.revelations",
-            color: "#F44336",
-          },
-        ],
-        premium: false,
-        interactive: "choice",
       },
     ],
   },

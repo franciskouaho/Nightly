@@ -100,7 +100,15 @@ export const SpinningWheel: React.FC<SpinningWheelProps> = ({
             colors={isEven ? ["#6432A0", "#9B59D0"] : ["#4A0E78", "#6432A0"]}
             style={styles.segmentGradient}
           >
-            <View style={styles.segmentContent}>
+            <View
+              style={[
+                styles.segmentContent,
+                {
+                  // Contre-rotation pour garder le texte toujours droit
+                  transform: [{ rotate: `${-rotation}deg` }],
+                },
+              ]}
+            >
               <Text style={styles.playerName} numberOfLines={1}>
                 {player.name}
               </Text>
@@ -240,17 +248,24 @@ const styles = StyleSheet.create({
   },
   segmentContent: {
     position: "absolute",
-    bottom: 20,
+    bottom: 30,
     left: 0,
     right: 0,
     alignItems: "center",
   },
   playerName: {
     color: "white",
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: "bold",
     textAlign: "center",
-    paddingHorizontal: 8,
+    paddingHorizontal: 4,
+    paddingVertical: 4,
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
+    borderRadius: 8,
+    overflow: "hidden",
+    textShadowColor: "rgba(0, 0, 0, 0.8)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   center: {
     position: "absolute",
