@@ -1,5 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Image, ImageStyle, StyleSheet, Text, TextStyle, TouchableOpacity, View, ViewStyle } from 'react-native';
 
 interface GameModeCardProps {
@@ -14,6 +15,7 @@ interface GameModeCardProps {
   onPress: () => void;
   disabled?: boolean;
   comingSoon?: boolean; // ⚠️ FIX: Indique si le jeu est bientôt disponible
+  isNew?: boolean; // Badge "NEW" pour les nouveaux jeux
 }
 
 interface GameModeCardStyles {
@@ -45,8 +47,11 @@ export default function GameModeCard({
   premium,
   onPress,
   disabled = false,
-  comingSoon = false
+  comingSoon = false,
+  isNew = false
 }: GameModeCardProps) {
+  const { t } = useTranslation();
+
   return (
     <TouchableOpacity
       style={[styles.container, comingSoon && styles.comingSoonContainer]}
@@ -83,6 +88,13 @@ export default function GameModeCard({
           {comingSoon && (
             <View style={styles.comingSoonBadge}>
               <Text style={styles.comingSoonBadgeText}>Bientôt disponible</Text>
+            </View>
+          )}
+
+          {/* Badge "NEW" pour les nouveaux jeux */}
+          {isNew && !comingSoon && (
+            <View style={styles.newBadge}>
+              <Text style={styles.newBadgeText}>{t('common.newBadge')}</Text>
             </View>
           )}
 
@@ -237,5 +249,29 @@ const styles = StyleSheet.create<GameModeCardStyles>({
   },
   comingSoonTitle: {
     opacity: 0.7,
+  },
+  // Badge "NEW"
+  newBadge: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: '#FF4757',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    zIndex: 25,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 4,
+    elevation: 5,
+    borderWidth: 1.5,
+    borderColor: '#FFF',
+  },
+  newBadgeText: {
+    color: '#FFF',
+    fontSize: 10,
+    fontWeight: 'bold',
+    letterSpacing: 0.5,
   },
 });

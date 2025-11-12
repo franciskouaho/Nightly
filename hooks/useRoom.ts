@@ -27,32 +27,46 @@ export function useRoom(roomId: string) {
 
   // Écouter les changements de la salle
   useEffect(() => {
-    if (!roomId) return;
+    if (!roomId || !user) {
+      console.log('[DEBUG ROOM] Attente de roomId et user:', { roomId, user: !!user });
+      return;
+    }
+
+    console.log('[DEBUG ROOM] Démarrage du listener pour la salle:', roomId, 'user:', user.uid);
 
     const db = getFirestore();
     const roomRef = doc(db, 'rooms', roomId);
 
-    const unsubscribe = onSnapshot(roomRef, (docSnap) => {
-      if (docSnap.exists()) {
-        const roomData = docSnap.data() as Room;
-        setRoom(roomData);
-        console.log('[DEBUG ROOM] roomData:', roomData);
-        console.log('[DEBUG ROOM] Statut:', roomData.status, 'gameDocId:', roomData.gameDocId, 'gameMode:', roomData.gameMode);
+    const unsubscribe = onSnapshot(
+      roomRef,
+      (docSnap) => {
+        if (docSnap.exists()) {
+          const roomData = docSnap.data() as Room;
+          setRoom(roomData);
+          console.log('[DEBUG ROOM] roomData:', roomData);
+          console.log('[DEBUG ROOM] Statut:', roomData.status, 'gameDocId:', roomData.gameDocId, 'gameMode:', roomData.gameMode);
 
-        // Rediriger vers le jeu si le statut est "playing"
-        if (roomData.status === 'playing' && roomData.gameDocId) {
-          console.log('[DEBUG] Redirection vers le jeu:', roomData.gameMode, roomData.gameDocId);
-          router.replace(`/game/${roomData.gameMode}/${roomData.gameDocId}`);
+          // Rediriger vers le jeu si le statut est "playing"
+          if (roomData.status === 'playing' && roomData.gameDocId) {
+            console.log('[DEBUG] Redirection vers le jeu:', roomData.gameMode, roomData.gameDocId);
+            router.replace(`/game/${roomData.gameMode}/${roomData.gameDocId}`);
+          }
+        } else {
+          Alert.alert('Erreur', 'Cette salle n\'existe pas');
+          router.back();
         }
-      } else {
-        Alert.alert('Erreur', 'Cette salle n\'existe pas');
+        setLoading(false);
+      },
+      (error) => {
+        console.error('Erreur lors de l\'écoute de la salle:', error);
+        Alert.alert('Erreur', 'Impossible de charger la salle');
+        setLoading(false);
         router.back();
       }
-      setLoading(false);
-    });
+    );
 
     return unsubscribe;
-  }, [roomId]);
+  }, [roomId, user]);
 
   // Vérifier si le nombre minimum de joueurs est atteint
   const canStartGame = (gameId: string, playersCount: number): boolean => {

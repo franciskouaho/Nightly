@@ -251,6 +251,12 @@ export default function BuyAssetsScreen() {
                 <Image
                   source={{ uri: asset.image }}
                   style={styles.assetCardImage}
+                  onError={(error) => {
+                    console.error(`❌ Erreur chargement image ${asset.name}:`, error.nativeEvent.error);
+                  }}
+                  onLoad={() => {
+                    console.log(`✅ Image chargée: ${asset.name}`);
+                  }}
                 />
                 <View style={styles.assetCardInfo}>
                   <Text style={styles.assetCardName}>

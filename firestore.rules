@@ -14,167 +14,123 @@ service cloud.firestore {
       return request.auth != null && request.auth.uid == userId;
     }
     
-    // Fonction helper pour vérifier si l'utilisateur est dans une liste de joueurs
-    function isPlayerInGame(players) {
-      return request.auth != null && 
-        request.auth.uid in players.map(['id']);
-    }
-    
-    // Fonction helper pour vérifier les champs obligatoires
-    function hasValidUserFields() {
-      return request.resource.data.keys().hasAll(['id', 'username', 'displayName', 'avatar']) &&
-        request.resource.data.id is string &&
-        request.resource.data.username is string &&
-        request.resource.data.displayName is string &&
-        request.resource.data.avatar is string;
-    }
-    
-    // Règles pour les utilisateurs - STRICT
+    // Règles pour les utilisateurs - SIMPLIFIÉ
     match /users/{userId} {
-      allow read: if request.auth != null && isOwner(userId);
-      allow create: if request.auth != null && 
-        isOwner(userId) && 
-        hasValidUserFields() &&
-        request.resource.data.id == userId;
-      allow update: if request.auth != null && 
-        isOwner(userId) &&
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['username', 'displayName', 'avatar', 'lastLogin', 'stats']) &&
-        request.resource.data.id == userId;
-      allow delete: if isAdmin();
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && isOwner(userId);
+      allow update: if request.auth != null && isOwner(userId);
+      allow delete: if isAdmin() || isOwner(userId);
     }
     
-    // Règles pour les salles de jeu - STRICT
+    // Règles pour les pseudos/usernames
+    match /usernames/{username} {
+      allow read: if true; // Permettre la vérification de disponibilité
+      allow create: if request.auth != null;
+      allow update: if request.auth != null;
+      allow delete: if request.auth != null;
+    }
+    
+    // Règles pour les salles de jeu - SIMPLIFIÉ
     match /rooms/{roomId} {
-      allow read: if request.auth != null && 
-        isPlayerInGame(resource.data.players);
-      allow create: if request.auth != null && 
-        request.resource.data.host == request.auth.uid &&
-        request.resource.data.players.size() == 1 &&
-        request.resource.data.players[0].id == request.auth.uid;
-      allow update: if request.auth != null && 
-        (resource.data.host == request.auth.uid || 
-         isPlayerInGame(resource.data.players)) &&
-        // Empêcher la modification de l'hôte
-        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['host']) &&
-        // Limiter les champs modifiables
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['players', 'status', 'gameId', 'currentQuestion']);
-      allow delete: if request.auth != null && 
-        resource.data.host == request.auth.uid;
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null;
+      allow delete: if request.auth != null;
     }
     
-    // Règles pour les jeux actifs - STRICT
+    // Règles pour les jeux actifs - SIMPLIFIÉ
     match /games/{gameId} {
-      allow read: if request.auth != null && 
-        isPlayerInGame(resource.data.players);
-      allow create: if request.auth != null && 
-        request.resource.data.host == request.auth.uid &&
-        isPlayerInGame(request.resource.data.players);
-      allow update: if request.auth != null && 
-        isPlayerInGame(resource.data.players) &&
-        // Empêcher la modification de l'hôte et des joueurs
-        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['host', 'players']) &&
-        // Limiter les champs modifiables
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['phase', 'currentQuestion', 'playerAnswers', 'scores', 'timer']);
-      allow delete: if request.auth != null && 
-        resource.data.host == request.auth.uid;
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null;
+      allow delete: if request.auth != null;
     }
     
-    // Règles pour les questions de jeu - LECTURE SEULE
+    // Règles pour les questions de jeu
     match /questions/{gameType}/{questionId} {
       allow read: if request.auth != null;
-      allow write: if false; // Seuls les admins via console
+      allow write: if false;
     }
     
-    // Règles pour les traductions - LECTURE SEULE
+    // Règles pour les traductions
     match /translations/{language}/{translationId} {
       allow read: if request.auth != null;
-      allow write: if false; // Seuls les admins via console
+      allow write: if false;
     }
     
-    // Règles pour les statistiques - PRIVÉES
+    // Règles pour les statistiques
     match /stats/{userId} {
-      allow read: if isOwner(userId);
-      allow write: if isOwner(userId) &&
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['gamesPlayed', 'gamesWon', 'totalPoints', 'lastUpdated']);
-      allow delete: if isAdmin();
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && isOwner(userId);
+      allow delete: if isAdmin() || isOwner(userId);
     }
     
-    // Règles pour les classements - LECTURE SEULE
+    // Règles pour les classements
     match /leaderboards/{gameType} {
       allow read: if request.auth != null;
-      allow write: if false; // Seuls les admins via console
+      allow write: if false;
     }
     
-    // Règles pour les événements - LECTURE SEULE
+    // Règles pour les événements
     match /events/{eventId} {
       allow read: if request.auth != null;
-      allow write: if false; // Seuls les admins via console
+      allow write: if false;
     }
     
-    // Règles pour les notifications - PRIVÉES
+    // Règles pour les notifications
     match /notifications/{userId}/{notificationId} {
-      allow read: if isOwner(userId);
-      allow create: if request.auth != null; // Permettre la création de notifications
-      allow update: if isOwner(userId) && 
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read', 'readAt']);
-      allow delete: if isOwner(userId);
+      allow read: if request.auth != null && isOwner(userId);
+      allow create: if request.auth != null;
+      allow update: if request.auth != null && isOwner(userId);
+      allow delete: if request.auth != null && isOwner(userId);
     }
     
-    // Règles pour les rapports de bug - CRÉATION SEULE
+    // Règles pour les rapports de bug
     match /reports/{reportId} {
       allow read: if isAdmin();
-      allow create: if request.auth != null &&
-        request.resource.data.keys().hasAll(['userId', 'type', 'description', 'timestamp']) &&
-        request.resource.data.userId == request.auth.uid;
-      allow update: if false; // Pas de modification
+      allow create: if request.auth != null;
+      allow update: if false;
       allow delete: if isAdmin();
     }
     
-    // Règles pour les configurations de jeu - LECTURE SEULE
+    // Règles pour les configurations de jeu
     match /gameConfig/{gameType} {
       allow read: if request.auth != null;
-      allow write: if false; // Seuls les admins via console
+      allow write: if false;
     }
     
-    // Règles pour les sessions de jeu temporaires - TEMPORAIRES
+    // Règles pour les sessions de jeu temporaires
     match /gameSessions/{sessionId} {
-      allow read: if request.auth != null && 
-        isPlayerInGame(resource.data.players);
-      allow create: if request.auth != null && 
-        request.resource.data.host == request.auth.uid;
-      allow update: if request.auth != null && 
-        isPlayerInGame(resource.data.players) &&
-        // Limiter aux champs de jeu uniquement
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['phase', 'currentQuestion', 'playerAnswers', 'scores']);
-      allow delete: if request.auth != null && 
-        (resource.data.host == request.auth.uid || 
-         isPlayerInGame(resource.data.players));
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null;
+      allow delete: if request.auth != null;
     }
     
-    // Règles pour les logs de debug - TEMPORAIRES
+    // Règles pour les logs de debug
     match /debug/{userId}/{logId} {
-      allow read, write, delete: if isOwner(userId);
+      allow read, write, delete: if request.auth != null && isOwner(userId);
     }
     
-    // Règles pour les achats/transactions - PRIVÉES
+    // Règles pour les achats/transactions
     match /purchases/{userId}/{purchaseId} {
-      allow read: if isOwner(userId);
-      allow create: if isOwner(userId) &&
-        request.resource.data.keys().hasAll(['itemId', 'amount', 'currency', 'timestamp']);
-      allow update: if false; // Pas de modification des achats
+      allow read: if request.auth != null && isOwner(userId);
+      allow create: if request.auth != null && isOwner(userId);
+      allow update: if false;
       allow delete: if isAdmin();
     }
     
-    // Règles pour les amis/relations - PRIVÉES
+    // Règles pour les amis/relations
     match /friends/{userId} {
-      allow read: if isOwner(userId);
-      allow write: if isOwner(userId);
-      allow delete: if isOwner(userId);
+      allow read: if request.auth != null && isOwner(userId);
+      allow write: if request.auth != null && isOwner(userId);
+      allow delete: if request.auth != null && isOwner(userId);
     }
     
-    // Règles par défaut - REFUSER TOUT
+    // Règles par défaut - Autoriser la lecture si connecté (temporaire)
     match /{allPaths=**} {
-      allow read, write, delete: if false;
+      allow read: if request.auth != null;
+      allow write: if false;
     }
   }
 }

@@ -172,15 +172,20 @@ export default function GameResults({
 
       try {
         console.log(`🎁 Attribution des lumicoins: userId=${userId}, montant=${lumicoinsReward}, rang=${currentUserRank}`);
-        await awardLumiCoins(userId, lumicoinsReward, "game_reward", rank_name);
-        setLumicoinsAwarded(true);
-        console.log(
-          `✅ Lumicoins attribués automatiquement: +${lumicoinsReward}`,
-        );
+        const success = await awardLumiCoins(userId, lumicoinsReward, "game_reward", rank_name);
+
+        if (success) {
+          setLumicoinsAwarded(true);
+          console.log(`✅ Lumicoins attribués automatiquement: +${lumicoinsReward}`);
+        } else {
+          console.log("⚠️ Attribution des lumicoins échouée, mais on continue l'expérience");
+          // On marque quand même comme attribué pour ne pas bloquer l'UX
+          setLumicoinsAwarded(true);
+        }
       } catch (error) {
-        console.error("❌ Erreur lors de l'attribution des lumicoins:", error);
-        // En cas d'erreur, on laisse le bouton manuel disponible
-        setLumicoinsAwarded(false);
+        console.warn("⚠️ Erreur lors de l'attribution des lumicoins (ignorée):", error);
+        // En cas d'erreur, on marque comme attribué pour ne pas bloquer l'UX
+        setLumicoinsAwarded(true);
       }
     };
 

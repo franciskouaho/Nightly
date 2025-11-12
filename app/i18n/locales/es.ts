@@ -7,6 +7,7 @@ const es = {
     cancel: "Cancelar",
     validate: "Validar",
     ok: "OK",
+    newBadge: "NUEVO",
   },
 
   // Pantalla de idioma

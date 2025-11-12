@@ -7,6 +7,7 @@ const pt = {
     cancel: "Cancelar",
     validate: "Validar",
     ok: "OK",
+    newBadge: "NOVO",
   },
 
   // Tela de idioma
