@@ -113,11 +113,14 @@ const fr = {
       },
     },
     notificationsEnabled: "Notifications activées",
-    notificationsEnabledMessage: "Vous recevrez maintenant des notifications de Nightly",
+    notificationsEnabledMessage:
+      "Vous recevrez maintenant des notifications de Nightly",
     notificationsDisabled: "Notifications désactivées",
-    notificationsDisabledMessage: "Vous ne recevrez plus de notifications de Nightly",
+    notificationsDisabledMessage:
+      "Vous ne recevrez plus de notifications de Nightly",
     notificationsError: "Erreur",
-    notificationsErrorMessage: "Impossible d'activer les notifications. Vérifiez les permissions dans les paramètres.",
+    notificationsErrorMessage:
+      "Impossible d'activer les notifications. Vérifiez les permissions dans les paramètres.",
   },
 
   // Accueil
@@ -201,7 +204,8 @@ const fr = {
       },
       "truth-or-dare": {
         name: "ACTION OU VÉRITÉ",
-        description: "Classique de soirée — fun, rapide, parfait pour tester l'app.",
+        description:
+          "Classique de soirée — fun, rapide, parfait pour tester l'app.",
         tags: {
           gratuit: "GRATUIT",
           fun: "FUN",
@@ -230,7 +234,8 @@ const fr = {
       },
       "never-have-i-ever-hot": {
         name: "HOT OR NOT",
-        description: "Le jeu des défis et confidences de couple — 100 % spicy 😏",
+        description:
+          "Le jeu des défis et confidences de couple — 100 % spicy 😏",
         tags: {
           couple: "COUPLE",
           spicy: "SPICY",
@@ -267,10 +272,20 @@ const fr = {
           fun: "FUN",
         },
       },
+      "pile-ou-face": {
+        name: "PILE OU FACE",
+        description:
+          "Questions secrètes et pile ou face... Qui sera démasqué ? 🪙",
+        tags: {
+          soiree: "SOIRÉE",
+          hasard: "HASARD",
+          fun: "FUN",
+          revelations: "RÉVÉLATIONS",
+        },
+      },
       "quiz-halloween": {
         name: "QUIZ HALLOWEEN",
-        description:
-          "Jeux festifs, drôles et spicy autour d'Halloween 🎃",
+        description: "Jeux festifs, drôles et spicy autour d'Halloween 🎃",
         tags: {
           saisonnier: "SAISONNIER",
           halloween: "HALLOWEEN",
@@ -353,8 +368,6 @@ const fr = {
       },
     },
   },
-
-
 
   // Settings
   settings: {
@@ -870,22 +883,22 @@ const fr = {
         message: "Impossible d'ouvrir les conditions d'utilisation.",
       },
     },
-  footer: {
-    restore: "Restaurer les achats",
-    terms: "Conditions d'utilisation",
-  },
-  leaderboard: {
-    title: "🏆 Classement Général",
-    subtitle: "Les meilleurs joueurs de Nightly",
-    loading: "Chargement du classement...",
-    empty: "Aucun joueur dans le classement",
-    emptySubtext: "Jouez pour apparaître ici !",
-    rank: "Rang",
-    points: "Points",
-    games: "parties",
-    winRate: "victoires",
-    refresh: "Actualiser",
-  },
+    footer: {
+      restore: "Restaurer les achats",
+      terms: "Conditions d'utilisation",
+    },
+    leaderboard: {
+      title: "🏆 Classement Général",
+      subtitle: "Les meilleurs joueurs de Nightly",
+      loading: "Chargement du classement...",
+      empty: "Aucun joueur dans le classement",
+      emptySubtext: "Jouez pour apparaître ici !",
+      rank: "Rang",
+      points: "Points",
+      games: "parties",
+      winRate: "victoires",
+      refresh: "Actualiser",
+    },
   },
 
   assets: {

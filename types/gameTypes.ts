@@ -47,7 +47,8 @@ export type GameMode =
   | "quiz-halloween"
   | "forbidden-desire"
   | "double-dare"
-  | "word-guessing";
+  | "word-guessing"
+  | "pile-ou-face";
 
 export interface GameState {
   phase: GamePhase;

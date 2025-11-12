@@ -85,7 +85,8 @@ const en = {
     contactEmail: "nightly@emplica.com",
     buyAssetsTitle: "Shop",
     insufficientPoints: "Insufficient points",
-    insufficientPointsMessage: "You don't have enough points to unlock this item.",
+    insufficientPointsMessage:
+      "You don't have enough points to unlock this item.",
     success: "Success!",
     assetUnlocked: "Item unlocked successfully!",
     unlockError: "Failed to unlock item",
@@ -109,7 +110,8 @@ const en = {
       },
     },
     notificationsEnabled: "Notifications enabled",
-    notificationsEnabledMessage: "You will receive notifications for new games and updates.",
+    notificationsEnabledMessage:
+      "You will receive notifications for new games and updates.",
     notificationsDisabled: "Notifications disabled",
     notificationsDisabledMessage: "You won't receive any notifications.",
     notificationsError: "Error",
@@ -231,7 +233,8 @@ const en = {
       },
       "genius-or-liar": {
         name: "Genius or Liar",
-        description: "Bluff your way to victory by pretending to know everything",
+        description:
+          "Bluff your way to victory by pretending to know everything",
         tags: {
           distance: "distance",
           bluff: "bluff",
@@ -257,6 +260,17 @@ const en = {
           quiz: "quiz",
           logique: "logic",
           fun: "fun",
+        },
+      },
+      "pile-ou-face": {
+        name: "HEADS OR TAILS",
+        description:
+          "Secret questions and coin flips... Who will be exposed? 🪙",
+        tags: {
+          soiree: "PARTY",
+          hasard: "CHANCE",
+          fun: "FUN",
+          revelations: "REVELATIONS",
         },
       },
       "quiz-halloween": {
@@ -302,7 +316,8 @@ const en = {
       },
       "word-guessing": {
         name: "Word Guessing",
-        description: "Make your teammates guess words without using forbidden words",
+        description:
+          "Make your teammates guess words without using forbidden words",
         tags: {
           distance: "distance",
           rapidite: "speed",
@@ -585,7 +600,8 @@ const en = {
     theHiddenVillage: {
       title: "The Hidden Village",
       subtitle: "A social deduction game",
-      description: "Uncover the traitors hidden among the villagers before they eliminate everyone.",
+      description:
+        "Uncover the traitors hidden among the villagers before they eliminate everyone.",
       principles: {
         title: "Game Principles",
         list: [
@@ -683,7 +699,8 @@ const en = {
     word_guessing: {
       targetPlayer: "Target player",
       forbiddenWords: "Forbidden words",
-      guesserInstructions: "Make your teammate guess the word without using the forbidden words!",
+      guesserInstructions:
+        "Make your teammate guess the word without using the forbidden words!",
       guesserInfo: "You have 60 seconds to guess as many words as possible.",
       found: "Found!",
       forbidden: "Forbidden word!",
@@ -725,7 +742,8 @@ const en = {
     },
     scoring: {
       title: "Scoring",
-      description: "Points are awarded based on your performance and participation in the game.",
+      description:
+        "Points are awarded based on your performance and participation in the game.",
     },
   },
 
@@ -816,7 +834,8 @@ const en = {
     alerts: {
       productUnavailable: {
         title: "Product unavailable",
-        message: "This product is temporarily unavailable. Please try again later.",
+        message:
+          "This product is temporarily unavailable. Please try again later.",
       },
       success: {
         title: "Purchase successful!",
