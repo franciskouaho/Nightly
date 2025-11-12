@@ -1,4 +1,4 @@
-import { GameState } from '@/types/gameTypes';
+import { GameState } from "@/types/gameTypes";
 
 export interface TrapAnswer {
   text: string;
@@ -28,7 +28,7 @@ export interface TrapPlayerAnswer {
   isTrap: boolean;
 }
 
-export interface TrapGameState extends Omit<GameState, 'currentQuestion'> {
+export interface TrapGameState extends Omit<GameState, "currentQuestion"> {
   currentQuestion: TrapQuestion | null;
   questions: TrapQuestion[];
   playerAnswers: {
@@ -38,4 +38,23 @@ export interface TrapGameState extends Omit<GameState, 'currentQuestion'> {
   history?: {
     [playerId: string]: number[];
   };
-} 
+}
+
+export interface PileOuFaceQuestion {
+  id: string;
+  text: string;
+  theme: string;
+  roundNumber: number;
+  type?: "sympa" | "trash" | "mechant";
+}
+
+export interface PileOuFaceGameState
+  extends Omit<GameState, "currentQuestion" | "currentPlayerId" | "phase"> {
+  phase: string; // Custom phases: 'loading', 'question', 'coin-flip', 'reveal', 'results', 'end'
+  currentQuestion: PileOuFaceQuestion | null;
+  currentPlayerId: string | null;
+  selectedPlayerName: string | null;
+  coinFlipResult: "pile" | "face" | null;
+  questionRevealed: boolean;
+  askedQuestionIds: string[];
+}
