@@ -38,7 +38,78 @@ export interface GameCategory {
 
 // Configuration des catégories de jeu
 export const gameCategories: GameCategory[] = [
-  // SECTION 1 : Soirées entre potes (Premium)
+  // SECTION 1 : Premiers pas – Accroche & découverte
+  {
+    id: "free_games",
+    title: "PREMIERS PAS",
+    subtitle: "Pour découvrir Nightly",
+    categoryType: "free",
+    dominantColor: "#4CAF50",
+    icon: "🎲",
+    cta: {
+      mainText: "Commence ton aventure",
+      subText: "Débloque tous les jeux",
+    },
+    games: [
+      {
+        id: "truth-or-dare",
+        nameKey: "home.games.truth-or-dare.name",
+        descriptionKey: "home.games.truth-or-dare.description",
+        image: require("@/assets/jeux/action-verite.png"),
+        colors: ["rgba(50, 90, 150, 0.8)", "rgba(80, 120, 200, 0.9)"],
+        borderColor: "#3F51B5",
+        shadowColor: "#3F51B5",
+        fontFamily: "Righteous-Regular",
+        tags: [
+          {
+            text: "home.games.truth-or-dare.tags.gratuit",
+            color: "#4CAF50",
+          },
+          {
+            text: "home.games.truth-or-dare.tags.fun",
+            color: "#FFC107",
+          },
+          {
+            text: "home.games.truth-or-dare.tags.porte_entree",
+            color: "#2196F3",
+          },
+        ],
+        premium: false,
+        interactive: "action",
+      },
+      {
+        id: "trap-answer",
+        nameKey: "home.games.trap-answer.name",
+        descriptionKey: "home.games.trap-answer.description",
+        image: require("@/assets/jeux/trap-answer.png"),
+        colors: ["#1A2A5B", "#7B24B1"],
+        borderColor: "#2C2C2C",
+        shadowColor: "#2C2C2C",
+        fontFamily: "SigmarOne-Regular",
+        tags: [
+          {
+            text: "home.games.trap-answer.tags.gratuit",
+            color: "#4CAF50",
+          },
+          {
+            text: "home.games.trap-answer.tags.quiz",
+            color: "#8E24AA",
+          },
+          {
+            text: "home.games.trap-answer.tags.logique",
+            color: "#9C27B0",
+          },
+          {
+            text: "home.games.trap-answer.tags.fun",
+            color: "#FFC107",
+          },
+        ],
+        premium: false,
+        interactive: "choice",
+      },
+    ],
+  },
+  // SECTION 2 : Soirées entre potes (Premium)
   {
     id: "soirees",
     title: "SOIRÉES ENTRE POTES",
@@ -107,77 +178,6 @@ export const gameCategories: GameCategory[] = [
           {
             text: "home.games.pile-ou-face.tags.revelations",
             color: "#F44336",
-          },
-        ],
-        premium: false,
-        interactive: "choice",
-      },
-    ],
-  },
-  // SECTION 2 : Jeux gratuits – Accroche & découverte
-  {
-    id: "free_games",
-    title: "JEUX GRATUITS",
-    subtitle: "Accroche & découverte",
-    categoryType: "free",
-    dominantColor: "#4CAF50",
-    icon: "🎲",
-    cta: {
-      mainText: "Amuse-toi gratuitement",
-      subText: "Débloque le reste",
-    },
-    games: [
-      {
-        id: "truth-or-dare",
-        nameKey: "home.games.truth-or-dare.name",
-        descriptionKey: "home.games.truth-or-dare.description",
-        image: require("@/assets/jeux/action-verite.png"),
-        colors: ["rgba(50, 90, 150, 0.8)", "rgba(80, 120, 200, 0.9)"],
-        borderColor: "#3F51B5",
-        shadowColor: "#3F51B5",
-        fontFamily: "Righteous-Regular",
-        tags: [
-          {
-            text: "home.games.truth-or-dare.tags.gratuit",
-            color: "#4CAF50",
-          },
-          {
-            text: "home.games.truth-or-dare.tags.fun",
-            color: "#FFC107",
-          },
-          {
-            text: "home.games.truth-or-dare.tags.porte_entree",
-            color: "#2196F3",
-          },
-        ],
-        premium: false,
-        interactive: "action",
-      },
-      {
-        id: "trap-answer",
-        nameKey: "home.games.trap-answer.name",
-        descriptionKey: "home.games.trap-answer.description",
-        image: require("@/assets/jeux/trap-answer.png"),
-        colors: ["#1A2A5B", "#7B24B1"],
-        borderColor: "#2C2C2C",
-        shadowColor: "#2C2C2C",
-        fontFamily: "SigmarOne-Regular",
-        tags: [
-          {
-            text: "home.games.trap-answer.tags.gratuit",
-            color: "#4CAF50",
-          },
-          {
-            text: "home.games.trap-answer.tags.quiz",
-            color: "#8E24AA",
-          },
-          {
-            text: "home.games.trap-answer.tags.logique",
-            color: "#9C27B0",
-          },
-          {
-            text: "home.games.trap-answer.tags.fun",
-            color: "#FFC107",
           },
         ],
         premium: false,

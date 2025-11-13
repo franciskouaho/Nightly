@@ -1,0 +1,101 @@
+{
+  "panda": {
+    "id": "panda",
+    "name": "panda",
+    "cost": 100,
+    "image": "https://storage.googleapis.com/nightly-efa29.firebasestorage.app/buy-assets/panda.png",
+    "type": "avatar",
+    "rarity": "common",
+    "description": "Un adorable panda"
+  },
+  "chat-rare": {
+    "id": "chat-rare",
+    "name": "chatRare",
+    "cost": 150,
+    "image": "https://storage.googleapis.com/nightly-efa29.firebasestorage.app/buy-assets/chatRare.png",
+    "type": "avatar",
+    "rarity": "rare",
+    "description": "Un chat mystérieux et rare"
+  },
+  "chat-rare-2": {
+    "id": "chat-rare-2",
+    "name": "chatRare2",
+    "cost": 150,
+    "image": "https://storage.googleapis.com/nightly-efa29.firebasestorage.app/buy-assets/chatRare2.png",
+    "type": "avatar",
+    "rarity": "rare",
+    "description": "Un autre chat rare"
+  },
+  "crocodile": {
+    "id": "crocodile",
+    "name": "crocodile",
+    "cost": 120,
+    "image": "https://storage.googleapis.com/nightly-efa29.firebasestorage.app/buy-assets/crocodile.png",
+    "type": "avatar",
+    "rarity": "common",
+    "description": "Un crocodile féroce"
+  },
+  "dragon": {
+    "id": "dragon",
+    "name": "dragon",
+    "cost": 200,
+    "image": "https://storage.googleapis.com/nightly-efa29.firebasestorage.app/buy-assets/dragon.png",
+    "type": "avatar",
+    "rarity": "epic",
+    "description": "Un dragon majestueux"
+  },
+  "hibou": {
+    "id": "hibou",
+    "name": "hibou",
+    "cost": 100,
+    "image": "https://storage.googleapis.com/nightly-efa29.firebasestorage.app/buy-assets/hibou.png",
+    "type": "avatar",
+    "rarity": "common",
+    "description": "Un hibou sage"
+  },
+  "licorne": {
+    "id": "licorne",
+    "name": "licorne",
+    "cost": 180,
+    "image": "https://storage.googleapis.com/nightly-efa29.firebasestorage.app/buy-assets/licorne.png",
+    "type": "avatar",
+    "rarity": "rare",
+    "description": "Une licorne magique"
+  },
+  "loup-rare": {
+    "id": "loup-rare",
+    "name": "loup-rare",
+    "cost": 170,
+    "image": "https://storage.googleapis.com/nightly-efa29.firebasestorage.app/buy-assets/loup-rare.png",
+    "type": "avatar",
+    "rarity": "rare",
+    "description": "Un loup rare et puissant"
+  },
+  "ourse": {
+    "id": "ourse",
+    "name": "ourse",
+    "cost": 110,
+    "image": "https://storage.googleapis.com/nightly-efa29.firebasestorage.app/buy-assets/ourse.png",
+    "type": "avatar",
+    "rarity": "common",
+    "description": "Une ourse protectrice"
+  },
+  "phoenix": {
+    "id": "phoenix",
+    "name": "phoenix",
+    "cost": 250,
+    "image": "https://storage.googleapis.com/nightly-efa29.firebasestorage.app/buy-assets/phoenix.png",
+    "type": "avatar",
+    "rarity": "legendary",
+    "description": "Un phoenix légendaire"
+  },
+  "avatar-dragon-rare": {
+    "id": "avatar-dragon-rare",
+    "name": "avart-dragon-rare",
+    "cost": 220,
+    "image": "https://storage.googleapis.com/nightly-efa29.firebasestorage.app/buy-assets/avart-dragon-rare.png",
+    "type": "avatar",
+    "rarity": "epic",
+    "description": "Un dragon rare et puissant"
+  }
+}

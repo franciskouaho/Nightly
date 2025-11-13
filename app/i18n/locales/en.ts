@@ -164,7 +164,7 @@ const en = {
     codePlaceholder: "Enter 6-digit code",
     loading: "Loading...",
     categories: {
-      free_games: "Free Games",
+      free_games: "First Steps",
       couple: "Couples",
       soirees: "Parties",
       distance: "Long Distance",
@@ -174,7 +174,7 @@ const en = {
       online: "Online",
     },
     subtitles: {
-      free_games: "Play for free with friends",
+      free_games: "Discover Nightly",
       couple: "Intimate games for two",
       soirees: "Perfect for group parties",
       distance: "Stay connected despite the distance",
@@ -268,6 +268,7 @@ const en = {
         description:
           "Secret questions and coin flips... Who will be exposed? 🪙",
         tags: {
+          gratuit: "FREE",
           soiree: "PARTY",
           hasard: "CHANCE",
           fun: "FUN",
@@ -375,6 +376,7 @@ const en = {
       title: "Shop",
       available: "Available",
       availableAssetsTitle: "Available Items",
+      noAssets: "No items available at the moment.",
       owned: "Owned",
       cost: "Cost",
       buy: "Buy",
@@ -958,6 +960,52 @@ const en = {
   // Ads
   ads: {
     title: "Advertisement",
+  },
+
+  // Assets without prefix (for buy-assets)
+  panda: {
+    name: "Panda",
+    description: "An adorable panda",
+  },
+  chatRare: {
+    name: "Mysterious Cat",
+    description: "A mysterious and rare cat",
+  },
+  chatRare2: {
+    name: "Another Rare Cat",
+    description: "Another rare cat",
+  },
+  crocodile: {
+    name: "Crocodile",
+    description: "A fierce crocodile",
+  },
+  dragon: {
+    name: "Dragon",
+    description: "A majestic dragon",
+  },
+  hibou: {
+    name: "Owl",
+    description: "A wise owl",
+  },
+  licorne: {
+    name: "Unicorn",
+    description: "A magical unicorn",
+  },
+  "loup-rare": {
+    name: "Rare Wolf",
+    description: "A rare and powerful wolf",
+  },
+  ourse: {
+    name: "Bear",
+    description: "A protective bear",
+  },
+  phoenix: {
+    name: "Phoenix",
+    description: "A legendary phoenix",
+  },
+  "avart-dragon-rare": {
+    name: "Rare Dragon",
+    description: "A rare and powerful dragon",
   },
 };
 

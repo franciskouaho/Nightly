@@ -2,8 +2,21 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    
-    // Règle simple : tout le monde peut lire, seuls les utilisateurs authentifiés peuvent écrire
+
+    // Règles spécifiques pour les avatars achetables (buy-assets)
+    match /buy-assets/{assetFile} {
+      allow read: if true; // Lecture publique pour afficher les assets dans l'app
+      allow write: if false; // Seuls les admins via console peuvent uploader
+    }
+
+    // Règles pour les avatars uploadés par les utilisateurs
+    match /avatars/{userId}/{fileName} {
+      allow read: if true; // Lecture publique pour afficher les avatars
+      allow write: if request.auth != null && request.auth.uid == userId; // L'utilisateur ne peut écrire que ses propres avatars
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Règle par défaut : tout le monde peut lire, seuls les utilisateurs authentifiés peuvent écrire
     match /{allPaths=**} {
       allow read: if true; // Lecture publique pour tous
       allow write: if request.auth != null; // Écriture pour utilisateurs connectés uniquement

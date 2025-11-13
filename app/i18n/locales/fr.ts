@@ -173,7 +173,7 @@ const fr = {
     codePlaceholder: "Entrez le code de la partie",
     loading: "Connexion à la partie...",
     categories: {
-      free_games: "JEUX GRATUITS",
+      free_games: "PREMIERS PAS",
       couple: "COUPLE",
       soirees: "SOIRÉES ENTRE POTES",
       distance: "À DISTANCE",
@@ -183,7 +183,7 @@ const fr = {
       online: "À DISTANCE",
     },
     subtitles: {
-      free_games: "Accroche & découverte",
+      free_games: "Pour découvrir Nightly",
       couple: "Faire rêver et convertir",
       soirees: "Le cœur de Nightly",
       distance: "Même à distance, la soirée continue",
@@ -278,6 +278,7 @@ const fr = {
         description:
           "Questions secrètes et pile ou face... Qui sera démasqué ? 🪙",
         tags: {
+          gratuit: "GRATUIT",
           soiree: "SOIRÉE",
           hasard: "HASARD",
           fun: "FUN",
@@ -386,7 +387,8 @@ const fr = {
       title: "Acheter des assets",
       available: "Assets disponibles",
       availableAssetsTitle: "Assets disponibles",
-      owned: "Possédés",
+      noAssets: "Aucun objet n'est disponible pour le moment.",
+      owned: "Possédé",
       cost: "Coût",
       buy: "Acheter",
       notAvailable: "Indisponible",
@@ -963,6 +965,51 @@ const fr = {
       "avatar-phoenix": {
         name: "Phénix",
         description: "Un phénix légendaire qui renaît de ses cendres",
+      },
+      // Assets sans préfixe (pour buy-assets)
+      panda: {
+        name: "Panda",
+        description: "Un adorable panda",
+      },
+      chatRare: {
+        name: "Chat Mystérieux",
+        description: "Un chat mystérieux et rare",
+      },
+      chatRare2: {
+        name: "Chat Rare",
+        description: "Un autre chat rare",
+      },
+      crocodile: {
+        name: "Crocodile",
+        description: "Un crocodile féroce",
+      },
+      dragon: {
+        name: "Dragon",
+        description: "Un dragon majestueux",
+      },
+      hibou: {
+        name: "Hibou",
+        description: "Un hibou sage",
+      },
+      licorne: {
+        name: "Licorne",
+        description: "Une licorne magique",
+      },
+      "loup-rare": {
+        name: "Loup Rare",
+        description: "Un loup rare et puissant",
+      },
+      ourse: {
+        name: "Ourse",
+        description: "Une ourse protectrice",
+      },
+      phoenix: {
+        name: "Phénix",
+        description: "Un phoenix légendaire",
+      },
+      "avart-dragon-rare": {
+        name: "Dragon Rare",
+        description: "Un dragon rare et puissant",
       },
     },
   },
