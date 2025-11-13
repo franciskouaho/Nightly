@@ -4,7 +4,7 @@ import { usePoints } from "@/hooks/usePoints";
 import { Asset, useUnlockedAssets } from "@/hooks/useUnlockedAssets";
 import { cacheRemoteImage } from "@/utils/cacheRemoteImage";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { getFirestore, doc, updateDoc } from "@react-native-firebase/firestore";
+import firestore from "@react-native-firebase/firestore";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -25,7 +25,7 @@ export default function BuyAssetsScreen() {
   const { t } = useTranslation();
   const { user, setUser } = useAuth();
   const { addPointsToUser } = usePoints();
-  const { unlockAsset, getUnlockedAssets } = useUnlockedAssets();
+  const { purchaseAsset, getUnlockedAssets } = useUnlockedAssets();
 
   const [unlockedAssetIds, setUnlockedAssetIds] = useState<string[]>([]);
   const [availableAssets, setAvailableAssets] = useState<Asset[]>([]);
@@ -41,8 +41,7 @@ export default function BuyAssetsScreen() {
     const fetchAssets = async () => {
       try {
         setIsLoadingAssets(true);
-        const db = getFirestore();
-        const snapshot = await db.collection("assets").get();
+        const snapshot = await firestore().collection("assets").get();
 
         if (!isMounted) {
           return;
@@ -100,7 +99,8 @@ export default function BuyAssetsScreen() {
     };
 
     fetchUnlockedAssets();
-  }, [user?.uid, getUnlockedAssets]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.uid]);
 
   const handleUnlockAsset = async (asset: Asset) => {
     if (!user?.uid) {
@@ -118,18 +118,15 @@ export default function BuyAssetsScreen() {
     }
 
     try {
-      // D'abord débloquer l'asset
-      const success = await unlockAsset(user.uid, asset.id);
-      if (success) {
-        // Ensuite déduire les points
-        const db = getFirestore();
-        const userRef = doc(db, "users", user.uid);
-        await updateDoc(userRef, {
-          points: userPoints - asset.cost
-        });
+      // Utiliser la Cloud Function pour un achat sécurisé et atomique
+      const result = await purchaseAsset(asset.id);
 
-        // Update local state immediately after successful unlock
+      if (result.success) {
+        // Update local state immediately after successful purchase
         setUnlockedAssetIds((prevIds) => [...prevIds, asset.id]);
+
+        // Mettre à jour les points de l'utilisateur dans le contexte
+        setUser({ ...user, points: result.data.newPoints });
 
         Alert.alert(
           t("profile.success"),
@@ -138,7 +135,11 @@ export default function BuyAssetsScreen() {
           }),
         );
       } else {
-        Alert.alert(t("errors.general"), t("profile.unlockError"));
+        console.error("Erreur lors de l'achat d'asset:", result.error);
+        Alert.alert(
+          t("errors.general"),
+          result.error || t("profile.unlockError"),
+        );
       }
     } catch (error) {
       console.error("Erreur lors de l'achat d'asset:", error);
@@ -150,11 +151,8 @@ export default function BuyAssetsScreen() {
     if (!user) return;
 
     try {
-      const db = getFirestore();
-      const userRef = doc(db, "users", user.uid);
-
       // Mettre à jour l'avatar de l'utilisateur
-      await updateDoc(userRef, {
+      await firestore().collection("users").doc(user.uid).update({
         avatar: asset.image,
       });
 

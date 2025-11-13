@@ -2,26 +2,25 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
+
     // Fonction helper pour vérifier si l'utilisateur est admin
     function isAdmin() {
-      return request.auth != null && 
+      return request.auth != null &&
         request.auth.token.admin == true;
     }
-    
+
     // Fonction helper pour vérifier la propriété
     function isOwner(userId) {
       return request.auth != null && request.auth.uid == userId;
     }
-    
-    // Règles pour les utilisateurs - SIMPLIFIÉ
+
+    // Règles pour les utilisateurs
     match /users/{userId} {
       allow read: if request.auth != null;
-      allow create: if request.auth != null && isOwner(userId);
-      allow update: if request.auth != null && isOwner(userId);
-      allow delete: if isAdmin() || isOwner(userId);
+      allow create, update, write: if request.auth != null && request.auth.uid == userId;
+      allow delete: if isAdmin() || (request.auth != null && request.auth.uid == userId);
     }
-    
+
     // Règles pour les pseudos/usernames
     match /usernames/{username} {
       allow read: if true; // Permettre la vérification de disponibilité
@@ -29,7 +28,7 @@ service cloud.firestore {
       allow update: if request.auth != null;
       allow delete: if request.auth != null;
     }
-    
+
     // Règles pour les salles de jeu - SIMPLIFIÉ
     match /rooms/{roomId} {
       allow read: if request.auth != null;
@@ -37,7 +36,7 @@ service cloud.firestore {
       allow update: if request.auth != null;
       allow delete: if request.auth != null;
     }
-    
+
     // Règles pour les jeux actifs - SIMPLIFIÉ
     match /games/{gameId} {
       allow read: if request.auth != null;
@@ -45,38 +44,38 @@ service cloud.firestore {
       allow update: if request.auth != null;
       allow delete: if request.auth != null;
     }
-    
+
     // Règles pour les questions de jeu
     match /questions/{gameType}/{questionId} {
       allow read: if request.auth != null;
       allow write: if false;
     }
-    
+
     // Règles pour les traductions
     match /translations/{language}/{translationId} {
       allow read: if request.auth != null;
       allow write: if false;
     }
-    
+
     // Règles pour les statistiques
     match /stats/{userId} {
       allow read: if request.auth != null;
       allow write: if request.auth != null && isOwner(userId);
       allow delete: if isAdmin() || isOwner(userId);
     }
-    
+
     // Règles pour les classements
     match /leaderboards/{gameType} {
       allow read: if request.auth != null;
       allow write: if false;
     }
-    
+
     // Règles pour les événements
     match /events/{eventId} {
       allow read: if request.auth != null;
       allow write: if false;
     }
-    
+
     // Règles pour les notifications
     match /notifications/{userId}/{notificationId} {
       allow read: if request.auth != null && isOwner(userId);
@@ -84,7 +83,7 @@ service cloud.firestore {
       allow update: if request.auth != null && isOwner(userId);
       allow delete: if request.auth != null && isOwner(userId);
     }
-    
+
     // Règles pour les rapports de bug
     match /reports/{reportId} {
       allow read: if isAdmin();
@@ -92,13 +91,13 @@ service cloud.firestore {
       allow update: if false;
       allow delete: if isAdmin();
     }
-    
+
     // Règles pour les configurations de jeu
     match /gameConfig/{gameType} {
       allow read: if request.auth != null;
       allow write: if false;
     }
-    
+
     // Règles pour les sessions de jeu temporaires
     match /gameSessions/{sessionId} {
       allow read: if request.auth != null;
@@ -106,12 +105,12 @@ service cloud.firestore {
       allow update: if request.auth != null;
       allow delete: if request.auth != null;
     }
-    
+
     // Règles pour les logs de debug
     match /debug/{userId}/{logId} {
       allow read, write, delete: if request.auth != null && isOwner(userId);
     }
-    
+
     // Règles pour les achats/transactions
     match /purchases/{userId}/{purchaseId} {
       allow read: if request.auth != null && isOwner(userId);
@@ -119,7 +118,7 @@ service cloud.firestore {
       allow update: if false;
       allow delete: if isAdmin();
     }
-    
+
     // Règles pour les amis/relations
     match /friends/{userId} {
       allow read: if request.auth != null && isOwner(userId);

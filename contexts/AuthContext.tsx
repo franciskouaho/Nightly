@@ -96,30 +96,90 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const restoreSession = async () => {
     try {
+      const authInstance = getAuth();
+      const db = getFirestore();
       const savedUid = await AsyncStorage.getItem(STORAGE_KEY);
-      if (savedUid) {
-        const auth = getAuth();
-        const db = getFirestore();
-        const userDoc = await getDoc(doc(db, "users", savedUid));
+      const firebaseUser = authInstance.currentUser;
 
-        if (userDoc.exists()) {
-          const userData = userDoc.data() as User;
+      const loadUserData = async (uid: string) => {
+        const snapshot = await getDoc(doc(db, "users", uid));
+        return snapshot.exists() ? (snapshot.data() as User) : null;
+      };
 
-          // Vérifier si c'est un compte reviewer
-          if (REVIEWER_PSEUDOS.includes(userData.pseudo)) {
-            console.log('🤖 Session reviewer restaurée:', userData.pseudo);
+      const applyUserToContext = async (uid: string, data: User) => {
+        setUser(data);
+        await saveUserUid(uid);
+        identifyUser(data.uid, {
+          pseudo: data.pseudo,
+          createdAt: data.createdAt,
+        });
+        console.log("✅ Session restaurée avec UID:", uid);
+      };
+
+      // Cas 1 : utilisateur Firebase déjà authentifié → source de vérité
+      if (firebaseUser) {
+        let activeUserData = await loadUserData(firebaseUser.uid);
+
+        // Cas 1.a : document manquant → tenter une migration depuis l'UID sauvegardé
+        if (!activeUserData && savedUid && savedUid !== firebaseUser.uid) {
+          const savedUserData = await loadUserData(savedUid);
+          if (savedUserData) {
+            const migratedData: User = {
+              ...savedUserData,
+              uid: firebaseUser.uid,
+            };
+
+            await setDoc(doc(db, "users", firebaseUser.uid), migratedData);
+            await setDoc(
+              doc(db, "usernames", savedUserData.pseudo.toLowerCase()),
+              {
+                uid: firebaseUser.uid,
+                createdAt: savedUserData.createdAt,
+                avatar: savedUserData.avatar,
+              },
+              { merge: true },
+            );
+
+            console.log(
+              `🔁 Migration du profil ${savedUid} vers ${firebaseUser.uid}`,
+            );
+            activeUserData = migratedData;
           }
+        }
 
-          setUser(userData);
-          identifyUser(userData.uid, {
-            pseudo: userData.pseudo,
-            createdAt: userData.createdAt,
-          });
-          console.log('✅ Session restaurée avec UID:', savedUid);
+        if (activeUserData) {
+          // Vérifier si c'est un compte reviewer
+          if (REVIEWER_PSEUDOS.includes(activeUserData.pseudo)) {
+            console.log(
+              "🤖 Session reviewer restaurée:",
+              activeUserData.pseudo,
+            );
+          }
+          await applyUserToContext(firebaseUser.uid, activeUserData);
+          return;
+        }
+
+        // Aucun document associé à l'utilisateur Firebase → réinitialisation
+        console.warn(
+          "⚠️ Aucun document utilisateur correspondant à l'UID Firebase. Réinitialisation de la session locale.",
+        );
+        await AsyncStorage.removeItem(STORAGE_KEY);
+        setUser(null);
+        resetUser();
+        return;
+      }
+
+      // Cas 2 : pas d'utilisateur Firebase, mais un UID sauvegardé localement
+      if (savedUid) {
+        const savedUserData = await loadUserData(savedUid);
+
+        if (savedUserData) {
+          if (REVIEWER_PSEUDOS.includes(savedUserData.pseudo)) {
+            console.log("🤖 Session reviewer restaurée:", savedUserData.pseudo);
+          }
+          await applyUserToContext(savedUid, savedUserData);
         } else {
-          // Si l'utilisateur n'existe plus dans la base de données
           await AsyncStorage.removeItem(STORAGE_KEY);
-          await auth.signOut();
           setUser(null);
           resetUser();
           throw new Error("Compte introuvable");
@@ -155,17 +215,58 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (firebaseUser) {
         try {
           const db = getFirestore();
-          const userDoc = await getDoc(doc(db, "users", firebaseUser.uid));
+          const userRef = doc(db, "users", firebaseUser.uid);
+          const userDoc = await getDoc(userRef);
+          let userData: User | null = null;
+
           if (userDoc.exists()) {
-            const userData = userDoc.data() as User;
-          setUser(userData);
-          await saveUserUid(firebaseUser.uid);
-          identifyUser(userData.uid, {
-            pseudo: userData.pseudo,
-            createdAt: userData.createdAt,
-          });
-          // Set AppsFlyer Client ID
-          await setCustomerUserId(userData.uid);
+            userData = userDoc.data() as User;
+          } else {
+            const savedUid = await AsyncStorage.getItem(STORAGE_KEY);
+            if (savedUid && savedUid !== firebaseUser.uid) {
+              const previousDoc = await getDoc(doc(db, "users", savedUid));
+              if (previousDoc.exists()) {
+                const previousData = previousDoc.data() as User;
+                const migratedData: User = {
+                  ...previousData,
+                  uid: firebaseUser.uid,
+                };
+
+                await setDoc(userRef, migratedData);
+                await setDoc(
+                  doc(db, "usernames", previousData.pseudo.toLowerCase()),
+                  {
+                    uid: firebaseUser.uid,
+                    createdAt: previousData.createdAt,
+                    avatar: previousData.avatar,
+                  },
+                  { merge: true },
+                );
+
+                console.log(
+                  `🔁 Migration du profil ${savedUid} vers ${firebaseUser.uid} (onAuthStateChanged)`,
+                );
+                userData = migratedData;
+              }
+            }
+          }
+
+          if (userData) {
+            setUser(userData);
+            await saveUserUid(firebaseUser.uid);
+            identifyUser(userData.uid, {
+              pseudo: userData.pseudo,
+              createdAt: userData.createdAt,
+            });
+            // Set AppsFlyer Client ID
+            await setCustomerUserId(userData.uid);
+          } else {
+            setUser(null);
+            resetUser();
+            await AsyncStorage.removeItem(STORAGE_KEY);
+            console.warn(
+              "⚠️ Aucun profil utilisateur disponible après authentification.",
+            );
           }
         } catch (err) {
           setError(err as Error);

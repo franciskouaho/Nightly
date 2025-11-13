@@ -7,6 +7,6 @@ export {
 export { scheduledDeleteCollections } from './scheduled-cleanup';
 
 // Exporter les fonctions de gestion des utilisateurs
-export { awardLumiCoins, deleteUser, setAnnualSubscription } from './users';
+export { awardLumiCoins, deleteUser, purchaseAsset, setAnnualSubscription } from './users';
 
 // firebase deploy --only functions
