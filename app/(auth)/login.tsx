@@ -4,12 +4,15 @@ import { analyticsInstance } from "@/config/firebase";
 import Colors from "@/constants/Colors";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAuthAnalytics } from "@/hooks/useAuthAnalytics";
+import { cacheRemoteImage } from "@/utils/cacheRemoteImage";
 import { Ionicons } from "@expo/vector-icons";
+import storage from "@react-native-firebase/storage";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  ActivityIndicator,
   Alert,
   Image,
   KeyboardAvoidingView,
@@ -20,13 +23,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
-const profils: string[] = [
-  "https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/profils%2Frenard.png?alt=media&token=139ed01b-46f2-4f3e-9305-459841f2a893",
-  "https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/profils%2Fchat.png?alt=media&token=0c852d5b-1a14-4b8a-8926-78a7c88c0695",
-  "https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/profils%2Fgrenouille.png?alt=media&token=8257acb0-bcf7-4e30-a7cf-5ddf44e6da01",
-  "https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/profils%2Foiseau.png?alt=media&token=5a9a9e36-1651-4461-8702-d7bc8d516423",
-];
 
 function chunkArray<T>(array: T[], size: number): T[][] {
   const result: T[][] = [];
@@ -39,7 +35,15 @@ function chunkArray<T>(array: T[], size: number): T[][] {
 export default function LoginScreen() {
   const [username, setUsername] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedProfile, setSelectedProfile] = useState(profils[0] as string);
+  const [profiles, setProfiles] = useState<
+    { remoteUrl: string; localUri: string }[]
+  >([]);
+  const [selectedProfile, setSelectedProfile] = useState<{
+    remoteUrl: string;
+    localUri: string;
+  } | null>(null);
+  const [isLoadingProfiles, setIsLoadingProfiles] = useState(true);
+  const [profilesError, setProfilesError] = useState<string | null>(null);
   const { signIn, restoreSession, user, firstLogin, checkExistingUser } =
     useAuth();
   const router = useRouter();
@@ -256,6 +260,51 @@ export default function LoginScreen() {
     }
   }, [user]);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchProfiles = async () => {
+      try {
+        setIsLoadingProfiles(true);
+        const listResult = await storage().ref("profils").listAll();
+        const urls = await Promise.all(
+          listResult.items.map(async (item) => item.getDownloadURL()),
+        );
+
+        const cachedProfiles = await Promise.all(
+          urls.map(async (remoteUrl) => {
+            const localUri = await cacheRemoteImage(remoteUrl, "profils");
+            return { remoteUrl, localUri };
+          }),
+        );
+
+        if (!isMounted) {
+          return;
+        }
+
+        setProfiles(cachedProfiles);
+        setSelectedProfile(
+          (current) => current ?? cachedProfiles[0] ?? null,
+        );
+      } catch (error) {
+        console.error("Erreur lors du chargement des profils:", error);
+        if (isMounted) {
+          setProfilesError("Impossible de charger les avatars.");
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoadingProfiles(false);
+        }
+      }
+    };
+
+    fetchProfiles();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const handleLogin = async () => {
     if (!username) {
       Alert.alert(t("errors.general"), t("auth.login.usernameRequired"));
@@ -270,7 +319,16 @@ export default function LoginScreen() {
     setIsLoading(true);
 
     try {
-      if (!selectedProfile) return;
+      if (!selectedProfile) {
+        Alert.alert(
+          t("errors.general"),
+          t(
+            "auth.login.profileRequired",
+            "Veuillez sélectionner un avatar avant de continuer.",
+          ),
+        );
+        return;
+      }
 
       // Vérifier si l'utilisateur existe déjà
       const userExists = await checkExistingUser(username);
@@ -297,7 +355,7 @@ export default function LoginScreen() {
       }
 
       // Continuer avec la connexion normale
-      await signIn(username, selectedProfile);
+      await signIn(username, selectedProfile.remoteUrl);
       await authAnalytics.trackLogin("username", true);
       // Tracking Google Analytics login event
       await analyticsInstance.logEvent("login", {
@@ -347,10 +405,30 @@ export default function LoginScreen() {
 
         <View style={[styles.content, { zIndex: 15 }]}>
           <View style={styles.header}>
-            <Image
-              source={{ uri: selectedProfile }}
-              style={styles.selectedProfileImage}
-            />
+            {selectedProfile ? (
+              <Image
+                source={{
+                  uri: selectedProfile.localUri || selectedProfile.remoteUrl,
+                }}
+                style={styles.selectedProfileImage}
+              />
+            ) : (
+              <View
+                style={[
+                  styles.selectedProfileImage,
+                  {
+                    alignItems: "center",
+                    justifyContent: "center",
+                  },
+                ]}
+              >
+                {isLoadingProfiles ? (
+                  <ActivityIndicator color={primary} />
+                ) : (
+                  <Ionicons name="image-outline" size={36} color={primary} />
+                )}
+              </View>
+            )}
             <Text style={styles.title}>{t("app.name")}</Text>
             <Text style={styles.subtitle}>{t("auth.login.enterUsername")}</Text>
           </View>
@@ -376,24 +454,42 @@ export default function LoginScreen() {
               {t("auth.login.characterDescription")}
             </Text>
 
-            {chunkArray(profils, 4).map((row: any[], rowIdx: number) => (
-              <View style={styles.profilesRow} key={rowIdx}>
-                {row.map((img: any, idx: number) => (
-                  <TouchableOpacity
-                    key={idx}
-                    onPress={() => setSelectedProfile(img)}
-                  >
-                    <Image
-                      source={{ uri: img }}
-                      style={[
-                        styles.profileImg,
-                        selectedProfile === img && styles.profileImgSelected,
-                      ]}
-                    />
-                  </TouchableOpacity>
-                ))}
-              </View>
-            ))}
+            {isLoadingProfiles ? (
+              <ActivityIndicator color={primary} />
+            ) : profilesError ? (
+              <Text style={styles.profileSelectionSubtitle}>
+                {profilesError}
+              </Text>
+            ) : profiles.length === 0 ? (
+              <Text style={styles.profileSelectionSubtitle}>
+                {t(
+                  "auth.login.noProfilesAvailable",
+                  "Aucun avatar n'est disponible pour le moment.",
+                )}
+              </Text>
+            ) : (
+              chunkArray(profiles, 4).map((row, rowIdx: number) => (
+                <View style={styles.profilesRow} key={rowIdx}>
+                  {row.map((profile, idx: number) => (
+                    <TouchableOpacity
+                      key={`${profile.remoteUrl}-${idx}`}
+                      onPress={() => setSelectedProfile(profile)}
+                    >
+                      <Image
+                        source={{
+                          uri: profile.localUri || profile.remoteUrl,
+                        }}
+                        style={[
+                          styles.profileImg,
+                          selectedProfile?.remoteUrl === profile.remoteUrl &&
+                            styles.profileImgSelected,
+                        ]}
+                      />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              ))
+            )}
 
             <TouchableOpacity
               style={[

@@ -13,13 +13,10 @@ buildscript {
   }
 }
 
-// Node est maintenant installé via Homebrew et est dans le PATH système
-def nodePath = "node"
-
 def reactNativeAndroidDir = new File(
   providers.exec {
     workingDir(rootDir)
-    commandLine(nodePath, "--print", "require.resolve('react-native/package.json')")
+    commandLine("node", "--print", "require.resolve('react-native/package.json')")
   }.standardOutput.asText.get().trim(),
   "../android"
 )

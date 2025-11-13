@@ -12,7 +12,6 @@
       "bundleIdentifier": "com.emplica.nightly",
       "googleServicesFile": "./GoogleService-Info.plist",
       "appleTeamId": "NAN7MFNMT7",
-      "deploymentTarget": "15.1",
       "infoPlist": {
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true
@@ -54,7 +53,9 @@
         "expo-build-properties",
         {
           "ios": {
-            "useFrameworks": "static"
+            "useFrameworks": "static",
+            "forceStaticLinking": ["RNFBApp", "RNFBAuth", "RNFBFirestore", "RNFBMessaging", "RNFBStorage"],
+            "deploymentTarget": "15.1"
           },
           "android": {
             "permissions": ["com.android.vending.BILLING", "CAMERA"],

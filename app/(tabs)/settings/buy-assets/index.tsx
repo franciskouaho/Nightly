@@ -2,6 +2,7 @@ import PointsDisplay from "@/components/PointsDisplay";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePoints } from "@/hooks/usePoints";
 import { Asset, useUnlockedAssets } from "@/hooks/useUnlockedAssets";
+import { cacheRemoteImage } from "@/utils/cacheRemoteImage";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { getFirestore, doc, updateDoc } from "@react-native-firebase/firestore";
 import { LinearGradient } from "expo-linear-gradient";
@@ -9,6 +10,7 @@ import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  ActivityIndicator,
   Alert,
   Image,
   ScrollView,
@@ -18,119 +20,6 @@ import {
   View,
 } from "react-native";
 
-export const AVAILABLE_ASSETS: Asset[] = [
-  {
-    id: "avatar-panda",
-    name: "avatar-panda",
-    cost: 300,
-    image:
-      "https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/buy-assets%2Fpanda.png?alt=media&token=413b4355-0af6-4dc5-a48f-fe0dd60667b7",
-    type: "avatar",
-    rarity: "common",
-    description: "Un adorable panda pour votre profil",
-  },
-  {
-    id: "avatar-chat-rare",
-    name: "avatar-chat-rare",
-    cost: 1000,
-    image:
-      "https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/buy-assets%2FchatRare.png?alt=media&token=7316bd1e-2765-4286-8930-7adb30d09956",
-    type: "avatar",
-    rarity: "rare",
-    description: "Un chat mystérieux aux yeux brillants",
-  },
-  {
-    id: "avatar-chat-rare-2",
-    name: "avatar-chat-rare-2",
-    cost: 250,
-    image:
-      "https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/buy-assets%2FchatRare2.png?alt=media&token=842eb6fe-ebc0-43e5-b7f2-f54ac5c9474d",
-    type: "avatar",
-    rarity: "rare",
-    description: "Un chat rare avec un design unique",
-  },
-  {
-    id: "avatar-crocodile",
-    name: "avatar-crocodile",
-    cost: 500,
-    image:
-      "https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/buy-assets%2Fcrocodile.png?alt=media&token=b3044538-ecb2-44cf-b220-2822f8c6b9a2",
-    type: "avatar",
-    rarity: "rare",
-    description: "Un crocodile impressionnant",
-  },
-  {
-    id: "avatar-hibou",
-    name: "avatar-hibou",
-    cost: 800,
-    image:
-      "https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/buy-assets%2Fhibou.png?alt=media&token=794f00af-ec0c-451c-92a3-a3c1b56f42bf",
-    type: "avatar",
-    rarity: "rare",
-    description: "Un hibou sage et mystérieux",
-  },
-  {
-    id: "avatar-dragon",
-    name: "avatar-dragon",
-    cost: 5000,
-    image:
-      "https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/buy-assets%2Fdragon.png?alt=media&token=6f57e3c9-6046-46c2-918b-7b241441326a",
-    type: "avatar",
-    rarity: "epic",
-    description: "Un dragon majestueux cracheur de feu",
-  },
-  {
-    id: "avatar-ourse",
-    name: "avatar-ourse",
-    cost: 10000,
-    image:
-      "https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/buy-assets%2Fourse.png?alt=media&token=af60bf59-e7e3-4726-b64a-978371512a89",
-    type: "avatar",
-    rarity: "epic",
-    description: "Un ourse majestueux cracheur de feu",
-  },
-  {
-    id: "avatar-loup-rare",
-    name: "avatar-loup-rare",
-    cost: 999999,
-    image:
-      "https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/buy-assets%2Floup-rare.png?alt=media&token=88385a11-5e45-4533-84cd-082be53252e6",
-    type: "avatar",
-    rarity: "epic",
-    description: "Un ourse majestueux cracheur de feu",
-  },
-  {
-    id: "avatar-dragon-rare",
-    name: "avatar-dragon-rare",
-    cost: 50000,
-    image:
-      "https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/buy-assets%2Favart-dragon-rare.png?alt=media&token=26ba978b-5057-448d-a0fe-854d91ae54f1",
-    type: "avatar",
-    rarity: "legendary",
-    description: "Un dragon majestueux cracheur de feu",
-  },
-  {
-    id: "avatar-licorne",
-    name: "avatar-licorne",
-    cost: 50000,
-    image:
-      "https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/buy-assets%2Flicorne.png?alt=media&token=a2158a1b-b49b-44e3-a3cd-35835663a2dd",
-    type: "avatar",
-    rarity: "legendary",
-    description: "Un dragon majestueux cracheur de feu",
-  },
-  {
-    id: "avatar-phoenix",
-    name: "avatar-phoenix",
-    cost: 50000,
-    image:
-      "https://firebasestorage.googleapis.com/v0/b/nightly-efa29.firebasestorage.app/o/buy-assets%2Fphoenix.png?alt=media&token=ff365cce-d73c-4a41-9f56-dbed53d64e3f",
-    type: "avatar",
-    rarity: "legendary",
-    description: "Un phénix légendaire qui renaît de ses cendres",
-  },
-];
-
 export default function BuyAssetsScreen() {
   const router = useRouter();
   const { t } = useTranslation();
@@ -139,6 +28,68 @@ export default function BuyAssetsScreen() {
   const { unlockAsset, getUnlockedAssets } = useUnlockedAssets();
 
   const [unlockedAssetIds, setUnlockedAssetIds] = useState<string[]>([]);
+  const [availableAssets, setAvailableAssets] = useState<Asset[]>([]);
+  const [isLoadingAssets, setIsLoadingAssets] = useState(true);
+  const [assetsError, setAssetsError] = useState<string | null>(null);
+  const [assetLocalUris, setAssetLocalUris] = useState<Record<string, string>>(
+    {},
+  );
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchAssets = async () => {
+      try {
+        setIsLoadingAssets(true);
+        const db = getFirestore();
+        const snapshot = await db.collection("assets").get();
+
+        if (!isMounted) {
+          return;
+        }
+
+        const fetchedAssets: Asset[] = snapshot.docs.map((docSnapshot) => {
+          const data = docSnapshot.data() as Partial<Asset>;
+
+          return {
+            id: docSnapshot.id,
+            name: data.name ?? docSnapshot.id,
+            cost: data.cost ?? 0,
+            image: data.image ?? "",
+            type: data.type ?? "avatar",
+            rarity: data.rarity ?? "common",
+            description: data.description,
+          };
+        });
+
+        const cachedEntries = await Promise.all(
+          fetchedAssets.map(async (asset) => {
+            const localUri = await cacheRemoteImage(asset.image, "buy-assets");
+            return [asset.id, localUri] as const;
+          }),
+        );
+
+        setAvailableAssets(fetchedAssets);
+        setAssetLocalUris(Object.fromEntries(cachedEntries));
+        setAssetsError(null);
+      } catch (error) {
+        console.error("Erreur lors de la récupération des assets:", error);
+        if (isMounted) {
+          setAssetsError("Impossible de récupérer les assets pour le moment.");
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoadingAssets(false);
+        }
+      }
+    };
+
+    fetchAssets();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     const fetchUnlockedAssets = async () => {
@@ -241,74 +192,92 @@ export default function BuyAssetsScreen() {
           {t("settings.buyAssets.availableAssetsTitle")}
         </Text>
         <View style={styles.assetListContainer}>
-          {AVAILABLE_ASSETS.map((asset) => {
-            // Check against local state instead of async hook call in render
-            const unlocked = unlockedAssetIds.includes(asset.id);
-            const isAvatar = asset.type === "avatar";
+          {isLoadingAssets ? (
+            <ActivityIndicator color="#694ED6" />
+          ) : assetsError ? (
+            <Text style={styles.assetCardOwned}>{assetsError}</Text>
+          ) : availableAssets.length === 0 ? (
+            <Text style={styles.assetCardOwned}>
+              {t(
+                "settings.buyAssets.noAssets",
+                "Aucun objet n'est disponible pour le moment.",
+              )}
+            </Text>
+          ) : (
+            availableAssets.map((asset) => {
+              // Check against local state instead of async hook call in render
+              const unlocked = unlockedAssetIds.includes(asset.id);
+              const isAvatar = asset.type === "avatar";
 
-            return (
-              <View key={asset.id} style={styles.assetCard}>
-                <Image
-                  source={{ uri: asset.image }}
-                  style={styles.assetCardImage}
-                  onError={(error) => {
-                    console.error(`❌ Erreur chargement image ${asset.name}:`, error.nativeEvent.error);
-                  }}
-                  onLoad={() => {
-                    console.log(`✅ Image chargée: ${asset.name}`);
-                  }}
-                />
-                <View style={styles.assetCardInfo}>
-                  <Text style={styles.assetCardName}>
-                    {t(`assets.avatars.${asset.name}.name`)}
-                  </Text>
+              return (
+                <View key={asset.id} style={styles.assetCard}>
+                  <Image
+                    source={{
+                      uri: assetLocalUris[asset.id] || asset.image,
+                    }}
+                    style={styles.assetCardImage}
+                    onError={(error) => {
+                      console.error(
+                        `❌ Erreur chargement image ${asset.name}:`,
+                        error.nativeEvent.error,
+                      );
+                    }}
+                    onLoad={() => {
+                      console.log(`✅ Image chargée: ${asset.name}`);
+                    }}
+                  />
+                  <View style={styles.assetCardInfo}>
+                    <Text style={styles.assetCardName}>
+                      {t(`assets.avatars.${asset.name}.name`)}
+                    </Text>
+                    {!unlocked ? (
+                      <Text style={styles.assetCardCost}>
+                        {asset.cost}{" "}
+                        <MaterialCommunityIcons
+                          name="currency-btc"
+                          size={12}
+                          color="#FFD700"
+                        />
+                      </Text>
+                    ) : (
+                      <Text style={styles.assetCardOwned}>
+                        {t("settings.buyAssets.owned")}
+                      </Text>
+                    )}
+                  </View>
+
                   {!unlocked ? (
-                    <Text style={styles.assetCardCost}>
-                      {asset.cost}{" "}
-                      <MaterialCommunityIcons
-                        name="currency-btc"
-                        size={12}
-                        color="#FFD700"
-                      />
-                    </Text>
+                    <TouchableOpacity
+                      style={[
+                        styles.buyButton,
+                        (user?.points ?? 0) < asset.cost &&
+                          styles.buyButtonDisabled,
+                      ]}
+                      onPress={() => handleUnlockAsset(asset)}
+                      disabled={(user?.points ?? 0) < asset.cost}
+                    >
+                      <Text style={styles.buyButtonText}>
+                        {(user?.points ?? 0) < asset.cost
+                          ? t("settings.buyAssets.notAvailable")
+                          : t("settings.buyAssets.buy")}
+                      </Text>
+                    </TouchableOpacity>
+                  ) : isAvatar ? (
+                    <TouchableOpacity
+                      style={styles.equipButton}
+                      onPress={() => handleEquipAvatar(asset)}
+                    >
+                      <Text style={styles.equipButtonText}>
+                        {t("settings.buyAssets.equip")}
+                      </Text>
+                    </TouchableOpacity>
                   ) : (
-                    <Text style={styles.assetCardOwned}>
-                      {t("settings.buyAssets.owned")}
-                    </Text>
+                    <View style={styles.ownedButtonPlaceholder}></View>
                   )}
                 </View>
-
-                {!unlocked ? (
-                  <TouchableOpacity
-                    style={[
-                      styles.buyButton,
-                      (user?.points ?? 0) < asset.cost &&
-                        styles.buyButtonDisabled,
-                    ]}
-                    onPress={() => handleUnlockAsset(asset)}
-                    disabled={(user?.points ?? 0) < asset.cost}
-                  >
-                    <Text style={styles.buyButtonText}>
-                      {(user?.points ?? 0) < asset.cost
-                        ? t("settings.buyAssets.notAvailable")
-                        : t("settings.buyAssets.buy")}
-                    </Text>
-                  </TouchableOpacity>
-                ) : isAvatar ? (
-                  <TouchableOpacity
-                    style={styles.equipButton}
-                    onPress={() => handleEquipAvatar(asset)}
-                  >
-                    <Text style={styles.equipButtonText}>
-                      {t("settings.buyAssets.equip")}
-                    </Text>
-                  </TouchableOpacity>
-                ) : (
-                  <View style={styles.ownedButtonPlaceholder}></View>
-                )}
-              </View>
-            );
-          })}
+              );
+            })
+          )}
         </View>
       </ScrollView>
     </View>
