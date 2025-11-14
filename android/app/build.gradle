@@ -4,6 +4,12 @@ apply plugin: "com.facebook.react"
 
 def projectRoot = rootDir.getAbsoluteFile().getParentFile().getAbsolutePath()
 
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 /**
  * This is the configuration block to customize your React Native Android app.
  * By default you don't need to apply any configuration, just uncomment the lines you need.
@@ -92,8 +98,8 @@ android {
         applicationId 'com.emplica.nightly.android'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 33
-        versionName "1.7.0"
+        versionCode 35
+        versionName "1.7.1"
     }
     signingConfigs {
         debug {
@@ -103,11 +109,11 @@ android {
             keyPassword 'android'
         }
         release {
-            if (project.hasProperty('MYAPP_UPLOAD_STORE_FILE')) {
-                storeFile rootProject.file(MYAPP_UPLOAD_STORE_FILE)
-                storePassword MYAPP_UPLOAD_STORE_PASSWORD
-                keyAlias MYAPP_UPLOAD_KEY_ALIAS
-                keyPassword MYAPP_UPLOAD_KEY_PASSWORD
+            if (keystorePropertiesFile.exists()) {
+                storeFile file(keystoreProperties['MYAPP_RELEASE_STORE_FILE'])
+                storePassword keystoreProperties['MYAPP_RELEASE_STORE_PASSWORD']
+                keyAlias keystoreProperties['MYAPP_RELEASE_KEY_ALIAS']
+                keyPassword keystoreProperties['MYAPP_RELEASE_KEY_PASSWORD']
             }
         }
     }

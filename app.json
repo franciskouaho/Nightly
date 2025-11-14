@@ -2,7 +2,7 @@
   "expo": {
     "name": "Nightly",
     "slug": "nightly",
-    "version": "1.7.0",
+    "version": "1.7.1",
     "icon": "./assets/christmas/logo.png",
     "scheme": "nightly",
     "userInterfaceStyle": "automatic",
@@ -28,7 +28,7 @@
       },
       "package": "com.emplica.nightly.android",
       "googleServicesFile": "./google-services.json",
-      "versionCode": 33,
+      "versionCode": 35,
       "permissions": [
         "INTERNET",
         "NOTIFICATIONS",

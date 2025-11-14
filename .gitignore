@@ -55,3 +55,4 @@ nightly-*.json
 app-example
 /.idea/
 /.idea/*
+android/keystore.properties
