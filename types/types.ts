@@ -57,4 +57,6 @@ export interface PileOuFaceGameState
   coinFlipResult: "pile" | "face" | null;
   questionRevealed: boolean;
   askedQuestionIds: string[];
+  isFlipping: boolean; // État synchronisé pour l'animation de la pièce
+  coinFlipHistory: Array<"pile" | "face">; // Historique pour équilibrer les résultats
 }

@@ -185,7 +185,6 @@ export default function PileOuFaceGameScreen() {
   const [game, setGame] = useState<PileOuFaceGameState | null>(null);
   const [loading, setLoading] = useState(true);
   const [isGameOver, setIsGameOver] = useState(false);
-  const [isFlipping, setIsFlipping] = useState(false);
   const [showPlayerSelector, setShowPlayerSelector] = useState(false);
   const [isSpinning, setIsSpinning] = useState(false);
   const [wheelSelectedPlayer, setWheelSelectedPlayer] = useState<Player | null>(
@@ -225,31 +224,35 @@ export default function PileOuFaceGameScreen() {
 
     setIsSpinning(false);
 
-    try {
-      const db = getFirestore();
-      const gameRef = doc(db, "games", String(id));
+    // Attendre 2 secondes pour laisser le temps de voir qui a été sélectionné
+    setTimeout(async () => {
+      try {
+        const db = getFirestore();
+        const gameRef = doc(db, "games", String(id));
 
-      // Générer une nouvelle question
-      const question = getRandomQuestion();
+        // Générer une nouvelle question
+        const question = getRandomQuestion();
 
-      if (!question) {
-        console.error("No question available");
-        Alert.alert("Erreur", "Aucune question disponible");
-        return;
+        if (!question) {
+          console.error("No question available");
+          Alert.alert("Erreur", "Aucune question disponible");
+          return;
+        }
+
+        await updateDoc(gameRef, {
+          currentPlayerId: wheelSelectedPlayer.id,
+          currentQuestion: question,
+          phase: "question",
+          selectedPlayerName: null,
+          coinFlipResult: null,
+          questionRevealed: false,
+          isFlipping: false,
+        });
+      } catch (error) {
+        console.error("Error updating game:", error);
+        Alert.alert("Erreur", "Impossible de démarrer le round");
       }
-
-      await updateDoc(gameRef, {
-        currentPlayerId: wheelSelectedPlayer.id,
-        currentQuestion: question,
-        phase: "question",
-        selectedPlayerName: null,
-        coinFlipResult: null,
-        questionRevealed: false,
-      });
-    } catch (error) {
-      console.error("Error updating game:", error);
-      Alert.alert("Erreur", "Impossible de démarrer le round");
-    }
+    }, 2000); // 2 secondes de délai
   };
 
   // Le joueur sélectionné choisit un autre joueur
@@ -271,18 +274,40 @@ export default function PileOuFaceGameScreen() {
     }
   };
 
-  // Lancer la pièce
+  // Lancer la pièce avec équilibrage intelligent
   const handleCoinFlip = async () => {
-    if (!game || !user || isFlipping) return;
+    if (!game || !user || game.isFlipping) return;
 
-    setIsFlipping(true);
-
-    // Générer un résultat aléatoire
-    const result = Math.random() < 0.5 ? "pile" : "face";
+    // Algorithme d'équilibrage : compte combien de pile/face ont été tirés
+    const history = game.coinFlipHistory || [];
+    const pileCount = history.filter(r => r === "pile").length;
+    const faceCount = history.filter(r => r === "face").length;
+    
+    // Calculer la probabilité ajustée pour équilibrer
+    // Si on a beaucoup plus de face, augmenter la probabilité de pile
+    const difference = faceCount - pileCount;
+    let pileProbability = 0.5; // 50% par défaut
+    
+    // Ajuster la probabilité en fonction du déséquilibre (max ±20%)
+    if (difference > 0) {
+      // Plus de face, favoriser pile
+      pileProbability = Math.min(0.7, 0.5 + (difference * 0.1));
+    } else if (difference < 0) {
+      // Plus de pile, favoriser face
+      pileProbability = Math.max(0.3, 0.5 + (difference * 0.1));
+    }
+    
+    // Générer le résultat avec la probabilité ajustée
+    const result = Math.random() < pileProbability ? "pile" : "face";
 
     try {
       const db = getFirestore();
       const gameRef = doc(db, "games", String(id));
+
+      // Démarrer l'animation pour TOUS les joueurs
+      await updateDoc(gameRef, {
+        isFlipping: true,
+      });
 
       // Calculer les points
       const updatedScores = { ...(game.scores || {}) };
@@ -304,20 +329,29 @@ export default function PileOuFaceGameScreen() {
         }
       }
 
-      // Attendre 2 secondes pour l'animation
+      // Attendre 2 secondes pour l'animation de la pièce qui tourne
       setTimeout(async () => {
+        // Ajouter le résultat à l'historique
+        const newHistory = [...history, result];
+        
+        // D'abord afficher le résultat (pile ou face)
         await updateDoc(gameRef, {
           coinFlipResult: result,
-          phase: result === "face" ? "reveal" : "results",
-          questionRevealed: result === "face",
-          scores: updatedScores,
+          isFlipping: false,
+          coinFlipHistory: newHistory,
         });
 
-        setIsFlipping(false);
-      }, 2000);
+        // Puis attendre 2 secondes de plus pour laisser le temps de voir le résultat
+        setTimeout(async () => {
+          await updateDoc(gameRef, {
+            phase: result === "face" ? "reveal" : "results",
+            questionRevealed: result === "face",
+            scores: updatedScores,
+          });
+        }, 2000); // 2 secondes pour voir le résultat
+      }, 2000); // 2 secondes pour l'animation
     } catch (error) {
       console.error("Error flipping coin:", error);
-      setIsFlipping(false);
     }
   };
 
@@ -348,6 +382,7 @@ export default function PileOuFaceGameScreen() {
         coinFlipResult: null,
         questionRevealed: false,
         currentQuestion: null,
+        isFlipping: false,
       });
     } catch (error) {
       console.error("Error moving to next round:", error);
@@ -443,16 +478,16 @@ export default function PileOuFaceGameScreen() {
       <StatusBar style="light" />
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
-          <Text style={styles.title}>🪙 PILE OU FACE</Text>
+          <Text style={styles.title}>🪙 {t("home.games.pile-ou-face.name")}</Text>
           <Text style={styles.subtitle}>
-            Tour {game.currentRound} / {game.totalRounds}
+            {t("home.games.pile-ou-face.round", { current: game.currentRound, total: game.totalRounds })}
           </Text>
         </View>
 
         {/* Phase de chargement - sélection du joueur avec roue */}
         {game.phase === "loading" && (
           <View style={styles.phaseContainer}>
-            <Text style={styles.wheelTitle}>🎰 QUI VA JOUER ?</Text>
+            <Text style={styles.wheelTitle}>{t("home.games.pile-ou-face.whoPlays")}</Text>
             <SpinningWheel
               players={game.players}
               selectedPlayer={wheelSelectedPlayer}
@@ -460,50 +495,48 @@ export default function PileOuFaceGameScreen() {
               onSpinComplete={onWheelSpinComplete}
             />
             {isSpinning && (
-              <Text style={styles.wheelText}>La roue tourne...</Text>
+              <Text style={styles.wheelText}>{t("home.games.pile-ou-face.wheelSpinning")}</Text>
             )}
             {!isSpinning && wheelSelectedPlayer && (
               <Text style={styles.wheelResultText}>
-                🎯 C'est {wheelSelectedPlayer.name} !
+                {t("home.games.pile-ou-face.itIs", { name: wheelSelectedPlayer.name })}
               </Text>
             )}
           </View>
         )}
 
-        {/* Phase de question - seul le joueur actif voit la question */}
+        {/* Phase de question - Tout le monde voit la question */}
         {game.phase === "question" && currentPlayer && (
           <View style={styles.phaseContainer}>
             <PlayerCard player={currentPlayer} isActive={true} />
 
-            {isCurrentPlayer ? (
-              <View style={styles.questionContainer}>
-                <View style={styles.questionBadge}>
-                  <Text style={styles.questionBadgeText}>
-                    ⚠️ Question secrète
-                  </Text>
-                </View>
-                <Text style={styles.questionText}>
-                  {game.currentQuestion?.text}
-                </Text>
-                <Text style={styles.instructionText}>
-                  Prononcez le prénom d'une personne présente à voix haute
-                </Text>
-                <TouchableOpacity
-                  style={styles.button}
-                  onPress={() => setShowPlayerSelector(true)}
-                >
-                  <Text style={styles.buttonText}>Choisir un joueur</Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <View style={styles.waitingContainer}>
-                <Text style={styles.waitingText}>
-                  {currentPlayer.name} lit une question secrète...
-                </Text>
-                <Text style={styles.waitingSubtext}>
-                  Patience, il va bientôt prononcer un prénom !
+            <View style={styles.questionContainer}>
+              <View style={styles.questionBadge}>
+                <Text style={styles.questionBadgeText}>
+                  {t("home.games.pile-ou-face.question")}
                 </Text>
               </View>
+              <Text style={styles.questionText}>
+                {game.currentQuestion?.text}
+              </Text>
+              <Text style={styles.instructionText}>
+                {t("home.games.pile-ou-face.mustChoose", { name: currentPlayer.name })}
+              </Text>
+            </View>
+
+            {isCurrentPlayer && (
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => setShowPlayerSelector(true)}
+              >
+                <Text style={styles.buttonText}>{t("home.games.pile-ou-face.choosePlayer")}</Text>
+              </TouchableOpacity>
+            )}
+            
+            {!isCurrentPlayer && (
+              <Text style={styles.waitingSubtext}>
+                {t("home.games.pile-ou-face.waiting", { name: currentPlayer.name })}
+              </Text>
             )}
           </View>
         )}
@@ -523,7 +556,7 @@ export default function PileOuFaceGameScreen() {
 
             {!game.coinFlipResult && (
               <CoinFlip
-                isFlipping={isFlipping}
+                isFlipping={game.isFlipping}
                 result={game.coinFlipResult}
                 onFlipComplete={() => {}}
                 onTap={handleCoinFlip}
@@ -550,7 +583,7 @@ export default function PileOuFaceGameScreen() {
               </Text>
             </View>
 
-            {!isCurrentPlayer && !isFlipping && !game.coinFlipResult && (
+            {!isCurrentPlayer && !game.isFlipping && !game.coinFlipResult && (
               <Text style={styles.waitingSubtext}>
                 {currentPlayer?.name} va lancer la pièce...
               </Text>
@@ -572,15 +605,14 @@ export default function PileOuFaceGameScreen() {
                   {game.selectedPlayerName}
                 </Text>
               </Text>
-              <View style={styles.pointsBadge}>
-                <Text style={styles.pointsText}>
-                  +5 points pour {game.selectedPlayerName} ! 🏆
-                </Text>
-              </View>
             </View>
             <Text style={styles.revealEmoji}>🎭</Text>
             <TouchableOpacity style={styles.button} onPress={handleNextRound}>
-              <Text style={styles.buttonText}>Tour suivant</Text>
+              <Text style={styles.buttonText}>
+                {game.currentRound >= game.totalRounds
+                  ? t("games.pile-ou-face.viewResults")
+                  : t("games.pile-ou-face.nextRound")}
+              </Text>
             </TouchableOpacity>
           </View>
         )}
@@ -596,14 +628,13 @@ export default function PileOuFaceGameScreen() {
               <Text style={styles.resultsSubtext}>
                 La question restera un mystère... pour toujours ! 🤫
               </Text>
-              <View style={styles.pointsBadge}>
-                <Text style={styles.pointsText}>
-                  +10 points pour {currentPlayer?.name} ! 🍀
-                </Text>
-              </View>
             </View>
             <TouchableOpacity style={styles.button} onPress={handleNextRound}>
-              <Text style={styles.buttonText}>Tour suivant</Text>
+              <Text style={styles.buttonText}>
+                {game.currentRound >= game.totalRounds
+                  ? t("games.pile-ou-face.viewResults")
+                  : t("games.pile-ou-face.nextRound")}
+              </Text>
             </TouchableOpacity>
           </View>
         )}
@@ -618,15 +649,26 @@ export default function PileOuFaceGameScreen() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Choisir un joueur</Text>
+            <Text style={styles.modalTitle}>🎯 Choisir un joueur</Text>
+            <Text style={styles.modalSubtitle}>
+              Qui va répondre à ta question ?
+            </Text>
             <ScrollView style={styles.playerList}>
-              {otherPlayers.map((player) => (
+              {otherPlayers.map((player, index) => (
                 <TouchableOpacity
                   key={player.id}
                   style={styles.playerOption}
                   onPress={() => handlePlayerSelection(player)}
                 >
-                  <Text style={styles.playerOptionText}>{player.name}</Text>
+                  <LinearGradient
+                    colors={["rgba(255, 215, 0, 0.2)", "rgba(255, 215, 0, 0.05)"]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={styles.playerOptionGradient}
+                  >
+                    <Text style={styles.playerOptionText}>{player.name}</Text>
+                    <Text style={styles.arrowIcon}>→</Text>
+                  </LinearGradient>
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -634,7 +676,7 @@ export default function PileOuFaceGameScreen() {
               style={styles.modalCloseButton}
               onPress={() => setShowPlayerSelector(false)}
             >
-              <Text style={styles.modalCloseText}>Annuler</Text>
+              <Text style={styles.modalCloseText}>❌ Annuler</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -924,7 +966,7 @@ const styles = StyleSheet.create({
     backgroundColor: ACCENT_GOLD,
     paddingVertical: 15,
     paddingHorizontal: 40,
-    borderRadius: 30,
+    borderRadius: 12,
     marginTop: 20,
   },
   buttonText: {
@@ -941,43 +983,87 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: ChristmasTheme.light.backgroundDarker,
-    borderRadius: 20,
+    borderRadius: 25,
     padding: 30,
-    width: "80%",
+    width: "85%",
     maxHeight: "70%",
+    borderWidth: 2,
+    borderColor: ACCENT_GOLD,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.5,
+    shadowRadius: 20,
+    elevation: 20,
   },
   modalTitle: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: "bold",
-    color: "white",
+    fontFamily: "Righteous-Regular",
+    color: ACCENT_GOLD,
+    textAlign: "center",
+    marginBottom: 10,
+    textShadowColor: "rgba(0, 0, 0, 0.5)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: "rgba(255, 255, 255, 0.7)",
     textAlign: "center",
     marginBottom: 20,
+    fontStyle: "italic",
   },
   playerList: {
     maxHeight: 300,
   },
   playerOption: {
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    padding: 20,
-    borderRadius: 15,
-    marginBottom: 10,
+    marginBottom: 12,
+    borderRadius: 18,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  playerOptionGradient: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 18,
+    paddingHorizontal: 20,
+    borderRadius: 18,
+    borderWidth: 1.5,
+    borderColor: "rgba(255, 215, 0, 0.3)",
+  },
+  playerEmoji: {
+    fontSize: 28,
+    marginRight: 12,
   },
   playerOptionText: {
+    flex: 1,
     color: "white",
-    fontSize: 18,
-    fontWeight: "600",
-    textAlign: "center",
+    fontSize: 20,
+    fontWeight: "700",
+    fontFamily: "Righteous-Regular",
+  },
+  arrowIcon: {
+    fontSize: 24,
+    color: ACCENT_GOLD,
+    fontWeight: "bold",
   },
   modalCloseButton: {
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    paddingVertical: 15,
-    borderRadius: 15,
+    backgroundColor: "rgba(150, 50, 50, 0.5)",
+    paddingVertical: 16,
+    borderRadius: 18,
     marginTop: 20,
+    borderWidth: 1.5,
+    borderColor: "rgba(255, 100, 100, 0.3)",
   },
   modalCloseText: {
     color: "white",
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: 17,
+    fontWeight: "700",
     textAlign: "center",
   },
   resultCoin: {

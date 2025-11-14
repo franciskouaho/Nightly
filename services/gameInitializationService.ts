@@ -18,6 +18,7 @@ export const GAME_CONFIG = {
     'double-dare': { minPlayers: 2 },
     'forbidden-desire': { minPlayers: 2 },
     'quiz-halloween': { minPlayers: 2 },
+    'pile-ou-face': { minPlayers: 2 },
 } as const;
 
 // Liste des thèmes possibles pour 2 Lettres 1 Mot
@@ -305,6 +306,26 @@ const initializeGenericQuestionGame = async (options: GameInitializationOptions)
 };
 
 /**
+ * Initialise un jeu "Pile ou Face"
+ */
+const initializePileOuFaceGame = (options: GameInitializationOptions) => {
+    console.log('[DEBUG] Démarrage du jeu Pile ou Face');
+    
+    return {
+        ...createBaseGameData(options),
+        phase: 'loading',
+        currentPlayerId: null,
+        currentQuestion: null,
+        selectedPlayerName: null,
+        coinFlipResult: null,
+        questionRevealed: false,
+        askedQuestionIds: [],
+        isFlipping: false, // État synchronisé pour l'animation
+        coinFlipHistory: [], // Historique pour équilibrer les résultats
+    };
+};
+
+/**
  * Crée un nouveau jeu dans Firestore avec la configuration appropriée
  */
 export const createGame = async (options: GameInitializationOptions): Promise<string> => {
@@ -331,6 +352,9 @@ export const createGame = async (options: GameInitializationOptions): Promise<st
             break;
         case 'quiz-halloween':
             gameDataToSet = initializeQuizHalloweenGame(options);
+            break;
+        case 'pile-ou-face':
+            gameDataToSet = initializePileOuFaceGame(options);
             break;
         default:
             gameDataToSet = await initializeGenericQuestionGame(options);

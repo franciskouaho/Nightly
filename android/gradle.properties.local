@@ -1,0 +1,6 @@
+# Local keystore configuration (not committed to git)
+# Copy this file and fill in your values, or use environment variables
+NIGHTLY_STORE_PASSWORD=Louanne2025@
+NIGHTLY_KEY_ALIAS=Emplica
+NIGHTLY_KEY_PASSWORD=Louanne2025@
+
