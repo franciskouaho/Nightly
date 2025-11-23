@@ -8,6 +8,8 @@ const en = {
     validate: "Validate",
     ok: "OK",
     newBadge: "NEW",
+    skip: "Skip",
+    loading: "Loading...",
   },
 
   // Language screen
@@ -749,7 +751,7 @@ const en = {
   // Splash
   splash: {
     title: "Nightly",
-    subtitle: "Party games for unforgettable evenings",
+    subtitle: "Party games",
     loading: "Loading...",
   },
 
@@ -1030,6 +1032,105 @@ const en = {
   "avart-dragon-rare": {
     name: "Rare Dragon",
     description: "A rare and powerful dragon",
+  },
+
+  // Onboarding
+  onboarding: {
+    name: {
+      title: "BEFORE STARTING,\nWHAT'S YOUR NAME?",
+      placeholder: "Enter your name",
+      continue: "Continue",
+    },
+    age: {
+      title: "HI {{name}},\nWHAT'S YOUR AGE?",
+      selectDate: "Select a date",
+      cancel: "Cancel",
+      ok: "OK",
+      disclaimer: "Your answers are just for you,\nkept completely confidential to personalize\nyour experience",
+      continue: "Continue",
+    },
+    gender: {
+      title: "WHAT'S YOUR GENDER?",
+      female: "Female",
+      male: "Male",
+      other: "Other",
+      disclaimer: "Your answers are just for you,\nkept completely confidential to personalize\nyour experience",
+      continue: "Continue",
+    },
+    goals: {
+      title: "WHAT MORE DO YOU WANT\nFROM YOUR RELATIONSHIP?",
+      warning: "Your partner won't see this",
+      knowBetter: "Know my partner better",
+      spiceUp: "Spice things up",
+      haveFun: "Have fun",
+      continue: "Continue",
+    },
+    profile: {
+      title: "CHOOSE YOUR\nAVATAR",
+      subtitle: "Select an avatar that represents you",
+      loading: "Loading avatars...",
+      error: "Unable to load avatars.",
+      noAvatars: "No avatars available at the moment.",
+      continue: "Continue",
+    },
+    account: {
+      title: "ALMOST DONE! PLEASE SECURE\nYOUR ACCOUNT",
+      subtitle: "Create an account to save your activity history and\neasily revisit your favorite conversations anytime!",
+      signInGoogle: "Sign in with Google",
+      signInApple: "Sign in with Apple",
+    },
+    ready: {
+      title: "READY WHEN\nYOU ARE, {{name}}!",
+      subtitle: "Let's dive into unforgettable moments\ntogether.",
+      letsGo: "Let's go",
+    },
+    notifications: {
+      title: "Turn on notifications",
+      example: "Pierre just answered your daily ✨ you can now listen to the answer!",
+      benefit1: "No ads notifications",
+      benefit2: "Listen to answers when available",
+      benefit3: "Don't lose your streaks",
+      button: "Turn on notifications",
+    },
+    loading: {
+      preTitle: "just a moment...",
+      title: "WE ARE BUILDING\nTHE BEST EXPERIENCE\nFOR YOU!",
+      step1: "Analyzing your interests",
+      step2: "Selecting the best questions",
+      step3: "Personalizing your experience",
+    },
+  },
+
+  // Couples
+  couples: {
+    partnerNotConnected: {
+      title: "Your partner is just one step away from joining you.",
+      subtitle: "As soon as they accept, you can start connecting daily and discovering new ways to grow closer.",
+      resendCode: "Resend my code",
+      enterCode: "Enter a code",
+      enterCodeSubtitle: "Enter the code your partner shared with you to connect.",
+      codePlaceholder: "Enter code...",
+      yourCode: "Your code",
+      codeHint: "Share this code with your partner",
+      codeCopied: "Code copied!",
+      codeCopiedMessage: "The code has been copied to your clipboard.",
+    },
+  },
+
+  // Login
+  login: {
+    title: "WELCOME BACK!",
+    subtitle: "Sign in to continue your journey and\naccess your saved conversations",
+    signInGoogle: "Sign in with Google",
+    signInApple: "Sign in with Apple",
+  },
+
+  // Welcome
+  welcome: {
+    title: "READY TO REDISCOVER\nYOUR SOULMATE?",
+    subtitle: "Boost your conversations with questions that go far beyond just 'How are you?'",
+    startForFree: "Start for Free",
+    alreadyHaveAccount: "I already have an account",
   },
 };
 

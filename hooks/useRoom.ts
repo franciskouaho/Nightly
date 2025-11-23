@@ -108,7 +108,7 @@ export function useRoom(roomId: string) {
         players: room.players.map(player => ({
           id: player.id,
           name: player.name,
-          username: player.username,
+          username: player.username, // Firestore utilise "username"
           displayName: player.displayName,
           avatar: player.avatar,
           isHost: player.isHost,

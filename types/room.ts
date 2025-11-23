@@ -3,7 +3,7 @@ import { ViewStyle, TextStyle, ImageStyle } from 'react-native';
 // Type pour l'utilisateur
 export interface User {
     id: string | number;
-    username: string;
+    pseudo: string;
     displayName?: string;
     avatar?: string;
     level?: number;
@@ -11,9 +11,11 @@ export interface User {
 }
 
 // Type local pour Player qui correspond à ce que nous utilisons dans ce composant
+// NOTE: Dans Firestore, le champ s'appelle "username" mais dans notre code on utilise "pseudo"
+// On fait le mapping lors de la lecture/écriture
 export interface LocalPlayer {
     id: string;
-    username: string;
+    username: string; // Dans Firestore, c'est "username"
     displayName?: string;
     name: string; // Pour la rétrocompatibilité avec le code existant
     isHost: boolean;

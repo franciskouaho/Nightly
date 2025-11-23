@@ -1,250 +1,0 @@
-Script started on Thu Nov 13 15:25:59 2025
-[1m[7m%[27m[1m[0m                                                                                                                      ]2;francis@Franciss-MacBook-Pro:~/workspace/Nightly]1;..space/Nightly]7;file://Franciss-MacBook-Pro.local/Users/francis/workspace/Nightly\]697;OSCUnlock=9edcdfa71076486ab63bf93dcc7ffd87]697;Dir=/Users/francis/workspace/Nightly]697;Shell=zsh]697;ShellPath=/bin/zsh]697;PID=98898]697;ExitCode=0]697;TTY=/dev/ttys026]697;Log=]697;ZshAutosuggestionColor=fg=8]697;FigAutosuggestionColor=]697;User=francis[0m[27m[24m[J]697;StartPrompt[0m[49m[39m
-[A[0m[49m[39m[0m[49m[39m[0m[49m [0m[49m[38;5;31m [1m[38;5;31m[38;5;39m~[0m[38;5;39m[49m[38;5;31m/workspace/[1m[38;5;31m[38;5;39mNightly[0m[38;5;39m[49m[38;5;31m[0m[38;5;31m[49m[38;5;31m[0m[38;5;31m[49m [0m[38;5;31m[49m[30m[39mon [0m[49m[38;5;244m[0m[38;5;244m[49m[30m [38;5;244m main[0m[38;5;244m[49m[30m[0m[30m[49m[30m[0m[30m[49m[39m                                                            [0m[49m[38;5;70m system[0m[38;5;70m[49m[38;5;70m[0m[38;5;70m[49m[38;5;70m[0m[38;5;70m[49m[38;5;66m [39mat [0m[49m[38;5;66m 15:26:00[0m[38;5;66m[49m[38;5;66m[0m[38;5;66m[49m[38;5;66m[0m[38;5;66m[49m[39m
-[0m[49m[38;5;76m❯[0m[38;5;76m[49m[38;5;76m[0m[38;5;76m[49m[30m[0m[30m[49m[39m [0m[49m[39m]697;EndPrompt]697;NewCmd=9edcdfa71076486ab63bf93dcc7ffd87[K[115C]697;StartPrompt]697;EndPrompt[115D[?1h=[?2004h[?25l[A[0m[27m[24m[J]697;StartPrompt[0m[49m[39m
-[A[0m[49m[39m[0m[49m[39m[0m[49m [0m[49m[38;5;31m [1m[38;5;31m[38;5;39m~[0m[38;5;39m[49m[38;5;31m/workspace/[1m[38;5;31m[38;5;39mNightly[0m[38;5;39m[49m[38;5;31m[0m[38;5;31m[49m[38;5;31m[0m[38;5;31m[49m [0m[38;5;31m[49m[38;5;178m[39mon [0m[49m[38;5;76m[0m[38;5;76m[49m[38;5;178m [38;5;76m main [38;5;178m!5 [38;5;39m?3[0m[38;5;39m[49m[38;5;178m[0m[38;5;178m[49m[30m[0m[30m[49m[39m                                                      [0m[49m[38;5;70m system[0m[38;5;70m[49m[38;5;70m[0m[38;5;70m[49m[38;5;70m[0m[38;5;70m[49m[38;5;66m [39mat [0m[49m[38;5;66m 15:26:00[0m[38;5;66m[49m[38;5;66m[0m[38;5;66m[49m[38;5;66m[0m[38;5;66m[49m[39m
-[0m[49m[38;5;76m❯[0m[38;5;76m[49m[38;5;76m[0m[38;5;76m[49m[30m[0m[30m[49m[39m [0m[49m[39m]697;EndPrompt]697;NewCmd=9edcdfa71076486ab63bf93dcc7ffd87[K[115C]697;StartPrompt]697;EndPrompt[115D[?25hl[32ml[39m[32ml[39m[90muma-poste[39m[9D[30m[104m[39m[49m[30m[104m[39m[49m[30m[104m[39m[49m
-[0;1;2mcommand[0m
-[0mlam          languagesetup      lastwords        latency       launchctl         launchd         lazygit      
-ld           ldapadd            ldapcompare      ldapdelete    ldapexop          ldapmodify      ldapmodrdn   
-ldappasswd   ldapurl            leaks            leave         less              lessecho        lesskey      
-lex          libdeflate-gunzip  libdeflate-gzip  libnetcfg     libnetcfg5.34     libpng-config   libpng16-config
-libtool      lima               limactl          link          linkicc           lipo            lldb         
-llvm-g++     llvm-gcc           ln               load_roots    loads.d           local_tone_map  locale       
-localedef    localemanager      lockf            log           logger            login           logname      
-logresolve   look               lorder           loudnorm.rb   lp                lpadmin         lpc          
-lpmove       lpq                lpr              lpstat        ls                lsappinfo       lsbom        
-lsm          lstmeval           lstmtraining     lwp-download  lwp-download5.34  lwp-dump        lwp-mirror5.34
-lwp-request  lwp-request5.34    lz4c             lz4cat        lzcat             lzcmp           lzegrep      
-lzgrep       lzless             lzma             lzmadec       lzmainfo          lzmore                       
-[J[30m[104m(MORE)[39m[49m[14A[0m[27m[24m[0m[39m[49m[2C[32ml[39m[90muma-poste[39m[K[105C]697;StartPrompt]697;EndPrompt[0m[39m[49m[114D[32ml[32ms[39m[39m [39m [39m [39m [39m [39m [39m [39m [8D
-[J[0;1;2mcommand[0m
-[J[0mls   [Jlsa   [Jlsappinfo   [Jlsbom   [Jlskq   [Jlsm   [Jlsmp   [Jlsof   [Jlstmeval   [Jlstmtraining   [Jlsvfs   [J[A[A[0m[27m[24m[0m[39m[49m[2C[32mls[39m[K[113C]697;StartPrompt]697;EndPrompt[0m[39m[49m[113D[?1l>[?2004l
-[J[A[4C
-[J]697;OSCLock=9edcdfa71076486ab63bf93dcc7ffd87]697;PreExec]2;ls -G]1;lsCLAUDE.md                       [1m[36mdocs[39;49m[0m                            [1m[36mpackage[39;49m[0m
-GoogleService-Info.plist        eas.json                        package.json
-README.md                       eslint.config.js                [1m[36mscripts[39;49m[0m
-[1m[36mandroid[39;49m[0m                         expo-env.d.ts                   [1m[36mservices[39;49m[0m
-[1m[36mapp[39;49m[0m                             firebase.json                   storage.rules
-app.json                        firestore.indexes.json          store
-[1m[36massets[39;49m[0m                          firestore.rules                 tmp.swift
-[1m[36mcloud-functions[39;49m[0m                 google-services.json            tsconfig.json
-[1m[36mcomponents[39;49m[0m                      gradle.properties               [1m[36mtypes[39;49m[0m
-[1m[36mconfig[39;49m[0m                          [1m[36mhooks[39;49m[0m                           typescript
-[1m[36mconstants[39;49m[0m                       [1m[36mios[39;49m[0m                             [1m[36mutils[39;49m[0m
-[1m[36mcontexts[39;49m[0m                        nightly-efa29-640f690f50d3.json yarn.lock
-[1m[36mdata[39;49m[0m                            [1m[36mnode_modules[39;49m[0m
-[1m[7m%[27m[1m[0m                                                                                                                      ]2;francis@Franciss-MacBook-Pro:~/workspace/Nightly]1;..space/Nightly]7;file://Franciss-MacBook-Pro.local/Users/francis/workspace/Nightly\]697;OSCUnlock=9edcdfa71076486ab63bf93dcc7ffd87]697;Dir=/Users/francis/workspace/Nightly]697;Shell=zsh]697;ShellPath=/bin/zsh]697;PID=98898]697;ExitCode=0]697;TTY=/dev/ttys026]697;Log=]697;ZshAutosuggestionColor=fg=8]697;FigAutosuggestionColor=]697;User=francis[0m[27m[24m[J]697;StartPrompt[0m[49m[39m
-[A[0m[49m[39m[0m[49m[39m[0m[49m [0m[49m[38;5;31m [1m[38;5;31m[38;5;39m~[0m[38;5;39m[49m[38;5;31m/workspace/[1m[38;5;31m[38;5;39mNightly[0m[38;5;39m[49m[38;5;31m[0m[38;5;31m[49m[38;5;31m[0m[38;5;31m[49m [0m[38;5;31m[49m[38;5;178m[39mon [0m[49m[38;5;76m[0m[38;5;76m[49m[38;5;178m [38;5;76m main [38;5;178m!5 [38;5;39m?3[0m[38;5;39m[49m[38;5;178m[0m[38;5;178m[49m[30m[0m[30m[49m[39m                                                      [0m[49m[38;5;70m system[0m[38;5;70m[49m[38;5;70m[0m[38;5;70m[49m[38;5;70m[0m[38;5;70m[49m[38;5;66m [39mat [0m[49m[38;5;66m 15:26:02[0m[38;5;66m[49m[38;5;66m[0m[38;5;66m[49m[38;5;66m[0m[38;5;66m[49m[39m
-[0m[49m[38;5;76m❯[0m[38;5;76m[49m[38;5;76m[0m[38;5;76m[49m[30m[0m[30m[49m[39m [0m[49m[39m]697;EndPrompt]697;NewCmd=9edcdfa71076486ab63bf93dcc7ffd87[K[115C]697;StartPrompt]697;EndPrompt[115D[?1h=[?2004hc[4mc[24m[4mc[24m[90mlear[39m[30m[104m[39m[49m[30m[104m[39m[49m[30m[104m[39m[49m
-[0;1;2mcommand[0m
-[0mc89               c99            caffeinate           cairo-trace  cap_mkdb           cargo-clippy  
-cargo-fmt         cargo-nextest  cc                   cd           cert_app           chflags       
-chgrp             chmod          clippy-driver        cntraining   colrm              column        
-combine_tessdata  comm           compare-cvelists.sh  compress     convertfilestopdf  convertfilestops
-converttops       corelist5.34   cp                   cpack        cpan               cpio          
-cpu_profiler.d    createhomedir  crl_app              cron         crypt_and_hash     ctags         
-cu                cupsaccept     cupsctl              cupsdisable  cupsenable         cupsfilter    
-cupsreject        cupstestppd    curl                 cursor       cursor-agent       cvcp          
-cvdb              cvmkfile       cvmkfs               cvversions   cw                 cws2fws       
-cwterm                                                                                      
-[J[30m[104m(MORE)[39m[49m[12A[0m[27m[24m[0m[39m[49m[2C[4mc[24m[90mlear[39m[K[110C]697;StartPrompt]697;EndPrompt[0m[39m[49m[114D[4mc[39m[4md[24m[39m [39m [39m [24m[32mc[24m[32md[39m[90m profils[39m[8D
-[J[0;1;2mcommand[0m
-[J[0mcd[J[A[A[0m[27m[24m[0m[39m[49m[2C[32mcd[39m[90m profils[39m[K[105C]697;StartPrompt]697;EndPrompt[0m[39m[49m[113D[32mc[32md[32m [39m
-[J[A[5C[32mc[32md[39m[39m 
-[J[0;1;2mdirectory[0m
-[1;36mandroid[0m/  [1;36mapp[0m/  [1;36massets[0m/        [1;36mcloud-functions[0m/  [1;36mcomponents[0m/  [1;36mconfig[0m/    [1;36mconstants[0m/  [1;36mcontexts[0m/  [1;36mdata[0m/  [1;36mdocs[0m/
-[J[1;36mhooks[0m/    [J[1;36mios[0m/  [J[1;36mnode_modules[0m/  [J[1;36mpackage[0m/          [J[1;36mscripts[0m/     [J[1;36mservices[0m/  [J[1;36mtypes[0m/      [J[1;36mutils[0m/     [J        [3A[0m[27m[24m[0m[39m[49m[2C[32mcd[39m [90mprofils[39m[K[105C]697;StartPrompt]697;EndPrompt[0m[39m[49m[112D[39ms[39m [39m [39m [39m [39m [39m [4ms[24m[90mkipper-sdk[39m
-[K[A[6C[1B[K[A[6C[1B
-[J[0;1;2mdirectory[0m
-[J[1;36mscripts[0m/   [J[1;36mservices[0m/[J[3A[0m[27m[24m[0m[39m[49m[2C[32mcd[39m [4ms[24m[90mkipper-sdk[39m[K[101C]697;StartPrompt]697;EndPrompt
-[K[0m[39m[49m[A[6C[4ms[39m[4mc[24m[39m [39m [39m [39m [39m [39m [39m [39m [39m [1B[K[A[7C[1B[J[0;1;2mdirectory[0m
-[J[1;36mscripts[0m/[J[A[A[0m[27m[24m[0m[39m[49m[2C[32mcd[39m [4msc[24m[K[110C]697;StartPrompt]697;EndPrompt[0m[39m[49m[110D[4mc[4mr[24m
-[J[0;1;2mdirectory[0m
-[J[1;36mscripts[0m/[J[A[A[0m[27m[24m[0m[39m[49m[2C[32mcd[39m [4mscr[24m[K[109C]697;StartPrompt]697;EndPrompt[0m[39m[49m[109D
-[J[A[8C[4mr[4mipts[1m[4m/[0m[24m[4ms[24m[0m[24m [?1l>[?2004l
-[J[A[12C
-[J]697;OSCLock=9edcdfa71076486ab63bf93dcc7ffd87]697;PreExec]2;cd scripts]1;cd[1m[7m%[27m[1m[0m                                                                                                                      ]2;francis@Franciss-MacBook-Pro:~/workspace/Nightly/scripts]1;..ghtly/scripts]7;file://Franciss-MacBook-Pro.local/Users/francis/workspace/Nightly/scripts\]697;OSCUnlock=9edcdfa71076486ab63bf93dcc7ffd87]697;Dir=/Users/francis/workspace/Nightly/scripts]697;Shell=zsh]697;ShellPath=/bin/zsh]697;PID=98898]697;ExitCode=0]697;TTY=/dev/ttys026]697;Log=]697;ZshAutosuggestionColor=fg=8]697;FigAutosuggestionColor=]697;User=francis[0m[27m[24m[J]697;StartPrompt[0m[49m[39m
-[A[0m[49m[39m[0m[49m[39m[0m[49m [0m[49m[38;5;31m [1m[38;5;31m[38;5;39m~[0m[38;5;39m[49m[38;5;31m/workspace/[1m[38;5;31m[38;5;39mNightly[0m[38;5;39m[49m[38;5;31m/[1m[38;5;31m[38;5;39mscripts[0m[38;5;39m[49m[38;5;31m[0m[38;5;31m[49m[38;5;31m[0m[38;5;31m[49m [0m[38;5;31m[49m[38;5;178m[39mon [0m[49m[38;5;76m[0m[38;5;76m[49m[38;5;178m [38;5;76m main [38;5;178m!5 [38;5;39m?3[0m[38;5;39m[49m[38;5;178m[0m[38;5;178m[49m[30m[0m[30m[49m[39m                                              [0m[49m[38;5;70m system[0m[38;5;70m[49m[38;5;70m[0m[38;5;70m[49m[38;5;70m[0m[38;5;70m[49m[38;5;66m [39mat [0m[49m[38;5;66m 15:26:08[0m[38;5;66m[49m[38;5;66m[0m[38;5;66m[49m[38;5;66m[0m[38;5;66m[49m[39m
-[0m[49m[38;5;76m❯[0m[38;5;76m[49m[38;5;76m[0m[38;5;76m[49m[30m[0m[30m[49m[39m [0m[49m[39m]697;EndPrompt]697;NewCmd=9edcdfa71076486ab63bf93dcc7ffd87[K[115C]697;StartPrompt]697;EndPrompt[115D[?1h=[?2004hl[32ml[39m[32ml[39m[90ms[39m[30m[104m[39m[49m[30m[104m[39m[49m[30m[104m[39m[49m
-[0;1;2mcommand[0m
-[0mlam          languagesetup      lastwords        latency       launchctl         launchd         lazygit      
-ld           ldapadd            ldapcompare      ldapdelete    ldapexop          ldapmodify      ldapmodrdn   
-ldappasswd   ldapurl            leaks            leave         less              lessecho        lesskey      
-lex          libdeflate-gunzip  libdeflate-gzip  libnetcfg     libnetcfg5.34     libpng-config   libpng16-config
-libtool      lima               limactl          link          linkicc           lipo            lldb         
-llvm-g++     llvm-gcc           ln               load_roots    loads.d           local_tone_map  locale       
-localedef    localemanager      lockf            log           logger            login           logname      
-logresolve   look               lorder           loudnorm.rb   lp                lpadmin         lpc          
-lpmove       lpq                lpr              lpstat        ls                lsappinfo       lsbom        
-lsm          lstmeval           lstmtraining     lwp-download  lwp-download5.34  lwp-dump        lwp-mirror5.34
-lwp-request  lwp-request5.34    lz4c             lz4cat        lzcat             lzcmp           lzegrep      
-lzgrep       lzless             lzma             lzmadec       lzmainfo          lzmore                       
-[J[30m[104m(MORE)[39m[49m[14A[0m[27m[24m[0m[39m[49m[2C[32ml[39m[90ms[39m[K[113C]697;StartPrompt]697;EndPrompt[0m[39m[49m[114D[32ml[32ms[39m
-[J[0;1;2mcommand[0m
-[J[0mls   [Jlsa   [Jlsappinfo   [Jlsbom   [Jlskq   [Jlsm   [Jlsmp   [Jlsof   [Jlstmeval   [Jlstmtraining   [Jlsvfs   [J[A[A[0m[27m[24m[0m[39m[49m[2C[32mls[39m[K[113C]697;StartPrompt]697;EndPrompt[0m[39m[49m[113D[?1l>[?2004l
-[J[A[4C
-[J]697;OSCLock=9edcdfa71076486ab63bf93dcc7ffd87]697;PreExec]2;ls -G]1;lsassets-data.json             generateStorageUrls.js       resetLeaderboard.js          uploadAssetsToFirestore.ts
-generateStorageUrls.cjs      initGameRules.ts             resetLeaderboard.ts          uploadQuestionsToFirebase.ts
-[1m[7m%[27m[1m[0m                                                                                                                      ]2;francis@Franciss-MacBook-Pro:~/workspace/Nightly/scripts]1;..ghtly/scripts]7;file://Franciss-MacBook-Pro.local/Users/francis/workspace/Nightly/scripts\]697;OSCUnlock=9edcdfa71076486ab63bf93dcc7ffd87]697;Dir=/Users/francis/workspace/Nightly/scripts]697;Shell=zsh]697;ShellPath=/bin/zsh]697;PID=98898]697;ExitCode=0]697;TTY=/dev/ttys026]697;Log=]697;ZshAutosuggestionColor=fg=8]697;FigAutosuggestionColor=]697;User=francis[0m[27m[24m[J]697;StartPrompt[0m[49m[39m
-[A[0m[49m[39m[0m[49m[39m[0m[49m [0m[49m[38;5;31m [1m[38;5;31m[38;5;39m~[0m[38;5;39m[49m[38;5;31m/workspace/[1m[38;5;31m[38;5;39mNightly[0m[38;5;39m[49m[38;5;31m/[1m[38;5;31m[38;5;39mscripts[0m[38;5;39m[49m[38;5;31m[0m[38;5;31m[49m[38;5;31m[0m[38;5;31m[49m [0m[38;5;31m[49m[38;5;178m[39mon [0m[49m[38;5;76m[0m[38;5;76m[49m[38;5;178m [38;5;76m main [38;5;178m!5 [38;5;39m?3[0m[38;5;39m[49m[38;5;178m[0m[38;5;178m[49m[30m[0m[30m[49m[39m                                              [0m[49m[38;5;70m system[0m[38;5;70m[49m[38;5;70m[0m[38;5;70m[49m[38;5;70m[0m[38;5;70m[49m[38;5;66m [39mat [0m[49m[38;5;66m 15:26:09[0m[38;5;66m[49m[38;5;66m[0m[38;5;66m[49m[38;5;66m[0m[38;5;66m[49m[39m
-[0m[49m[38;5;76m❯[0m[38;5;76m[49m[38;5;76m[0m[38;5;76m[49m[30m[0m[30m[49m[39m [0m[49m[39m]697;EndPrompt]697;NewCmd=9edcdfa71076486ab63bf93dcc7ffd87[K[115C]697;StartPrompt]697;EndPrompt[115D[?1h=[?2004hc[1m[31mc[0m[39m[1m[31mc[0m[39m[90md scripts[39m[9D[30m[104m[39m[49m[30m[104m[39m[49m[30m[104m[39m[49m
-[0;1;2mcommand[0m
-[0mc89               c99            caffeinate           cairo-trace  cap_mkdb           cargo-clippy  
-cargo-fmt         cargo-nextest  cc                   cd           cert_app           chflags       
-chgrp             chmod          clippy-driver        cntraining   colrm              column        
-combine_tessdata  comm           compare-cvelists.sh  compress     convertfilestopdf  convertfilestops
-converttops       corelist5.34   cp                   cpack        cpan               cpio          
-cpu_profiler.d    createhomedir  crl_app              cron         crypt_and_hash     ctags         
-cu                cupsaccept     cupsctl              cupsdisable  cupsenable         cupsfilter    
-cupsreject        cupstestppd    curl                 cursor       cursor-agent       cvcp          
-cvdb              cvmkfile       cvmkfs               cvversions   cw                 cws2fws       
-cwterm                                                                                      
-[J[30m[104m(MORE)[39m[49m[12A[0m[27m[24m[0m[39m[49m[2C[1m[31mc[0m[39m[90md scripts[39m[K[105C]697;StartPrompt]697;EndPrompt[0m[39m[49m[114D[1m[31mc[1m[31ma[0m[39m[39m [39m [39m [39m [39m [39m [39m [39m [8D[90mlear[39m[1m[31mc[1m[31ma[1m[31mt[0m[39m[39m [39m [39m [0m[32mc[0m[32ma[0m[32mt[39m[90m .env[39m
-[J[0;1;2mcommand[0m
-[J[0mcat[J[A[A[0m[27m[24m[0m[39m[49m[2C[32mcat[39m[90m .env[39m[K[107C]697;StartPrompt]697;EndPrompt[0m[39m[49m[112D[32mt[32m [39m
-[J[A[6C[32mt[39m[39m 
-[J[0;1;2mfile[0m
-[0massets-data.json              generateStorageUrls.cjs       generateStorageUrls.js      
-importAssets.cjs              initGameRules.ts              resetLeaderboard.js         
-[JresetLeaderboard.ts           [JuploadAssetsToFirestore.ts    [JuploadQuestionsToFirebase.ts[J[4A[0m[27m[24m[0m[39m[49m[2C[32mcat[39m [90m.env[39m[K[107C]697;StartPrompt]697;EndPrompt[0m[39m[49m[111D[39ma[39m [39m [39m [4ma[24m[90mdmiral/src/routes/(app)/+layout.svelte[39m[38D
-[J[0;1;2mfile[0m
-[J[0massets-data.json[J[A[A[0m[27m[24m[0m[39m[49m[2C[32mcat[39m [4ma[24m[90mdmiral/src/routes/(app)/+layout.svelte[39m[K[72C]697;StartPrompt]697;EndPrompt[0m[39m[49m[110D[4ma[39m[4ms[24m[39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [37D
-[J[0;1;2mfile[0m
-[J[0massets-data.json[J[A[A[0m[27m[24m[0m[39m[49m[2C[32mcat[39m [4mas[24m[K[109C]697;StartPrompt]697;EndPrompt[0m[39m[49m[109D
-[J[A[8C[4ms[4msets-data.json[24m
-[J[0;1;2mfile[0m
-[J[0massets-data.json[J[A[A[0m[27m[24m[0m[39m[49m[2C[32mcat[39m [4massets-data.json[24m[K[95C]697;StartPrompt]697;EndPrompt[0m[39m[49m[95D[?1l>[?2004l
-[J[A[22C
-[J]697;OSCLock=9edcdfa71076486ab63bf93dcc7ffd87]697;PreExec]2;cat assets-data.json]1;cat{
-  "panda": {
-    "id": "panda",
-    "name": "panda",
-    "cost": 100,
-    "image": "https://storage.googleapis.com/nightly-efa29.firebasestorage.app/buy-assets/panda.png",
-    "type": "avatar",
-    "rarity": "common",
-    "description": "Un adorable panda"
-  },
-  "chat-rare": {
-    "id": "chat-rare",
-    "name": "chatRare",
-    "cost": 150,
-    "image": "https://storage.googleapis.com/nightly-efa29.firebasestorage.app/buy-assets/chatRare.png",
-    "type": "avatar",
-    "rarity": "rare",
-    "description": "Un chat mystérieux et rare"
-  },
-  "chat-rare-2": {
-    "id": "chat-rare-2",
-    "name": "chatRare2",
-    "cost": 150,
-    "image": "https://storage.googleapis.com/nightly-efa29.firebasestorage.app/buy-assets/chatRare2.png",
-    "type": "avatar",
-    "rarity": "rare",
-    "description": "Un autre chat rare"
-  },
-  "crocodile": {
-    "id": "crocodile",
-    "name": "crocodile",
-    "cost": 120,
-    "image": "https://storage.googleapis.com/nightly-efa29.firebasestorage.app/buy-assets/crocodile.png",
-    "type": "avatar",
-    "rarity": "common",
-    "description": "Un crocodile féroce"
-  },
-  "dragon": {
-    "id": "dragon",
-    "name": "dragon",
-    "cost": 200,
-    "image": "https://storage.googleapis.com/nightly-efa29.firebasestorage.app/buy-assets/dragon.png",
-    "type": "avatar",
-    "rarity": "epic",
-    "description": "Un dragon majestueux"
-  },
-  "hibou": {
-    "id": "hibou",
-    "name": "hibou",
-    "cost": 100,
-    "image": "https://storage.googleapis.com/nightly-efa29.firebasestorage.app/buy-assets/hibou.png",
-    "type": "avatar",
-    "rarity": "common",
-    "description": "Un hibou sage"
-  },
-  "licorne": {
-    "id": "licorne",
-    "name": "licorne",
-    "cost": 180,
-    "image": "https://storage.googleapis.com/nightly-efa29.firebasestorage.app/buy-assets/licorne.png",
-    "type": "avatar",
-    "rarity": "rare",
-    "description": "Une licorne magique"
-  },
-  "loup-rare": {
-    "id": "loup-rare",
-    "name": "loup-rare",
-    "cost": 170,
-    "image": "https://storage.googleapis.com/nightly-efa29.firebasestorage.app/buy-assets/loup-rare.png",
-    "type": "avatar",
-    "rarity": "rare",
-    "description": "Un loup rare et puissant"
-  },
-  "ourse": {
-    "id": "ourse",
-    "name": "ourse",
-    "cost": 110,
-    "image": "https://storage.googleapis.com/nightly-efa29.firebasestorage.app/buy-assets/ourse.png",
-    "type": "avatar",
-    "rarity": "common",
-    "description": "Une ourse protectrice"
-  },
-  "phoenix": {
-    "id": "phoenix",
-    "name": "phoenix",
-    "cost": 250,
-    "image": "https://storage.googleapis.com/nightly-efa29.firebasestorage.app/buy-assets/phoenix.png",
-    "type": "avatar",
-    "rarity": "legendary",
-    "description": "Un phoenix légendaire"
-  },
-  "avatar-dragon-rare": {
-    "id": "avatar-dragon-rare",
-    "name": "avart-dragon-rare",
-    "cost": 220,
-    "image": "https://storage.googleapis.com/nightly-efa29.firebasestorage.app/buy-assets/avart-dragon-rare.png",
-    "type": "avatar",
-    "rarity": "epic",
-    "description": "Un dragon rare et puissant"
-  }
-}
-[1m[7m%[27m[1m[0m                                                                                                                      ]2;francis@Franciss-MacBook-Pro:~/workspace/Nightly/scripts]1;..ghtly/scripts]7;file://Franciss-MacBook-Pro.local/Users/francis/workspace/Nightly/scripts\]697;OSCUnlock=9edcdfa71076486ab63bf93dcc7ffd87]697;Dir=/Users/francis/workspace/Nightly/scripts]697;Shell=zsh]697;ShellPath=/bin/zsh]697;PID=98898]697;ExitCode=0]697;TTY=/dev/ttys026]697;Log=]697;ZshAutosuggestionColor=fg=8]697;FigAutosuggestionColor=]697;User=francis[0m[27m[24m[J]697;StartPrompt[0m[49m[39m
-[A[0m[49m[39m[0m[49m[39m[0m[49m [0m[49m[38;5;31m [1m[38;5;31m[38;5;39m~[0m[38;5;39m[49m[38;5;31m/workspace/[1m[38;5;31m[38;5;39mNightly[0m[38;5;39m[49m[38;5;31m/[1m[38;5;31m[38;5;39mscripts[0m[38;5;39m[49m[38;5;31m[0m[38;5;31m[49m[38;5;31m[0m[38;5;31m[49m [0m[38;5;31m[49m[38;5;178m[39mon [0m[49m[38;5;76m[0m[38;5;76m[49m[38;5;178m [38;5;76m main [38;5;178m!5 [38;5;39m?4[0m[38;5;39m[49m[38;5;178m[0m[38;5;178m[49m[30m[0m[30m[49m[39m                                              [0m[49m[38;5;70m system[0m[38;5;70m[49m[38;5;70m[0m[38;5;70m[49m[38;5;70m[0m[38;5;70m[49m[38;5;66m [39mat [0m[49m[38;5;66m 15:27:16[0m[38;5;66m[49m[38;5;66m[0m[38;5;66m[49m[38;5;66m[0m[38;5;66m[49m[39m
-[0m[49m[38;5;76m❯[0m[38;5;76m[49m[38;5;76m[0m[38;5;76m[49m[30m[0m[30m[49m[39m [0m[49m[39m]697;EndPrompt]697;NewCmd=9edcdfa71076486ab63bf93dcc7ffd87[K[115C]697;StartPrompt]697;EndPrompt[115D[?1h=[?2004h[?2004l
-[1m[7m%[27m[1m[0m                                                                                                                      ]2;francis@Franciss-MacBook-Pro:~/workspace/Nightly/scripts]1;..ghtly/scripts]7;file://Franciss-MacBook-Pro.local/Users/francis/workspace/Nightly/scripts\]697;OSCUnlock=9edcdfa71076486ab63bf93dcc7ffd87]697;Dir=/Users/francis/workspace/Nightly/scripts]697;Shell=zsh]697;ShellPath=/bin/zsh]697;PID=98898]697;ExitCode=130]697;TTY=/dev/ttys026]697;Log=]697;ZshAutosuggestionColor=fg=8]697;FigAutosuggestionColor=]697;User=francis]697;OSCLock=9edcdfa71076486ab63bf93dcc7ffd87]697;PreExec[0m[27m[24m[J]697;StartPrompt[0m[49m[39m
-[A[0m[49m[39m[0m[49m[39m[0m[49m [0m[49m[38;5;31m [1m[38;5;31m[38;5;39m~[0m[38;5;39m[49m[38;5;31m/workspace/[1m[38;5;31m[38;5;39mNightly[0m[38;5;39m[49m[38;5;31m/[1m[38;5;31m[38;5;39mscripts[0m[38;5;39m[49m[38;5;31m[0m[38;5;31m[49m[38;5;31m[0m[38;5;31m[49m [0m[38;5;31m[49m[38;5;178m[39mon [0m[49m[38;5;76m[0m[38;5;76m[49m[38;5;178m [38;5;76m main [38;5;178m!5 [38;5;39m?4[0m[38;5;39m[49m[38;5;178m[0m[38;5;178m[49m[30m[0m[30m[49m[39m                                              [0m[49m[38;5;70m system[0m[38;5;70m[49m[38;5;70m[0m[38;5;70m[49m[38;5;70m[0m[38;5;70m[49m[38;5;66m [39mat [0m[49m[38;5;66m 15:27:16[0m[38;5;66m[49m[38;5;66m[0m[38;5;66m[49m[38;5;66m[0m[38;5;66m[49m[39m
-[0m[49m[38;5;76m❯[0m[38;5;76m[49m[38;5;76m[0m[38;5;76m[49m[30m[0m[30m[49m[39m [0m[49m[39m]697;EndPrompt]697;NewCmd=9edcdfa71076486ab63bf93dcc7ffd87[K[115C]697;StartPrompt]697;EndPrompt[115D[?1h=[?2004hc[1m[31mc[0m[39m[1m[31mc[0m[39m[90mat assets-data.json[39m[19D[30m[104m[39m[49m[30m[104m[39m[49m[30m[104m[39m[49m
-[0;1;2mcommand[0m
-[0mc89               c99            caffeinate           cairo-trace  cap_mkdb           cargo-clippy  
-cargo-fmt         cargo-nextest  cc                   cd           cert_app           chflags       
-chgrp             chmod          clippy-driver        cntraining   colrm              column        
-combine_tessdata  comm           compare-cvelists.sh  compress     convertfilestopdf  convertfilestops
-converttops       corelist5.34   cp                   cpack        cpan               cpio          
-cpu_profiler.d    createhomedir  crl_app              cron         crypt_and_hash     ctags         
-cu                cupsaccept     cupsctl              cupsdisable  cupsenable         cupsfilter    
-cupsreject        cupstestppd    curl                 cursor       cursor-agent       cvcp          
-cvdb              cvmkfile       cvmkfs               cvversions   cw                 cws2fws       
-cwterm                                                                                      
-[J[30m[104m(MORE)[39m[49m[12A[0m[27m[24m[0m[39m[49m[2C[1m[31mc[0m[39m[90mat assets-data.json[39m[K[95C]697;StartPrompt]697;EndPrompt[0m[39m[49m[114D[1m[31mc[1m[31ml[0m[39m[39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [39m [18D[90mear[39m
-[J[0;1;2mcommand[0m
-[J[0mclang  [Jclang++  [Jclangd  [Jclassifier_tester  [Jclaude  [Jclean-diff  [Jclear  [Jclipcopy  [Jclippaste  [Jclippy-driver  [J[A[A[0m[27m[24m[0m[39m[49m[2C[1m[31mcl[0m[39m[90mear[39m[K[110C]697;StartPrompt]697;EndPrompt[0m[39m[49m[113D[1m[31mc[1m[31ml[1m[31me[0m[39m[30m[103m[39m[49m[30m[103m[39m[49m
-[J[0;1;2mcommand[0m
-[0mclean-diff  clear     
-[J[0;2m[1mcommon substring:[0m [30m[103mclea[39m[49m[3A[0m[27m[24m[0m[39m[49m[2C[1m[31mcle[0m[39m[90mar[39m[K[110C]697;StartPrompt]697;EndPrompt[0m[39m[49m[112D[1m[31me[1m[31ma[0m[39m
-[J[0;1;2mcommand[0m
-[J[0mclean-diff  [Jclear     [J[A[A[0m[27m[24m[0m[39m[49m[2C[1m[31mclea[0m[39m[90mr[39m[K[110C]697;StartPrompt]697;EndPrompt[0m[39m[49m[111D[1m[31ma[1m[31mr[0m[39m[0m[32mc[0m[32ml[0m[32me[0m[32ma[0m[32mr[39m
-[J[0;1;2mcommand[0m
-[J[0mclear[J[A[A[0m[27m[24m[0m[39m[49m[2C[32mclear[39m[K[110C]697;StartPrompt]697;EndPrompt[0m[39m[49m[110D[?1l>[?2004l
-[J[A[7C
-[J]697;OSCLock=9edcdfa71076486ab63bf93dcc7ffd87]697;PreExec]2;clear]1;clear[3J[H[2J[1m[7m%[27m[1m[0m                                                                                                                      ]2;francis@Franciss-MacBook-Pro:~/workspace/Nightly/scripts]1;..ghtly/scripts]7;file://Franciss-MacBook-Pro.local/Users/francis/workspace/Nightly/scripts\]697;OSCUnlock=9edcdfa71076486ab63bf93dcc7ffd87]697;Dir=/Users/francis/workspace/Nightly/scripts]697;Shell=zsh]697;ShellPath=/bin/zsh]697;PID=98898]697;ExitCode=0]697;TTY=/dev/ttys026]697;Log=]697;ZshAutosuggestionColor=fg=8]697;FigAutosuggestionColor=]697;User=francis[0m[27m[24m[J]697;StartPrompt[0m[49m[39m
-[A[0m[49m[39m[0m[49m[39m[0m[49m [0m[49m[38;5;31m [1m[38;5;31m[38;5;39m~[0m[38;5;39m[49m[38;5;31m/workspace/[1m[38;5;31m[38;5;39mNightly[0m[38;5;39m[49m[38;5;31m/[1m[38;5;31m[38;5;39mscripts[0m[38;5;39m[49m[38;5;31m[0m[38;5;31m[49m[38;5;31m[0m[38;5;31m[49m [0m[38;5;31m[49m[38;5;178m[39mon [0m[49m[38;5;76m[0m[38;5;76m[49m[38;5;178m [38;5;76m main [38;5;178m!5 [38;5;39m?4[0m[38;5;39m[49m[38;5;178m[0m[38;5;178m[49m[30m[0m[30m[49m[39m                                              [0m[49m[38;5;70m system[0m[38;5;70m[49m[38;5;70m[0m[38;5;70m[49m[38;5;70m[0m[38;5;70m[49m[38;5;66m [39mat [0m[49m[38;5;66m 15:28:14[0m[38;5;66m[49m[38;5;66m[0m[38;5;66m[49m[38;5;66m[0m[38;5;66m[49m[39m
-[0m[49m[38;5;76m❯[0m[38;5;76m[49m[38;5;76m[0m[38;5;76m[49m[30m[0m[30m[49m[39m [0m[49m[39m]697;EndPrompt]697;NewCmd=9edcdfa71076486ab63bf93dcc7ffd87[K[115C]697;StartPrompt]697;EndPrompt[115D[?1h=[?2004hnnode scripts/importAssets.cjs[29D[7mn[7mo[7md[7me[7m [7ms[7mc[7mr[7mi[7mp[7mt[7ms[7m/[7mi[7mm[7mp[7mo[7mr[7mt[7mA[7ms[7ms[7me[7mt[7ms[7m.[7mc[7mj[7ms[27m

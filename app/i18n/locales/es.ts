@@ -8,6 +8,8 @@ const es = {
     validate: "Validar",
     ok: "OK",
     newBadge: "NUEVO",
+    skip: "Omitir",
+    loading: "Cargando...",
   },
 
   // Pantalla de idioma
@@ -741,7 +743,7 @@ const es = {
   // Splash
   splash: {
     title: "Nightly",
-    subtitle: "Juegos de fiesta para noches inolvidables",
+    subtitle: "Juegos de fiesta",
     loading: "Cargando...",
   },
 
@@ -974,6 +976,105 @@ const es = {
   // Anuncios
   ads: {
     title: "Publicidad",
+  },
+
+  // Onboarding
+  onboarding: {
+    name: {
+      title: "ANTES DE EMPEZAR,\n¿CUÁL ES TU NOMBRE?",
+      placeholder: "Ingresa tu nombre",
+      continue: "Continuar",
+    },
+    age: {
+      title: "HOLA {{name}},\n¿CUÁL ES TU EDAD?",
+      selectDate: "Seleccionar una fecha",
+      cancel: "Cancelar",
+      ok: "OK",
+      disclaimer: "Tus respuestas son solo para ti,\nmantenidas completamente confidenciales para personalizar\ntu experiencia",
+      continue: "Continuar",
+    },
+    gender: {
+      title: "¿CUÁL ES TU GÉNERO?",
+      female: "Mujer",
+      male: "Hombre",
+      other: "Otro",
+      disclaimer: "Tus respuestas son solo para ti,\nmantenidas completamente confidenciales para personalizar\ntu experiencia",
+      continue: "Continuar",
+    },
+    goals: {
+      title: "¿QUÉ MÁS QUIERES\nDE TU RELACIÓN?",
+      warning: "Tu pareja no verá esto",
+      knowBetter: "Conocer mejor a mi pareja",
+      spiceUp: "Añadir picante",
+      haveFun: "Divertirse",
+      continue: "Continuar",
+    },
+    profile: {
+      title: "ELIGE TU\nAVATAR",
+      subtitle: "Selecciona un avatar que te represente",
+      loading: "Cargando avatares...",
+      error: "No se pudieron cargar los avatares.",
+      noAvatars: "No hay avatares disponibles en este momento.",
+      continue: "Continuar",
+    },
+    account: {
+      title: "¡CASI TERMINADO! PROTEGE\nTU CUENTA",
+      subtitle: "Crea una cuenta para guardar tu historial de actividad y\nrevisar fácilmente tus conversaciones favoritas en cualquier momento.",
+      signInGoogle: "Iniciar sesión con Google",
+      signInApple: "Iniciar sesión con Apple",
+    },
+    ready: {
+      title: "¡LISTO CUANDO\nTÚ LO ESTÉS, {{name}}!",
+      subtitle: "Sumergámonos en momentos inolvidables\njuntos.",
+      letsGo: "Vamos",
+    },
+    notifications: {
+      title: "Activa las notificaciones",
+      example: "Pierre acaba de responder a tu desafío diario ✨ ¡ahora puedes escuchar la respuesta!",
+      benefit1: "Sin notificaciones publicitarias",
+      benefit2: "Escucha las respuestas cuando estén disponibles",
+      benefit3: "No pierdas tus rachas",
+      button: "Activar notificaciones",
+    },
+    loading: {
+      preTitle: "solo un momento...",
+      title: "¡ESTAMOS CONSTRUYENDO\nLA MEJOR EXPERIENCIA\nPARA TI!",
+      step1: "Analizando tus intereses",
+      step2: "Seleccionando las mejores preguntas",
+      step3: "Personalizando tu experiencia",
+    },
+  },
+
+  // Couples
+  couples: {
+    partnerNotConnected: {
+      title: "Tu pareja está a un paso de unirse a ti.",
+      subtitle: "Tan pronto como acepte, podréis empezar a conectaros diariamente y descubrir nuevas formas de acercaros.",
+      resendCode: "Reenviar mi código",
+      enterCode: "Introducir un código",
+      enterCodeSubtitle: "Introduce el código que tu pareja te compartió para conectaros.",
+      codePlaceholder: "Introducir código...",
+      yourCode: "Tu código",
+      codeHint: "Comparte este código con tu pareja",
+      codeCopied: "¡Código copiado!",
+      codeCopiedMessage: "El código ha sido copiado al portapapeles.",
+    },
+  },
+
+  // Login
+  login: {
+    title: "¡BIENVENIDO DE NUEVO!",
+    subtitle: "Inicia sesión para continuar tu viaje y\nacceder a tus conversaciones guardadas",
+    signInGoogle: "Iniciar sesión con Google",
+    signInApple: "Iniciar sesión con Apple",
+  },
+
+  // Welcome
+  welcome: {
+    title: "¿LISTO PARA REDESCUBRIR\nA TU ALMA GEMELA?",
+    subtitle: "Mejora tus conversaciones con preguntas que van mucho más allá de '¿Cómo estás?'",
+    startForFree: "Comenzar gratis",
+    alreadyHaveAccount: "Ya tengo una cuenta",
   },
 };
 

@@ -8,6 +8,7 @@ const fr = {
     validate: "Valider",
     ok: "OK",
     newBadge: "NOUVEAU",
+    skip: "Passer",
   },
 
   // Écran de langue
@@ -773,7 +774,7 @@ const fr = {
   // Splash Screen
   splash: {
     title: "Nightly",
-    subtitle: "Prêt à jouer",
+    subtitle: "Jeux de soirée",
     loading: "Chargement...",
   },
 
@@ -1048,6 +1049,105 @@ const fr = {
 
   ads: {
     title: "Regardez une pub pour avoir 3 manches en plus !",
+  },
+
+  // Onboarding
+  onboarding: {
+    name: {
+      title: "AVANT DE COMMENCER,\nQUEL EST TON NOM ?",
+      placeholder: "Entre ton nom",
+      continue: "Continuer",
+    },
+    age: {
+      title: "SALUT {{name}},\nQUEL EST TON ÂGE ?",
+      selectDate: "Sélectionner une date",
+      cancel: "Annuler",
+      ok: "OK",
+      disclaimer: "Tes réponses sont juste pour toi,\ngardées complètement confidentielles pour personnaliser\nton expérience",
+      continue: "Continuer",
+    },
+    gender: {
+      title: "QUEL EST TON GENRE ?",
+      female: "Femme",
+      male: "Homme",
+      other: "Autre",
+      disclaimer: "Tes réponses sont juste pour toi,\ngardées complètement confidentielles pour personnaliser\nton expérience",
+      continue: "Continuer",
+    },
+    goals: {
+      title: "QUE VEUX-TU DE PLUS\nDANS TA RELATION ?",
+      warning: "Ton partenaire ne verra pas cela",
+      knowBetter: "Mieux connaître mon partenaire",
+      spiceUp: "Pimenter les choses",
+      haveFun: "S'amuser",
+      continue: "Continuer",
+    },
+    profile: {
+      title: "CHOISIS TON\nAVATAR",
+      subtitle: "Sélectionne un avatar qui te représente",
+      loading: "Chargement des avatars...",
+      error: "Impossible de charger les avatars.",
+      noAvatars: "Aucun avatar disponible pour le moment.",
+      continue: "Continuer",
+    },
+    account: {
+      title: "PRESQUE TERMINÉ ! SÉCURISE\nTON COMPTE",
+      subtitle: "Crée un compte pour sauvegarder ton historique d'activité et\nrevisiter facilement tes conversations favorites à tout moment !",
+      signInGoogle: "Se connecter avec Google",
+      signInApple: "Se connecter avec Apple",
+    },
+    ready: {
+      title: "PRÊT QUAND TU L'ES,\n{{name}} !",
+      subtitle: "Plongeons dans des moments inoubliables\nensemble.",
+      letsGo: "C'est parti",
+    },
+    notifications: {
+      title: "Activez les notifications",
+      example: "Pierre vient de répondre à votre défi quotidien ✨ vous pouvez maintenant écouter la réponse !",
+      benefit1: "Pas de notifications publicitaires",
+      benefit2: "Écoutez les réponses dès qu'elles sont disponibles",
+      benefit3: "Ne perdez pas vos séries",
+      button: "Activer les notifications",
+    },
+    loading: {
+      preTitle: "juste un instant...",
+      title: "NOUS CONSTRUISONS\nLA MEILLEURE EXPÉRIENCE\nPOUR TOI !",
+      step1: "Analyse de tes intérêts",
+      step2: "Sélection des meilleures questions",
+      step3: "Personnalisation de ton expérience",
+    },
+  },
+
+  // Login
+  login: {
+    title: "CONTENT DE TE REVOIR !",
+    subtitle: "Connecte-toi pour continuer ton parcours et\naccéder à tes conversations sauvegardées",
+    signInGoogle: "Se connecter avec Google",
+    signInApple: "Se connecter avec Apple",
+  },
+
+  // Welcome
+  welcome: {
+    title: "PRÊT À REDÉCOUVRIR\nTON ÂME SŒUR ?",
+    subtitle: "Améliore tes conversations avec des questions qui vont bien au-delà de 'Comment ça va ?'",
+    startForFree: "Commencer gratuitement",
+    alreadyHaveAccount: "J'ai déjà un compte",
+  },
+
+  // Couples
+  couples: {
+    partnerNotConnected: {
+      title: "Votre partenaire est à un pas de vous rejoindre.",
+      subtitle: "Dès qu'il accepte, vous pourrez commencer à vous connecter quotidiennement et découvrir de nouvelles façons de vous rapprocher.",
+      resendCode: "Renvoyer mon code",
+      enterCode: "Entrer un code",
+      enterCodeSubtitle: "Entrez le code que votre partenaire vous a partagé pour vous connecter.",
+      codePlaceholder: "Entrer le code...",
+      yourCode: "Votre code",
+      codeHint: "Partagez ce code avec votre partenaire",
+      codeCopied: "Code copié !",
+      codeCopiedMessage: "Le code a été copié dans votre presse-papiers.",
+    },
   },
 };
 

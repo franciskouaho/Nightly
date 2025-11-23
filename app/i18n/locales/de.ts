@@ -8,6 +8,8 @@ const de = {
     validate: "Bestätigen",
     ok: "OK",
     newBadge: "NEU",
+    skip: "Überspringen",
+    loading: "Laden...",
   },
 
   // Sprachbildschirm
@@ -741,7 +743,7 @@ const de = {
   // Splash
   splash: {
     title: "Nightly",
-    subtitle: "Partyspiele für unvergessliche Abende",
+    subtitle: "Partyspiele",
     loading: "Laden...",
   },
 
@@ -974,6 +976,105 @@ const de = {
   // Werbung
   ads: {
     title: "Werbung",
+  },
+
+  // Onboarding
+  onboarding: {
+    name: {
+      title: "BEVOR WIR BEGINNEN,\nWIE HEIẞT DU?",
+      placeholder: "Gib deinen Namen ein",
+      continue: "Weiter",
+    },
+    age: {
+      title: "HALLO {{name}},\nWIE ALT BIST DU?",
+      selectDate: "Datum auswählen",
+      cancel: "Abbrechen",
+      ok: "OK",
+      disclaimer: "Deine Antworten sind nur für dich,\nvöllig vertraulich aufbewahrt, um\ndeine Erfahrung zu personalisieren",
+      continue: "Weiter",
+    },
+    gender: {
+      title: "WELCHES GESCHLECHT HAST DU?",
+      female: "Weiblich",
+      male: "Männlich",
+      other: "Anderes",
+      disclaimer: "Deine Antworten sind nur für dich,\nvöllig vertraulich aufbewahrt, um\ndeine Erfahrung zu personalisieren",
+      continue: "Weiter",
+    },
+    goals: {
+      title: "WAS MÖCHTEST DU NOCH\nAUS DEINER BEZIEHUNG?",
+      warning: "Dein Partner wird das nicht sehen",
+      knowBetter: "Meinen Partner besser kennenlernen",
+      spiceUp: "Dinge aufpeppen",
+      haveFun: "Spaß haben",
+      continue: "Weiter",
+    },
+    profile: {
+      title: "WÄHLE DEINEN\nAVATAR",
+      subtitle: "Wähle einen Avatar, der dich repräsentiert",
+      loading: "Avatare werden geladen...",
+      error: "Avatare konnten nicht geladen werden.",
+      noAvatars: "Derzeit sind keine Avatare verfügbar.",
+      continue: "Weiter",
+    },
+    account: {
+      title: "FAST FERTIG! SICHERE\nDEIN KONTO",
+      subtitle: "Erstelle ein Konto, um deinen Aktivitätsverlauf zu speichern und\ndeine Lieblingsgespräche jederzeit einfach wieder aufzurufen!",
+      signInGoogle: "Mit Google anmelden",
+      signInApple: "Mit Apple anmelden",
+    },
+    ready: {
+      title: "BEREIT WENN\nDU BEREIT BIST, {{name}}!",
+      subtitle: "Lass uns gemeinsam in unvergessliche\nMomente eintauchen.",
+      letsGo: "Los geht's",
+    },
+    notifications: {
+      title: "Benachrichtigungen aktivieren",
+      example: "Pierre hat gerade deine tägliche Herausforderung beantwortet ✨ du kannst jetzt die Antwort anhören!",
+      benefit1: "Keine Werbebenachrichtigungen",
+      benefit2: "Höre Antworten, wenn sie verfügbar sind",
+      benefit3: "Verliere deine Serien nicht",
+      button: "Benachrichtigungen aktivieren",
+    },
+    loading: {
+      preTitle: "einen Moment...",
+      title: "WIR BAUEN DAS BESTE\nERLEBNIS FÜR DICH!",
+      step1: "Analyse deiner Interessen",
+      step2: "Auswahl der besten Fragen",
+      step3: "Personalisierung deiner Erfahrung",
+    },
+  },
+
+  // Couples
+  couples: {
+    partnerNotConnected: {
+      title: "Dein Partner ist nur einen Schritt davon entfernt, dir beizutreten.",
+      subtitle: "Sobald er akzeptiert, könnt ihr täglich in Kontakt treten und neue Wege finden, euch näher zu kommen.",
+      resendCode: "Meinen Code erneut senden",
+      enterCode: "Code eingeben",
+      enterCodeSubtitle: "Gib den Code ein, den dein Partner mit dir geteilt hat, um euch zu verbinden.",
+      codePlaceholder: "Code eingeben...",
+      yourCode: "Dein Code",
+      codeHint: "Teile diesen Code mit deinem Partner",
+      codeCopied: "Code kopiert!",
+      codeCopiedMessage: "Der Code wurde in die Zwischenablage kopiert.",
+    },
+  },
+
+  // Login
+  login: {
+    title: "WILLKOMMEN ZURÜCK!",
+    subtitle: "Melde dich an, um deine Reise fortzusetzen und\nauf deine gespeicherten Gespräche zuzugreifen",
+    signInGoogle: "Mit Google anmelden",
+    signInApple: "Mit Apple anmelden",
+  },
+
+  // Welcome
+  welcome: {
+    title: "BEREIT, DEINE SEELENVERWANDTE\nWIEDERZUENTDECKEN?",
+    subtitle: "Steigere deine Gespräche mit Fragen, die weit über 'Wie geht es dir?' hinausgehen",
+    startForFree: "Kostenlos starten",
+    alreadyHaveAccount: "Ich habe bereits ein Konto",
   },
 };
 

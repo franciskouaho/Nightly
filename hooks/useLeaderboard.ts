@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 
 interface LeaderboardEntry {
   id: string;
-  username: string;
+  pseudo: string;
   displayName: string;
   avatar: string;
   totalPoints: number;
@@ -53,8 +53,8 @@ export default function useLeaderboard() {
           
           leaderboardData.push({
             id: doc.id,
-            username: userData.pseudo || 'Joueur',
-            displayName: userData.displayName || userData.pseudo || 'Joueur',
+            pseudo: userData.pseudo || 'Joueur',
+            displayName: userData.pseudo || userData.displayName || 'Joueur',
             avatar: userData.avatar || 'default',
             totalPoints: gamePoints, // Utiliser gamePoints au lieu de points
             gamesPlayed,

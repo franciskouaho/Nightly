@@ -7,7 +7,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
     getAuth,
     onAuthStateChanged,
-    signInAnonymously,
 } from "@react-native-firebase/auth";
 import {
     doc,
@@ -25,6 +24,10 @@ const DEFAULT_AVATAR =
 interface User {
   uid: string;
   pseudo: string;
+  name?: string | null;
+  birthDate?: string | null;
+  gender?: string | null;
+  goals?: string[];
   createdAt: string;
   avatar: string;
   points: number;
@@ -39,11 +42,9 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   error: Error | null;
-  signIn: (pseudo: string, avatar: string) => Promise<void>;
   signOut: () => Promise<void>;
   setUser: (user: User | null) => void;
   restoreSession: () => Promise<void>;
-  firstLogin: (pseudo: string) => Promise<void>;
   checkExistingUser: (pseudo: string) => Promise<boolean>;
 }
 
@@ -261,12 +262,64 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             // Set AppsFlyer Client ID
             await setCustomerUserId(userData.uid);
           } else {
-            setUser(null);
-            resetUser();
-            await AsyncStorage.removeItem(STORAGE_KEY);
-            console.warn(
-              "⚠️ Aucun profil utilisateur disponible après authentification.",
-            );
+            // Si l'utilisateur est authentifié mais n'a pas de document Firestore,
+            // attendre un peu au cas où le document est en train d'être créé depuis l'onboarding
+            // Puis vérifier à nouveau
+            await new Promise(resolve => setTimeout(resolve, 500));
+            const userDocRetry = await getDoc(userRef);
+            
+            if (userDocRetry.exists()) {
+              // Le document existe maintenant, utiliser ces données
+              const existingUserData = userDocRetry.data() as User;
+              setUser(existingUserData);
+              await saveUserUid(firebaseUser.uid);
+              identifyUser(existingUserData.uid, {
+                pseudo: existingUserData.pseudo,
+                createdAt: existingUserData.createdAt,
+              });
+              await setCustomerUserId(existingUserData.uid);
+              console.log("✅ Profil trouvé après attente:", firebaseUser.uid);
+              return;
+            }
+            
+            // Seulement créer un profil minimal si vraiment aucun document n'existe
+            // et seulement si l'utilisateur n'est PAS en train de faire l'onboarding
+            // (on ne crée un profil minimal que pour les connexions directes sans onboarding)
+            const displayName = firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User';
+            const photoURL = firebaseUser.photoURL || '';
+            const userName = displayName;
+            
+            const minimalUserData: User = {
+              uid: firebaseUser.uid,
+              pseudo: userName,
+              name: displayName,
+              birthDate: null,
+              gender: null,
+              goals: [],
+              createdAt: new Date().toISOString(),
+              avatar: photoURL,
+              points: 0,
+            };
+            
+            // Créer le document Firestore
+            await setDoc(userRef, minimalUserData);
+            
+            // Sauvegarder le pseudo
+            await setDoc(doc(db, "usernames", userName.toLowerCase()), {
+              uid: firebaseUser.uid,
+              createdAt: new Date().toISOString(),
+              avatar: photoURL,
+            });
+            
+            setUser(minimalUserData);
+            await saveUserUid(firebaseUser.uid);
+            identifyUser(minimalUserData.uid, {
+              pseudo: minimalUserData.pseudo,
+              createdAt: minimalUserData.createdAt,
+            });
+            await setCustomerUserId(minimalUserData.uid);
+            
+            console.log("✅ Profil minimal créé pour l'utilisateur authentifié:", firebaseUser.uid);
           }
         } catch (err) {
           setError(err as Error);
@@ -281,69 +334,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => unsubscribe();
   }, []);
 
-  const signIn = async (pseudo: string, avatar: string) => {
-    try {
-      setLoading(true);
-      const auth = getAuth();
-      const db = getFirestore();
-
-      // Vérifier si le pseudo est déjà pris
-      const usernameDoc = await getDoc(
-        doc(db, "usernames", pseudo.toLowerCase()),
-      );
-      if (usernameDoc.exists()) {
-        throw new Error("Ce pseudo est déjà pris");
-      }
-
-      // Connexion anonyme - Firebase génère automatiquement un UUID unique
-      const userCredential = await signInAnonymously(auth);
-      const uid = userCredential.user.uid;
-
-      // Sauvegarder le pseudo
-      await setDoc(doc(db, "usernames", pseudo.toLowerCase()), {
-        uid,
-        createdAt: new Date().toISOString(),
-        avatar,
-      });
-
-      // Sauvegarder les informations de l'utilisateur
-      const userData = {
-        uid,
-        pseudo,
-        createdAt: new Date().toISOString(),
-        avatar,
-        points: 0,
-      };
-      await setDoc(doc(db, "users", uid), userData);
-      await saveUserUid(uid);
-      setUser(userData);
-
-      // Track sign in event
-      trackEvent("user_signed_in", {
-        pseudo,
-        uid,
-        avatar,
-      });
-
-      // Track PostHog login event
-      track.login("anonymous", true);
-      identify(uid, {
-        username: pseudo,
-        avatar,
-        created_at: new Date().toISOString(),
-      });
-
-      // Track AppsFlyer events
-      await logLogin();
-      await logCompleteRegistration("username");
-      await setCustomerUserId(uid);
-    } catch (err) {
-      setError(err as Error);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const signOut = async () => {
     try {
@@ -395,88 +385,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return userData;
   };
 
-  const firstLogin = async (pseudo: string) => {
-    try {
-      setLoading(true);
-      const auth = getAuth();
-      const db = getFirestore();
-      // Ajout import dynamique pour analyticsInstance
-      const { analyticsInstance } = await import("@/config/firebase");
-
-      // Vérifier si c'est un compte reviewer (comptes spéciaux pour validation stores)
-      const isReviewer = REVIEWER_PSEUDOS.includes(pseudo);
-
-      if (isReviewer) {
-        console.log('🤖 Premier login reviewer détecté:', pseudo);
-        // Connexion anonyme pour les reviewers (pas de vérification de session)
-        const userCredential = await signInAnonymously(auth);
-        const uid = userCredential.user.uid;
-        await createReviewerAccount(pseudo, uid);
-        // Tracking Google Analytics sign_up event pour reviewer
-        await analyticsInstance.logEvent("sign_up", {
-          method: "reviewer",
-        });
-        await analyticsInstance.setUserId(pseudo);
-        // Track AppsFlyer registration for reviewer
-        await logCompleteRegistration("reviewer");
-        await setCustomerUserId(uid);
-        return;
-      }
-
-      // Vérifier si le pseudo est déjà pris (pour les utilisateurs normaux)
-      const usernameDoc = await getDoc(
-        doc(db, "usernames", pseudo.toLowerCase()),
-      );
-      if (usernameDoc.exists()) {
-        throw new Error("Ce pseudo est déjà pris");
-      }
-
-      // Connexion anonyme normale
-      const userCredential = await signInAnonymously(auth);
-      const uid = userCredential.user.uid;
-
-      // Sauvegarder le pseudo
-      await setDoc(doc(db, "usernames", pseudo.toLowerCase()), {
-        uid,
-        createdAt: new Date().toISOString(),
-      });
-
-      // Créer le document utilisateur
-      const userData = {
-        uid,
-        pseudo,
-        createdAt: new Date().toISOString(),
-        avatar: DEFAULT_AVATAR,
-        points: 0,
-      };
-      await setDoc(doc(db, "users", uid), userData);
-      setUser(userData);
-
-      // Sauvegarder l'UID dans le localStorage
-      await saveUserUid(uid);
-
-      // Track first login event
-      trackEvent("user_first_login", {
-        pseudo,
-        uid,
-      });
-
-      // Tracking Google Analytics sign_up event
-      await analyticsInstance.logEvent("sign_up", {
-        method: "username",
-      });
-      await analyticsInstance.setUserId(pseudo);
-
-      // Track AppsFlyer registration
-      await logCompleteRegistration("username");
-      await setCustomerUserId(uid);
-    } catch (err) {
-      setError(err as Error);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const migrateExistingUser = async (uid: string, pseudo: string) => {
     try {
@@ -512,24 +420,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const checkExistingUser = async (pseudo: string): Promise<boolean> => {
     try {
       const db = getFirestore();
-
-      // Vérifier si c'est un compte reviewer (comptes spéciaux pour validation stores)
-      if (REVIEWER_PSEUDOS.includes(pseudo)) {
-        console.log('🤖 Connexion reviewer détectée:', pseudo);
-        const auth = getAuth();
-        const userCredential = await signInAnonymously(auth);
-        const uid = userCredential.user.uid;
-        const userData = await createReviewerAccount(pseudo, uid);
-        setUser(userData);
-        await saveUserUid(uid);
-        identifyUser(userData.uid, {
-          pseudo: userData.pseudo,
-          createdAt: userData.createdAt,
-        });
-        await setCustomerUserId(uid);
-        await logLogin();
-        return true;
-      }
 
       // Vérifier si l'utilisateur a déjà une session active
       const savedUid = await AsyncStorage.getItem(STORAGE_KEY);
@@ -585,11 +475,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const existingUid = usernameData?.uid;
         
         if (existingUid) {
-          // S'authentifier d'abord pour avoir les permissions de lecture
-          const auth = getAuth();
-          await signInAnonymously(auth);
-          
-          // Maintenant on peut lire les données utilisateur
+          // Lire les données utilisateur (les règles Firestore doivent permettre la lecture)
           const userDoc = await getDoc(doc(db, "users", existingUid));
           if (userDoc.exists()) {
             const userData = userDoc.data() as User;
@@ -631,11 +517,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         loading,
         error,
-        signIn,
         signOut,
         setUser,
         restoreSession,
-        firstLogin,
         checkExistingUser,
       }}
     >

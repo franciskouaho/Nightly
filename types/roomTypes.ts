@@ -5,9 +5,11 @@ import { ViewStyle, TextStyle, ImageStyle } from 'react-native';
  */
 
 // Type pour un joueur dans la room
+// NOTE: Dans Firestore, le champ s'appelle "username" mais dans notre code on utilise "pseudo"
+// On fait le mapping lors de la lecture/écriture
 export interface LocalPlayer {
   id: string;
-  username: string;
+  username: string; // Dans Firestore, c'est "username"
   displayName?: string;
   name: string; // Pour la rétrocompatibilité
   isHost: boolean;

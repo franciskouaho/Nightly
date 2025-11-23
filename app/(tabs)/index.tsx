@@ -48,11 +48,13 @@ interface Room {
   host: string;
   players: Array<{
     id: string;
-    username: string;
+    username: string; // Dans Firestore rooms, c'est "username"
     displayName: string;
+    name: string; // Pour rétrocompatibilité
     isHost: boolean;
     isReady: boolean;
     avatar: string;
+    level: number;
   }>;
   createdAt: string;
   status: "waiting" | "playing" | "finished";
@@ -180,11 +182,13 @@ export default function HomeScreen() {
         players: [
           {
             id: user.uid,
-            username: displayName,
+            username: displayName, // Firestore utilise "username"
             displayName: displayName,
+            name: displayName, // Pour rétrocompatibilité
             isHost: true,
             isReady: true,
             avatar: user.avatar,
+            level: 1,
           },
         ],
         createdAt: new Date().toISOString(),
@@ -466,11 +470,13 @@ export default function HomeScreen() {
       const roomRef = doc(db, "rooms", roomId);
       const newPlayer = {
         id: user.uid,
-        username: user.pseudo || "Joueur",
+        username: user.pseudo || "Joueur", // Firestore utilise "username"
         displayName: user.pseudo || "Joueur",
+        name: user.pseudo || "Joueur", // Pour rétrocompatibilité
         isHost: false,
         isReady: false,
         avatar: user.avatar,
+        level: 1,
       };
       
       await updateDoc(roomRef, {
@@ -742,24 +748,15 @@ export default function HomeScreen() {
     );
   };
 
-  // Vérification de sécurité pour les couleurs
-  const midnightGradient = Colors.light?.gradient?.luxury || {
-    from: "#1A1A2E",
-    to: "#C41E3A",
-    middle: "#8B1538",
-  };
-
   return (
     <View style={styles.container}>
       <LinearGradient
         colors={[
-          midnightGradient.from,
-          midnightGradient.from,
-          midnightGradient.middle,
-          midnightGradient.from,
-          midnightGradient.to,
+          "#C41E3A", // Red top
+          "#8B1538", // Darker red middle
+          "#2A0505", // Very dark bottom
         ]}
-        locations={[0, 0.2, 0.5, 0.8, 1]}
+        locations={[0, 0.4, 1]}
         style={styles.background}
       >
         {/* Neige animée pour le thème de Noël */}

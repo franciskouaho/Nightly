@@ -29,7 +29,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 interface LeaderboardEntry {
   id: string;
-  username: string;
+  pseudo: string;
   displayName: string;
   avatar: string;
   totalPoints: number;
@@ -70,7 +70,6 @@ export default function LeaderboardScreen() {
           console.log(`👤 Utilisateur ${index + 1}:`, {
             id: doc.id,
             pseudo: userData.pseudo,
-            username: userData.username,
             displayName: userData.displayName,
             totalPoints: gamePoints,
             gamesPlayed: userData.gamesPlayed,
@@ -83,11 +82,10 @@ export default function LeaderboardScreen() {
 
             leaderboardData.push({
               id: doc.id,
-              username: userData.pseudo || userData.username || "Joueur",
+              pseudo: userData.pseudo || "Joueur",
               displayName:
-                userData.displayName ||
                 userData.pseudo ||
-                userData.username ||
+                userData.displayName ||
                 "Joueur",
               avatar: userData.avatar || "https://via.placeholder.com/40",
               totalPoints: gamePoints, // Utiliser gamePoints au lieu de points

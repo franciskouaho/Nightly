@@ -3,7 +3,7 @@ export interface Player {
   name: string;
   avatar?: string;
   displayName?: string;
-  username?: string;
+  username?: string; // Dans les games/rooms Firestore, c'est "username"
 }
 
 export interface Question {

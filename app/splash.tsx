@@ -42,28 +42,24 @@ export default function SplashScreen() {
       if (user) {
         router.replace("/(tabs)");
       } else {
-        router.replace("/(auth)/login");
+        router.replace("/welcome");
       }
     }, 2000);
 
     return () => clearTimeout(timer);
   }, [user]);
 
-  // Utilisation du gradient luxury de l'application
-  const luxuryGradient = ChristmasTheme.light.gradient.luxury;
   const appVersion = Constants.expoConfig?.version || "1.0.0";
 
   return (
     <View style={styles.container}>
       <LinearGradient
         colors={[
-          luxuryGradient.from,
-          luxuryGradient.from,
-          luxuryGradient.middle,
-          luxuryGradient.from,
-          luxuryGradient.to,
+          "#C41E3A", // Red top
+          "#8B1538", // Darker red middle
+          "#2A0505", // Very dark bottom
         ]}
-        locations={[0, 0.2, 0.5, 0.8, 1]}
+        locations={[0, 0.4, 1]}
         style={styles.gradient}
       >
         <Animated.View

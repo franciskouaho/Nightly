@@ -170,7 +170,8 @@ function AppContent() {
               <StatusBar style="light" />
               <Stack screenOptions={{ headerShown: false }}>
                 <Stack.Screen name="(tabs)" />
-                <Stack.Screen name="(auth)" />
+                <Stack.Screen name="onboarding" />
+                <Stack.Screen name="login" />
                 <Stack.Screen name="room/[id]" />
               </Stack>
             </PaywallProvider>

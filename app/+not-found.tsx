@@ -13,10 +13,11 @@ export default function NotFoundScreen() {
       <Stack.Screen options={{ title: 'Oops!' }} />
       <LinearGradient
         colors={[
-          Colors.light?.backgroundDarker || "#0D0D1A",
-          Colors.light?.background || "#1A1A2E",
-          Colors.light?.secondary || "#8B1538"
+          "#C41E3A", // Red top
+          "#8B1538", // Darker red middle
+          "#2A0505", // Very dark bottom
         ]}
+        locations={[0, 0.4, 1]}
         style={styles.container}
       >
         <ThemedText type="title" style={styles.title}>This screen doesn't exist.</ThemedText>

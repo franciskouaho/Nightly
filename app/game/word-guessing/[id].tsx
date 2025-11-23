@@ -552,7 +552,7 @@ export default function WordGuessingGame() {
             {/* Message pour le joueur qui fait deviner */}
             {isCurrentUserTarget && gameState?.targetPlayer && (
               <Text style={styles.targetPlayerText}>
-                {t('game.word_guessing.targetPlayer', { player: gameState.targetPlayer.displayName || gameState.targetPlayer.username })}
+                {t('game.word_guessing.targetPlayer', { player: gameState.targetPlayer.username || gameState.targetPlayer.displayName })}
               </Text>
             )}
             {/* Le mot à deviner (visible uniquement pour le joueur qui fait deviner) */}

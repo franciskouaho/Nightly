@@ -99,7 +99,7 @@ export default function ProfileScreen() {
   const handleSignOut = async () => {
     try {
       await signOut();
-      router.replace("/(auth)/login");
+      router.replace("/onboarding/name");
     } catch (error) {
       Alert.alert(t("errors.general"), t("profile.logoutError"));
     }

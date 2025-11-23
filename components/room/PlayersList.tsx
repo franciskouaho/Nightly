@@ -37,11 +37,11 @@ export default function PlayersList({ players, maxPlayers }: PlayersListProps) {
             <Avatar
               source={item.avatar}
               size={40}
-              username={item.displayName || item.username}
+              username={item.username || item.displayName}
             />
           </View>
           <View style={styles.playerInfo}>
-            <Text style={styles.playerName}>{item.displayName || item.username}</Text>
+            <Text style={styles.playerName}>{item.username || item.displayName}</Text>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               {item.isHost && (
                 <View style={styles.hostBadge}>

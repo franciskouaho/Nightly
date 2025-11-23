@@ -48,7 +48,7 @@ const generateTwoLettersOneWordRandomLetters = (): [string, string] => {
 
 interface Player {
     id: string;
-    username: string;
+    username: string; // Dans les rooms Firestore, c'est "username"
     displayName?: string;
     name: string;
     isHost: boolean;
@@ -81,9 +81,9 @@ export const getMinPlayersForGame = (gameId: string): number => {
 const createBaseGameData = (options: GameInitializationOptions) => {
     const playersForGameDoc = options.players.map(player => ({
         id: player.id,
-        username: player.username || player.displayName || 'Joueur',
-        displayName: player.displayName || player.username || 'Joueur',
-        name: player.displayName || player.username || 'Joueur Inconnu',
+        username: player.username || player.displayName || 'Joueur', // Firestore utilise "username"
+        displayName: player.username || player.displayName || 'Joueur',
+        name: player.username || player.displayName || 'Joueur Inconnu',
         isHost: player.isHost || false,
         isReady: player.isReady || false,
         avatar: player.avatar || '',

@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "939461087699-3a70pf841osohn25cfbc1mtsk0p9vk4o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.emplica.nightly.android",
+            "certificate_hash": "3f7bb7f53b033c4363a31c169d49955cbfda556d"
+          }
+        },
+        {
           "client_id": "939461087699-rjimn8st7pb69lcgc98f8bni50qeufpj.apps.googleusercontent.com",
           "client_type": 3
         }

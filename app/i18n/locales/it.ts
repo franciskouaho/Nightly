@@ -8,6 +8,8 @@ const it = {
     validate: "Conferma",
     ok: "OK",
     newBadge: "NUOVO",
+    skip: "Salta",
+    loading: "Caricamento...",
   },
 
   // Schermata lingua
@@ -741,7 +743,7 @@ const it = {
   // Splash
   splash: {
     title: "Nightly",
-    subtitle: "Giochi di festa per serate indimenticabili",
+    subtitle: "Giochi di festa",
     loading: "Caricamento...",
   },
 
@@ -974,6 +976,105 @@ const it = {
   // Pubblicità
   ads: {
     title: "Pubblicità",
+  },
+
+  // Onboarding
+  onboarding: {
+    name: {
+      title: "PRIMA DI INIZIARE,\nQUAL È IL TUO NOME?",
+      placeholder: "Inserisci il tuo nome",
+      continue: "Continua",
+    },
+    age: {
+      title: "CIAO {{name}},\nQUANTI ANNI HAI?",
+      selectDate: "Seleziona una data",
+      cancel: "Annulla",
+      ok: "OK",
+      disclaimer: "Le tue risposte sono solo per te,\nmantenute completamente confidenziali per personalizzare\nla tua esperienza",
+      continue: "Continua",
+    },
+    gender: {
+      title: "QUAL È IL TUO GENERE?",
+      female: "Femmina",
+      male: "Maschio",
+      other: "Altro",
+      disclaimer: "Le tue risposte sono solo per te,\nmantenute completamente confidenziali per personalizzare\nla tua esperienza",
+      continue: "Continua",
+    },
+    goals: {
+      title: "COSA VUOI DI PIÙ\nDALLA TUA RELAZIONE?",
+      warning: "Il tuo partner non lo vedrà",
+      knowBetter: "Conoscere meglio il mio partner",
+      spiceUp: "Rendere le cose più piccanti",
+      haveFun: "Divertirsi",
+      continue: "Continua",
+    },
+    profile: {
+      title: "SCEGLI IL TUO\nAVATAR",
+      subtitle: "Seleziona un avatar che ti rappresenti",
+      loading: "Caricamento avatar...",
+      error: "Impossibile caricare gli avatar.",
+      noAvatars: "Nessun avatar disponibile al momento.",
+      continue: "Continua",
+    },
+    account: {
+      title: "QUASI FATTO! SICURIZZA\nIL TUO ACCOUNT",
+      subtitle: "Crea un account per salvare la cronologia delle tue attività e\nrivisitare facilmente le tue conversazioni preferite in qualsiasi momento!",
+      signInGoogle: "Accedi con Google",
+      signInApple: "Accedi con Apple",
+    },
+    ready: {
+      title: "PRONTO QUANDO\nLO SEI TU, {{name}}!",
+      subtitle: "Tuffiamoci in momenti indimenticabili\ninsieme.",
+      letsGo: "Andiamo",
+    },
+    notifications: {
+      title: "Attiva le notifiche",
+      example: "Pierre ha appena risposto alla tua sfida quotidiana ✨ ora puoi ascoltare la risposta!",
+      benefit1: "Nessuna notifica pubblicitaria",
+      benefit2: "Ascolta le risposte quando sono disponibili",
+      benefit3: "Non perdere le tue serie",
+      button: "Attiva notifiche",
+    },
+    loading: {
+      preTitle: "solo un momento...",
+      title: "STIAMO COSTRUENDO\nLA MIGLIORE ESPERIENZA\nPER TE!",
+      step1: "Analisi dei tuoi interessi",
+      step2: "Selezione delle migliori domande",
+      step3: "Personalizzazione della tua esperienza",
+    },
+  },
+
+  // Couples
+  couples: {
+    partnerNotConnected: {
+      title: "Il tuo partner è a un passo dall'unirsi a te.",
+      subtitle: "Non appena accetta, potrete iniziare a connettervi quotidianamente e scoprire nuovi modi per avvicinarvi.",
+      resendCode: "Reinvia il mio codice",
+      enterCode: "Inserisci un codice",
+      enterCodeSubtitle: "Inserisci il codice che il tuo partner ha condiviso con te per connettervi.",
+      codePlaceholder: "Inserisci codice...",
+      yourCode: "Il tuo codice",
+      codeHint: "Condividi questo codice con il tuo partner",
+      codeCopied: "Codice copiato!",
+      codeCopiedMessage: "Il codice è stato copiato negli appunti.",
+    },
+  },
+
+  // Login
+  login: {
+    title: "BENTORNATO!",
+    subtitle: "Accedi per continuare il tuo viaggio e\naccedere alle tue conversazioni salvate",
+    signInGoogle: "Accedi con Google",
+    signInApple: "Accedi con Apple",
+  },
+
+  // Welcome
+  welcome: {
+    title: "PRONTO A RISCOPRIRE\nLA TUA ANIMA GEMELLA?",
+    subtitle: "Potenzia le tue conversazioni con domande che vanno ben oltre 'Come stai?'",
+    startForFree: "Inizia gratuitamente",
+    alreadyHaveAccount: "Ho già un account",
   },
 };
 
