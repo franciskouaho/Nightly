@@ -1,6 +1,8 @@
 "use client";
 
 import { useAuth } from "@/contexts/AuthContext";
+import ChristmasTheme from "@/constants/themes/Christmas";
+import Constants from "expo-constants";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useEffect } from "react";
@@ -8,7 +10,6 @@ import { useTranslation } from "react-i18next";
 import {
   Animated,
   Image,
-  ImageBackground,
   StyleSheet,
   Text,
   View,
@@ -48,47 +49,59 @@ export default function SplashScreen() {
     return () => clearTimeout(timer);
   }, [user]);
 
+  // Utilisation du gradient luxury de l'application
+  const luxuryGradient = ChristmasTheme.light.gradient.luxury;
+  const appVersion = Constants.expoConfig?.version || "1.0.0";
+
   return (
     <View style={styles.container}>
-      <ImageBackground
-        source={require("@/assets/christmas/splash/splash.png")}
-        style={styles.background}
+      <LinearGradient
+        colors={[
+          luxuryGradient.from,
+          luxuryGradient.from,
+          luxuryGradient.middle,
+          luxuryGradient.from,
+          luxuryGradient.to,
+        ]}
+        locations={[0, 0.2, 0.5, 0.8, 1]}
+        style={styles.gradient}
       >
-        <LinearGradient
-          colors={[
-            "rgba(14, 17, 23, 0.7)",
-            "rgba(14, 17, 23, 0.5)",
-            "rgba(102, 26, 89, 0.5)",
-            "rgba(14, 17, 23, 0.5)",
-            "rgba(33, 16, 28, 0.7)",
+        <Animated.View
+          style={[
+            styles.contentContainer,
+            {
+              opacity: fadeAnim,
+              transform: [{ scale: scaleAnim }],
+            },
           ]}
-          locations={[0, 0.2, 0.5, 0.8, 1]}
-          style={styles.gradient}
         >
-          <Animated.View
-            style={[
-              styles.contentContainer,
-              {
-                opacity: fadeAnim,
-                transform: [{ scale: scaleAnim }],
-              },
-            ]}
-          >
-            <View style={styles.topContent}>
-              <View style={styles.mascoContainer}>
-                <Image
-                  source={require("@/assets/christmas/splash/mascotte.png")}
-                  style={styles.mascotte}
-                />
-              </View>
-              <View style={styles.textContainer}>
+          <View style={styles.topContent}>
+            <View style={styles.mascoContainer}>
+              <Image
+                source={require("@/assets/mascotte.png")}
+                style={styles.mascotte}
+              />
+            </View>
+            <View style={styles.textContainer}>
+              <View style={styles.titleContainer}>
+                <View style={styles.titleDot} />
                 <Text style={styles.title}>{t("splash.title")}</Text>
+              </View>
+              <View style={styles.subtitleContainer}>
                 <Text style={styles.subtitle}>{t("splash.subtitle")}</Text>
+                <View style={styles.subtitleDot} />
               </View>
             </View>
-          </Animated.View>
-        </LinearGradient>
-      </ImageBackground>
+          </View>
+        </Animated.View>
+        <View style={styles.bottomImageContainer}>
+          <Image
+            source={require("@/assets/jeux/apps.png")}
+            style={styles.bottomImage}
+          />
+          <Text style={styles.versionText}>v{appVersion}</Text>
+        </View>
+      </LinearGradient>
     </View>
   );
 }
@@ -96,11 +109,6 @@ export default function SplashScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  background: {
-    flex: 1,
-    width: "100%",
-    height: "100%",
   },
   gradient: {
     flex: 1,
@@ -110,38 +118,86 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     alignItems: "center",
-    justifyContent: "flex-start",
-    paddingTop: 120,
+    justifyContent: "center",
   },
   topContent: {
     alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
   },
   mascoContainer: {
     // Shine removed
   },
   textContainer: {
     alignItems: "center",
+    justifyContent: "center",
   },
   mascotte: {
-    width: 120,
-    height: 120,
+    width: 180,
+    height: 180,
     resizeMode: "contain",
+  },
+  titleContainer: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "center",
+    marginTop: 0,
+  },
+  titleDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: "#C41E3A",
+    marginRight: 8,
+    marginTop: 8,
   },
   title: {
     fontSize: 56,
-    fontFamily: "Righteous-Regular",
+    fontFamily: "BebasNeue-Regular",
     color: "#fff",
-    marginTop: 20,
-    letterSpacing: 2,
+    letterSpacing: 3,
     textShadowColor: "rgba(196, 30, 58, 0.8)",
     textShadowOffset: { width: 0, height: 4 },
     textShadowRadius: 15,
+  },
+  subtitleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: -8,
   },
   subtitle: {
     fontSize: 16,
     fontFamily: "Montserrat-Regular",
     color: "rgba(255, 255, 255, 0.9)",
-    marginTop: 10,
+    letterSpacing: 0.5,
+  },
+  subtitleDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: "#C41E3A",
+    marginLeft: 6,
+  },
+  bottomImageContainer: {
+    position: "absolute",
+    bottom: 30,
+    left: 0,
+    right: 0,
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  bottomImage: {
+    width: 120,
+    height: 36,
+    resizeMode: "contain",
+  },
+  versionText: {
+    fontSize: 12,
+    fontFamily: "Montserrat-Regular",
+    color: "rgba(255, 255, 255, 0.7)",
+    marginTop: 8,
     letterSpacing: 0.5,
   },
 });
