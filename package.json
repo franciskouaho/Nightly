@@ -23,6 +23,7 @@
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@bacons/apple-targets": "^3.0.5",
     "@expo-google-fonts/anton": "^0.4.2",
     "@expo-google-fonts/archivo-black": "^0.4.1",
     "@expo-google-fonts/bangers": "^0.4.1",

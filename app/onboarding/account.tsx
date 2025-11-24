@@ -16,6 +16,7 @@ import { useTranslation } from "react-i18next";
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { GOOGLE_AUTH_CONFIG } from "@/config/googleAuth";
 import auth from '@react-native-firebase/auth';
+import { trackOnboardingAccountCompleted } from "@/services/onboardingAnalytics";
 
 // AppleAuthentication - rendre optionnel si le module n'est pas installé
 let AppleAuthentication: any = null;
@@ -178,6 +179,9 @@ export default function AccountScreen() {
                 setUser(userData);
             }
 
+            // Track account completion
+            await trackOnboardingAccountCompleted('google');
+
             router.replace("/onboarding/notifications");
         } catch (error: any) {
             console.error('Erreur lors de la connexion Google:', error);
@@ -335,6 +339,9 @@ export default function AccountScreen() {
                 console.error('❌ ERREUR: Le document n\'existe pas après création!');
                 setUser(userData);
             }
+
+            // Track account completion
+            await trackOnboardingAccountCompleted('apple');
 
             router.replace("/onboarding/notifications");
         } catch (e: any) {

@@ -17,6 +17,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useOnboarding } from "@/contexts/OnboardingContext";
 import { useTranslation } from "react-i18next";
 import { GlamourButton } from "@/components/ui/GlamourButton";
+import { trackOnboardingNameCompleted } from "@/services/onboardingAnalytics";
 
 export default function NameScreen() {
     const router = useRouter();
@@ -25,9 +26,10 @@ export default function NameScreen() {
     const { t } = useTranslation();
     const [name, setName] = useState(data.pseudo || "");
 
-    const handleContinue = () => {
+    const handleContinue = async () => {
         if (name.trim()) {
             updateData("pseudo", name.trim());
+            await trackOnboardingNameCompleted(name.trim());
             router.push("/onboarding/age");
         }
     };

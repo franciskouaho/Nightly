@@ -7,6 +7,11 @@ import { useColorScheme } from "react-native"
 import { Platform, StyleSheet, TouchableOpacity, View, Text } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import Colors from "../../constants/Colors"
+import LinkAccountModal from "@/components/LinkAccountModal";
+import { isAnonymousUser } from "@/services/linkAccount";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const LINK_MODAL_SHOWN_KEY = "@nightly_link_modal_shown";
 
 function CustomTabBar() {
   const pathname = usePathname();
@@ -89,7 +94,54 @@ function CustomTabBar() {
 }
 
 export default function TabLayout() {
-  const { user } = useAuth();
+  const { user, restoreSession } = useAuth();
+  const [showLinkModal, setShowLinkModal] = React.useState(false);
+
+  // Vérifier si on doit afficher le modal de liaison
+  React.useEffect(() => {
+    const checkAndShowModal = async () => {
+      try {
+        // Attendre un peu pour laisser l'app se charger
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        // Vérifier si l'utilisateur est anonyme
+        if (!isAnonymousUser()) {
+          return;
+        }
+
+        // Vérifier si le modal a déjà été affiché
+        const modalShown = await AsyncStorage.getItem(LINK_MODAL_SHOWN_KEY);
+
+        if (!modalShown) {
+          setShowLinkModal(true);
+          // Marquer comme affiché (mais on peut le réafficher plus tard)
+          await AsyncStorage.setItem(LINK_MODAL_SHOWN_KEY, new Date().toISOString());
+        } else {
+          // Si le modal a été affiché il y a plus de 7 jours, le réafficher
+          const lastShown = new Date(modalShown);
+          const daysSinceLastShown = (Date.now() - lastShown.getTime()) / (1000 * 60 * 60 * 24);
+
+          if (daysSinceLastShown > 7) {
+            setShowLinkModal(true);
+            await AsyncStorage.setItem(LINK_MODAL_SHOWN_KEY, new Date().toISOString());
+          }
+        }
+      } catch (error) {
+        console.error('Erreur lors de la vérification du modal de liaison:', error);
+      }
+    };
+
+    if (user) {
+      checkAndShowModal();
+    }
+  }, [user]);
+
+  const handleLinkSuccess = async () => {
+    setShowLinkModal(false);
+    // Recharger la session pour mettre à jour le statut
+    await restoreSession();
+    // Ici on pourrait aussi déclencher l'attribution de l'abonnement gratuit
+  };
 
   return (
     <>
@@ -128,6 +180,13 @@ export default function TabLayout() {
         />
       </Tabs>
       <CustomTabBar />
+
+      {/* Modal de liaison de compte */}
+      <LinkAccountModal
+        visible={showLinkModal}
+        onClose={() => setShowLinkModal(false)}
+        onLinkSuccess={handleLinkSuccess}
+      />
     </>
   );
 }

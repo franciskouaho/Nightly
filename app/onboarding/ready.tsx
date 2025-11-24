@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
     View,
     Text,
@@ -11,14 +11,31 @@ import { useTranslation } from "react-i18next";
 import { useOnboarding } from "@/contexts/OnboardingContext";
 import { GlamourButton } from "@/components/ui/GlamourButton";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { trackOnboardingReady, trackOnboardingCompleted } from "@/services/onboardingAnalytics";
+import { usePaywall } from "@/contexts/PaywallContext";
+import { trackPaywallViewed } from "@/services/paywallAnalytics";
 
 export default function ReadyScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
     const { t } = useTranslation();
     const { data } = useOnboarding();
+    const { showPaywallA } = usePaywall();
 
-    const handleLetsGo = () => {
+    useEffect(() => {
+        // Track ready screen view
+        trackOnboardingReady();
+    }, []);
+
+    const handleLetsGo = async () => {
+        // Track onboarding completion
+        await trackOnboardingCompleted();
+
+        // Show paywall after onboarding
+        showPaywallA(true); // Force show paywall
+        await trackPaywallViewed('A', 'post_onboarding');
+
+        // Navigate to tabs (paywall will show as modal on top)
         router.replace("/(tabs)");
     };
 

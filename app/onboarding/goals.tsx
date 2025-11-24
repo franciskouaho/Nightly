@@ -13,6 +13,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useOnboarding } from "@/contexts/OnboardingContext";
 import { useTranslation } from "react-i18next";
 import { GlamourButton } from "@/components/ui/GlamourButton";
+import { trackOnboardingGoalsCompleted } from "@/services/onboardingAnalytics";
 
 export default function GoalsScreen() {
     const router = useRouter();
@@ -21,9 +22,10 @@ export default function GoalsScreen() {
     const { t } = useTranslation();
     const [selectedGoal, setSelectedGoal] = useState<string | null>(null);
 
-    const handleContinue = () => {
+    const handleContinue = async () => {
         if (selectedGoal) {
             updateData("goals", [selectedGoal]);
+            await trackOnboardingGoalsCompleted([selectedGoal]);
             router.push("/onboarding/profile");
         }
     };

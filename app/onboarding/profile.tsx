@@ -18,6 +18,7 @@ import { useTranslation } from "react-i18next";
 import storage from "@react-native-firebase/storage";
 import { cacheRemoteImage } from "@/utils/cacheRemoteImage";
 import { GlamourButton } from "@/components/ui/GlamourButton";
+import { trackOnboardingProfileCompleted } from "@/services/onboardingAnalytics";
 
 function chunkArray<T>(array: T[], size: number): T[][] {
     const result: T[][] = [];
@@ -87,9 +88,10 @@ export default function ProfileScreen() {
         };
     }, []);
 
-    const handleContinue = () => {
+    const handleContinue = async () => {
         if (selectedProfile) {
             updateData("avatar", selectedProfile.remoteUrl);
+            await trackOnboardingProfileCompleted(selectedProfile.remoteUrl);
             router.push("/onboarding/account");
         }
     };

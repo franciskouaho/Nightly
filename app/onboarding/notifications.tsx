@@ -14,6 +14,7 @@ import { useTranslation } from "react-i18next";
 import { GlamourButton } from "@/components/ui/GlamourButton";
 import * as Notifications from 'expo-notifications';
 import { ExpoNotificationService } from "@/services/expoNotificationService";
+import { trackOnboardingNotificationsCompleted } from "@/services/onboardingAnalytics";
 
 export default function NotificationsScreen() {
     const router = useRouter();
@@ -26,17 +27,24 @@ export default function NotificationsScreen() {
         try {
             // Demander les permissions de notification
             const { status } = await Notifications.requestPermissionsAsync();
-            
+
+            let notificationsEnabled = false;
             if (status === 'granted') {
                 // Initialiser le service de notifications
                 const notificationService = ExpoNotificationService.getInstance();
                 await notificationService.initialize();
+                notificationsEnabled = true;
             }
-            
+
+            // Track notifications completion
+            await trackOnboardingNotificationsCompleted(notificationsEnabled);
+
             // Continuer vers l'écran suivant même si la permission est refusée
             router.push("/onboarding/loading");
         } catch (error) {
             console.error("Erreur lors de la demande de permissions:", error);
+            // Track notifications as disabled on error
+            await trackOnboardingNotificationsCompleted(false);
             // Continuer quand même vers l'écran suivant
             router.push("/onboarding/loading");
         } finally {
@@ -44,7 +52,9 @@ export default function NotificationsScreen() {
         }
     };
 
-    const handleSkip = () => {
+    const handleSkip = async () => {
+        // Track notifications as disabled (skipped)
+        await trackOnboardingNotificationsCompleted(false);
         router.push("/onboarding/loading");
     };
 

@@ -24,6 +24,15 @@ import {
 } from "react-native";
 import Purchases from "react-native-purchases";
 import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  trackPaywallViewed,
+  trackPaywallPurchaseSuccess,
+  trackPaywallPurchaseFailed,
+  trackPaywallPurchaseCancelled,
+  trackPaywallClosed,
+  trackPaywallRestoreAttempt,
+  trackPaywallTermsClicked
+} from '@/services/paywallAnalytics';
 
 interface PaywallModalBProps {
   isVisible: boolean;
@@ -46,9 +55,14 @@ export default function PaywallModalB({
   const { t } = useTranslation();
   const { user, setUser } = useAuth();
 
-  // Log pour debug
+  // Log pour debug et tracking
   React.useEffect(() => {
     console.log('💎 PaywallModalB - isVisible:', isVisible, 'isProMember:', isProMember, 'currentOffering:', !!currentOffering);
+
+    // Track paywall B viewed
+    if (isVisible) {
+      trackPaywallViewed('B', 'upgrade_from_A');
+    }
   }, [isVisible, isProMember, currentOffering]);
 
   // Calculer la réduction en pourcentage depuis RevenueCat
@@ -97,12 +111,16 @@ export default function PaywallModalB({
             subscription_type: "annual",
             package_type: packageToUse.packageType,
           });
+
+          // Track purchase success in analytics
+          await trackPaywallPurchaseSuccess('B', 'annual', revenue, currency);
         }
 
         Alert.alert(
           t("paywall.alerts.success.title"),
           t("paywall.alerts.success.message"),
         );
+        await trackPaywallClosed('B', 'purchase_success');
         onClose();
       } else {
         Alert.alert(
@@ -111,6 +129,13 @@ export default function PaywallModalB({
         );
       }
     } catch (e: any) {
+      // Check if user cancelled
+      if (e?.code === 'PURCHASES_CANCELLED_ERROR' || e?.userCancelled) {
+        await trackPaywallPurchaseCancelled('B', 'annual');
+      } else {
+        await trackPaywallPurchaseFailed('B', 'annual', e?.message);
+      }
+
       Alert.alert(
         t("paywall.alerts.error.title"),
         e?.message || t("paywall.alerts.error.message"),
@@ -124,12 +149,15 @@ export default function PaywallModalB({
     try {
       setLoading(true);
       await Purchases.restorePurchases();
+      await trackPaywallRestoreAttempt('B', true);
       Alert.alert(
         t("paywall.alerts.restoreSuccess.title"),
         t("paywall.alerts.restoreSuccess.message"),
       );
+      await trackPaywallClosed('B', 'purchase_success');
       onClose();
     } catch (e) {
+      await trackPaywallRestoreAttempt('B', false);
       Alert.alert(
         t("paywall.alerts.restoreError.title"),
         t("paywall.alerts.restoreError.message"),
@@ -139,7 +167,13 @@ export default function PaywallModalB({
     }
   };
 
+  const handleClose = async () => {
+    await trackPaywallClosed('B', 'user_closed');
+    onClose();
+  };
+
   const handleTermsPress = async () => {
+    await trackPaywallTermsClicked('B');
     const termsUrl = "https://emplica.fr/privacy-policy";
     try {
       const canOpen = await Linking.canOpenURL(termsUrl);
@@ -164,7 +198,7 @@ export default function PaywallModalB({
       animationType="slide"
       transparent={false}
       visible={isVisible}
-      onRequestClose={onClose}
+      onRequestClose={handleClose}
     >
       <SafeAreaView style={[styles.container, { zIndex: 10 }]}>
         <StatusBar style="light" />
@@ -191,7 +225,7 @@ export default function PaywallModalB({
               showsVerticalScrollIndicator={false}
             >
               <View style={[styles.header, { zIndex: 15 }]}>
-                <TouchableOpacity style={styles.backButton} onPress={onClose}>
+                <TouchableOpacity style={styles.backButton} onPress={handleClose}>
                   <Ionicons name="close" size={24} color="#ffffff" />
                 </TouchableOpacity>
               </View>

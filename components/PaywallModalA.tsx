@@ -13,6 +13,15 @@ import { useTranslation } from 'react-i18next';
 import { getFirestore, doc, updateDoc } from '@react-native-firebase/firestore';
 import { useAuth } from '@/contexts/AuthContext';
 import ChristmasTheme from '@/constants/themes/Christmas';
+import {
+  trackPaywallPlanSelected,
+  trackPaywallPurchaseSuccess,
+  trackPaywallPurchaseFailed,
+  trackPaywallPurchaseCancelled,
+  trackPaywallClosed,
+  trackPaywallRestoreAttempt,
+  trackPaywallTermsClicked
+} from '@/services/paywallAnalytics';
 
 interface PaywallModalAProps {
   isVisible: boolean;
@@ -51,6 +60,17 @@ export default function PaywallModalA({ isVisible, onClose, onUpgradeToAnnual }:
 
   const discountPercentage = calculateDiscountPercentage();
 
+  // Track plan selection
+  React.useEffect(() => {
+    if (isVisible && packageToUse?.product) {
+      trackPaywallPlanSelected(
+        'A',
+        selectedPlan as 'weekly' | 'annual',
+        packageToUse.product.price
+      );
+    }
+  }, [selectedPlan, isVisible]);
+
   const handleSubscribe = async () => {
     if (!packageToUse) {
       Alert.alert(
@@ -81,12 +101,21 @@ export default function PaywallModalA({ isVisible, onClose, onUpgradeToAnnual }:
             subscription_type: selectedPlan,
             package_type: packageToUse.packageType,
           });
+
+          // Track purchase success in analytics
+          await trackPaywallPurchaseSuccess(
+            'A',
+            selectedPlan as 'weekly' | 'annual',
+            revenue,
+            currency
+          );
         }
 
         Alert.alert(
           t('paywall.alerts.success.title'),
           t('paywall.alerts.success.message')
         );
+        await trackPaywallClosed('A', 'purchase_success');
         onClose();
       } else {
         Alert.alert(
@@ -95,6 +124,13 @@ export default function PaywallModalA({ isVisible, onClose, onUpgradeToAnnual }:
         );
       }
     } catch (e: any) {
+      // Check if user cancelled
+      if (e?.code === 'PURCHASES_CANCELLED_ERROR' || e?.userCancelled) {
+        await trackPaywallPurchaseCancelled('A', selectedPlan as 'weekly' | 'annual');
+      } else {
+        await trackPaywallPurchaseFailed('A', selectedPlan as 'weekly' | 'annual', e?.message);
+      }
+
       Alert.alert(
         t('paywall.alerts.error.title'),
         e?.message || t('paywall.alerts.error.message')
@@ -108,12 +144,15 @@ export default function PaywallModalA({ isVisible, onClose, onUpgradeToAnnual }:
     try {
       setLoading(true);
       await Purchases.restorePurchases();
+      await trackPaywallRestoreAttempt('A', true);
       Alert.alert(
         t('paywall.alerts.restoreSuccess.title'),
         t('paywall.alerts.restoreSuccess.message')
       );
+      await trackPaywallClosed('A', 'purchase_success');
       onClose();
     } catch (e) {
+      await trackPaywallRestoreAttempt('A', false);
       Alert.alert(
         t('paywall.alerts.restoreError.title'),
         t('paywall.alerts.restoreError.message')
@@ -124,6 +163,7 @@ export default function PaywallModalA({ isVisible, onClose, onUpgradeToAnnual }:
   };
 
   const handleTermsPress = async () => {
+    await trackPaywallTermsClicked('A');
     const termsUrl = 'https://emplica.fr/privacy-policy';
     try {
       const canOpen = await Linking.canOpenURL(termsUrl);
@@ -143,10 +183,13 @@ export default function PaywallModalA({ isVisible, onClose, onUpgradeToAnnual }:
     }
   };
 
-  const handleClose = () => {
-    // Si l'utilisateur ferme sans acheter, on peut suggérer l'annuel
+  const handleClose = async () => {
+    // Track paywall closed by user
     if (onUpgradeToAnnual) {
+      await trackPaywallClosed('A', 'upgrade_suggested');
       onUpgradeToAnnual();
+    } else {
+      await trackPaywallClosed('A', 'user_closed');
     }
     onClose();
   };

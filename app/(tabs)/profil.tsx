@@ -25,17 +25,33 @@ import {
 import Purchases from "react-native-purchases";
 import { useExpoNotifications } from "@/hooks/useExpoNotifications";
 import HalloweenNotificationScheduler from "@/services/halloweenNotificationScheduler";
+import LinkAccountSection from "@/components/LinkAccountSection";
+import { isAnonymousUser, getAccountType } from "@/services/linkAccount";
 
 export default function ProfileScreen() {
-  const { user, signOut } = useAuth();
+  const { user, signOut, restoreSession } = useAuth();
   const router = useRouter();
   const { showPaywallA, showPaywallB, closePaywallB, paywallState } = usePaywall();
   const { t } = useTranslation();
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const { sendHalloweenQuizNotification } = useExpoNotifications();
+  const [isAnonymous, setIsAnonymous] = useState(false);
+  const [accountType, setAccountType] = useState<string | null>(null);
 
   // Vérifier si l'utilisateur est admin depuis Firestore
   const isAdmin = user?.isAdmin === true;
+
+  // Vérifier si l'utilisateur est anonyme
+  useEffect(() => {
+    const checkAccountType = () => {
+      const anonymous = isAnonymousUser();
+      const type = getAccountType();
+      setIsAnonymous(anonymous);
+      setAccountType(type);
+    };
+
+    checkAccountType();
+  }, [user]);
 
   useEffect(() => {
     const checkNotificationStatus = async () => {
@@ -160,10 +176,34 @@ export default function ProfileScreen() {
             )}
           </View>
 
-          <Text style={styles.username}>
-            {user?.pseudo || t("profile.defaultUsername")}
-          </Text>
+          <View style={styles.usernameContainer}>
+            <Text style={styles.username}>
+              {user?.pseudo || t("profile.defaultUsername")}
+            </Text>
+            {!isAnonymous && accountType && accountType !== 'anonymous' && (
+              <View style={styles.securedBadge}>
+                <MaterialCommunityIcons name="shield-check" size={16} color="#4CAF50" />
+                <Text style={styles.securedBadgeText}>
+                  {t('profile.securedAccount') || 'Sécurisé'}
+                </Text>
+              </View>
+            )}
+          </View>
         </View>
+
+        {/* Link Account Section - Visible uniquement pour les utilisateurs anonymes */}
+        {isAnonymous && (
+          <View style={styles.linkAccountContainer}>
+            <LinkAccountSection
+              onLinkSuccess={async () => {
+                // Recharger la session pour mettre à jour le statut
+                await restoreSession();
+                setIsAnonymous(false);
+                setAccountType(getAccountType());
+              }}
+            />
+          </View>
+        )}
 
         {/* Settings Section */}
         <View style={styles.settingsSection}>
@@ -467,11 +507,37 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "white",
   },
+  usernameContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    flexWrap: "wrap",
+    justifyContent: "center",
+  },
   username: {
     fontSize: 24,
     fontWeight: "bold",
     color: "white",
-    marginBottom: 10,
+  },
+  securedBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(76, 175, 80, 0.2)",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    gap: 4,
+    borderWidth: 1,
+    borderColor: "rgba(76, 175, 80, 0.5)",
+  },
+  securedBadgeText: {
+    color: "#4CAF50",
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+  linkAccountContainer: {
+    paddingHorizontal: 20,
+    marginBottom: 20,
   },
   settingsSection: {
     paddingHorizontal: 20,

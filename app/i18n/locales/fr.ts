@@ -123,6 +123,40 @@ const fr = {
     notificationsError: "Erreur",
     notificationsErrorMessage:
       "Impossible d'activer les notifications. Vérifiez les permissions dans les paramètres.",
+    securedAccount: "Sécurisé",
+  },
+
+  // Liaison de compte
+  linkAccount: {
+    warning: "Compte non sécurisé",
+    title: "SÉCURISEZ VOTRE COMPTE",
+    description:
+      "Liez votre compte à Google ou Apple pour ne jamais perdre votre progression, vos points et vos achats.",
+    benefit1: "Sauvegarde automatique de vos données",
+    benefit2: "Connexion sur plusieurs appareils",
+    benefit3: "Récupération facile en cas de perte",
+    linkGoogle: "Lier avec Google",
+    linkApple: "Lier avec Apple",
+    securityNote: "Vos données actuelles seront conservées lors de la liaison",
+    successTitle: "Compte lié !",
+    successMessage:
+      "Votre compte a été lié avec succès à Google. Vos données sont maintenant sécurisées !",
+    successAppleMessage:
+      "Votre compte a été lié avec succès à Apple. Vos données sont maintenant sécurisées !",
+    errorTitle: "Erreur",
+    errorMessage: "Impossible de lier votre compte",
+  },
+
+  // Modal de liaison de compte
+  linkAccountModal: {
+    title: "Sécurisez votre compte !",
+    description:
+      "Votre compte n'est pas encore sécurisé. Liez-le maintenant et recevez :",
+    reward: "3 JOURS PREMIUM GRATUIT",
+    rewardValue: "Valeur : 5,99€",
+    later: "Plus tard",
+    successWithReward:
+      "Votre compte a été lié avec succès ! Vous avez gagné 3 jours d'abonnement Premium gratuit ! 🎉",
   },
 
   // Accueil

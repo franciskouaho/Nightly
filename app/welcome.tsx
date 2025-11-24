@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
     View,
     Text,
@@ -14,6 +14,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import ChristmasTheme from "@/constants/themes/Christmas";
 import { GlamourButton } from "@/components/ui/GlamourButton";
+import analytics from '@react-native-firebase/analytics';
+import posthog from 'posthog-react-native';
 
 const { width } = Dimensions.get("window");
 
@@ -23,7 +25,27 @@ export default function WelcomeScreen() {
     const { t } = useTranslation();
     const theme = ChristmasTheme.light;
 
-    const handleStart = () => {
+    useEffect(() => {
+        // Track welcome screen view
+        analytics().logEvent('welcome_view', {
+            timestamp: new Date().toISOString(),
+        });
+        posthog?.capture('welcome_view', {
+            timestamp: new Date().toISOString(),
+        });
+        console.log('📊 Tracking: welcome_view');
+    }, []);
+
+    const handleStart = async () => {
+        // Track onboarding start
+        await analytics().logEvent('onboarding_start', {
+            timestamp: new Date().toISOString(),
+        });
+        posthog?.capture('onboarding_start', {
+            timestamp: new Date().toISOString(),
+        });
+        console.log('📊 Tracking: onboarding_start');
+
         // Navigate to onboarding
         router.push("/onboarding/name");
     };

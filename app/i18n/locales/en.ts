@@ -119,6 +119,40 @@ const en = {
     notificationsDisabledMessage: "You won't receive any notifications.",
     notificationsError: "Error",
     notificationsErrorMessage: "Failed to update notification settings.",
+    securedAccount: "Secured",
+  },
+
+  // Link Account
+  linkAccount: {
+    warning: "Unsecured account",
+    title: "SECURE YOUR ACCOUNT",
+    description:
+      "Link your account to Google or Apple to never lose your progress, points, and purchases.",
+    benefit1: "Automatic data backup",
+    benefit2: "Login on multiple devices",
+    benefit3: "Easy recovery in case of loss",
+    linkGoogle: "Link with Google",
+    linkApple: "Link with Apple",
+    securityNote: "Your current data will be preserved during linking",
+    successTitle: "Account linked!",
+    successMessage:
+      "Your account has been successfully linked to Google. Your data is now secured!",
+    successAppleMessage:
+      "Your account has been successfully linked to Apple. Your data is now secured!",
+    errorTitle: "Error",
+    errorMessage: "Unable to link your account",
+  },
+
+  // Link Account Modal
+  linkAccountModal: {
+    title: "Secure your account!",
+    description:
+      "Your account is not yet secured. Link it now and receive:",
+    reward: "3 DAYS PREMIUM FREE",
+    rewardValue: "Value: $5.99",
+    later: "Later",
+    successWithReward:
+      "Your account has been successfully linked! You've earned 3 days of Premium subscription for free! 🎉",
   },
 
   // Home

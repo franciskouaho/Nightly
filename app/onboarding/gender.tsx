@@ -12,6 +12,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useOnboarding } from "@/contexts/OnboardingContext";
 import { useTranslation } from "react-i18next";
 import { GlamourButton } from "@/components/ui/GlamourButton";
+import { trackOnboardingGenderCompleted } from "@/services/onboardingAnalytics";
 
 export default function GenderScreen() {
     const router = useRouter();
@@ -20,9 +21,10 @@ export default function GenderScreen() {
     const { t } = useTranslation();
     const [selectedGender, setSelectedGender] = useState<string | null>(data.gender);
 
-    const handleContinue = () => {
+    const handleContinue = async () => {
         if (selectedGender) {
             updateData("gender", selectedGender);
+            await trackOnboardingGenderCompleted(selectedGender);
             router.push("/onboarding/goals");
         }
     };

@@ -10,6 +10,7 @@ import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
+import { trackOnboardingLoading } from "@/services/onboardingAnalytics";
 
 export default function LoadingScreen() {
     const router = useRouter();
@@ -24,6 +25,9 @@ export default function LoadingScreen() {
     ];
 
     useEffect(() => {
+        // Track loading screen view
+        trackOnboardingLoading();
+
         // Animation des étapes
         const stepInterval = setInterval(() => {
             setCurrentStep((prev) => {

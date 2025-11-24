@@ -24,6 +24,17 @@ import { useTranslation } from "react-i18next";
 import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs } from "@react-native-firebase/firestore";
 import Clipboard from "@react-native-clipboard/clipboard";
 import { Alert } from "react-native";
+import { useCoupleLocation } from "@/hooks/useCoupleLocation";
+import { useCoupleStreak } from "@/hooks/useCoupleStreak";
+import { useDailyChallenge } from "@/hooks/useDailyChallenge";
+import {
+  trackCouplesScreenViewed,
+  trackCoupleCodeCopied,
+  trackCoupleCodeEntryStarted,
+  trackCoupleConnected,
+  trackCoupleConnectionFailed,
+} from "@/services/couplesAnalytics";
+import { WidgetService } from "@/services/widgetService";
 
 export default function CouplesScreen() {
   const { user } = useAuth();
@@ -39,6 +50,38 @@ export default function CouplesScreen() {
   const [partnerData, setPartnerData] = useState<any>(null);
   const [coupleData, setCoupleData] = useState<any>(null);
   const [couplePhoto, setCouplePhoto] = useState<string | null>(null);
+  const [partnerId, setPartnerId] = useState<string | null>(null);
+
+  // Hooks pour les nouvelles fonctionnalités
+  const { 
+    distance, 
+    distanceKm,
+    isLocationSharingEnabled, 
+    enableLocationSharing, 
+    disableLocationSharing,
+    hasPermission,
+    requestPermission,
+    updateLocation,
+    loading: locationLoading,
+    error: locationError
+  } = useCoupleLocation(partnerId || undefined);
+  const { 
+    currentStreak, 
+    longestStreak,
+    weekActivity, 
+    recordActivity, 
+    checkAndUpdateStreak,
+    loading: streakLoading 
+  } = useCoupleStreak(partnerId || undefined);
+  const { 
+    todayChallenge, 
+    hasCompletedToday, 
+    submitResponse, 
+    userResponse, 
+    partnerResponse,
+    loading: challengeLoading,
+    skipChallenge 
+  } = useDailyChallenge(partnerId || undefined);
 
   // Vérifier si l'utilisateur a un partenaire connecté
   useEffect(() => {
@@ -63,6 +106,7 @@ export default function CouplesScreen() {
             if (partnerId || code) {
               // Vérifier si le partenaire existe
               if (partnerId) {
+                setPartnerId(partnerId); // Stocker le partnerId pour les hooks
                 const partnerRef = doc(db, "users", partnerId);
                 const partnerDoc = await getDoc(partnerRef);
                 if (partnerDoc.exists()) {
@@ -111,6 +155,71 @@ export default function CouplesScreen() {
     checkPartner();
   }, [user?.uid]);
 
+  // Track l'écran et vérifier le streak au montage
+  useEffect(() => {
+    trackCouplesScreenViewed(hasPartner, {
+      currentStreak,
+      distanceKm: distanceKm || undefined,
+      hasActiveChallenge: !!todayChallenge && !hasCompletedToday,
+      locationSharingEnabled: isLocationSharingEnabled,
+    });
+    if (hasPartner && partnerId) {
+      checkAndUpdateStreak();
+    }
+  }, [hasPartner, partnerId, currentStreak, distanceKm, todayChallenge, hasCompletedToday, isLocationSharingEnabled]);
+
+  // Synchroniser les données avec le widget depuis Firebase en temps réel
+  useEffect(() => {
+    if (!user?.uid) return;
+
+    if (!hasPartner || !partnerId) {
+      // Pas de partenaire, vider les données du widget
+      WidgetService.syncCoupleData(
+        user.uid,
+        null,
+        null,
+        null,
+        0,
+        null
+      );
+      return;
+    }
+
+    // Synchroniser initialement avec les données actuelles
+    const syncInitialData = async () => {
+      await WidgetService.syncCoupleData(
+        user.uid,
+        partnerId,
+        { currentStreak, longestStreak },
+        distance || null,
+        daysTogether,
+        {
+          hasActive: !!todayChallenge && !hasCompletedToday,
+          text: todayChallenge?.question || '',
+        }
+      );
+    };
+
+    syncInitialData();
+
+    // Écouter les changements en temps réel depuis Firebase
+    const unsubscribe = WidgetService.setupCoupleDataListener(
+      user.uid,
+      partnerId
+    );
+
+    // Cleanup à la désactivation
+    return () => {
+      unsubscribe();
+    };
+  }, [
+    user?.uid,
+    hasPartner,
+    partnerId,
+    // Ne pas dépendre de toutes les données pour éviter trop de re-renders
+    // Les listeners Firebase se chargeront des mises à jour
+  ]);
+
   const handleResendCode = async () => {
     // TODO: Implémenter la logique pour renvoyer le code
     console.log("Resend code");
@@ -120,6 +229,7 @@ export default function CouplesScreen() {
     if (!coupleCode) return;
     try {
       await Clipboard.setString(coupleCode);
+      await trackCoupleCodeCopied(coupleCode);
       Alert.alert(
         t("couples.partnerNotConnected.codeCopied"),
         t("couples.partnerNotConnected.codeCopiedMessage")
@@ -131,6 +241,7 @@ export default function CouplesScreen() {
   };
 
   const handleEnterCode = () => {
+    trackCoupleCodeEntryStarted();
     setShowCodeDrawer(true);
     Animated.spring(slideAnim, {
       toValue: 1,
@@ -185,12 +296,14 @@ export default function CouplesScreen() {
       const querySnapshot = await getDocs(q);
 
       if (querySnapshot.empty) {
+        await trackCoupleConnectionFailed("invalid_code");
         Alert.alert(t("errors.general"), "Code invalide. Vérifiez le code et réessayez.");
         return;
       }
 
       const partnerDoc = querySnapshot.docs[0];
       if (!partnerDoc) {
+        await trackCoupleConnectionFailed("partner_not_found");
         Alert.alert(t("errors.general"), "Code invalide. Vérifiez le code et réessayez.");
         return;
       }
@@ -205,6 +318,7 @@ export default function CouplesScreen() {
 
       // Vérifier que le partenaire n'a pas déjà un partenaire
       if (partnerData.partnerId && partnerData.partnerId !== user.uid) {
+        await trackCoupleConnectionFailed("partner_already_connected");
         Alert.alert(t("errors.general"), "Ce code est déjà utilisé par un autre couple");
         handleCloseDrawer();
         return;
@@ -215,6 +329,7 @@ export default function CouplesScreen() {
       const userDoc = await getDoc(userRef);
       const userData = userDoc.exists() ? userDoc.data() : null;
       if (userData && userData.partnerId) {
+        await trackCoupleConnectionFailed("user_already_connected");
         Alert.alert(t("errors.general"), "Vous avez déjà un partenaire connecté");
         handleCloseDrawer();
         return;
@@ -261,10 +376,11 @@ export default function CouplesScreen() {
   const partnerName = partnerData?.pseudo?.toUpperCase() || "";
   const userName = user?.pseudo?.toUpperCase() || "FRANCISCO";
   const coupleName = partnerName ? `${userName} & ${partnerName}` : userName;
-  const currentStreak = 0; // TODO: Calculer depuis Firestore
   const joinedDate = coupleData?.joinedDate || new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   const daysTogether = coupleData?.daysTogether || 0;
-  const distance = "999km"; // TODO: Calculer depuis les coordonnées GPS si disponibles
+  
+  // Formater la distance pour l'affichage
+  const displayDistance = distance || (distanceKm !== null ? `${Math.round(distanceKm)}km` : null) || "N/A";
 
   // Si le partenaire n'est pas connecté, afficher la page d'invitation
   if (!loading && !hasPartner) {
@@ -510,7 +626,9 @@ export default function CouplesScreen() {
                 <MaterialCommunityIcons name="fire" size={24} color="#FFB6C1" />
                 <View style={styles.statTextColumn}>
                   <Text style={styles.statLabel}>current streak</Text>
-                  <Text style={styles.statValue}>{currentStreak} days</Text>
+                  <Text style={styles.statValue}>
+                    {streakLoading ? "..." : `${currentStreak} days`}
+                  </Text>
                 </View>
               </View>
               <View style={styles.statItem}>
@@ -557,34 +675,122 @@ export default function CouplesScreen() {
                       <Text style={styles.avatarText}>{partnerName.charAt(0)}</Text>
                     </View>
                   </View>
-                  <Text style={styles.distanceText}>{distance}</Text>
+                  <Text style={styles.distanceText}>
+                    {locationLoading ? "..." : displayDistance}
+                  </Text>
                   <Text style={styles.distanceLabel}>between us</Text>
+                  {locationError && (
+                    <Text style={styles.errorText}>{locationError}</Text>
+                  )}
                 </View>
 
                 <View style={styles.widgetSeparator} />
 
-                <TouchableOpacity style={styles.addWidgetRow}>
-                  <Text style={styles.addWidgetText}>Add</Text>
-                  <Ionicons name="chevron-forward" size={16} color="#FFB6C1" />
+                <TouchableOpacity 
+                  style={styles.addWidgetRow}
+                  onPress={async () => {
+                    if (!isLocationSharingEnabled) {
+                      if (!hasPermission) {
+                        const granted = await requestPermission();
+                        if (!granted) {
+                          Alert.alert(
+                            "Permission requise",
+                            "L'accès à la localisation est nécessaire pour partager votre position."
+                          );
+                          return;
+                        }
+                      }
+                      await enableLocationSharing();
+                    } else {
+                      await disableLocationSharing();
+                    }
+                  }}
+                >
+                  <Text style={styles.addWidgetText}>
+                    {isLocationSharingEnabled ? "Désactiver GPS" : "Activer GPS"}
+                  </Text>
+                  <Ionicons 
+                    name={isLocationSharingEnabled ? "location" : "location-outline"} 
+                    size={16} 
+                    color="#FFB6C1" 
+                  />
                 </TouchableOpacity>
               </View>
             </View>
             {/* Your Daily */}
             <Text style={styles.sectionTitle}>Your daily</Text>
             <View style={styles.dailyCard}>
-              <View style={styles.dailyHeader}>
-                <View style={styles.dailyFlamesContainer}>
-                  <MaterialCommunityIcons name="fire" size={32} color="#8B1538" style={{ opacity: 0.6 }} />
-                  <MaterialCommunityIcons name="fire" size={32} color="#8B1538" style={{ opacity: 0.6 }} />
-                </View>
-                <Text style={styles.dailyTitle}>It's time to connect!</Text>
+              {challengeLoading ? (
+                <Text style={styles.dailySubtitle}>Chargement...</Text>
+              ) : todayChallenge ? (
+                <>
+                  <View style={styles.dailyHeader}>
+                    <View style={styles.dailyFlamesContainer}>
+                      <MaterialCommunityIcons name="fire" size={32} color="#8B1538" style={{ opacity: 0.6 }} />
+                      <MaterialCommunityIcons name="fire" size={32} color="#8B1538" style={{ opacity: 0.6 }} />
+                    </View>
+                    <Text style={styles.dailyTitle}>
+                      {hasCompletedToday ? "Challenge complété ! 🔥" : "Défi du jour"}
+                    </Text>
+                    <Text style={styles.dailySubtitle}>
+                      {todayChallenge.question}
+                    </Text>
+                    {hasCompletedToday && (
+                      <View style={styles.responseContainer}>
+                        {userResponse && (
+                          <Text style={styles.responseText}>
+                            <Text style={styles.responseLabel}>Votre réponse: </Text>
+                            {userResponse}
+                          </Text>
+                        )}
+                        {partnerResponse && (
+                          <Text style={styles.responseText}>
+                            <Text style={styles.responseLabel}>Réponse de {partnerName}: </Text>
+                            {partnerResponse}
+                          </Text>
+                        )}
+                      </View>
+                    )}
+                  </View>
+                  {!hasCompletedToday && (
+                    <TouchableOpacity 
+                      style={styles.discoverButton} 
+                      activeOpacity={0.8}
+                      onPress={async () => {
+                        if (!userResponse) {
+                          Alert.prompt(
+                            "Votre réponse",
+                            todayChallenge.question,
+                            [
+                              { text: "Annuler", style: "cancel" },
+                              {
+                                text: "Envoyer",
+                                onPress: async (response) => {
+                                  if (response && response.trim()) {
+                                    await submitResponse(response.trim());
+                                    // Enregistrer l'activité pour le streak
+                                    await recordActivity();
+                                  }
+                                },
+                              },
+                            ],
+                            "plain-text"
+                          );
+                        }
+                      }}
+                      disabled={!!userResponse}
+                    >
+                      <Text style={styles.discoverButtonText}>
+                        {userResponse ? "En attente de votre partenaire..." : "Répondre au défi"}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </>
+              ) : (
                 <Text style={styles.dailySubtitle}>
-                  Play the daily game to feel{"\n"}even closer.
+                  Aucun défi disponible aujourd'hui.
                 </Text>
-              </View>
-              <TouchableOpacity style={styles.discoverButton} activeOpacity={0.8}>
-                <Text style={styles.discoverButtonText}>Discover daily</Text>
-              </TouchableOpacity>
+              )}
             </View>
 
             {/* History Section */}
@@ -594,40 +800,54 @@ export default function CouplesScreen() {
                 <View style={styles.streakContainer}>
                   <View style={styles.streakFlameContainer}>
                     <MaterialCommunityIcons name="fire" size={80} color="#FF4500" />
-                    <Text style={styles.streakNumberLarge}>{currentStreak}</Text>
+                    <Text style={styles.streakNumberLarge}>
+                      {streakLoading ? "..." : currentStreak}
+                    </Text>
                   </View>
                   <Text style={styles.streakTitle}>Streak with {partnerName}</Text>
+                  {longestStreak > currentStreak && (
+                    <Text style={styles.longestStreakText}>
+                      Meilleur streak: {longestStreak} jours
+                    </Text>
+                  )}
                   <Text style={styles.streakSubtitle}>
                     Your daily connection helps{"\n"}your streak grow and strengthens{"\n"}your bond.
                   </Text>
                 </View>
 
                 <View style={styles.weekDaysContainer}>
-                  {[
-                    { day: 'Su', active: true, num: 1 },
-                    { day: 'Mo', active: true, num: 2 },
-                    { day: 'Tu', active: true, num: 3 },
-                    { day: 'We', active: false },
-                    { day: 'Th', active: false },
-                    { day: 'Fr', active: false },
-                    { day: 'Sa', active: false }
-                  ].map((item, index) => (
-                    <View key={index} style={styles.dayColumn}>
-                      <Text style={[styles.weekDayText, item.active && styles.weekDayTextActive]}>
-                        {item.day}
-                      </Text>
-                      <View style={styles.dayFlameContainer}>
-                        <MaterialCommunityIcons
-                          name="fire"
-                          size={36}
-                          color={item.active ? "#FF7F50" : "rgba(255, 255, 255, 0.1)"}
-                        />
-                        {item.active && (
-                          <Text style={styles.dayFlameNumber}>{item.num}</Text>
-                        )}
+                  {weekActivity.length > 0 ? (
+                    weekActivity.map((item, index) => (
+                      <View key={index} style={styles.dayColumn}>
+                        <Text style={[styles.weekDayText, item.active && styles.weekDayTextActive]}>
+                          {item.day}
+                        </Text>
+                        <View style={styles.dayFlameContainer}>
+                          <MaterialCommunityIcons
+                            name="fire"
+                            size={36}
+                            color={item.active ? "#FF7F50" : "rgba(255, 255, 255, 0.1)"}
+                          />
+                          {item.active && item.streakNumber > 0 && (
+                            <Text style={styles.dayFlameNumber}>{item.streakNumber}</Text>
+                          )}
+                        </View>
                       </View>
-                    </View>
-                  ))}
+                    ))
+                  ) : (
+                    ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((day, index) => (
+                      <View key={index} style={styles.dayColumn}>
+                        <Text style={styles.weekDayText}>{day}</Text>
+                        <View style={styles.dayFlameContainer}>
+                          <MaterialCommunityIcons
+                            name="fire"
+                            size={36}
+                            color="rgba(255, 255, 255, 0.1)"
+                          />
+                        </View>
+                      </View>
+                    ))
+                  )}
                 </View>
               </View>
             </View>
@@ -1255,5 +1475,37 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
     fontFamily: "Montserrat-Bold",
+  },
+  errorText: {
+    color: "#FF6B6B",
+    fontSize: 10,
+    fontFamily: "Montserrat-Regular",
+    marginTop: 4,
+    textAlign: "center",
+  },
+  responseContainer: {
+    marginTop: 16,
+    padding: 12,
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    borderRadius: 12,
+    width: "100%",
+  },
+  responseText: {
+    color: "rgba(255, 255, 255, 0.9)",
+    fontSize: 13,
+    fontFamily: "Montserrat-Regular",
+    marginBottom: 8,
+    lineHeight: 18,
+  },
+  responseLabel: {
+    fontFamily: "Montserrat-Bold",
+    color: "#FFB6C1",
+  },
+  longestStreakText: {
+    color: "rgba(255, 255, 255, 0.5)",
+    fontSize: 12,
+    fontFamily: "Montserrat-Regular",
+    marginTop: 4,
+    textAlign: "center",
   },
 });

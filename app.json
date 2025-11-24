@@ -12,12 +12,17 @@
       "bundleIdentifier": "com.emplica.nightly",
       "googleServicesFile": "./GoogleService-Info.plist",
       "appleTeamId": "NAN7MFNMT7",
+      "entitlements": {
+        "com.apple.security.application-groups": ["group.com.emplica.nightly.data"]
+      },
       "infoPlist": {
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true
         },
         "UIBackgroundModes": ["remote-notification"],
-        "NSCameraUsageDescription": "Allow Nightly to access your camera to scan QR codes and join game rooms."
+        "NSCameraUsageDescription": "Allow Nightly to access your camera to scan QR codes and join game rooms.",
+        "NSLocationWhenInUseUsageDescription": "Allow Nightly to access your location to show the distance between you and your partner.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Allow Nightly to access your location to show the distance between you and your partner."
       },
       "requireFullScreen": true
     },
@@ -35,7 +40,9 @@
         "RECEIVE_BOOT_COMPLETED",
         "VIBRATE",
         "WAKE_LOCK",
-        "CAMERA"
+        "CAMERA",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
       ],
       "edgeToEdgeEnabled": true
     },
@@ -92,7 +99,14 @@
           "cameraPermission": "Allow Nightly to access your camera to scan QR codes and join game rooms."
         }
       ],
-      "expo-font"
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow Nightly to access your location to show the distance between you and your partner."
+        }
+      ],
+      "expo-font",
+      "@bacons/apple-targets"
     ],
     "assetBundlePatterns": ["**/*"],
     "experiments": {

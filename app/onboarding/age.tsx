@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useOnboarding } from "@/contexts/OnboardingContext";
 import { useTranslation } from "react-i18next";
 import { GlamourButton } from "@/components/ui/GlamourButton";
+import { trackOnboardingAgeCompleted } from "@/services/onboardingAnalytics";
 
 // DateTimePicker - rendre optionnel si le module n'est pas installé
 let DateTimePicker: any = null;
@@ -32,8 +33,9 @@ export default function AgeScreen() {
     const [date, setDate] = useState(data.birthDate || new Date(2000, 0, 1));
     const [showPicker, setShowPicker] = useState(false);
 
-    const handleContinue = () => {
+    const handleContinue = async () => {
         updateData("birthDate", date);
+        await trackOnboardingAgeCompleted(date.toISOString());
         router.push("/onboarding/gender");
     };
 
