@@ -211,8 +211,12 @@ export default function LeaderboardScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <LinearGradient
-          colors={["#1A1A2E", "#8B1538", "#C41E3A", "#8B1538", "#0D0D1A"]}
-          locations={[0, 0.2, 0.5, 0.8, 1]}
+          colors={[
+            "#C41E3A", // Red top
+            "#8B1538", // Darker red middle
+            "#2A0505", // Very dark bottom
+          ]}
+          locations={[0, 0.4, 1]}
           style={styles.background}
         >
           <View style={styles.content}>
@@ -231,8 +235,12 @@ export default function LeaderboardScreen() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={["#1A1A2E", "#8B1538", "#C41E3A", "#8B1538", "#0D0D1A"]}
-        locations={[0, 0.2, 0.5, 0.8, 1]}
+        colors={[
+          "#C41E3A", // Red top
+          "#8B1538", // Darker red middle
+          "#2A0505", // Very dark bottom
+        ]}
+        locations={[0, 0.4, 1]}
         style={styles.background}
       >
 
@@ -412,7 +420,7 @@ export default function LeaderboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#120F1C", // Couleur de fallback
+    backgroundColor: "#1A0505", // Couleur de fallback
   },
   background: {
     flex: 1,

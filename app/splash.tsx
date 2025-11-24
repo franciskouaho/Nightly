@@ -92,7 +92,7 @@ export default function SplashScreen() {
         </Animated.View>
         <View style={styles.bottomImageContainer}>
           <Image
-            source={require("@/assets/jeux/apps.png")}
+            source={require("@/assets/laurier.png")}
             style={styles.bottomImage}
           />
           <Text style={styles.versionText}>v{appVersion}</Text>
@@ -185,8 +185,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   bottomImage: {
-    width: 120,
-    height: 36,
+    width: 60,
+    height: 60,
     resizeMode: "contain",
   },
   versionText: {

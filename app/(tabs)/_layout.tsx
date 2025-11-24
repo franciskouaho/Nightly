@@ -83,9 +83,17 @@ function CustomTabBar() {
           styles.buttonGlassBackground,
           isLeaderboard && styles.buttonGlassBackgroundActive,
         ]}>
-          <View style={styles.buttonGlassInner}>
-            <View style={styles.buttonGlassHighlight} />
-            <Ionicons size={28} name="trophy" color={isLeaderboard ? "#FFD700" : "white"} />
+          <View style={[
+            styles.buttonGlassInner,
+            isLeaderboard && styles.buttonGlassInnerActive,
+          ]}>
+            {isLeaderboard && <View style={styles.buttonGlassHighlightActive} />}
+            {!isLeaderboard && <View style={styles.buttonGlassHighlight} />}
+            <Ionicons 
+              size={28} 
+              name="trophy" 
+              color={isLeaderboard ? "#FFD700" : "white"} 
+            />
           </View>
         </View>
       </TouchableOpacity>
@@ -291,8 +299,14 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   buttonGlassBackgroundActive: {
-    backgroundColor: 'rgba(255, 215, 0, 0.35)',
-    borderColor: 'rgba(255, 215, 0, 0.6)',
+    backgroundColor: 'rgba(255, 215, 0, 0.4)',
+    borderColor: 'rgba(255, 215, 0, 0.8)',
+    borderWidth: 2,
+    shadowColor: 'rgba(255, 215, 0, 0.6)',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    elevation: 12,
   },
   buttonGlassInner: {
     flex: 1,
@@ -309,6 +323,19 @@ const styles = StyleSheet.create({
     right: 0,
     height: '40%',
     backgroundColor: 'rgba(232, 180, 184, 0.15)',
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+  },
+  buttonGlassInnerActive: {
+    backgroundColor: 'rgba(255, 250, 240, 0.25)',
+  },
+  buttonGlassHighlightActive: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '40%',
+    backgroundColor: 'rgba(255, 215, 0, 0.3)',
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
   },

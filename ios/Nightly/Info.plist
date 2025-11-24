@@ -55,6 +55,12 @@
     </dict>
     <key>NSCameraUsageDescription</key>
     <string>Allow Nightly to access your camera to scan QR codes and join game rooms.</string>
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>Allow Nightly to access your location to show the distance between you and your partner.</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>Allow $(PRODUCT_NAME) to access your location</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Allow Nightly to access your location to show the distance between you and your partner.</string>
     <key>NSMicrophoneUsageDescription</key>
     <string>Allow $(PRODUCT_NAME) to access your microphone</string>
     <key>NSUserActivityTypes</key>

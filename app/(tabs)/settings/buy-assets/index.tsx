@@ -169,8 +169,12 @@ export default function BuyAssetsScreen() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={["#0E1117", "#0E1117", "#661A59", "#0E1117", "#21101C"]}
-        locations={[0, 0.2, 0.5, 0.8, 1]}
+        colors={[
+          "#C41E3A", // Red top
+          "#8B1538", // Darker red middle
+          "#2A0505", // Very dark bottom
+        ]}
+        locations={[0, 0.4, 1]}
         style={styles.background}
       />
       <View style={styles.header}>
@@ -285,7 +289,7 @@ export default function BuyAssetsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0E1117",
+    backgroundColor: "#1A0505",
     paddingTop: 40,
   },
   background: {

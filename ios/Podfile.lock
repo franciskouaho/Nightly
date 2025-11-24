@@ -1278,6 +1278,8 @@ PODS:
     - ExpoModulesCore
   - ExpoLocalization (17.0.7):
     - ExpoModulesCore
+  - ExpoLocation (19.0.7):
+    - ExpoModulesCore
   - ExpoModulesCore (3.0.26):
     - hermes-engine
     - RCTRequired
@@ -1333,6 +1335,8 @@ PODS:
   - ExpoWebBrowser (15.0.9):
     - ExpoModulesCore
   - EXStructuredHeaders (5.0.0)
+  - ExtensionStorage (1.0.0):
+    - ExpoModulesCore
   - EXUpdates (29.0.13):
     - EASClient
     - EXManifests
@@ -3779,6 +3783,7 @@ DEPENDENCIES:
   - "ExpoLinearGradient (from `../node_modules/.bun/expo-linear-gradient@15.0.7+bf2b57f63776654c/node_modules/expo-linear-gradient/ios`)"
   - "ExpoLinking (from `../node_modules/.bun/expo-linking@8.0.9+bf2b57f63776654c/node_modules/expo-linking/ios`)"
   - "ExpoLocalization (from `../node_modules/.bun/expo-localization@17.0.7+bf2b57f63776654c/node_modules/expo-localization/ios`)"
+  - "ExpoLocation (from `../node_modules/.bun/expo-location@19.0.7+bf2b57f63776654c/node_modules/expo-location/ios`)"
   - "ExpoModulesCore (from `../node_modules/.bun/expo-modules-core@3.0.26+bcc058c2efaafc11/node_modules/expo-modules-core`)"
   - "ExpoScreenOrientation (from `../node_modules/.bun/expo-screen-orientation@9.0.7+bf2b57f63776654c/node_modules/expo-screen-orientation/ios`)"
   - "ExpoSplashScreen (from `../node_modules/.bun/expo-splash-screen@31.0.11+bf2b57f63776654c/node_modules/expo-splash-screen/ios`)"
@@ -3786,6 +3791,7 @@ DEPENDENCIES:
   - "ExpoSystemUI (from `../node_modules/.bun/expo-system-ui@6.0.8+bf2b57f63776654c/node_modules/expo-system-ui/ios`)"
   - "ExpoWebBrowser (from `../node_modules/.bun/expo-web-browser@15.0.9+bf2b57f63776654c/node_modules/expo-web-browser/ios`)"
   - "EXStructuredHeaders (from `../node_modules/.bun/expo-structured-headers@5.0.0/node_modules/expo-structured-headers/ios`)"
+  - "ExtensionStorage (from `../node_modules/.bun/@bacons+apple-targets@3.0.5/node_modules/@bacons/apple-targets/ios`)"
   - "EXUpdates (from `../node_modules/.bun/expo-updates@29.0.13+bf2b57f63776654c/node_modules/expo-updates/ios`)"
   - "EXUpdatesInterface (from `../node_modules/.bun/expo-updates-interface@2.0.0+bf2b57f63776654c/node_modules/expo-updates-interface/ios`)"
   - "FBLazyVector (from `../node_modules/.bun/react-native@0.81.5+bcc058c2efaafc11/node_modules/react-native/Libraries/FBLazyVector`)"
@@ -3965,6 +3971,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/.bun/expo-linking@8.0.9+bf2b57f63776654c/node_modules/expo-linking/ios"
   ExpoLocalization:
     :path: "../node_modules/.bun/expo-localization@17.0.7+bf2b57f63776654c/node_modules/expo-localization/ios"
+  ExpoLocation:
+    :path: "../node_modules/.bun/expo-location@19.0.7+bf2b57f63776654c/node_modules/expo-location/ios"
   ExpoModulesCore:
     :path: "../node_modules/.bun/expo-modules-core@3.0.26+bcc058c2efaafc11/node_modules/expo-modules-core"
   ExpoScreenOrientation:
@@ -3979,6 +3987,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/.bun/expo-web-browser@15.0.9+bf2b57f63776654c/node_modules/expo-web-browser/ios"
   EXStructuredHeaders:
     :path: "../node_modules/.bun/expo-structured-headers@5.0.0/node_modules/expo-structured-headers/ios"
+  ExtensionStorage:
+    :path: "../node_modules/.bun/@bacons+apple-targets@3.0.5/node_modules/@bacons/apple-targets/ios"
   EXUpdates:
     :path: "../node_modules/.bun/expo-updates@29.0.13+bf2b57f63776654c/node_modules/expo-updates/ios"
   EXUpdatesInterface:
@@ -4191,6 +4201,7 @@ SPEC CHECKSUMS:
   ExpoLinearGradient: a464898cb95153125e3b81894fd479bcb1c7dd27
   ExpoLinking: 77455aa013e9b6a3601de03ecfab09858ee1b031
   ExpoLocalization: b852a5d8ec14c5349c1593eca87896b5b3ebfcca
+  ExpoLocation: 93d7faa0c2adbd5a04686af0c1a61bc6ed3ee2f7
   ExpoModulesCore: 9460546192590b0ed13493d9b01bed256d3440b0
   ExpoScreenOrientation: ef9ab3fb85c8a8ff57d52aa169b750aca03f0f4c
   ExpoSplashScreen: 268b2f128dc04284c21010540a6c4dd9f95003e3
@@ -4198,6 +4209,7 @@ SPEC CHECKSUMS:
   ExpoSystemUI: 2761aa6875849af83286364811d46e8ed8ea64c7
   ExpoWebBrowser: b973e1351fdcf5fec0c400997b1851f5a8219ec3
   EXStructuredHeaders: c951e77f2d936f88637421e9588c976da5827368
+  ExtensionStorage: 5796de20bf181317c376d693fedb64c6781a33ba
   EXUpdates: abb57bc0ae1df46b35b5965fb7b7577c899b5be5
   EXUpdatesInterface: 5adf50cb41e079c861da6d9b4b954c3db9a50734
   FBLazyVector: e95a291ad2dadb88e42b06e0c5fb8262de53ec12
@@ -4323,6 +4335,6 @@ SPEC CHECKSUMS:
   Yoga: 65431d43277b661ebc7289c6c5d82f64ce42cfe0
   ZXingObjC: 8898711ab495761b2dbbdec76d90164a6d7e14c5
 
-PODFILE CHECKSUM: 0a9f9ab28278b4aee2a9c73e05aa3f82296e0669
+PODFILE CHECKSUM: 6c36215ae774a8025741dd109f18ca8abe56252a
 
 COCOAPODS: 1.16.2
