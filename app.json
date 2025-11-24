@@ -117,7 +117,22 @@
         "origin": false
       },
       "eas": {
-        "projectId": "3de41614-7f99-4215-bec0-9a2ece4bbd35"
+        "projectId": "3de41614-7f99-4215-bec0-9a2ece4bbd35",
+        "build": {
+          "experimental": {
+            "ios": {
+              "appExtensions": [
+                {
+                  "bundleIdentifier": "com.emplica.nightly.widget",
+                  "targetName": "widgetExtension",
+                  "entitlements": {
+                    "com.apple.security.application-groups": ["group.com.emplica.nightly.data"]
+                  }
+                }
+              ]
+            }
+          }
+        }
       }
     },
     "owner": "iamfrancisco",
