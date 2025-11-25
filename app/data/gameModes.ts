@@ -359,6 +359,73 @@ export const gameCategories: GameCategory[] = [
         interactive: "write",
         comingSoon: true, // ⚠️ FIX: Jeu bientôt disponible
       },
+      {
+        id: "dare-or-strip",
+        nameKey: "home.games.dare-or-strip.name",
+        descriptionKey: "home.games.dare-or-strip.description",
+        image: require("@/assets/jeux/dare-or-strip.png"), // Utilise l'image existante pour l'instant
+        colors: ["#6B46C1", "#F472B6"],
+        borderColor: "#6B46C1",
+        shadowColor: "#F472B6",
+        fontFamily: "Pacifico-Regular",
+        tags: [
+          {
+            text: "home.games.dare-or-strip.tags.couple",
+            color: "#E91E63",
+          },
+          {
+            text: "home.games.dare-or-strip.tags.18plus",
+            color: "#F472B6",
+          },
+          {
+            text: "home.games.dare-or-strip.tags.premium",
+            color: "#D81B60",
+          },
+        ],
+        premium: true,
+        interactive: "action",
+      },
+    ],
+  },
+  // SECTION 6 : Famille 👨‍👩‍👧‍👦 (Gratuit)
+  {
+    id: "famille",
+    title: "FAMILLE",
+    subtitle: "Pour tous les âges",
+    categoryType: "free",
+    dominantColor: "#2C7A9C",
+    icon: "👨‍👩‍👧‍👦",
+    cta: {
+      mainText: "Des jeux pour toute la famille",
+      subText: "Amusez-vous ensemble",
+    },
+    games: [
+      {
+        id: "blindtest-generations",
+        nameKey: "home.games.blindtest-generations.name",
+        descriptionKey: "home.games.blindtest-generations.description",
+        image: require("@/assets/jeux/blindtest-generations.png"), // Utilise l'image existante pour l'instant
+        colors: ["#2C7A9C", "#40B5D8"],
+        borderColor: "#2C7A9C",
+        shadowColor: "#40B5D8",
+        fontFamily: "Righteous-Regular",
+        tags: [
+          {
+            text: "home.games.blindtest-generations.tags.famille",
+            color: "#2C7A9C",
+          },
+          {
+            text: "home.games.blindtest-generations.tags.musique",
+            color: "#40B5D8",
+          },
+          {
+            text: "home.games.blindtest-generations.tags.gratuit",
+            color: "#4CAF50",
+          },
+        ],
+        premium: false,
+        interactive: "choice",
+      },
     ],
   },
   // SECTION 5 : À distance (Premium)

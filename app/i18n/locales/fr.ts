@@ -216,6 +216,7 @@ const fr = {
       nightly_modes: "SUGGESTION DE LA SEMAINE",
       same_room: "DANS LA MÊME PIÈCE",
       online: "À DISTANCE",
+      famille: "FAMILLE",
     },
     subtitles: {
       free_games: "Pour découvrir Nightly",
@@ -226,6 +227,7 @@ const fr = {
       nightly_modes: "",
       same_room: "À jouer dans la même pièce, ensemble !",
       online: "Pour jouer même quand on n'est pas ensemble",
+      famille: "Pour tous les âges",
     },
     games: {
       "listen-but-don-t-judge": {
@@ -425,6 +427,24 @@ const fr = {
           drole: "DRÔLE",
           gages: "GAGES",
           premium: "PREMIUM",
+        },
+      },
+      "dare-or-strip": {
+        name: "DARE OR STRIP",
+        description: "Gage sexy ou retirer un vêtement... À vous de choisir ! 💋",
+        tags: {
+          couple: "COUPLE",
+          "18plus": "18+",
+          premium: "PREMIUM",
+        },
+      },
+      "blindtest-generations": {
+        name: "BLIND TEST GÉNÉRATIONS",
+        description: "Devine les musiques de toutes les générations ! 🎵",
+        tags: {
+          famille: "FAMILLE",
+          musique: "MUSIQUE",
+          gratuit: "GRATUIT",
         },
       },
     },

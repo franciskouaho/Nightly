@@ -90,6 +90,41 @@ export default function GameRouter() {
         return;
       }
 
+      if (mode === 'double-dare') {
+        router.replace(`/game/double-dare/${id}`);
+        return;
+      }
+
+      if (mode === 'forbidden-desire') {
+        router.replace(`/game/forbidden-desire/${id}`);
+        return;
+      }
+
+      if (mode === 'pile-ou-face') {
+        router.replace(`/game/pile-ou-face/${id}`);
+        return;
+      }
+
+      if (mode === 'word-guessing') {
+        router.replace(`/game/word-guessing/${id}`);
+        return;
+      }
+
+      if (mode === 'two-letters-one-word') {
+        router.replace(`/game/two-letters-one-word/${id}`);
+        return;
+      }
+
+      if (mode === 'dare-or-strip') {
+        router.replace(`/game/dare-or-strip/${id}`);
+        return;
+      }
+
+      if (mode === 'blindtest-generations') {
+        router.replace(`/game/blindtest-generations/${id}`);
+        return;
+      }
+
       console.log("[DEBUG GameRouter] Unknown game mode:", mode, "Showing unknownMode alert.");
       Alert.alert(t('game.error'), t('game.unknownMode', { mode }));
     };

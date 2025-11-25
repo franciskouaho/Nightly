@@ -185,12 +185,7 @@ export default function PaywallModalA({ isVisible, onClose, onUpgradeToAnnual }:
 
   const handleClose = async () => {
     // Track paywall closed by user
-    if (onUpgradeToAnnual) {
-      await trackPaywallClosed('A', 'upgrade_suggested');
-      onUpgradeToAnnual();
-    } else {
-      await trackPaywallClosed('A', 'user_closed');
-    }
+    await trackPaywallClosed('A', 'user_closed');
     onClose();
   };
 

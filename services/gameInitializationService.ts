@@ -19,6 +19,8 @@ export const GAME_CONFIG = {
     'forbidden-desire': { minPlayers: 2 },
     'quiz-halloween': { minPlayers: 2 },
     'pile-ou-face': { minPlayers: 2 },
+    'dare-or-strip': { minPlayers: 2 },
+    'blindtest-generations': { minPlayers: 2 },
 } as const;
 
 // Liste des thèmes possibles pour 2 Lettres 1 Mot
@@ -326,6 +328,49 @@ const initializePileOuFaceGame = (options: GameInitializationOptions) => {
 };
 
 /**
+ * Initialise un jeu "Dare or Strip"
+ */
+const initializeDareOrStripGame = (options: GameInitializationOptions) => {
+    console.log('[DEBUG] Démarrage du jeu Dare or Strip');
+    
+    // Initialiser les jokers pour chaque joueur
+    const jokers: Record<string, boolean> = {};
+    options.players.forEach(player => {
+        jokers[player.id] = true; // true = joker disponible
+    });
+    
+    return {
+        ...createBaseGameData(options),
+        gameMode: 'dare-or-strip',
+        phase: 'dare',
+        currentPlayerId: options.players[0]?.id || null,
+        currentQuestion: null,
+        askedQuestionIds: [],
+        jokers: jokers,
+        currentRound: 1,
+    };
+};
+
+/**
+ * Initialise un jeu "Blind Test Générations"
+ */
+const initializeBlindTestGenerationsGame = (options: GameInitializationOptions) => {
+    console.log('[DEBUG] Démarrage du jeu Blind Test Générations');
+    
+    return {
+        ...createBaseGameData(options),
+        gameMode: 'blindtest-generations',
+        phase: 'category-selection',
+        currentPlayerId: options.players[0]?.id || null,
+        currentQuestion: null,
+        currentCategory: null,
+        askedQuestionIds: [],
+        scores: {},
+        currentRound: 1,
+    };
+};
+
+/**
  * Crée un nouveau jeu dans Firestore avec la configuration appropriée
  */
 export const createGame = async (options: GameInitializationOptions): Promise<string> => {
@@ -355,6 +400,12 @@ export const createGame = async (options: GameInitializationOptions): Promise<st
             break;
         case 'pile-ou-face':
             gameDataToSet = initializePileOuFaceGame(options);
+            break;
+        case 'dare-or-strip':
+            gameDataToSet = initializeDareOrStripGame(options);
+            break;
+        case 'blindtest-generations':
+            gameDataToSet = initializeBlindTestGenerationsGame(options);
             break;
         default:
             gameDataToSet = await initializeGenericQuestionGame(options);

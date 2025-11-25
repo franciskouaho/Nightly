@@ -48,7 +48,9 @@ export type GameMode =
   | "forbidden-desire"
   | "double-dare"
   | "word-guessing"
-  | "pile-ou-face";
+  | "pile-ou-face"
+  | "dare-or-strip"
+  | "blindtest-generations";
 
 export interface GameState {
   phase: GamePhase;

@@ -687,7 +687,7 @@ export default function HomeScreen() {
     const isPremiumCategory = category.categoryType === 'premium';
     const hasPremiumGames = category.games.some(g => g.premium);
     const showCTA = isPremiumCategory && hasPremiumGames && (!user?.hasActiveSubscription && !isProMember);
-    const useGrid = ["couple", "soirees"].includes(category.id);
+    const useGrid = ["couple", "soirees", "famille"].includes(category.id);
 
     return (
       <View key={category.id} style={styles.categorySection}>
