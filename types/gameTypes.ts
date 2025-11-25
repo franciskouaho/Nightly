@@ -3,7 +3,7 @@ export interface Player {
   name: string;
   avatar?: string;
   displayName?: string;
-  username?: string; // Dans les games/rooms Firestore, c'est "username"
+  username?: string;
 }
 
 export interface Question {
@@ -14,8 +14,8 @@ export interface Question {
   type?: "coquin" | "sage";
   answer?: string;
   intensity?: "soft" | "tension" | "extreme";
-  level?: "hot" | "extreme" | "chaos"; // For double-dare
-  mode?: "versus" | "fusion"; // For double-dare game modes
+  level?: "hot" | "extreme" | "chaos";
+  mode?: "versus" | "fusion";
 }
 
 export interface Answer {
