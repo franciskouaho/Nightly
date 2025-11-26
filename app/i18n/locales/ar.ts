@@ -336,7 +336,7 @@ const ar = {
           saisonnier: "موسمي",
           noel: "عيد الميلاد",
           famille: "عائلة",
-          premium: "مميز",
+          new: "جديد",
         },
       },
       "two-letters-one-word": {

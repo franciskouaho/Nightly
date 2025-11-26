@@ -250,8 +250,8 @@ export const gameCategories: GameCategory[] = [
             color: "#FFD700",
           },
           {
-            text: "home.games.blindtest-generations.tags.premium",
-            color: "#D81B60",
+            text: "home.games.blindtest-generations.tags.new",
+            color: "#FF4757",
           },
         ],
         premium: true,

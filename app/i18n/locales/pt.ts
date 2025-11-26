@@ -336,7 +336,7 @@ const pt = {
           saisonnier: "SAZONAL",
           noel: "NATAL",
           famille: "FAMÍLIA",
-          premium: "PREMIUM",
+          new: "NOVO",
         },
       },
       "two-letters-one-word": {

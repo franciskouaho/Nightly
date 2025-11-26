@@ -336,7 +336,7 @@ const es = {
           saisonnier: "ESTACIONAL",
           noel: "NAVIDAD",
           famille: "FAMILIA",
-          premium: "PREMIUM",
+          new: "NUEVO",
         },
       },
       "two-letters-one-word": {

@@ -466,7 +466,7 @@ const fr = {
           saisonnier: "SAISONNIER",
           noel: "NOËL",
           famille: "FAMILLE",
-          premium: "PREMIUM",
+          new: "NOUVEAU",
         },
       },
     },
