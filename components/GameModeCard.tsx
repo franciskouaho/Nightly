@@ -98,6 +98,13 @@ export default function GameModeCard({
             </View>
           )}
 
+          {/* Badge "FREE" pour les jeux gratuits */}
+          {!premium && !comingSoon && (
+            <View style={styles.freeBadge}>
+              <Text style={styles.freeBadgeText}>{t('common.free')}</Text>
+            </View>
+          )}
+
           {/* Titre du jeu en bas */}
           <View style={styles.titleContainer}>
             <Text
@@ -269,6 +276,30 @@ const styles = StyleSheet.create<GameModeCardStyles>({
     borderColor: '#FFF',
   },
   newBadgeText: {
+    color: '#FFF',
+    fontSize: 10,
+    fontWeight: 'bold',
+    letterSpacing: 0.5,
+  },
+  // Badge "FREE"
+  freeBadge: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: '#4CAF50',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 12,
+    zIndex: 25,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 4,
+    elevation: 5,
+    borderWidth: 1.5,
+    borderColor: '#FFF',
+  },
+  freeBadgeText: {
     color: '#FFF',
     fontSize: 10,
     fontWeight: 'bold',

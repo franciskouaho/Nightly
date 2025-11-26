@@ -9,6 +9,7 @@ const fr = {
     ok: "OK",
     newBadge: "NOUVEAU",
     skip: "Passer",
+    free: "GRATUIT",
   },
 
   // Écran de langue
@@ -165,6 +166,7 @@ const fr = {
     welcome: "Bienvenue",
     createGame: "Créer une partie",
     joinGame: "Rejoindre une partie",
+    joinGamePrompt: "Rejoindre : Entrer le code de partie ou Scanner le QR code",
     enterCode: "Entrer le code",
     or: "ou",
     scanQR: "Scanner QR",
@@ -228,6 +230,24 @@ const fr = {
       same_room: "À jouer dans la même pièce, ensemble !",
       online: "Pour jouer même quand on n'est pas ensemble",
       famille: "Pour tous les âges",
+    },
+    cta: {
+      free_games: {
+        mainText: "Commence ton aventure",
+        subText: "Débloque tous les jeux",
+      },
+      soirees: {
+        mainText: "Pour des soirées encore plus folles",
+        subText: "Débloque le pack Soirée Premium",
+      },
+      couple: {
+        mainText: "Envie de pimenter vos soirées à deux ?",
+        subText: "Débloque le pack Couple",
+      },
+      famille: {
+        mainText: "Des jeux pour toute la famille",
+        subText: "Amusez-vous ensemble",
+      },
     },
     games: {
       "listen-but-don-t-judge": {
@@ -443,9 +463,10 @@ const fr = {
         name: "BLIND TEST GÉNÉRATIONS",
         description: "Devine les musiques de toutes les générations ! 🎵",
         tags: {
+          saisonnier: "SAISONNIER",
+          noel: "NOËL",
           famille: "FAMILLE",
-          musique: "MUSIQUE",
-          gratuit: "GRATUIT",
+          premium: "PREMIUM",
         },
       },
     },

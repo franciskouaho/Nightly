@@ -10,6 +10,7 @@ const pt = {
     newBadge: "NOVO",
     skip: "Pular",
     loading: "Carregando...",
+    free: "GRÁTIS",
   },
 
   // Tela de idioma
@@ -125,6 +126,7 @@ const pt = {
     welcome: "Bem-vindo ao Nightly!",
     createGame: "Criar jogo",
     joinGame: "Entrar no jogo",
+    joinGamePrompt: "Entrar no jogo: Digite o código ou Escaneie o código QR",
     enterCode: "Digite o código do jogo",
     or: "ou",
     scanQR: "Escaneie o código QR",
@@ -164,24 +166,44 @@ const pt = {
     codePlaceholder: "Digite código de 6 dígitos",
     loading: "Carregando...",
     categories: {
-      free_games: "Jogos Grátis",
-      couple: "Casais",
-      soirees: "Festas",
-      distance: "Longa Distância",
-      events: "Eventos",
-      nightly_modes: "Modos Nightly",
-      same_room: "Mesma Sala",
-      online: "Online",
+      free_games: "PRIMEIROS PASSOS",
+      couple: "CASAL",
+      soirees: "FESTAS ENTRE AMIGOS",
+      distance: "À DISTÂNCIA",
+      events: "EVENTOS E SAZONAL",
+      nightly_modes: "SUGESTÃO DA SEMANA",
+      same_room: "NA MESMA SALA",
+      online: "À DISTÂNCIA",
+      famille: "FAMÍLIA",
     },
     subtitles: {
-      free_games: "Jogue grátis com amigos",
-      couple: "Jogos íntimos para dois",
-      soirees: "Perfeito para festas em grupo",
-      distance: "Mantenha-se conectado apesar da distância",
-      events: "Jogos temáticos especiais",
-      nightly_modes: "Experiências exclusivas do Nightly",
-      same_room: "Jogos para jogar juntos pessoalmente",
-      online: "Conecte-se com amigos remotamente",
+      free_games: "Para descobrir o Nightly",
+      couple: "Fazer sonhar e converter",
+      soirees: "O coração do Nightly",
+      distance: "Mesmo à distância, a festa continua",
+      events: "Edição limitada – disponível apenas algumas semanas!",
+      nightly_modes: "",
+      same_room: "Para jogar na mesma sala, juntos!",
+      online: "Para jogar mesmo quando não estamos juntos",
+      famille: "Para todas as idades",
+    },
+    cta: {
+      free_games: {
+        mainText: "Comece sua aventura",
+        subText: "Desbloqueie todos os jogos",
+      },
+      soirees: {
+        mainText: "Para festas ainda mais loucas",
+        subText: "Desbloqueie o pack Festa Premium",
+      },
+      couple: {
+        mainText: "Quer apimentar suas noites a dois?",
+        subText: "Desbloqueie o pack Casal",
+      },
+      famille: {
+        mainText: "Jogos para toda a família",
+        subText: "Divirtam-se juntos",
+      },
     },
     games: {
       "listen-but-don-t-judge": {
@@ -305,6 +327,16 @@ const pt = {
           halloween: "halloween",
           exclu: "exclusivo",
           premium: "premium",
+        },
+      },
+      "blindtest-generations": {
+        name: "BLIND TEST GERAÇÕES",
+        description: "Adivinhe as músicas de todas as gerações! 🎵",
+        tags: {
+          saisonnier: "SAZONAL",
+          noel: "NATAL",
+          famille: "FAMÍLIA",
+          premium: "PREMIUM",
         },
       },
       "two-letters-one-word": {

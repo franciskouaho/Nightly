@@ -17,9 +17,9 @@ export interface GameMode {
   }>;
   premium: boolean;
   interactive?: "write" | "choice" | "action";
-  fontFamily?: string; // Police personnalisée pour le titre du jeu
-  comingSoon?: boolean; // ⚠️ FIX: Indique si le jeu est bientôt disponible
-  isNew?: boolean; // Badge "NEW" pour les nouveaux jeux
+  fontFamily?: string;
+  comingSoon?: boolean;
+  isNew?: boolean;
 }
 
 export interface GameCategory {
@@ -36,7 +36,6 @@ export interface GameCategory {
   dominantColor?: string;
 }
 
-// Configuration des catégories de jeu
 export const gameCategories: GameCategory[] = [
   // SECTION 1 : Premiers pas – Accroche & découverte
   {
@@ -232,15 +231,15 @@ export const gameCategories: GameCategory[] = [
         nameKey: "home.games.blindtest-generations.name",
         descriptionKey: "home.games.blindtest-generations.description",
         image: require("@/assets/jeux/blindtest-generations.png"),
-        colors: ["#2C7A9C", "#40B5D8"],
-        borderColor: "#2C7A9C",
-        shadowColor: "#40B5D8",
+        colors: ["#C41E3A", "#165B33"], // Rouge et vert de Noël
+        borderColor: "#C41E3A",
+        shadowColor: "#165B33",
         fontFamily: "Righteous-Regular",
-        isNew: true,
+        isNew: false,
         tags: [
           {
             text: "home.games.blindtest-generations.tags.saisonnier",
-            color: "#BB2528",
+            color: "#C41E3A",
           },
           {
             text: "home.games.blindtest-generations.tags.noel",
@@ -248,14 +247,14 @@ export const gameCategories: GameCategory[] = [
           },
           {
             text: "home.games.blindtest-generations.tags.famille",
-            color: "#2C7A9C",
+            color: "#FFD700",
           },
           {
-            text: "home.games.blindtest-generations.tags.gratuit",
-            color: "#4CAF50",
+            text: "home.games.blindtest-generations.tags.premium",
+            color: "#D81B60",
           },
         ],
-        premium: false,
+        premium: true,
         interactive: "choice",
       },
     ],
@@ -417,20 +416,6 @@ export const gameCategories: GameCategory[] = [
         interactive: "action",
       },
     ],
-  },
-  // SECTION 6 : Famille 👨‍👩‍👧‍👦 (Gratuit)
-  {
-    id: "famille",
-    title: "FAMILLE",
-    subtitle: "Pour tous les âges",
-    categoryType: "free",
-    dominantColor: "#2C7A9C",
-    icon: "👨‍👩‍👧‍👦",
-    cta: {
-      mainText: "Des jeux pour toute la famille",
-      subText: "Amusez-vous ensemble",
-    },
-    games: [],
   },
   // SECTION 5 : À distance (Premium)
   {

@@ -710,10 +710,12 @@ export default function HomeScreen() {
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
             >
-              <Text style={styles.ctaMainText}>{category.cta.mainText}</Text>
-              {category.cta.subText && (
-                <Text style={styles.ctaSubText}>{category.cta.subText}</Text>
-              )}
+              <Text style={styles.ctaMainText}>
+                {t(`home.cta.${category.id}.mainText`)}
+              </Text>
+              <Text style={styles.ctaSubText}>
+                {t(`home.cta.${category.id}.subText`)}
+              </Text>
             </LinearGradient>
           </TouchableOpacity>
         )}
@@ -721,13 +723,11 @@ export default function HomeScreen() {
         <View style={styles.categoryHeader}>
           <View>
             <Text style={styles.categoryTitle}>
-              {category.title || t(`home.categories.${category.id}`)}
+              {t(`home.categories.${category.id}`)}
             </Text>
-            {category.subtitle ? (
-              <Text style={styles.categorySubtitle}>
-                {category.subtitle}
-              </Text>
-            ) : null}
+            <Text style={styles.categorySubtitle}>
+              {t(`home.subtitles.${category.id}`)}
+            </Text>
           </View>
         </View>
 
@@ -772,8 +772,7 @@ export default function HomeScreen() {
           <View style={styles.joinGameHeader}>
             <View style={styles.joinGameTitleContainer}>
               <Text style={styles.joinGameTitle}>
-                {t("home.joinGame")}: {t("home.enterCode")} {t("home.or")} {"\n"}
-                {t("home.scanQR")}
+                {t("home.joinGamePrompt")}
               </Text>
             </View>
             <TouchableOpacity
