@@ -227,6 +227,37 @@ export const gameCategories: GameCategory[] = [
         premium: true,
         interactive: "choice",
       },
+      {
+        id: "blindtest-generations",
+        nameKey: "home.games.blindtest-generations.name",
+        descriptionKey: "home.games.blindtest-generations.description",
+        image: require("@/assets/jeux/blindtest-generations.png"),
+        colors: ["#2C7A9C", "#40B5D8"],
+        borderColor: "#2C7A9C",
+        shadowColor: "#40B5D8",
+        fontFamily: "Righteous-Regular",
+        isNew: true,
+        tags: [
+          {
+            text: "home.games.blindtest-generations.tags.saisonnier",
+            color: "#BB2528",
+          },
+          {
+            text: "home.games.blindtest-generations.tags.noel",
+            color: "#165B33",
+          },
+          {
+            text: "home.games.blindtest-generations.tags.famille",
+            color: "#2C7A9C",
+          },
+          {
+            text: "home.games.blindtest-generations.tags.gratuit",
+            color: "#4CAF50",
+          },
+        ],
+        premium: false,
+        interactive: "choice",
+      },
     ],
   },
   // SECTION 4 : Couple 💋 (Premium)
@@ -399,34 +430,7 @@ export const gameCategories: GameCategory[] = [
       mainText: "Des jeux pour toute la famille",
       subText: "Amusez-vous ensemble",
     },
-    games: [
-      {
-        id: "blindtest-generations",
-        nameKey: "home.games.blindtest-generations.name",
-        descriptionKey: "home.games.blindtest-generations.description",
-        image: require("@/assets/jeux/blindtest-generations.png"), // Utilise l'image existante pour l'instant
-        colors: ["#2C7A9C", "#40B5D8"],
-        borderColor: "#2C7A9C",
-        shadowColor: "#40B5D8",
-        fontFamily: "Righteous-Regular",
-        tags: [
-          {
-            text: "home.games.blindtest-generations.tags.famille",
-            color: "#2C7A9C",
-          },
-          {
-            text: "home.games.blindtest-generations.tags.musique",
-            color: "#40B5D8",
-          },
-          {
-            text: "home.games.blindtest-generations.tags.gratuit",
-            color: "#4CAF50",
-          },
-        ],
-        premium: false,
-        interactive: "choice",
-      },
-    ],
+    games: [],
   },
   // SECTION 5 : À distance (Premium)
   {

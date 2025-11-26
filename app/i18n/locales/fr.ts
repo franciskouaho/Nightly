@@ -431,7 +431,8 @@ const fr = {
       },
       "dare-or-strip": {
         name: "DARE OR STRIP",
-        description: "Gage sexy ou retirer un vêtement... À vous de choisir ! 💋",
+        description:
+          "Gage sexy ou retirer un vêtement... À vous de choisir ! 💋",
         tags: {
           couple: "COUPLE",
           "18plus": "18+",
@@ -768,6 +769,10 @@ const fr = {
       playerAnswered_plural: "{{count}} joueurs ont répondu",
       yourScore: "Votre score",
       playerScores: "Scores des joueurs",
+    },
+    "pile-ou-face": {
+      viewResults: "🏆 Voir les résultats",
+      nextRound: "Tour suivant",
     },
     twoLettersOneWord: {
       score: "Score : {{score}}",
@@ -1117,7 +1122,8 @@ const fr = {
       selectDate: "Sélectionner une date",
       cancel: "Annuler",
       ok: "OK",
-      disclaimer: "Tes réponses sont juste pour toi,\ngardées complètement confidentielles pour personnaliser\nton expérience",
+      disclaimer:
+        "Tes réponses sont juste pour toi,\ngardées complètement confidentielles pour personnaliser\nton expérience",
       continue: "Continuer",
     },
     gender: {
@@ -1125,7 +1131,8 @@ const fr = {
       female: "Femme",
       male: "Homme",
       other: "Autre",
-      disclaimer: "Tes réponses sont juste pour toi,\ngardées complètement confidentielles pour personnaliser\nton expérience",
+      disclaimer:
+        "Tes réponses sont juste pour toi,\ngardées complètement confidentielles pour personnaliser\nton expérience",
       continue: "Continuer",
     },
     goals: {
@@ -1146,7 +1153,8 @@ const fr = {
     },
     account: {
       title: "PRESQUE TERMINÉ ! SÉCURISE\nTON COMPTE",
-      subtitle: "Crée un compte pour sauvegarder ton historique d'activité et\nrevisiter facilement tes conversations favorites à tout moment !",
+      subtitle:
+        "Crée un compte pour sauvegarder ton historique d'activité et\nrevisiter facilement tes conversations favorites à tout moment !",
       signInGoogle: "Se connecter avec Google",
       signInApple: "Se connecter avec Apple",
     },
@@ -1157,7 +1165,8 @@ const fr = {
     },
     notifications: {
       title: "Activez les notifications",
-      example: "Pierre vient de répondre à votre défi quotidien ✨ vous pouvez maintenant écouter la réponse !",
+      example:
+        "Pierre vient de répondre à votre défi quotidien ✨ vous pouvez maintenant écouter la réponse !",
       benefit1: "Pas de notifications publicitaires",
       benefit2: "Écoutez les réponses dès qu'elles sont disponibles",
       benefit3: "Ne perdez pas vos séries",
@@ -1175,7 +1184,8 @@ const fr = {
   // Login
   login: {
     title: "CONTENT DE TE REVOIR !",
-    subtitle: "Connecte-toi pour continuer ton parcours et\naccéder à tes conversations sauvegardées",
+    subtitle:
+      "Connecte-toi pour continuer ton parcours et\naccéder à tes conversations sauvegardées",
     signInGoogle: "Se connecter avec Google",
     signInApple: "Se connecter avec Apple",
   },
@@ -1183,7 +1193,8 @@ const fr = {
   // Welcome
   welcome: {
     title: "PRÊT À REDÉCOUVRIR\nTON ÂME SŒUR ?",
-    subtitle: "Améliore tes conversations avec des questions qui vont bien au-delà de 'Comment ça va ?'",
+    subtitle:
+      "Améliore tes conversations avec des questions qui vont bien au-delà de 'Comment ça va ?'",
     startForFree: "Commencer gratuitement",
     alreadyHaveAccount: "J'ai déjà un compte",
   },
@@ -1192,10 +1203,12 @@ const fr = {
   couples: {
     partnerNotConnected: {
       title: "Votre partenaire est à un pas de vous rejoindre.",
-      subtitle: "Dès qu'il accepte, vous pourrez commencer à vous connecter quotidiennement et découvrir de nouvelles façons de vous rapprocher.",
+      subtitle:
+        "Dès qu'il accepte, vous pourrez commencer à vous connecter quotidiennement et découvrir de nouvelles façons de vous rapprocher.",
       resendCode: "Renvoyer mon code",
       enterCode: "Entrer un code",
-      enterCodeSubtitle: "Entrez le code que votre partenaire vous a partagé pour vous connecter.",
+      enterCodeSubtitle:
+        "Entrez le code que votre partenaire vous a partagé pour vous connecter.",
       codePlaceholder: "Entrer le code...",
       yourCode: "Votre code",
       codeHint: "Partagez ce code avec votre partenaire",
