@@ -610,8 +610,8 @@ export default function PileOuFaceGameScreen() {
             <TouchableOpacity style={styles.button} onPress={handleNextRound}>
               <Text style={styles.buttonText}>
                 {game.currentRound >= game.totalRounds
-                  ? t("games.pile-ou-face.viewResults")
-                  : t("games.pile-ou-face.nextRound")}
+                  ? t("home.games.pile-ou-face.viewResults")
+                  : t("home.games.pile-ou-face.nextRound")}
               </Text>
             </TouchableOpacity>
           </View>
@@ -632,8 +632,8 @@ export default function PileOuFaceGameScreen() {
             <TouchableOpacity style={styles.button} onPress={handleNextRound}>
               <Text style={styles.buttonText}>
                 {game.currentRound >= game.totalRounds
-                  ? t("games.pile-ou-face.viewResults")
-                  : t("games.pile-ou-face.nextRound")}
+                  ? t("home.games.pile-ou-face.viewResults")
+                  : t("home.games.pile-ou-face.nextRound")}
               </Text>
             </TouchableOpacity>
           </View>
