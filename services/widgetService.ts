@@ -252,8 +252,14 @@ export class WidgetService {
       partnerRef,
       async (snapshot) => {
         if (snapshot.exists()) {
+          // Récupérer daysTogether depuis le document couple avant de synchroniser
+          const coupleId = getCoupleId(userId, partnerId);
+          const coupleRef = doc(db, 'couples', coupleId);
+          const coupleDoc = await getDoc(coupleRef);
+          const daysTogether = coupleDoc.exists() ? (coupleDoc.data()?.daysTogether || 0) : 0;
+          
           // Re-synchroniser toutes les données quand le partenaire change
-          await this.syncCoupleData(userId, partnerId, null, null, 0, null);
+          await this.syncCoupleData(userId, partnerId, null, null, daysTogether, null);
         }
       },
       (error) => {
@@ -268,8 +274,14 @@ export class WidgetService {
       userRef,
       async (snapshot) => {
         if (snapshot.exists()) {
+          // Récupérer daysTogether depuis le document couple avant de synchroniser
+          const coupleId = getCoupleId(userId, partnerId);
+          const coupleRef = doc(db, 'couples', coupleId);
+          const coupleDoc = await getDoc(coupleRef);
+          const daysTogether = coupleDoc.exists() ? (coupleDoc.data()?.daysTogether || 0) : 0;
+          
           // Re-synchroniser toutes les données quand l'utilisateur change
-          await this.syncCoupleData(userId, partnerId, null, null, 0, null);
+          await this.syncCoupleData(userId, partnerId, null, null, daysTogether, null);
         }
       },
       (error) => {
@@ -288,6 +300,8 @@ export class WidgetService {
           const coupleData = snapshot.data();
           const currentStreak = coupleData?.currentStreak || 0;
           const longestStreak = coupleData?.longestStreak || 0;
+          // IMPORTANT: Utiliser daysTogether depuis le document couple (pas 0)
+          const daysTogether = coupleData?.daysTogether || 0;
           
           // Mettre à jour uniquement le streak
           storage.set('currentStreak', currentStreak);
@@ -295,7 +309,8 @@ export class WidgetService {
           ExtensionStorage.reloadWidget();
           
           // Re-synchroniser toutes les données pour s'assurer que tout est à jour
-          await this.syncCoupleData(userId, partnerId, { currentStreak, longestStreak }, null, 0, null);
+          // Passer daysTogether depuis le document couple pour éviter de récupérer une mauvaise valeur
+          await this.syncCoupleData(userId, partnerId, { currentStreak, longestStreak }, null, daysTogether, null);
         }
       },
       (error) => {
