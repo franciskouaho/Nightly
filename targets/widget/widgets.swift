@@ -92,30 +92,30 @@ struct CoupleIllustrationView: View {
     let currentStreak: Int
     
     var body: some View {
-        ZStack {
-            // Image de fond - couvre tout l'espace disponible
-            Image("couples")
-                .resizable()
-                .scaledToFill()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .clipped()
-                .ignoresSafeArea()
-            
-            // Texte "X days" en haut à gauche
-            VStack {
-                HStack {
-                    Text("\(daysTogether) days")
-                        .font(.system(size: 24, weight: .bold, design: .rounded))
-                        .foregroundColor(.white)
-                        .shadow(color: .black.opacity(0.5), radius: 3, x: 1, y: 1)
+        GeometryReader { geometry in
+            ZStack {
+                // Image de fond - couvre tout l'espace disponible y compris les coins arrondis
+                Image("couples")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: geometry.size.width, height: geometry.size.height)
+                    .clipped()
+                
+                // Texte "X days" en haut à gauche
+                VStack {
+                    HStack {
+                        Text("\(daysTogether) days")
+                            .font(.system(size: 24, weight: .bold, design: .rounded))
+                            .foregroundColor(.white)
+                            .shadow(color: .black.opacity(0.5), radius: 3, x: 1, y: 1)
+                        Spacer()
+                    }
+                    .padding(.leading, 12)
+                    .padding(.top, 8)
                     Spacer()
                 }
-                .padding(.leading, 12)
-                .padding(.top, 8)
-                Spacer()
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
@@ -142,36 +142,51 @@ struct SmallWidgetView: View {
     let data: CoupleWidgetData
     
     var body: some View {
-        ZStack {
-            CoupleIllustrationView(
-                daysTogether: data.daysTogether,
-                partnerName: data.partnerName,
-                currentStreak: data.currentStreak
-            )
-            
-            // Informations supplémentaires en bas
-            VStack {
-                Spacer()
-                HStack {
-                    if let partnerName = data.partnerName, !partnerName.isEmpty {
-                        Text(partnerName)
+        GeometryReader { geometry in
+            ZStack {
+                // Image de fond qui couvre tout le widget y compris les coins arrondis
+                Image("couples")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: geometry.size.width, height: geometry.size.height)
+                    .clipped()
+                
+                // Contenu superposé
+                VStack {
+                    // Texte "X days" en haut à gauche
+                    HStack {
+                        Text("\(data.daysTogether) days")
+                            .font(.system(size: 24, weight: .bold, design: .rounded))
+                            .foregroundColor(.white)
+                            .shadow(color: .black.opacity(0.5), radius: 3, x: 1, y: 1)
+                        Spacer()
+                    }
+                    .padding(.leading, 12)
+                    .padding(.top, 8)
+                    
+                    Spacer()
+                    
+                    // Informations supplémentaires en bas
+                    HStack {
+                        if let partnerName = data.partnerName, !partnerName.isEmpty {
+                            Text(partnerName)
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                                .shadow(color: .black.opacity(0.5), radius: 2)
+                        }
+                        Spacer()
+                        Text("🔥 \(data.currentStreak)")
                             .font(.caption)
-                            .fontWeight(.semibold)
+                            .fontWeight(.bold)
                             .foregroundColor(.white)
                             .shadow(color: .black.opacity(0.5), radius: 2)
                     }
-                    Spacer()
-                    Text("🔥 \(data.currentStreak)")
-                        .font(.caption)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                        .shadow(color: .black.opacity(0.5), radius: 2)
+                    .padding(.horizontal, 12)
+                    .padding(.bottom, 8)
                 }
-                .padding(.horizontal, 12)
-                .padding(.bottom, 8)
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .containerBackground(.clear, for: .widget)
     }
 }
@@ -343,21 +358,14 @@ struct widget: Widget {
     }
 }
 
+// Previews pour Xcode (données de test uniquement - n'affectent pas le widget réel)
 #Preview(as: .systemSmall) {
     widget()
 } timeline: {
     SimpleEntry(
         date: .now,
         configuration: ConfigurationAppIntent(),
-        data: CoupleWidgetData(
-            currentStreak: 7,
-            longestStreak: 15,
-            distance: "2.5km",
-            partnerName: "MARIE",
-            daysTogether: 120,
-            hasActiveChallenge: true,
-            challengeText: "Qu'est-ce qui vous a fait tomber amoureux de moi ?"
-        )
+        data: CoupleWidgetData.load() // Utilise les vraies données depuis UserDefaults
     )
 }
 
@@ -367,15 +375,7 @@ struct widget: Widget {
     SimpleEntry(
         date: .now,
         configuration: ConfigurationAppIntent(),
-        data: CoupleWidgetData(
-            currentStreak: 7,
-            longestStreak: 15,
-            distance: "2.5km",
-            partnerName: "MARIE",
-            daysTogether: 120,
-            hasActiveChallenge: false,
-            challengeText: ""
-        )
+        data: CoupleWidgetData.load() // Utilise les vraies données depuis UserDefaults
     )
 }
 
@@ -385,14 +385,6 @@ struct widget: Widget {
     SimpleEntry(
         date: .now,
         configuration: ConfigurationAppIntent(),
-        data: CoupleWidgetData(
-            currentStreak: 7,
-            longestStreak: 15,
-            distance: "2.5km",
-            partnerName: "MARIE",
-            daysTogether: 120,
-            hasActiveChallenge: true,
-            challengeText: "Qu'est-ce qui vous a fait tomber amoureux de moi ?"
-        )
+        data: CoupleWidgetData.load() // Utilise les vraies données depuis UserDefaults
     )
 }
