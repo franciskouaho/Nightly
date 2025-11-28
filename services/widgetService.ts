@@ -122,6 +122,8 @@ export class WidgetService {
       const coupleDoc = await getDoc(coupleRef);
       
       // Récupérer daysTogether depuis le document couple (comme dans l'app)
+      // PRIORISER la valeur passée depuis l'app (daysTogether)
+      // Utiliser Firebase seulement comme fallback si la valeur n'est pas fournie
       let daysTogetherFromCouple = daysTogether;
       let currentStreak = streak?.currentStreak || 0;
       let longestStreak = streak?.longestStreak || 0;
@@ -129,8 +131,8 @@ export class WidgetService {
       if (coupleDoc.exists()) {
         const coupleData = coupleDoc.data();
         
-        // Utiliser daysTogether depuis le document couple (calculé depuis joinedDate)
-        if (coupleData?.daysTogether !== undefined) {
+        // Utiliser daysTogether depuis le document couple SEULEMENT si pas fourni depuis l'app
+        if (daysTogetherFromCouple === 0 && coupleData?.daysTogether !== undefined) {
           daysTogetherFromCouple = coupleData.daysTogether;
         }
         
@@ -141,8 +143,8 @@ export class WidgetService {
         }
       }
       
-      // Si daysTogether n'est pas fourni et pas dans le document couple, calculer depuis les dates de création
-      if (!daysTogetherFromCouple) {
+      // Si daysTogether n'est toujours pas défini, calculer depuis les dates de création
+      if (daysTogetherFromCouple === 0) {
         const earliestDate = userCreatedAt < partnerCreatedAt ? userCreatedAt : partnerCreatedAt;
         daysTogetherFromCouple = Math.floor(
           (new Date().getTime() - earliestDate.getTime()) / (1000 * 60 * 60 * 24)
@@ -220,7 +222,7 @@ export class WidgetService {
         longestStreak,
         distance: distanceToUse,
         partnerName,
-        daysTogether: daysTogether || daysTogetherCalculated,
+        daysTogether: daysTogetherFromCouple,
         hasActiveChallenge,
       });
     } catch (error) {

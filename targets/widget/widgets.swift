@@ -93,12 +93,13 @@ struct CoupleIllustrationView: View {
     
     var body: some View {
         ZStack {
-            // Image de fond - couvre tout l'espace
+            // Image de fond - couvre tout l'espace disponible
             Image("couples")
                 .resizable()
                 .scaledToFill()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .clipped()
+                .ignoresSafeArea()
             
             // Texte "X days" en haut à gauche
             VStack {
@@ -147,7 +148,6 @@ struct SmallWidgetView: View {
                 partnerName: data.partnerName,
                 currentStreak: data.currentStreak
             )
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
             
             // Informations supplémentaires en bas
             VStack {
@@ -172,6 +172,7 @@ struct SmallWidgetView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .containerBackground(.clear, for: .widget)
     }
 }
 
@@ -187,7 +188,9 @@ struct MediumWidgetView: View {
                 partnerName: data.partnerName,
                 currentStreak: data.currentStreak
             )
-            .frame(width: 160, maxHeight: .infinity)
+            .frame(width: 160)
+            .frame(maxHeight: .infinity)
+            .clipped()
             
             // Informations à droite
             VStack(alignment: .leading, spacing: 8) {
