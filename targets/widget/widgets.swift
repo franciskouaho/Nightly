@@ -85,40 +85,6 @@ struct SimpleEntry: TimelineEntry {
     let data: CoupleWidgetData
 }
 
-// Vue pour l'illustration du couple avec l'image
-struct CoupleIllustrationView: View {
-    let daysTogether: Int
-    let partnerName: String?
-    let currentStreak: Int
-    
-    var body: some View {
-        GeometryReader { geometry in
-            ZStack {
-                // Image de fond - couvre tout l'espace disponible y compris les coins arrondis
-                Image("couples")
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: geometry.size.width, height: geometry.size.height)
-                    .clipped()
-                
-                // Texte "X days" en haut à gauche
-                VStack {
-                    HStack {
-                        Text("\(daysTogether) days")
-                            .font(.system(size: 24, weight: .bold, design: .rounded))
-                            .foregroundColor(.white)
-                            .shadow(color: .black.opacity(0.5), radius: 3, x: 1, y: 1)
-                        Spacer()
-                    }
-                    .padding(.leading, 12)
-                    .padding(.top, 8)
-                    Spacer()
-                }
-            }
-        }
-    }
-}
-
 struct widgetEntryView : View {
     var entry: Provider.Entry
     @Environment(\.widgetFamily) var family
@@ -140,73 +106,85 @@ struct widgetEntryView : View {
 // Vue pour petit widget
 struct SmallWidgetView: View {
     let data: CoupleWidgetData
-    
+
     var body: some View {
-        GeometryReader { geometry in
-            ZStack {
-                // Image de fond qui couvre tout le widget y compris les coins arrondis
-                Image("couples")
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: geometry.size.width, height: geometry.size.height)
-                    .clipped()
-                
-                // Contenu superposé
-                VStack {
-                    // Texte "X days" en haut à gauche
-                    HStack {
-                        Text("\(data.daysTogether) days")
-                            .font(.system(size: 24, weight: .bold, design: .rounded))
-                            .foregroundColor(.white)
-                            .shadow(color: .black.opacity(0.5), radius: 3, x: 1, y: 1)
-                        Spacer()
-                    }
-                    .padding(.leading, 12)
-                    .padding(.top, 8)
-                    
+        ZStack {
+            // Contenu superposé
+            VStack {
+                // Texte "X days" en haut à gauche
+                HStack {
+                    Text("\(data.daysTogether) days")
+                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .foregroundColor(.white)
+                        .shadow(color: .black.opacity(0.5), radius: 3, x: 1, y: 1)
                     Spacer()
-                    
-                    // Informations supplémentaires en bas
-                    HStack {
-                        if let partnerName = data.partnerName, !partnerName.isEmpty {
-                            Text(partnerName)
-                                .font(.caption)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.white)
-                                .shadow(color: .black.opacity(0.5), radius: 2)
-                        }
-                        Spacer()
-                        Text("🔥 \(data.currentStreak)")
+                }
+                .padding(.leading, 12)
+                .padding(.top, 8)
+
+                Spacer()
+
+                // Informations supplémentaires en bas
+                HStack {
+                    if let partnerName = data.partnerName, !partnerName.isEmpty {
+                        Text(partnerName)
                             .font(.caption)
-                            .fontWeight(.bold)
+                            .fontWeight(.semibold)
                             .foregroundColor(.white)
                             .shadow(color: .black.opacity(0.5), radius: 2)
                     }
-                    .padding(.horizontal, 12)
-                    .padding(.bottom, 8)
+                    Spacer()
+                    Text("🔥 \(data.currentStreak)")
+                        .font(.caption)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .shadow(color: .black.opacity(0.5), radius: 2)
                 }
+                .padding(.horizontal, 12)
+                .padding(.bottom, 8)
             }
         }
-        .containerBackground(.clear, for: .widget)
+        .containerBackground(for: .widget) {
+            // Image de fond qui couvre tout le widget y compris les coins arrondis
+            Image("couples")
+                .resizable()
+                .scaledToFill()
+        }
     }
 }
 
 // Vue pour widget moyen
 struct MediumWidgetView: View {
     let data: CoupleWidgetData
-    
+
     var body: some View {
         HStack(spacing: 0) {
-            // Illustration à gauche
-            CoupleIllustrationView(
-                daysTogether: data.daysTogether,
-                partnerName: data.partnerName,
-                currentStreak: data.currentStreak
-            )
+            // Illustration à gauche avec l'image
+            GeometryReader { geometry in
+                ZStack {
+                    // Image de fond qui couvre toute la partie gauche
+                    Image("couples")
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: geometry.size.width, height: geometry.size.height)
+                        .clipped()
+
+                    VStack {
+                        HStack {
+                            Text("\(data.daysTogether) days")
+                                .font(.system(size: 24, weight: .bold, design: .rounded))
+                                .foregroundColor(.white)
+                                .shadow(color: .black.opacity(0.5), radius: 3, x: 1, y: 1)
+                            Spacer()
+                        }
+                        .padding(.leading, 12)
+                        .padding(.top, 8)
+                        Spacer()
+                    }
+                }
+            }
             .frame(width: 160)
-            .frame(maxHeight: .infinity)
-            .clipped()
-            
+
             // Informations à droite
             VStack(alignment: .leading, spacing: 8) {
                 if let partnerName = data.partnerName, !partnerName.isEmpty {
@@ -214,7 +192,7 @@ struct MediumWidgetView: View {
                         .font(.headline)
                         .foregroundColor(.white)
                 }
-                
+
                 VStack(alignment: .leading, spacing: 4) {
                     HStack {
                         Text("🔥")
@@ -224,7 +202,7 @@ struct MediumWidgetView: View {
                             .fontWeight(.bold)
                             .foregroundColor(.white)
                     }
-                    
+
                     if let distance = data.distance, !distance.isEmpty {
                         HStack {
                             Text("📍")
@@ -233,7 +211,7 @@ struct MediumWidgetView: View {
                                 .foregroundColor(.white.opacity(0.9))
                         }
                     }
-                    
+
                     if data.daysTogether > 0 {
                         HStack {
                             Text("💕")
@@ -243,7 +221,7 @@ struct MediumWidgetView: View {
                         }
                     }
                 }
-                
+
                 Spacer()
             }
             .padding()
@@ -256,23 +234,42 @@ struct MediumWidgetView: View {
                 )
             )
         }
+        .containerBackground(for: .widget) {}
     }
 }
 
 // Vue pour grand widget vertical
 struct LargeWidgetView: View {
     let data: CoupleWidgetData
-    
+
     var body: some View {
         VStack(spacing: 0) {
-            // Illustration en haut
-            CoupleIllustrationView(
-                daysTogether: data.daysTogether,
-                partnerName: data.partnerName,
-                currentStreak: data.currentStreak
-            )
+            // Illustration en haut avec l'image
+            GeometryReader { geometry in
+                ZStack {
+                    // Image de fond qui couvre toute la partie haute
+                    Image("couples")
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: geometry.size.width, height: geometry.size.height)
+                        .clipped()
+
+                    VStack {
+                        HStack {
+                            Text("\(data.daysTogether) days")
+                                .font(.system(size: 24, weight: .bold, design: .rounded))
+                                .foregroundColor(.white)
+                                .shadow(color: .black.opacity(0.5), radius: 3, x: 1, y: 1)
+                            Spacer()
+                        }
+                        .padding(.leading, 12)
+                        .padding(.top, 8)
+                        Spacer()
+                    }
+                }
+            }
             .frame(height: 200)
-            
+
             // Informations en bas
             VStack(alignment: .leading, spacing: 12) {
                 if let partnerName = data.partnerName, !partnerName.isEmpty {
@@ -281,7 +278,7 @@ struct LargeWidgetView: View {
                         .fontWeight(.bold)
                         .foregroundColor(.white)
                 }
-                
+
                 HStack(spacing: 20) {
                     VStack(alignment: .leading) {
                         Text("🔥 Streak")
@@ -292,7 +289,7 @@ struct LargeWidgetView: View {
                             .fontWeight(.bold)
                             .foregroundColor(.white)
                     }
-                    
+
                     if let distance = data.distance, !distance.isEmpty {
                         VStack(alignment: .leading) {
                             Text("📍 Distance")
@@ -304,7 +301,7 @@ struct LargeWidgetView: View {
                                 .foregroundColor(.white)
                         }
                     }
-                    
+
                     if data.daysTogether > 0 {
                         VStack(alignment: .leading) {
                             Text("💕 Ensemble")
@@ -317,7 +314,7 @@ struct LargeWidgetView: View {
                         }
                     }
                 }
-                
+
                 if data.hasActiveChallenge && !data.challengeText.isEmpty {
                     Divider()
                         .background(Color.white.opacity(0.3))
@@ -342,6 +339,7 @@ struct LargeWidgetView: View {
                 )
             )
         }
+        .containerBackground(for: .widget) {}
     }
 }
 

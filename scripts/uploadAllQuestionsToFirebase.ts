@@ -22,7 +22,7 @@ import { dareOrStripQuestions } from "./questions/dare-or-strip-questions";
 import { blindtestGenerationsQuestions } from "./questions/blindtest-generations-questions";
 
 // Load service account
-const serviceAccountPath = path.join(__dirname, "..", "nightly-efa29-firebase-adminsdk-fbsvc-ddf3409693.json");
+const serviceAccountPath = path.join(__dirname, "..", "nightly-efa29-firebase-adminsdk-fbsvc-b77f14c08c.json");
 const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, "utf8"));
 
 // Initialize Firebase Admin
