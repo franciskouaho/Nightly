@@ -116,26 +116,37 @@ export class WidgetService {
           : new Date();
       }
 
-      // Calculer daysTogether depuis les dates de création
-      const earliestDate = userCreatedAt < partnerCreatedAt ? userCreatedAt : partnerCreatedAt;
-      const daysTogetherCalculated = Math.floor(
-        (new Date().getTime() - earliestDate.getTime()) / (1000 * 60 * 60 * 24)
-      );
-
-      // Récupérer le streak depuis Firebase si pas fourni
+      // Récupérer le coupleId pour accéder aux données du couple
+      const coupleId = getCoupleId(userId, partnerId);
+      const coupleRef = doc(db, 'couples', coupleId);
+      const coupleDoc = await getDoc(coupleRef);
+      
+      // Récupérer daysTogether depuis le document couple (comme dans l'app)
+      let daysTogetherFromCouple = daysTogether;
       let currentStreak = streak?.currentStreak || 0;
       let longestStreak = streak?.longestStreak || 0;
-
-      if (!streak) {
-        const coupleId = getCoupleId(userId, partnerId);
-        const coupleRef = doc(db, 'couples', coupleId);
-        const coupleDoc = await getDoc(coupleRef);
+      
+      if (coupleDoc.exists()) {
+        const coupleData = coupleDoc.data();
         
-        if (coupleDoc.exists()) {
-          const coupleData = coupleDoc.data();
+        // Utiliser daysTogether depuis le document couple (calculé depuis joinedDate)
+        if (coupleData?.daysTogether !== undefined) {
+          daysTogetherFromCouple = coupleData.daysTogether;
+        }
+        
+        // Récupérer le streak depuis Firebase si pas fourni
+        if (!streak) {
           currentStreak = coupleData?.currentStreak || 0;
           longestStreak = coupleData?.longestStreak || 0;
         }
+      }
+      
+      // Si daysTogether n'est pas fourni et pas dans le document couple, calculer depuis les dates de création
+      if (!daysTogetherFromCouple) {
+        const earliestDate = userCreatedAt < partnerCreatedAt ? userCreatedAt : partnerCreatedAt;
+        daysTogetherFromCouple = Math.floor(
+          (new Date().getTime() - earliestDate.getTime()) / (1000 * 60 * 60 * 24)
+        );
       }
 
       // Récupérer le défi quotidien depuis Firebase si pas fourni
@@ -143,7 +154,6 @@ export class WidgetService {
       let challengeText = challenge?.text || '';
 
       if (!challenge) {
-        const coupleId = getCoupleId(userId, partnerId);
         const today = new Date().toISOString().split('T')[0];
         const challengeRef = doc(db, 'coupleChallenges', `${coupleId}_${today}`);
         const challengeDoc = await getDoc(challengeRef);
@@ -200,7 +210,7 @@ export class WidgetService {
         longestStreak,
         distance: distanceToUse || null,
         partnerName: partnerName || null,
-        daysTogether: daysTogether || daysTogetherCalculated,
+        daysTogether: daysTogetherFromCouple,
         hasActiveChallenge,
         challengeText,
       });

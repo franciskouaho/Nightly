@@ -1,0 +1,12 @@
+{
+  "type": "widget",
+  "displayName": "Nightly Couple",
+  "icon": "../../assets/christmas/logo.png",
+  "images": {
+    "couples": "../../assets/couples.png"
+  },
+  "entitlements": {
+    "com.apple.security.application-groups": ["group.com.emplica.nightly.data"]
+  }
+}
+

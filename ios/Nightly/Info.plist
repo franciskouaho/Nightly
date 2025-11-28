@@ -63,6 +63,10 @@
     <string>Allow Nightly to access your location to show the distance between you and your partner.</string>
     <key>NSMicrophoneUsageDescription</key>
     <string>Allow $(PRODUCT_NAME) to access your microphone</string>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>Allow Nightly to save photos to your photo library.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Allow Nightly to access your photos to select a couple photo.</string>
     <key>NSUserActivityTypes</key>
     <array>
       <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
