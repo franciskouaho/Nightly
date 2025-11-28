@@ -52,6 +52,21 @@ import {
   trackCoupleCodeEntryStarted,
   trackCoupleConnected,
   trackCoupleConnectionFailed,
+  trackCoupleDisconnected,
+  trackCouplePhotoUploaded,
+  trackCouplePhotoUploadButtonClicked,
+  trackCoupleDateModified,
+  trackCoupleDateEditClicked,
+  trackBreakCoupleButtonClicked,
+  trackDailyChallenge,
+  trackDailyChallengeSkipped,
+  trackDailyChallengePaywallShown,
+  trackDailyChallengeResponseSubmitted,
+  trackLocationSharingToggled,
+  trackDistanceCalculated,
+  trackGPSPermissionDenied,
+  trackStreakIncreased,
+  trackCouplesSystemUsage,
 } from "@/services/couplesAnalytics";
 import { WidgetService } from "@/services/widgetService";
 
@@ -365,10 +380,19 @@ export default function CouplesScreen() {
       hasActiveChallenge: !!todayChallenge && !hasCompletedToday,
       locationSharingEnabled: isLocationSharingEnabled,
     });
+    
+    // Track l'utilisation globale du système de couples
     if (hasPartner && partnerId) {
+      trackCouplesSystemUsage({
+        daysTogether: coupleData?.daysTogether || 0,
+        currentStreak,
+        longestStreak: longestStreak || 0,
+        locationSharingEnabled: isLocationSharingEnabled,
+        averageDistanceKm: distanceKm || undefined,
+      });
       checkAndUpdateStreak();
     }
-  }, [hasPartner, partnerId, currentStreak, distanceKm, todayChallenge, hasCompletedToday, isLocationSharingEnabled]);
+  }, [hasPartner, partnerId, currentStreak, longestStreak, coupleData?.daysTogether, distanceKm, todayChallenge, hasCompletedToday, isLocationSharingEnabled]);
 
   // Synchroniser les données avec le widget depuis Firebase en temps réel
   useEffect(() => {
@@ -649,6 +673,8 @@ export default function CouplesScreen() {
       });
 
       setShowDatePicker(false);
+      const formattedDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      await trackCoupleDateModified(formattedDate, daysTogether);
       Alert.alert("Succès", "La date de mise en couple a été mise à jour");
     } catch (error) {
       console.error("Erreur lors de la sauvegarde de la date:", error);
@@ -658,6 +684,8 @@ export default function CouplesScreen() {
 
   // Sélectionner et uploader une photo de couple
   const handlePickImage = async () => {
+    await trackCouplePhotoUploadButtonClicked();
+    
     if (!ImagePicker) {
       Alert.alert(t("errors.general"), "La sélection d'image n'est pas disponible");
       return;
@@ -740,6 +768,9 @@ export default function CouplesScreen() {
             // Mettre à jour l'état local
             setCouplePhoto(downloadURL);
             
+            // Track l'upload de photo
+            await trackCouplePhotoUploaded();
+            
             Alert.alert("Succès", "La photo de couple a été mise à jour");
           } catch (error) {
             console.error("Erreur lors de la mise à jour:", error);
@@ -755,6 +786,8 @@ export default function CouplesScreen() {
 
   // Séparer le couple
   const handleBreakCouple = () => {
+    trackBreakCoupleButtonClicked();
+    
     Alert.alert(
       "Séparer le couple",
       "Êtes-vous sûr de vouloir séparer le couple ? Cette action est irréversible.",
@@ -789,7 +822,7 @@ export default function CouplesScreen() {
                 updateDoc(partnerRef, { couplePhoto: null })
               ]);
 
-              // Réinitialiser les états locaux
+              // Réinitialiser les états locaux immédiatement
               setHasPartner(false);
               setPartnerId(null);
               setPartnerData(null);
@@ -797,7 +830,20 @@ export default function CouplesScreen() {
               setCoupleData(null);
               setCustomJoinedDate(null);
 
-              Alert.alert("Couple séparé", "Le couple a été séparé avec succès");
+              // Track la séparation du couple
+              await trackCoupleDisconnected('user_initiated');
+              
+              // Le listener onSnapshot détectera automatiquement le changement
+              // et mettra à jour l'interface pour afficher l'écran avec le code
+              
+              Alert.alert("Couple séparé", "Le couple a été séparé avec succès", [
+                {
+                  text: "OK",
+                  onPress: () => {
+                    // L'écran se mettra automatiquement à jour via le listener
+                  }
+                }
+              ]);
             } catch (error) {
               console.error("Erreur lors de la séparation du couple:", error);
               Alert.alert(t("errors.general"), "Erreur lors de la séparation du couple");
@@ -1100,7 +1146,10 @@ export default function CouplesScreen() {
               </View>
               <TouchableOpacity 
                 style={styles.statItem}
-                onPress={() => setShowDatePicker(true)}
+                onPress={async () => {
+                  await trackCoupleDateEditClicked();
+                  setShowDatePicker(true);
+                }}
                 activeOpacity={0.7}
               >
                 <Ionicons name="calendar" size={26} color="#FFD4E5" />
@@ -1157,7 +1206,9 @@ export default function CouplesScreen() {
                     <Text style={styles.errorText}>{locationError}</Text>
                   )}
                   {!isLocationSharingEnabled && !locationLoading && displayDistance === "N/A" && (
-                    <Text style={styles.distanceHint}>{t("couples.activateGPSHint")}</Text>
+                    <View style={styles.distanceHintContainer}>
+                      <Text style={styles.distanceHint}>{t("couples.activateGPSHint")}</Text>
+                    </View>
                   )}
                 </View>
 
@@ -1170,6 +1221,7 @@ export default function CouplesScreen() {
                       if (!hasPermission) {
                         const granted = await requestPermission();
                         if (!granted) {
+                          await trackGPSPermissionDenied();
                           Alert.alert(
                             "Permission requise",
                             "L'accès à la localisation est nécessaire pour partager votre position."
@@ -1178,8 +1230,10 @@ export default function CouplesScreen() {
                         }
                       }
                       await enableLocationSharing();
+                      await trackLocationSharingToggled(true);
                     } else {
                       await disableLocationSharing();
+                      await trackLocationSharingToggled(false);
                     }
                   }}
                 >
@@ -1244,6 +1298,7 @@ export default function CouplesScreen() {
                         onPress={async () => {
                           if (!canUseChallenge) {
                             // Afficher le paywall si la limite est atteinte
+                            await trackDailyChallengePaywallShown(freeChallengesUsed, 3);
                             showPaywallA();
                             return;
                           }
@@ -1258,6 +1313,12 @@ export default function CouplesScreen() {
                                   onPress: async (response: string | undefined) => {
                                     if (response && response.trim()) {
                                       await submitResponse(response.trim());
+                                      // Track la soumission de réponse
+                                      await trackDailyChallengeResponseSubmitted(
+                                        todayChallenge.type || 'unknown',
+                                        !!partnerResponse,
+                                        isProMember
+                                      );
                                       // Enregistrer l'activité pour le streak
                                       await recordActivity();
                                     }
@@ -1701,7 +1762,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 12,
     marginBottom: 30,
-    height: 180, // Fixed height for alignment
+    minHeight: 220, // Min height to accommodate content with text
   },
   widgetCard: {
     backgroundColor: "rgba(196, 30, 58, 0.25)", // Rouge avec transparence
@@ -1724,6 +1785,8 @@ const styles = StyleSheet.create({
   rightWidget: {
     flex: 1.2, // Slightly wider
     paddingTop: 20,
+    justifyContent: "space-between",
+    flexDirection: "column",
   },
   daysWidgetContent: {
     alignItems: "center",
@@ -1776,7 +1839,10 @@ const styles = StyleSheet.create({
   distanceWidgetContent: {
     alignItems: "center",
     paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 10,
     flex: 1,
+    justifyContent: "flex-start",
   },
   distanceVisual: {
     flexDirection: "row",
@@ -1841,12 +1907,14 @@ const styles = StyleSheet.create({
     fontFamily: "Montserrat-Regular",
     textTransform: "uppercase",
     letterSpacing: 0.5,
+    marginBottom: 4,
   },
   widgetSeparator: {
     height: 2,
     backgroundColor: "rgba(255, 212, 229, 0.2)",
     width: "100%",
-    marginTop: "auto",
+    marginTop: 8,
+    marginBottom: 0,
   },
   addWidgetRow: {
     flexDirection: "row",
@@ -2137,13 +2205,20 @@ const styles = StyleSheet.create({
     marginTop: 4,
     textAlign: "center",
   },
+  distanceHintContainer: {
+    marginTop: 6,
+    marginBottom: 4,
+    paddingHorizontal: 8,
+    width: "100%",
+  },
   distanceHint: {
-    color: "rgba(255, 212, 229, 0.6)",
+    color: "rgba(255, 212, 229, 0.7)",
     fontSize: 10,
     fontFamily: "Montserrat-Regular",
-    marginTop: 4,
     textAlign: "center",
     fontStyle: "italic",
+    lineHeight: 13,
+    width: "100%",
   },
   responseContainer: {
     marginTop: 16,

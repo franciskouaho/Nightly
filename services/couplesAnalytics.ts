@@ -1,10 +1,26 @@
 import analytics from '@react-native-firebase/analytics';
-import { usePostHog } from '@/hooks/usePostHog';
+import { getPostHogInstance } from '@/config/posthog';
 
 /**
  * Service d'analytics pour le système de couples
  * Tracks tous les événements liés aux couples dans Firebase Analytics et PostHog
  */
+
+// Helper pour track dans Firebase et PostHog
+async function trackEvent(eventName: string, properties: Record<string, any>) {
+  try {
+    // Firebase Analytics
+    await analytics().logEvent(eventName, properties);
+    
+    // PostHog
+    const posthog = getPostHogInstance();
+    if (posthog) {
+      posthog.capture(eventName, properties);
+    }
+  } catch (error) {
+    console.error(`Error tracking ${eventName}:`, error);
+  }
+}
 
 // Types pour les événements
 export type CoupleConnectionSource = 'code_entry' | 'qr_scan' | 'link';
@@ -34,13 +50,7 @@ export async function trackCouplesScreenViewed(
   };
 
   console.log(`📊 Tracking: ${eventName}`, properties);
-
-  try {
-    // Firebase Analytics
-    await analytics().logEvent(eventName, properties);
-  } catch (error) {
-    console.error(`Error tracking ${eventName}:`, error);
-  }
+  await trackEvent(eventName, properties);
 }
 
 /**
@@ -336,10 +346,134 @@ export async function trackCouplesSystemUsage(metrics: {
   };
 
   console.log(`📊 Tracking: ${eventName}`, properties);
+  await trackEvent(eventName, properties);
+}
 
-  try {
-    await analytics().logEvent(eventName, properties);
-  } catch (error) {
-    console.error(`Error tracking ${eventName}:`, error);
-  }
+/**
+ * Track quand l'utilisateur modifie la date de mise en couple
+ */
+export async function trackCoupleDateModified(newDate: string, daysTogether: number) {
+  const eventName = 'couple_date_modified';
+  const properties = {
+    new_date: newDate,
+    days_together: daysTogether,
+    timestamp: new Date().toISOString(),
+  };
+
+  console.log(`📊 Tracking: ${eventName}`, properties);
+  await trackEvent(eventName, properties);
+}
+
+/**
+ * Track quand l'utilisateur supprime une photo de couple
+ */
+export async function trackCouplePhotoDeleted() {
+  const eventName = 'couple_photo_deleted';
+  const properties = {
+    timestamp: new Date().toISOString(),
+  };
+
+  console.log(`📊 Tracking: ${eventName}`, properties);
+  await trackEvent(eventName, properties);
+}
+
+/**
+ * Track quand un défi quotidien est skippé
+ */
+export async function trackDailyChallengeSkipped(challengeType?: string) {
+  const eventName = 'daily_challenge_skipped';
+  const properties = {
+    challenge_type: challengeType,
+    timestamp: new Date().toISOString(),
+  };
+
+  console.log(`📊 Tracking: ${eventName}`, properties);
+  await trackEvent(eventName, properties);
+}
+
+/**
+ * Track quand l'utilisateur voit le paywall pour les défis
+ */
+export async function trackDailyChallengePaywallShown(freeChallengesUsed: number, maxFree: number) {
+  const eventName = 'daily_challenge_paywall_shown';
+  const properties = {
+    free_challenges_used: freeChallengesUsed,
+    max_free_challenges: maxFree,
+    timestamp: new Date().toISOString(),
+  };
+
+  console.log(`📊 Tracking: ${eventName}`, properties);
+  await trackEvent(eventName, properties);
+}
+
+/**
+ * Track quand l'utilisateur répond à un défi quotidien
+ */
+export async function trackDailyChallengeResponseSubmitted(
+  challengeType: string,
+  hasPartnerResponse: boolean,
+  isProMember: boolean
+) {
+  const eventName = 'daily_challenge_response_submitted';
+  const properties = {
+    challenge_type: challengeType,
+    has_partner_response: hasPartnerResponse,
+    is_pro_member: isProMember,
+    timestamp: new Date().toISOString(),
+  };
+
+  console.log(`📊 Tracking: ${eventName}`, properties);
+  await trackEvent(eventName, properties);
+}
+
+/**
+ * Track quand l'utilisateur clique sur le bouton cœur brisé
+ */
+export async function trackBreakCoupleButtonClicked() {
+  const eventName = 'break_couple_button_clicked';
+  const properties = {
+    timestamp: new Date().toISOString(),
+  };
+
+  console.log(`📊 Tracking: ${eventName}`, properties);
+  await trackEvent(eventName, properties);
+}
+
+/**
+ * Track quand l'utilisateur clique sur le bouton upload photo
+ */
+export async function trackCouplePhotoUploadButtonClicked() {
+  const eventName = 'couple_photo_upload_button_clicked';
+  const properties = {
+    timestamp: new Date().toISOString(),
+  };
+
+  console.log(`📊 Tracking: ${eventName}`, properties);
+  await trackEvent(eventName, properties);
+}
+
+/**
+ * Track quand l'utilisateur clique pour modifier la date
+ */
+export async function trackCoupleDateEditClicked() {
+  const eventName = 'couple_date_edit_clicked';
+  const properties = {
+    timestamp: new Date().toISOString(),
+  };
+
+  console.log(`📊 Tracking: ${eventName}`, properties);
+  await trackEvent(eventName, properties);
+}
+
+/**
+ * Track les erreurs de permission GPS
+ */
+export async function trackGPSPermissionDenied() {
+  const eventName = 'gps_permission_denied';
+  const properties = {
+    timestamp: new Date().toISOString(),
+  };
+
+  console.log(`📊 Tracking: ${eventName}`, properties);
+  await trackEvent(eventName, properties);
 }
