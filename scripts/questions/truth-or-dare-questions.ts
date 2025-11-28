@@ -1,4 +1,4 @@
-export const truthOrDareQuestions = 
+export const truthOrDareQuestions = {
     translations: {
       fr: [
         {
@@ -1415,5 +1415,4 @@ export const truthOrDareQuestions =
         },
       ],
     },
-  },
 };

@@ -362,6 +362,142 @@ export const sendEventNotification = functions.https.onCall(
     }
 );
 
+// Fonction pour envoyer une notification de défi quotidien au couple
+export const sendCoupleDailyChallengeNotification = functions.firestore
+    .document('coupleChallenges/{challengeId}')
+    .onCreate(async (snap, context) => {
+        const challengeData = snap.data();
+        const challengeId = context.params.challengeId;
+        
+        // challengeId est au format "userId1_userId2_date" (ex: "userId1_userId2_2025-11-28")
+        // Extraire le coupleId en prenant tout sauf la dernière partie (la date)
+        const parts = challengeId.split('_');
+        const datePart = parts[parts.length - 1]; // Dernière partie = date (format YYYY-MM-DD)
+        const coupleId = parts.slice(0, -1).join('_'); // Tout sauf la dernière partie
+        const userIds = coupleId.split('_').filter(id => id.length > 0 && !id.match(/^\d{4}-\d{2}-\d{2}$/));
+
+        if (userIds.length !== 2) {
+            console.error('Format de coupleId invalide:', coupleId);
+            return;
+        }
+
+        const db = admin.firestore();
+        const usersRef = db.collection('users');
+        
+        // Récupérer les données des deux utilisateurs
+        const [user1Doc, user2Doc] = await Promise.all([
+            usersRef.doc(userIds[0]).get(),
+            usersRef.doc(userIds[1]).get()
+        ]);
+
+        if (!user1Doc.exists || !user2Doc.exists) {
+            console.error('Un ou plusieurs utilisateurs non trouvés');
+            return;
+        }
+
+        const user1Data = user1Doc.data() as UserNotificationPreferences;
+        const user2Data = user2Doc.data() as UserNotificationPreferences;
+
+        const challenge = challengeData.challenge;
+        const challengeText = challenge?.question || 'Nouveau défi quotidien disponible';
+
+        // Envoyer une notification aux deux partenaires
+        const promises: Promise<boolean>[] = [];
+
+        if (user1Data?.isActive && user1Data?.notificationToken) {
+            promises.push(
+                sendNotification(
+                    user1Data.notificationToken,
+                    "💕 Nouveau défi quotidien !",
+                    challengeText.substring(0, 100) + (challengeText.length > 100 ? '...' : ''),
+                    { type: 'couple_challenge', challengeId }
+                )
+            );
+        }
+
+        if (user2Data?.isActive && user2Data?.notificationToken) {
+            promises.push(
+                sendNotification(
+                    user2Data.notificationToken,
+                    "💕 Nouveau défi quotidien !",
+                    challengeText.substring(0, 100) + (challengeText.length > 100 ? '...' : ''),
+                    { type: 'couple_challenge', challengeId }
+                )
+            );
+        }
+
+        await Promise.all(promises);
+        console.log(`Notifications de défi quotidien envoyées au couple ${coupleId}`);
+    });
+
+// Fonction pour envoyer une notification quand le partenaire répond au défi
+export const sendCoupleChallengeResponseNotification = functions.firestore
+    .document('coupleChallenges/{challengeId}')
+    .onUpdate(async (change, context) => {
+        const beforeData = change.before.data();
+        const afterData = change.after.data();
+        const challengeId = context.params.challengeId;
+
+        // Vérifier si une nouvelle réponse a été ajoutée
+        const beforeResponses = beforeData.userResponses || [];
+        const afterResponses = afterData.userResponses || [];
+
+        if (afterResponses.length <= beforeResponses.length) {
+            // Aucune nouvelle réponse
+            return;
+        }
+
+        // Trouver la nouvelle réponse
+        const newResponse = afterResponses.find((resp: any) => 
+            !beforeResponses.some((oldResp: any) => oldResp.userId === resp.userId)
+        );
+
+        if (!newResponse) {
+            return;
+        }
+
+        const respondingUserId = newResponse.userId;
+        // challengeId est au format "userId1_userId2_date" (ex: "userId1_userId2_2025-11-28")
+        // Extraire le coupleId en prenant tout sauf la dernière partie (la date)
+        const parts = challengeId.split('_');
+        const coupleId = parts.slice(0, -1).join('_'); // Tout sauf la dernière partie
+        const userIds = coupleId.split('_').filter(id => id.length > 0 && !id.match(/^\d{4}-\d{2}-\d{2}$/));
+
+        // Trouver le partenaire (celui qui n'a pas répondu)
+        const partnerId = userIds.find(id => id !== respondingUserId);
+
+        if (!partnerId) {
+            console.error('Partenaire non trouvé');
+            return;
+        }
+
+        const db = admin.firestore();
+        const partnerDoc = await db.collection('users').doc(partnerId).get();
+
+        if (!partnerDoc.exists) {
+            console.error('Partenaire non trouvé dans Firestore');
+            return;
+        }
+
+        const partnerData = partnerDoc.data() as UserNotificationPreferences;
+
+        // Récupérer le nom du partenaire qui a répondu
+        const respondingUserDoc = await db.collection('users').doc(respondingUserId).get();
+        const respondingUserData = respondingUserDoc.data();
+        const partnerName = respondingUserData?.pseudo || 'Votre partenaire';
+
+        // Envoyer la notification au partenaire
+        if (partnerData?.isActive && partnerData?.notificationToken) {
+            await sendNotification(
+                partnerData.notificationToken,
+                "💕 Votre partenaire a répondu !",
+                `${partnerName} a répondu au défi quotidien. Découvrez sa réponse !`,
+                { type: 'couple_challenge_response', challengeId }
+            );
+            console.log(`Notification de réponse envoyée à ${partnerId}`);
+        }
+    });
+
 // Fonction planifiée pour notifier les nouveaux jeux (tous les lundis à 18h)
 export const sendNewGameAnnouncement = functions.scheduler.onSchedule(
     {

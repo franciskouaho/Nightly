@@ -21,6 +21,8 @@
         },
         "UIBackgroundModes": ["remote-notification"],
         "NSCameraUsageDescription": "Allow Nightly to access your camera to scan QR codes and join game rooms.",
+        "NSPhotoLibraryUsageDescription": "Allow Nightly to access your photo library to select a couple photo.",
+        "NSPhotoLibraryAddUsageDescription": "Allow Nightly to save photos to your photo library.",
         "NSLocationWhenInUseUsageDescription": "Allow Nightly to access your location to show the distance between you and your partner.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Allow Nightly to access your location to show the distance between you and your partner."
       },
@@ -41,6 +43,8 @@
         "VIBRATE",
         "WAKE_LOCK",
         "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "READ_MEDIA_IMAGES",
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION"
       ],
@@ -103,6 +107,12 @@
         "expo-location",
         {
           "locationAlwaysAndWhenInUsePermission": "Allow Nightly to access your location to show the distance between you and your partner."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Nightly to access your photos to select a couple photo."
         }
       ],
       "expo-font",

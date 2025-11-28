@@ -1,5 +1,11 @@
-import { initializeApp } from "firebase/app";
-import { doc, getFirestore, setDoc } from "firebase/firestore";
+import admin from "firebase-admin";
+import * as fs from "fs";
+import * as path from "path";
+import { fileURLToPath } from "url";
+
+// Get __dirname equivalent in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Import de toutes les questions par jeu
 import { wordGuessingQuestions } from "./questions/word-guessing-questions";
@@ -15,11 +21,14 @@ import { pileOuFaceQuestions } from "./questions/pile-ou-face-questions";
 import { dareOrStripQuestions } from "./questions/dare-or-strip-questions";
 import { blindtestGenerationsQuestions } from "./questions/blindtest-generations-questions";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCpkwiOl19wTGqD4YO0HEcTuqWyqaXnU5w",
-  authDomain: "nightly-efa29.firebaseapp.com",
-  projectId: "nightly-efa29",
-};
+// Load service account
+const serviceAccountPath = path.join(__dirname, "..", "nightly-efa29-firebase-adminsdk-fbsvc-ddf3409693.json");
+const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, "utf8"));
+
+// Initialize Firebase Admin
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
 
 // Toutes les questions de tous les jeux
 const allGamesQuestions = {
@@ -40,9 +49,7 @@ const allGamesQuestions = {
 // Upload de toutes les questions vers Firebase
 const uploadAllQuestionsToFirebase = async () => {
   try {
-    // Initialiser Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    const db = admin.firestore();
 
     console.log("🚀 Début de l'upload des questions de tous les jeux...\n");
 
@@ -58,18 +65,16 @@ const uploadAllQuestionsToFirebase = async () => {
         console.log(`📤 [${totalGames}/12] Upload des questions pour "${gameId}"...`);
 
         // Upload des questions
-        await setDoc(doc(db, "gameQuestions", gameId), {
+        await db.collection("gameQuestions").doc(gameId).set({
           translations: content.translations,
         });
 
         // Créer ou mettre à jour l'entrée dans la collection gameReleases
-        const gameRef = doc(db, "gameReleases", gameId);
-        await setDoc(
-          gameRef,
+        await db.collection("gameReleases").doc(gameId).set(
           {
             name: gameId,
             notified: false,
-            releaseDate: new Date(),
+            releaseDate: admin.firestore.Timestamp.now(),
             isActive: true,
           },
           { merge: true }

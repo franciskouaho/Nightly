@@ -14,6 +14,17 @@ service cloud.firestore {
       return request.auth != null && request.auth.uid == userId;
     }
 
+    // Fonction helper pour vérifier si l'utilisateur fait partie d'un couple
+    // Le coupleId est au format "userId1_userId2" (toujours trié alphabétiquement)
+    // Pour coupleChallenges, le format est "userId1_userId2_date"
+    // On vérifie que l'UID de l'utilisateur est présent dans le coupleId
+    function isCoupleMember(coupleId) {
+      return request.auth != null && 
+             (coupleId.matches('^' + request.auth.uid + '_.*') ||
+              coupleId.matches('.*_' + request.auth.uid + '$') ||
+              coupleId.matches('.*_' + request.auth.uid + '_.*'));
+    }
+
     // Règles pour les utilisateurs
     match /users/{userId} {
       allow read: if request.auth != null;
@@ -137,6 +148,32 @@ service cloud.firestore {
       allow read: if request.auth != null && (isOwner(userId) || isAdmin());
       allow write: if request.auth != null && isOwner(userId);
       allow delete: if isAdmin() || isOwner(userId);
+    }
+
+    // Règles pour les couples (streaks, données du couple)
+    match /couples/{coupleId} {
+      // Vérifier via le coupleId OU via le champ userIds dans le document
+      allow read: if request.auth != null && 
+             (isCoupleMember(coupleId) || 
+              (resource != null && request.auth.uid in resource.data.get('userIds', [])));
+      allow create: if request.auth != null && 
+             (isCoupleMember(coupleId) || 
+              (request.resource.data.userIds != null && request.auth.uid in request.resource.data.userIds));
+      allow update: if request.auth != null && 
+             (isCoupleMember(coupleId) || 
+              (resource != null && request.auth.uid in resource.data.get('userIds', [])));
+      allow delete: if request.auth != null && 
+             (isCoupleMember(coupleId) || 
+              (resource != null && request.auth.uid in resource.data.get('userIds', [])));
+    }
+
+    // Règles pour les défis quotidiens des couples
+    match /coupleChallenges/{challengeId} {
+      // Le challengeId est au format "coupleId_date" (ex: "userId1_userId2_2025-11-28")
+      allow read: if request.auth != null && isCoupleMember(challengeId);
+      allow create: if request.auth != null && isCoupleMember(challengeId);
+      allow update: if request.auth != null && isCoupleMember(challengeId);
+      allow delete: if request.auth != null && isCoupleMember(challengeId);
     }
 
     // Règles par défaut - Autoriser la lecture si connecté (temporaire)

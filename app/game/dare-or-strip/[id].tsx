@@ -31,10 +31,10 @@ interface DareOrStripGameState extends Omit<GameState, 'phase'> {
   gameMode: 'dare-or-strip';
 }
 
-// Couleurs du thème violet/rose
-const GRADIENT_START = '#6B46C1';
-const GRADIENT_END = '#F472B6';
-const ACCENT_COLOR = '#F472B6';
+// Couleurs sensuelles et glamour
+const GRADIENT_START = '#2D1B3D'; // Pourpre profond
+const GRADIENT_END = '#8B1A5C'; // Rose bordeaux profond
+const ACCENT_COLOR = '#D4AF37'; // Or rose
 const CARD_BG = 'rgba(255, 255, 255, 0.15)';
 
 // Composant carte de gage
@@ -51,28 +51,18 @@ const DareCard = ({
 }) => {
   return (
     <View style={styles.cardContainer}>
-      <LinearGradient
-        colors={[GRADIENT_START + '40', GRADIENT_END + '40']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={StyleSheet.absoluteFill}
-      />
+      {/* Header orange */}
       <View style={styles.cardHeader}>
-        <View style={styles.playerBadge}>
-          <Text style={styles.playerName}>{playerName}</Text>
-        </View>
-        <Text style={styles.dareLabel}>💋 GAGE</Text>
+        <Text style={styles.cardHeaderText}>Couple Questions</Text>
       </View>
-      <Text style={styles.cardQuestion}>{question}</Text>
-      <View style={styles.progressRow}>
-        <View style={styles.progressBarContainer}>
-          <View
-            style={[styles.progressBar, { width: `${(currentRound / totalRounds) * 100}%` }]}
-          />
+      {/* Corps rouge avec question */}
+      <View style={styles.cardBody}>
+        <Text style={styles.cardQuestion}>{question}</Text>
+        {/* Logo Nightly en bas */}
+        <View style={styles.nightlyBrand}>
+          <Text style={styles.nightlyIcon}>🌙</Text>
+          <Text style={styles.nightlyText}>Nightly</Text>
         </View>
-        <Text style={styles.cardProgress}>
-          {currentRound}/{totalRounds}
-        </Text>
       </View>
     </View>
   );
@@ -374,22 +364,27 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     marginBottom: 30,
-    marginTop: 20,
+    marginTop: 40,
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: 'white',
+    color: '#F5D7B3', // Or rose pâle
     textAlign: 'center',
     marginBottom: 8,
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
+    letterSpacing: 1,
+    textShadowColor: 'rgba(212, 175, 55, 0.6)',
+    textShadowOffset: { width: 0, height: 3 },
+    textShadowRadius: 6,
   },
   subtitle: {
     fontSize: 18,
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: '#F5D7B3', // Or rose pâle
     fontWeight: '600',
+    letterSpacing: 0.5,
+    textShadowColor: 'rgba(212, 175, 55, 0.4)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 3,
   },
   phaseContainer: {
     flex: 1,
@@ -397,15 +392,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cardContainer: {
-    backgroundColor: CARD_BG,
     borderRadius: 24,
-    padding: 30,
     width: '100%',
     maxWidth: 400,
     marginBottom: 30,
     overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,
@@ -413,64 +404,72 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
   cardHeader: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  playerBadge: {
-    backgroundColor: ACCENT_COLOR,
-    borderRadius: 20,
-    paddingVertical: 8,
+    backgroundColor: '#4A0E4E', // Pourpre profond sensuel
+    paddingVertical: 16,
     paddingHorizontal: 20,
-    marginBottom: 12,
+    alignItems: 'center',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    shadowColor: '#D4AF37',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
   },
-  playerName: {
-    color: 'white',
-    fontWeight: 'bold',
+  cardHeaderText: {
+    color: '#F5D7B3', // Or rose pâle
     fontSize: 20,
-  },
-  dareLabel: {
-    color: ACCENT_COLOR,
-    fontSize: 16,
-    fontWeight: '600',
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    fontWeight: 'bold',
+    letterSpacing: 1,
+    textShadowColor: 'rgba(212, 175, 55, 0.5)',
     textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    textShadowRadius: 3,
+  },
+  cardBody: {
+    backgroundColor: '#8B1A5C', // Rose bordeaux profond
+    padding: 30,
+    paddingBottom: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 200,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 8,
   },
   cardQuestion: {
-    fontSize: 22,
-    color: 'white',
+    fontSize: 24,
+    color: '#F5D7B3', // Or rose pâle
     textAlign: 'center',
+    fontWeight: 'bold',
+    lineHeight: 36,
     marginBottom: 20,
-    fontWeight: '600',
-    lineHeight: 32,
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    letterSpacing: 0.5,
+    textShadowColor: 'rgba(212, 175, 55, 0.6)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
-  progressRow: {
+  nightlyBrand: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: '100%',
-    marginTop: 8,
+    marginTop: 'auto',
+    paddingTop: 20,
   },
-  progressBarContainer: {
-    flex: 1,
-    height: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    borderRadius: 4,
-    marginRight: 12,
-    overflow: 'hidden',
-  },
-  progressBar: {
-    height: 8,
-    backgroundColor: ACCENT_COLOR,
-    borderRadius: 4,
-  },
-  cardProgress: {
-    color: 'white',
+  nightlyIcon: {
     fontSize: 16,
-    fontWeight: 'bold',
-    minWidth: 48,
+    marginRight: 6,
+  },
+  nightlyText: {
+    color: '#F5D7B3', // Or rose pâle
+    fontSize: 14,
+    fontWeight: '600',
+    letterSpacing: 0.5,
+    textShadowColor: 'rgba(212, 175, 55, 0.4)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   actionsContainer: {
     width: '100%',
@@ -478,39 +477,50 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   button: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(74, 14, 78, 0.6)', // Pourpre profond avec transparence
     borderRadius: 16,
     paddingVertical: 18,
     paddingHorizontal: 24,
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.4)',
+    borderColor: '#D4AF37', // Or rose
+    shadowColor: '#D4AF37',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+    elevation: 6,
   },
   dareButton: {
-    backgroundColor: 'rgba(76, 175, 80, 0.3)',
-    borderColor: '#4CAF50',
+    backgroundColor: 'rgba(139, 26, 92, 0.7)', // Rose bordeaux avec transparence
+    borderColor: '#F5D7B3', // Or rose pâle
   },
   stripButton: {
-    backgroundColor: 'rgba(244, 67, 54, 0.3)',
-    borderColor: '#F44336',
+    backgroundColor: 'rgba(74, 14, 78, 0.8)', // Pourpre profond avec transparence
+    borderColor: '#D4AF37', // Or rose
   },
   buttonText: {
-    color: 'white',
+    color: '#F5D7B3', // Or rose pâle
     fontSize: 18,
     fontWeight: 'bold',
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    letterSpacing: 0.5,
+    textShadowColor: 'rgba(212, 175, 55, 0.5)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 3,
   },
   jokerButton: {
-    backgroundColor: 'rgba(255, 193, 7, 0.3)',
+    backgroundColor: 'rgba(212, 175, 55, 0.3)', // Or rose avec transparence
     borderRadius: 16,
     paddingVertical: 12,
     paddingHorizontal: 24,
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#FFC107',
+    borderColor: '#D4AF37', // Or rose
     marginTop: 8,
+    shadowColor: '#D4AF37',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
   },
   jokerButtonDisabled: {
     backgroundColor: 'rgba(158, 158, 158, 0.3)',
@@ -518,22 +528,37 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   jokerText: {
-    color: 'white',
+    color: '#F5D7B3', // Or rose pâle
     fontSize: 16,
     fontWeight: '600',
+    letterSpacing: 0.5,
+    textShadowColor: 'rgba(212, 175, 55, 0.4)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   waitingContainer: {
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    backgroundColor: 'rgba(74, 14, 78, 0.7)', // Pourpre profond avec transparence
     borderRadius: 20,
     padding: 30,
     alignItems: 'center',
     marginTop: 20,
+    borderWidth: 2,
+    borderColor: '#D4AF37', // Or rose
+    shadowColor: '#D4AF37',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 6,
   },
   waitingText: {
-    color: 'white',
+    color: '#F5D7B3', // Or rose pâle
     fontSize: 18,
     fontWeight: '600',
     textAlign: 'center',
+    letterSpacing: 0.5,
+    textShadowColor: 'rgba(212, 175, 55, 0.5)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 3,
   },
 });
 

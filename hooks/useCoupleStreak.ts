@@ -89,12 +89,13 @@ export function useCoupleStreak(partnerId?: string): UseCoupleStreakReturn {
     const db = getFirestore();
     const coupleRef = doc(db, 'couples', coupleId);
 
-    const initialData: StreakData = {
+    const initialData: StreakData & { userIds: string[] } = {
       currentStreak: 0,
       longestStreak: 0,
       lastActivityDate: null,
       lastActivityTimestamp: null,
       weekActivity: [],
+      userIds: user?.uid && partnerId ? [user.uid, partnerId].sort() : [],
     };
 
     await setDoc(coupleRef, initialData);

@@ -1,4 +1,4 @@
-export const geniusOrLiarQuestions = 
+export const geniusOrLiarQuestions = {
     translations: {
       fr: [
         {
@@ -1795,5 +1795,4 @@ export const geniusOrLiarQuestions =
         },
       ],
     },
-  },
 };

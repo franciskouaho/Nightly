@@ -11,6 +11,7 @@ const es = {
     skip: "Omitir",
     loading: "Cargando...",
     free: "GRATIS",
+    lumicoins: "Lumicoins",
   },
 
   // Pantalla de idioma
@@ -1091,6 +1092,25 @@ const es = {
       codeCopied: "¡Código copiado!",
       codeCopiedMessage: "El código ha sido copiado al portapapeles.",
     },
+    currentStreak: "Racha actual",
+    joinedOn: "Parejas el",
+    daysTogether: "días juntos",
+    betweenUs: "entre nosotros",
+    widgets: "Widgets",
+    yourDaily: "Tu desafío diario",
+    history: "Historial",
+    activateGPS: "Activar GPS",
+    deactivateGPS: "Desactivar GPS",
+    activateGPSHint: "Activa el GPS para ver la distancia",
+    challengeCompleted: "¡Desafío completado! 🔥",
+    dailyChallenge: "Desafío del día",
+    respondToChallenge: "Responder al desafío",
+    waitingForPartner: "Esperando a tu pareja...",
+    noChallengeAvailable: "No hay desafío disponible hoy.",
+    dailyConnectionHelp: "Tu conexión diaria ayuda a que tu racha crezca y fortalece tu vínculo.",
+    loadingChallenge: "Cargando...",
+    days: "días",
+    day: "día",
   },
 
   // Login

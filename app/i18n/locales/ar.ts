@@ -11,6 +11,7 @@ const ar = {
     skip: "تخطي",
     loading: "جاري التحميل...",
     free: "مجاني",
+    lumicoins: "Lumicoins",
   },
 
   // شاشة اللغة
@@ -1091,6 +1092,25 @@ const ar = {
       codeCopied: "تم نسخ الرمز!",
       codeCopiedMessage: "تم نسخ الرمز إلى الحافظة.",
     },
+    currentStreak: "السلسلة الحالية",
+    joinedOn: "الأزواج في",
+    daysTogether: "أيام معاً",
+    betweenUs: "بيننا",
+    widgets: "الودجات",
+    yourDaily: "تحديك اليومي",
+    history: "السجل",
+    activateGPS: "تفعيل GPS",
+    deactivateGPS: "إلغاء تفعيل GPS",
+    activateGPSHint: "فعّل GPS لرؤية المسافة",
+    challengeCompleted: "تم إكمال التحدي! 🔥",
+    dailyChallenge: "تحدي اليوم",
+    respondToChallenge: "الرد على التحدي",
+    waitingForPartner: "في انتظار شريكك...",
+    noChallengeAvailable: "لا يوجد تحد متاح اليوم.",
+    dailyConnectionHelp: "اتصالك اليومي يساعد سلسلتك على النمو ويقوي رابطك.",
+    loadingChallenge: "جاري التحميل...",
+    days: "أيام",
+    day: "يوم",
   },
 
   // Login

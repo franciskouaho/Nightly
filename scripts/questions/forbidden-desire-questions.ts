@@ -1,4 +1,4 @@
-export const forbiddenDesireQuestions = 
+export const forbiddenDesireQuestions = {
     translations: {
       fr: [
         // SOFT 🔥 - Questions douces mais révélatrices
@@ -364,5 +364,4 @@ export const forbiddenDesireQuestions =
         },
       ],
     },
-  },
 };

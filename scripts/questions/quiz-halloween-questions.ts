@@ -1,4 +1,4 @@
-export const quizHalloweenQuestions = 
+export const quizHalloweenQuestions = {
     translations: {
       fr: [
         {
@@ -1036,5 +1036,4 @@ export const quizHalloweenQuestions =
         },
       ],
     },
-  },
 };

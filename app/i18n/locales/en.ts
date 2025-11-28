@@ -11,6 +11,7 @@ const en = {
     skip: "Skip",
     loading: "Loading...",
     free: "FREE",
+    lumicoins: "Lumicoins",
   },
 
   // Language screen
@@ -1181,6 +1182,25 @@ const en = {
       codeCopied: "Code copied!",
       codeCopiedMessage: "The code has been copied to your clipboard.",
     },
+    currentStreak: "Current streak",
+    joinedOn: "Couples on",
+    daysTogether: "days together",
+    betweenUs: "between us",
+    widgets: "Widgets",
+    yourDaily: "Your daily",
+    history: "History",
+    activateGPS: "Activate GPS",
+    deactivateGPS: "Deactivate GPS",
+    activateGPSHint: "Activate GPS to see the distance",
+    challengeCompleted: "Challenge completed! 🔥",
+    dailyChallenge: "Daily challenge",
+    respondToChallenge: "Respond to challenge",
+    waitingForPartner: "Waiting for your partner...",
+    noChallengeAvailable: "No challenge available today.",
+    dailyConnectionHelp: "Your daily connection helps your streak grow and strengthens your bond.",
+    loadingChallenge: "Loading...",
+    days: "days",
+    day: "day",
   },
 
   // Login

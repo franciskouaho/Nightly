@@ -1,4 +1,4 @@
-export const listenButDontJudgeQuestions = 
+export const listenButDontJudgeQuestions = {
     translations: {
       fr: [
         "Si {playerName} devait confesser un péché mignon, lequel serait-ce ?",
@@ -365,5 +365,4 @@ export const listenButDontJudgeQuestions =
         "ما هي أجمل درس علمته الحياة لـ {playerName}؟",
       ],
     },
-  },
 };

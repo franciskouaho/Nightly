@@ -3,27 +3,46 @@
 import Colors from "@/constants/Colors";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  Platform,
   ImageBackground,
   Modal,
   TextInput,
   Animated,
+  Platform,
+  Alert,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ChristmasSnow from "@/components/ChristmasSnow";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePaywall } from "@/contexts/PaywallContext";
 import { useTranslation } from "react-i18next";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs } from "@react-native-firebase/firestore";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, onSnapshot } from "@react-native-firebase/firestore";
+import functions from "@react-native-firebase/functions";
+import storage from "@react-native-firebase/storage";
 import Clipboard from "@react-native-clipboard/clipboard";
-import { Alert } from "react-native";
+
+// ImagePicker - rendre optionnel si le module n'est pas installé
+let ImagePicker: any = null;
+try {
+  ImagePicker = require('expo-image-picker');
+} catch (e) {
+  console.warn('expo-image-picker not available');
+}
+
+// DateTimePicker - rendre optionnel si le module n'est pas installé
+let DateTimePicker: any = null;
+try {
+  const dtp = require('@react-native-community/datetimepicker');
+  DateTimePicker = dtp.default || dtp;
+} catch (e) {
+  console.warn('DateTimePicker not available');
+}
 import { useCoupleLocation } from "@/hooks/useCoupleLocation";
 import { useCoupleStreak } from "@/hooks/useCoupleStreak";
 import { useDailyChallenge } from "@/hooks/useDailyChallenge";
@@ -36,6 +55,12 @@ import {
 } from "@/services/couplesAnalytics";
 import { WidgetService } from "@/services/widgetService";
 
+// Fonction helper pour générer l'ID du couple
+const getCoupleId = (userId1: string, userId2: string): string => {
+  const sorted = [userId1, userId2].sort();
+  return `${sorted[0]}_${sorted[1]}`;
+};
+
 export default function CouplesScreen() {
   const { user } = useAuth();
   const { showPaywallA, isProMember } = usePaywall();
@@ -46,11 +71,15 @@ export default function CouplesScreen() {
   const [coupleCode, setCoupleCode] = useState<string | null>(null);
   const [showCodeDrawer, setShowCodeDrawer] = useState(false);
   const [inputCode, setInputCode] = useState("");
+  const [codeDigits, setCodeDigits] = useState<string[]>(Array(6).fill(''));
+  const codeInputRefs = useRef<(TextInput | null)[]>([]);
   const [slideAnim] = useState(new Animated.Value(0));
   const [partnerData, setPartnerData] = useState<any>(null);
   const [coupleData, setCoupleData] = useState<any>(null);
   const [couplePhoto, setCouplePhoto] = useState<string | null>(null);
   const [partnerId, setPartnerId] = useState<string | null>(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [customJoinedDate, setCustomJoinedDate] = useState<Date | null>(null);
 
   // Hooks pour les nouvelles fonctionnalités
   const { 
@@ -80,64 +109,78 @@ export default function CouplesScreen() {
     userResponse, 
     partnerResponse,
     loading: challengeLoading,
-    skipChallenge 
-  } = useDailyChallenge(partnerId || undefined);
+    skipChallenge,
+    freeChallengesUsed,
+    freeChallengesRemaining,
+    canUseChallenge
+  } = useDailyChallenge(partnerId || undefined, isProMember);
 
-  // Vérifier si l'utilisateur a un partenaire connecté
+  // Vérifier si l'utilisateur a un partenaire connecté (avec listener en temps réel)
   useEffect(() => {
-    const checkPartner = async () => {
-      if (!user?.uid) {
-        setLoading(false);
-        return;
-      }
+    if (!user?.uid) {
+      setLoading(false);
+      return;
+    }
 
+    const db = getFirestore();
+    const userRef = doc(db, "users", user.uid);
+
+    // Fonction pour charger les données du partenaire
+    const loadPartnerData = async (partnerId: string) => {
       try {
-        const db = getFirestore();
-        const userRef = doc(db, "users", user.uid);
-        const userDoc = await getDoc(userRef);
+        setPartnerId(partnerId);
+        const partnerRef = doc(db, "users", partnerId);
+        const partnerDoc = await getDoc(partnerRef);
         
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          if (userData) {
-            // Vérifier si l'utilisateur a un partenaire (partnerId ou coupleCode)
-            const partnerId = userData.partnerId;
-            const code = userData.coupleCode;
+        if (partnerDoc.exists()) {
+          const partnerData = partnerDoc.data();
+          
+          if (partnerData) {
+            setHasPartner(true);
+            setPartnerData(partnerData);
             
-            if (partnerId || code) {
-              // Vérifier si le partenaire existe
-              if (partnerId) {
-                setPartnerId(partnerId); // Stocker le partnerId pour les hooks
-                const partnerRef = doc(db, "users", partnerId);
-                const partnerDoc = await getDoc(partnerRef);
-                if (partnerDoc.exists()) {
-                  const partnerData = partnerDoc.data();
-                  if (partnerData) {
-                    setHasPartner(true);
-                    setPartnerData(partnerData);
-                    // Récupérer la photo de couple (peut être dans userData ou partnerData)
-                    const photo = userData.couplePhoto || partnerData.couplePhoto || null;
-                    setCouplePhoto(photo);
-                    // Calculer les données du couple
-                    const userCreatedAt = new Date(userData.createdAt || new Date().toISOString());
-                    const partnerCreatedAt = new Date(partnerData.createdAt || new Date().toISOString());
-                    const coupleCreatedAt = userCreatedAt > partnerCreatedAt ? partnerCreatedAt : userCreatedAt;
-                    setCoupleData({
-                      joinedDate: coupleCreatedAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-                      daysTogether: Math.floor((new Date().getTime() - coupleCreatedAt.getTime()) / (1000 * 60 * 60 * 24)),
-                    });
-                  } else {
-                    setHasPartner(false);
-                  }
-                } else {
-                  setHasPartner(false);
-                }
+            // Récupérer les données de l'utilisateur pour calculer les dates
+            const userDoc = await getDoc(userRef);
+            const userData = userDoc.exists() ? userDoc.data() : null;
+            
+            // Récupérer la photo de couple
+            const photo = userData?.couplePhoto || partnerData.couplePhoto || null;
+            setCouplePhoto(photo);
+            
+            // Calculer les données du couple
+            // Vérifier s'il y a une date personnalisée dans le document couple
+            const coupleId = getCoupleId(user.uid, partnerId);
+            const coupleRef = doc(db, 'couples', coupleId);
+            const coupleDoc = await getDoc(coupleRef);
+            
+            let joinedDate: Date;
+            if (coupleDoc.exists()) {
+              const coupleDocData = coupleDoc.data();
+              // Si une date personnalisée existe, l'utiliser
+              if (coupleDocData?.customJoinedDate) {
+                joinedDate = new Date(coupleDocData.customJoinedDate);
+                setCustomJoinedDate(joinedDate);
               } else {
-                setHasPartner(false);
+                // Sinon, utiliser la date de création la plus ancienne
+                const userCreatedAt = new Date(userData?.createdAt || new Date().toISOString());
+                const partnerCreatedAt = new Date(partnerData.createdAt || new Date().toISOString());
+                joinedDate = userCreatedAt > partnerCreatedAt ? partnerCreatedAt : userCreatedAt;
+                setCustomJoinedDate(null);
               }
-              setCoupleCode(code || null);
             } else {
-              setHasPartner(false);
+              // Pas de document couple, utiliser la date de création la plus ancienne
+              const userCreatedAt = new Date(userData?.createdAt || new Date().toISOString());
+              const partnerCreatedAt = new Date(partnerData.createdAt || new Date().toISOString());
+              joinedDate = userCreatedAt > partnerCreatedAt ? partnerCreatedAt : userCreatedAt;
+              setCustomJoinedDate(null);
             }
+            
+            const daysTogether = Math.floor((new Date().getTime() - joinedDate.getTime()) / (1000 * 60 * 60 * 24));
+            
+            setCoupleData({
+              joinedDate: joinedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+              daysTogether: daysTogether,
+            });
           } else {
             setHasPartner(false);
           }
@@ -145,14 +188,173 @@ export default function CouplesScreen() {
           setHasPartner(false);
         }
       } catch (error) {
-        console.error("Erreur lors de la vérification du partenaire:", error);
+        console.error("Erreur lors du chargement du partenaire:", error);
         setHasPartner(false);
-      } finally {
+      }
+    };
+
+    // Vérification initiale IMMÉDIATE (avant le listener) pour éviter d'afficher la page d'invitation
+    const initialCheck = async () => {
+      try {
+        const userDoc = await getDoc(userRef);
+        
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          
+          if (userData) {
+            // Générer un code s'il n'existe pas
+            let code = userData.coupleCode;
+            if (!code) {
+              const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+              let generatedCode = "";
+              for (let i = 0; i < 6; i++) {
+                generatedCode += chars.charAt(Math.floor(Math.random() * chars.length));
+              }
+              code = generatedCode;
+              await updateDoc(userRef, { coupleCode: code });
+            }
+            setCoupleCode(code || null);
+
+            // Vérifier immédiatement si l'utilisateur a un partenaire
+            const partnerId = userData.partnerId;
+            
+            if (partnerId) {
+              await loadPartnerData(partnerId);
+              setLoading(false);
+            } else {
+              // Vérification alternative : chercher si quelqu'un a ce code comme partenaire
+              // ou vérifier dans la collection couples si on a un document avec notre UID
+              try {
+                // D'abord, chercher dans les utilisateurs
+                const usersRef = collection(db, "users");
+                const q = query(usersRef, where("coupleCode", "==", code));
+                const querySnapshot = await getDocs(q);
+                
+                let partnerFound = false;
+                querySnapshot.forEach((docSnap) => {
+                  const otherUserData = docSnap.data();
+                  
+                  // Si cet utilisateur a notre UID comme partnerId, alors nous sommes connectés
+                  if (otherUserData.partnerId === user.uid && docSnap.id !== user.uid) {
+                    setPartnerId(docSnap.id);
+                    loadPartnerData(docSnap.id).then(() => {
+                      setLoading(false);
+                    });
+                    partnerFound = true;
+                    return;
+                  }
+                });
+                
+                // Si pas trouvé, vérifier dans la collection couples
+                if (!partnerFound) {
+                  const couplesRef = collection(db, "couples");
+                  const couplesQuery = query(couplesRef);
+                  const couplesSnapshot = await getDocs(couplesQuery);
+                  
+                  couplesSnapshot.forEach((coupleDoc) => {
+                    const coupleData = coupleDoc.data();
+                    const userIds = coupleData.userIds || [];
+                    
+                    // Si ce document contient notre UID, trouver l'autre UID
+                    if (userIds.includes(user.uid) && userIds.length === 2) {
+                      const otherUserId = userIds.find((id: string) => id !== user.uid);
+                      if (otherUserId) {
+                        // Mettre à jour notre document utilisateur avec le partnerId
+                        updateDoc(userRef, { partnerId: otherUserId }).then(() => {
+                          setPartnerId(otherUserId);
+                          loadPartnerData(otherUserId).then(() => {
+                            setLoading(false);
+                          });
+                        }).catch((err) => {
+                          console.error("Erreur lors de la mise à jour:", err);
+                          // Charger quand même les données du partenaire
+                          setPartnerId(otherUserId);
+                          loadPartnerData(otherUserId).then(() => {
+                            setLoading(false);
+                          });
+                        });
+                        partnerFound = true;
+                        return;
+                      }
+                    }
+                  });
+                }
+                
+                // Si on arrive ici, pas de partenaire trouvé
+                if (!partnerFound) {
+                  setHasPartner(false);
+                  setLoading(false);
+                }
+              } catch (error) {
+                console.error("Erreur lors de la vérification alternative:", error);
+                setHasPartner(false);
+                setLoading(false);
+              }
+            }
+          } else {
+            setHasPartner(false);
+            setLoading(false);
+          }
+        } else {
+          setHasPartner(false);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error("Erreur lors de la vérification initiale:", error);
+        setHasPartner(false);
         setLoading(false);
       }
     };
 
-    checkPartner();
+    // Faire la vérification initiale
+    initialCheck();
+
+    // Ensuite, écouter les changements en temps réel sur le document utilisateur
+    const unsubscribe = onSnapshot(
+      userRef,
+      async (userDoc) => {
+        try {
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            if (userData) {
+              // Générer un code s'il n'existe pas
+              let code = userData.coupleCode;
+              if (!code) {
+                const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+                let generatedCode = "";
+                for (let i = 0; i < 6; i++) {
+                  generatedCode += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                code = generatedCode;
+                await updateDoc(userRef, { coupleCode: code });
+              }
+              setCoupleCode(code || null);
+
+              // Vérifier si l'utilisateur a un partenaire
+              const partnerId = userData.partnerId;
+              if (partnerId) {
+                await loadPartnerData(partnerId);
+              } else {
+                setHasPartner(false);
+                setPartnerId(null);
+              }
+            } else {
+              setHasPartner(false);
+            }
+          } else {
+            setHasPartner(false);
+          }
+        } catch (error) {
+          console.error("Erreur lors de la vérification du partenaire:", error);
+          setHasPartner(false);
+        }
+      },
+      (error) => {
+        console.error("Erreur lors de l'écoute du document utilisateur:", error);
+      }
+    );
+
+    return () => unsubscribe();
   }, [user?.uid]);
 
   // Track l'écran et vérifier le streak au montage
@@ -222,7 +424,6 @@ export default function CouplesScreen() {
 
   const handleResendCode = async () => {
     // TODO: Implémenter la logique pour renvoyer le code
-    console.log("Resend code");
   };
 
   const handleCopyCode = async () => {
@@ -259,11 +460,70 @@ export default function CouplesScreen() {
     }).start(() => {
       setShowCodeDrawer(false);
       setInputCode("");
+      setCodeDigits(Array(6).fill(''));
+      codeInputRefs.current.forEach((ref) => ref?.blur());
     });
   };
 
+  const handleCodeDigitChange = (value: string, index: number) => {
+    // Ne garder que les lettres et chiffres, convertir en majuscules
+    const alphanumeric = value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    
+    // Si plusieurs caractères sont collés (paste détecté)
+    if (alphanumeric.length > 1) {
+      // Vider immédiatement le champ source
+      if (codeInputRefs.current[index]) {
+        codeInputRefs.current[index].setNativeProps({ text: '' });
+      }
+      // Distribuer les caractères dans les champs appropriés
+      const newDigits = Array(6).fill('');
+      for (let i = 0; i < Math.min(alphanumeric.length, 6); i++) {
+        if (index + i < 6) {
+          newDigits[index + i] = alphanumeric[i];
+        }
+      }
+      setCodeDigits(newDigits);
+      setInputCode(newDigits.join(''));
+      
+      // Focus sur le dernier champ rempli ou le premier vide
+      const lastFilledIndex = Math.min(index + alphanumeric.length - 1, 5);
+      const nextEmptyIndex = lastFilledIndex + 1;
+      if (nextEmptyIndex < 6) {
+        setTimeout(() => {
+          codeInputRefs.current[nextEmptyIndex]?.focus();
+        }, 50);
+      } else {
+        codeInputRefs.current.forEach((ref) => ref?.blur());
+      }
+      return;
+    }
+    
+    // Comportement normal : un seul caractère
+    const char = alphanumeric.slice(0, 1);
+    const newDigits = [...codeDigits];
+    newDigits[index] = char;
+    setCodeDigits(newDigits);
+    
+    // Mettre à jour le code complet
+    const fullCode = newDigits.join('');
+    setInputCode(fullCode);
+    
+    // Passer au champ suivant si un caractère a été saisi
+    if (char && index < 5) {
+      codeInputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleCodeKeyPress = (key: string, index: number) => {
+    // Gérer la suppression : si Backspace et champ vide, aller au précédent
+    if (key === 'Backspace' && !codeDigits[index] && index > 0) {
+      codeInputRefs.current[index - 1]?.focus();
+    }
+  };
+
   const handleSubmitCode = async () => {
-    if (!inputCode.trim() || inputCode.trim().length < 6) {
+    const fullCode = codeDigits.join('');
+    if (!fullCode.trim() || fullCode.trim().length < 6) {
       Alert.alert(t("errors.general"), "Le code doit contenir au moins 6 caractères");
       return;
     }
@@ -274,9 +534,8 @@ export default function CouplesScreen() {
     }
 
     try {
-      const db = getFirestore();
       // Nettoyer le code (garder uniquement les lettres majuscules et chiffres)
-      const cleanCode = inputCode.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+      const cleanCode = fullCode.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
       
       if (cleanCode.length < 6) {
         Alert.alert(t("errors.general"), "Le code doit contenir au moins 6 caractères (lettres et chiffres)");
@@ -290,97 +549,287 @@ export default function CouplesScreen() {
         return;
       }
 
-      // Chercher l'utilisateur avec ce code
-      const usersRef = collection(db, "users");
-      const q = query(usersRef, where("coupleCode", "==", cleanCode));
-      const querySnapshot = await getDocs(q);
-
-      if (querySnapshot.empty) {
-        await trackCoupleConnectionFailed("invalid_code");
-        Alert.alert(t("errors.general"), "Code invalide. Vérifiez le code et réessayez.");
-        return;
-      }
-
-      const partnerDoc = querySnapshot.docs[0];
-      if (!partnerDoc) {
-        await trackCoupleConnectionFailed("partner_not_found");
-        Alert.alert(t("errors.general"), "Code invalide. Vérifiez le code et réessayez.");
-        return;
-      }
+      // Appeler la Cloud Function pour connecter le couple
+      const connectCoupleFn = functions().httpsCallable("connectCouple");
+      const result = await connectCoupleFn({ partnerCode: cleanCode });
       
-      const partnerId = partnerDoc.id;
-      const partnerData = partnerDoc.data();
+      const resultData = result.data as any;
       
-      if (!partnerData) {
-        Alert.alert(t("errors.general"), "Impossible de récupérer les données du partenaire");
-        return;
-      }
+      if (resultData.success) {
+        // Mettre à jour l'état local avec les données retournées
+        setHasPartner(true);
+        setPartnerId(resultData.partnerId);
+        setPartnerData(resultData.partnerData);
+        
+        // Récupérer les données complètes du couple depuis Firebase
+        const db = getFirestore();
+        const userRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userRef);
+        const currentUserData = userDoc.exists() ? userDoc.data() : null;
+        
+        // Récupérer la photo de couple
+        const photo = currentUserData?.couplePhoto || resultData.partnerData.couplePhoto || null;
+        setCouplePhoto(photo);
+        
+        // Calculer les données du couple
+        const userCreatedAt = new Date(currentUserData?.createdAt || new Date().toISOString());
+        const partnerCreatedAt = new Date(resultData.partnerData.createdAt || new Date().toISOString());
+        const coupleCreatedAt = userCreatedAt > partnerCreatedAt ? partnerCreatedAt : userCreatedAt;
+        setCoupleData({
+          joinedDate: coupleCreatedAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+          daysTogether: Math.floor((new Date().getTime() - coupleCreatedAt.getTime()) / (1000 * 60 * 60 * 24)),
+        });
 
-      // Vérifier que le partenaire n'a pas déjà un partenaire
-      if (partnerData.partnerId && partnerData.partnerId !== user.uid) {
-        await trackCoupleConnectionFailed("partner_already_connected");
-        Alert.alert(t("errors.general"), "Ce code est déjà utilisé par un autre couple");
+        await trackCoupleConnected(cleanCode, resultData.partnerId);
+        
+        Alert.alert(
+          "Partenaire connecté !",
+          resultData.message || `Vous êtes maintenant connecté avec ${resultData.partnerData.pseudo || "votre partenaire"}`
+        );
+
         handleCloseDrawer();
-        return;
+      } else {
+        throw new Error(resultData.message || "Erreur lors de la connexion");
       }
-
-      // Vérifier que l'utilisateur n'a pas déjà un partenaire
-      const userRef = doc(db, "users", user.uid);
-      const userDoc = await getDoc(userRef);
-      const userData = userDoc.exists() ? userDoc.data() : null;
-      if (userData && userData.partnerId) {
-        await trackCoupleConnectionFailed("user_already_connected");
-        Alert.alert(t("errors.general"), "Vous avez déjà un partenaire connecté");
-        handleCloseDrawer();
-        return;
-      }
-
-      // Connecter les deux utilisateurs
-      const partnerRef = doc(db, "users", partnerId);
-      
-      // Mettre à jour les deux documents
-      await updateDoc(userRef, { partnerId: partnerId });
-      await updateDoc(partnerRef, { partnerId: user.uid });
-
-      // Mettre à jour l'état local
-      setHasPartner(true);
-      setPartnerData(partnerData);
-      
-      // Récupérer la photo de couple (peut être dans userData ou partnerData)
-      const currentUserData = userDoc.exists() ? userDoc.data() : null;
-      const photo = currentUserData?.couplePhoto || partnerData.couplePhoto || null;
-      setCouplePhoto(photo);
-      
-      // Calculer les données du couple
-      const userCreatedAt = new Date(currentUserData?.createdAt || new Date().toISOString());
-      const partnerCreatedAt = new Date(partnerData.createdAt || new Date().toISOString());
-      const coupleCreatedAt = userCreatedAt > partnerCreatedAt ? partnerCreatedAt : userCreatedAt;
-      setCoupleData({
-        joinedDate: coupleCreatedAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-        daysTogether: Math.floor((new Date().getTime() - coupleCreatedAt.getTime()) / (1000 * 60 * 60 * 24)),
-      });
-
-      Alert.alert(
-        "Partenaire connecté !",
-        `Vous êtes maintenant connecté avec ${partnerData.pseudo || "votre partenaire"}`
-      );
-
-      handleCloseDrawer();
     } catch (error: any) {
       console.error("Erreur lors de la connexion du partenaire:", error);
-      Alert.alert(t("errors.general"), error.message || "Une erreur est survenue");
+      
+      // Gérer les erreurs spécifiques de la Cloud Function
+      let errorMessage = "Une erreur est survenue";
+      
+      if (error?.code === "not-found") {
+        errorMessage = "Code invalide. Vérifiez le code et réessayez.";
+        await trackCoupleConnectionFailed("invalid_code");
+      } else if (error?.code === "failed-precondition") {
+        errorMessage = error.message || "Ce code est déjà utilisé ou vous avez déjà un partenaire";
+        await trackCoupleConnectionFailed("partner_already_connected");
+      } else if (error?.code === "invalid-argument") {
+        errorMessage = error.message || "Code invalide";
+        await trackCoupleConnectionFailed("invalid_code");
+      } else {
+        await trackCoupleConnectionFailed("unknown_error");
+      }
+      
+      Alert.alert(t("errors.general"), errorMessage);
     }
   };
 
+  // Gérer le changement de date dans le datePicker
+  const onDateChange = (event: any, selectedDate?: Date) => {
+    if (Platform.OS === 'android') {
+      setShowDatePicker(false);
+    }
+    if (selectedDate) {
+      setCustomJoinedDate(selectedDate);
+    }
+  };
+
+  // Sauvegarder la date personnalisée de mise en couple
+  const handleSaveJoinedDate = async (date: Date) => {
+    if (!user?.uid || !partnerId) {
+      Alert.alert(t("errors.general"), "Impossible de sauvegarder la date");
+      return;
+    }
+
+    try {
+      const db = getFirestore();
+      const coupleId = getCoupleId(user.uid, partnerId);
+      const coupleRef = doc(db, 'couples', coupleId);
+      
+      // Créer ou mettre à jour le document couple avec la date personnalisée
+      await setDoc(coupleRef, {
+        customJoinedDate: date.toISOString(),
+      }, { merge: true });
+
+      // Mettre à jour l'état local
+      const daysTogether = Math.floor((new Date().getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+      setCoupleData({
+        joinedDate: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        daysTogether: daysTogether,
+      });
+
+      setShowDatePicker(false);
+      Alert.alert("Succès", "La date de mise en couple a été mise à jour");
+    } catch (error) {
+      console.error("Erreur lors de la sauvegarde de la date:", error);
+      Alert.alert(t("errors.general"), "Erreur lors de la sauvegarde de la date");
+    }
+  };
+
+  // Sélectionner et uploader une photo de couple
+  const handlePickImage = async () => {
+    if (!ImagePicker) {
+      Alert.alert(t("errors.general"), "La sélection d'image n'est pas disponible");
+      return;
+    }
+
+    if (!user?.uid || !partnerId) {
+      Alert.alert(t("errors.general"), "Vous devez être connecté avec un partenaire");
+      return;
+    }
+
+    try {
+      // Demander la permission d'accéder à la galerie
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert(
+          "Permission requise",
+          "L'accès à la galerie est nécessaire pour sélectionner une photo."
+        );
+        return;
+      }
+
+      // Ouvrir le sélecteur d'image
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [16, 9],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        const imageUri = result.assets[0].uri;
+        await handleUploadImage(imageUri);
+      }
+    } catch (error) {
+      console.error("Erreur lors de la sélection de l'image:", error);
+      Alert.alert(t("errors.general"), "Erreur lors de la sélection de l'image");
+    }
+  };
+
+  // Uploader l'image vers Firebase Storage
+  const handleUploadImage = async (imageUri: string) => {
+    if (!user?.uid || !partnerId) {
+      return;
+    }
+
+    try {
+      // Créer une référence dans Firebase Storage
+      const coupleId = getCoupleId(user.uid, partnerId);
+      const filename = `couple_${coupleId}_${Date.now()}.jpg`;
+      const storageRef = storage().ref(`couple-photos/${coupleId}/${filename}`);
+
+      // Uploader l'image en utilisant putFile pour React Native
+      const uploadTask = storageRef.putFile(imageUri);
+      
+      uploadTask.on('state_changed', 
+        (snapshot) => {
+          // Vous pouvez ajouter une barre de progression ici si nécessaire
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log(`Upload progress: ${progress}%`);
+        },
+        (error) => {
+          console.error("Erreur lors de l'upload:", error);
+          Alert.alert(t("errors.general"), "Erreur lors de l'upload de l'image");
+        },
+        async () => {
+          try {
+            // Upload terminé, récupérer l'URL de téléchargement
+            const downloadURL = await storageRef.getDownloadURL();
+            
+            // Mettre à jour les documents Firestore pour les deux utilisateurs
+            const db = getFirestore();
+            const userRef = doc(db, "users", user.uid);
+            const partnerRef = doc(db, "users", partnerId);
+            
+            await Promise.all([
+              updateDoc(userRef, { couplePhoto: downloadURL }),
+              updateDoc(partnerRef, { couplePhoto: downloadURL })
+            ]);
+
+            // Mettre à jour l'état local
+            setCouplePhoto(downloadURL);
+            
+            Alert.alert("Succès", "La photo de couple a été mise à jour");
+          } catch (error) {
+            console.error("Erreur lors de la mise à jour:", error);
+            Alert.alert(t("errors.general"), "Erreur lors de la mise à jour de la photo");
+          }
+        }
+      );
+    } catch (error) {
+      console.error("Erreur lors de l'upload de l'image:", error);
+      Alert.alert(t("errors.general"), "Erreur lors de l'upload de l'image");
+    }
+  };
+
+  // Séparer le couple
+  const handleBreakCouple = () => {
+    Alert.alert(
+      "Séparer le couple",
+      "Êtes-vous sûr de vouloir séparer le couple ? Cette action est irréversible.",
+      [
+        {
+          text: "Annuler",
+          style: "cancel"
+        },
+        {
+          text: "Séparer",
+          style: "destructive",
+          onPress: async () => {
+            if (!user?.uid || !partnerId) {
+              Alert.alert(t("errors.general"), "Impossible de séparer le couple");
+              return;
+            }
+
+            try {
+              const db = getFirestore();
+              const userRef = doc(db, "users", user.uid);
+              const partnerRef = doc(db, "users", partnerId);
+
+              // Supprimer le partnerId des deux utilisateurs
+              await Promise.all([
+                updateDoc(userRef, { partnerId: null }),
+                updateDoc(partnerRef, { partnerId: null })
+              ]);
+
+              // Supprimer aussi la photo de couple si elle existe
+              await Promise.all([
+                updateDoc(userRef, { couplePhoto: null }),
+                updateDoc(partnerRef, { couplePhoto: null })
+              ]);
+
+              // Réinitialiser les états locaux
+              setHasPartner(false);
+              setPartnerId(null);
+              setPartnerData(null);
+              setCouplePhoto(null);
+              setCoupleData(null);
+              setCustomJoinedDate(null);
+
+              Alert.alert("Couple séparé", "Le couple a été séparé avec succès");
+            } catch (error) {
+              console.error("Erreur lors de la séparation du couple:", error);
+              Alert.alert(t("errors.general"), "Erreur lors de la séparation du couple");
+            }
+          }
+        }
+      ]
+    );
+  };
+
   // Données réelles du couple
-  const partnerName = partnerData?.pseudo?.toUpperCase() || "";
-  const userName = user?.pseudo?.toUpperCase() || "FRANCISCO";
-  const coupleName = partnerName ? `${userName} & ${partnerName}` : userName;
+  const partnerName = partnerData?.pseudo || "";
+  const userName = user?.pseudo || "";
+  const coupleName = partnerName && userName 
+    ? `${userName.toUpperCase()} & ${partnerName.toUpperCase()}` 
+    : userName ? userName.toUpperCase() : "COUPLE";
   const joinedDate = coupleData?.joinedDate || new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   const daysTogether = coupleData?.daysTogether || 0;
   
   // Formater la distance pour l'affichage
-  const displayDistance = distance || (distanceKm !== null ? `${Math.round(distanceKm)}km` : null) || "N/A";
+  let displayDistance = "N/A";
+  if (distance) {
+    displayDistance = distance;
+  } else if (distanceKm !== null && distanceKm !== undefined) {
+    if (distanceKm < 1) {
+      displayDistance = `${Math.round(distanceKm * 1000)}m`;
+    } else if (distanceKm < 100) {
+      displayDistance = `${distanceKm.toFixed(1)}km`;
+    } else {
+      displayDistance = `${Math.round(distanceKm)}km`;
+    }
+  }
 
   // Si le partenaire n'est pas connecté, afficher la page d'invitation
   if (!loading && !hasPartner) {
@@ -512,23 +961,28 @@ export default function CouplesScreen() {
                   {t("couples.partnerNotConnected.enterCodeSubtitle")}
                 </Text>
 
-                {/* Code Input */}
+                {/* Code Input - 6 champs séparés comme dans la home */}
                 <View style={styles.codeInputContainer}>
-                  <TextInput
-                    style={styles.codeInput}
-                    value={inputCode}
-                    onChangeText={(text) => {
-                      // Ne garder que les lettres et chiffres, convertir en majuscules
-                      const alphanumeric = text.toUpperCase().replace(/[^A-Z0-9]/g, '');
-                      setInputCode(alphanumeric);
-                    }}
-                    placeholder={t("couples.partnerNotConnected.codePlaceholder")}
-                    placeholderTextColor="rgba(255, 255, 255, 0.5)"
-                    keyboardType="default"
-                    autoCapitalize="characters"
-                    maxLength={20}
-                    autoFocus
-                  />
+                  {[0, 1, 2, 3, 4, 5].map((index) => (
+                    <TextInput
+                      key={index}
+                      ref={(ref) => {
+                        codeInputRefs.current[index] = ref;
+                      }}
+                      style={[
+                        styles.codeDigitInput,
+                        codeDigits[index] && styles.codeDigitInputFilled,
+                      ]}
+                      value={codeDigits[index]}
+                      onChangeText={(value) => handleCodeDigitChange(value, index)}
+                      onKeyPress={({ nativeEvent }) => handleCodeKeyPress(nativeEvent.key, index)}
+                      keyboardType="default"
+                      autoCapitalize="characters"
+                      maxLength={index === 0 ? 6 : 1}
+                      selectTextOnFocus
+                      autoFocus={index === 0 && showCodeDrawer}
+                    />
+                  ))}
                 </View>
 
                 {/* Buttons */}
@@ -546,15 +1000,15 @@ export default function CouplesScreen() {
                   <TouchableOpacity
                     style={[
                       styles.drawerSubmitButton,
-                      inputCode.trim().length < 6 && styles.drawerSubmitButtonDisabled,
+                      codeDigits.join('').trim().length < 6 && styles.drawerSubmitButtonDisabled,
                     ]}
                     onPress={handleSubmitCode}
                     activeOpacity={0.8}
-                    disabled={inputCode.trim().length < 6}
+                    disabled={codeDigits.join('').trim().length < 6}
                   >
                     <LinearGradient
                       colors={
-                        inputCode.trim().length >= 6
+                        codeDigits.join('').trim().length >= 6
                           ? ["#C41E3A", "#8B1538"]
                           : ["#555", "#333"]
                       }
@@ -612,9 +1066,22 @@ export default function CouplesScreen() {
             />
 
             <View style={[styles.headerTopActions, { top: insets.top + 10 }]}>
-              <TouchableOpacity style={styles.addImageButton}>
-                <MaterialCommunityIcons name="image-plus" size={24} color="white" />
-              </TouchableOpacity>
+              <View style={styles.headerActionsRow}>
+                <TouchableOpacity 
+                  style={styles.breakCoupleButton}
+                  onPress={handleBreakCouple}
+                  activeOpacity={0.7}
+                >
+                  <MaterialCommunityIcons name="heart-broken" size={24} color="#FF6B6B" />
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={styles.addImageButton}
+                  onPress={handlePickImage}
+                  activeOpacity={0.7}
+                >
+                  <MaterialCommunityIcons name="image-plus" size={24} color="white" />
+                </TouchableOpacity>
+              </View>
             </View>
 
             <View style={styles.namesContainer}>
@@ -623,38 +1090,42 @@ export default function CouplesScreen() {
 
             <View style={styles.statsContainer}>
               <View style={styles.statItem}>
-                <MaterialCommunityIcons name="fire" size={24} color="#FFB6C1" />
+                <MaterialCommunityIcons name="fire" size={26} color="#FFD4E5" />
                 <View style={styles.statTextColumn}>
-                  <Text style={styles.statLabel}>current streak</Text>
+                  <Text style={styles.statLabel}>{t("couples.currentStreak")}</Text>
                   <Text style={styles.statValue}>
-                    {streakLoading ? "..." : `${currentStreak} days`}
+                    {streakLoading ? "..." : `${currentStreak} ${currentStreak === 1 ? t("couples.day") : t("couples.days")}`}
                   </Text>
                 </View>
               </View>
-              <View style={styles.statItem}>
-                <Ionicons name="calendar" size={24} color="#FFB6C1" />
+              <TouchableOpacity 
+                style={styles.statItem}
+                onPress={() => setShowDatePicker(true)}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="calendar" size={26} color="#FFD4E5" />
                 <View style={styles.statTextColumn}>
-                  <Text style={styles.statLabel}>joined on</Text>
+                  <Text style={styles.statLabel}>{t("couples.joinedOn")}</Text>
                   <Text style={styles.statValue}>{joinedDate}</Text>
                 </View>
-              </View>
+              </TouchableOpacity>
             </View>
           </ImageBackground>
 
           <View style={styles.contentContainer}>
 
             {/* Widgets */}
-            <Text style={styles.sectionTitle}>Widgets</Text>
+            <Text style={styles.sectionTitle}>{t("couples.widgets")}</Text>
             <View style={styles.widgetsContainer}>
               {/* Days Together */}
               <View style={[styles.widgetCard, styles.leftWidget]}>
                 <View style={styles.daysWidgetContent}>
                   <View style={styles.heartsIconContainer}>
-                    <Ionicons name="heart" size={38} color="#FFB6C1" style={styles.heartIconMain} />
-                    <Ionicons name="heart" size={28} color="#FFB6C1" style={styles.heartIconSecondary} />
+                    <Ionicons name="heart" size={40} color="#FFD4E5" style={styles.heartIconMain} />
+                    <Ionicons name="heart" size={30} color="#FFD4E5" style={styles.heartIconSecondary} />
                   </View>
                   <Text style={styles.daysCount}>{daysTogether}</Text>
-                  <Text style={styles.daysLabel}>days{"\n"}together</Text>
+                  <Text style={styles.daysLabel}>{t("couples.daysTogether")}</Text>
                 </View>
               </View>
 
@@ -663,24 +1134,30 @@ export default function CouplesScreen() {
                 <View style={styles.distanceWidgetContent}>
                   <View style={styles.distanceVisual}>
                     <View style={styles.avatarCircle}>
-                      <Text style={styles.avatarText}>{userName.charAt(0)}</Text>
+                      <Text style={styles.avatarText}>
+                        {userName ? userName.charAt(0).toUpperCase() : "?"}
+                      </Text>
                     </View>
                     <View style={styles.distanceLine} />
                     <View style={styles.centerIcon}>
-                      <Ionicons name="person" size={16} color="#FFB6C1" />
-                      <Ionicons name="heart" size={10} color="#FFB6C1" style={styles.smallHeartIcon} />
+                      <Ionicons name="heart" size={14} color="#FFD4E5" />
                     </View>
                     <View style={styles.distanceLine} />
                     <View style={styles.avatarCircle}>
-                      <Text style={styles.avatarText}>{partnerName.charAt(0)}</Text>
+                      <Text style={styles.avatarText}>
+                        {partnerName ? partnerName.charAt(0).toUpperCase() : "?"}
+                      </Text>
                     </View>
                   </View>
                   <Text style={styles.distanceText}>
-                    {locationLoading ? "..." : displayDistance}
+                    {locationLoading ? "..." : (displayDistance === "N/A" ? "—" : displayDistance)}
                   </Text>
-                  <Text style={styles.distanceLabel}>between us</Text>
+                  <Text style={styles.distanceLabel}>{t("couples.betweenUs")}</Text>
                   {locationError && (
                     <Text style={styles.errorText}>{locationError}</Text>
+                  )}
+                  {!isLocationSharingEnabled && !locationLoading && displayDistance === "N/A" && (
+                    <Text style={styles.distanceHint}>{t("couples.activateGPSHint")}</Text>
                   )}
                 </View>
 
@@ -707,30 +1184,30 @@ export default function CouplesScreen() {
                   }}
                 >
                   <Text style={styles.addWidgetText}>
-                    {isLocationSharingEnabled ? "Désactiver GPS" : "Activer GPS"}
+                    {isLocationSharingEnabled ? t("couples.deactivateGPS") : t("couples.activateGPS")}
                   </Text>
                   <Ionicons 
                     name={isLocationSharingEnabled ? "location" : "location-outline"} 
-                    size={16} 
-                    color="#FFB6C1" 
+                    size={18} 
+                    color="#FFD4E5" 
                   />
                 </TouchableOpacity>
               </View>
             </View>
             {/* Your Daily */}
-            <Text style={styles.sectionTitle}>Your daily</Text>
+            <Text style={styles.sectionTitle}>{t("couples.yourDaily")}</Text>
             <View style={styles.dailyCard}>
               {challengeLoading ? (
-                <Text style={styles.dailySubtitle}>Chargement...</Text>
+                <Text style={styles.dailySubtitle}>{t("couples.loadingChallenge")}</Text>
               ) : todayChallenge ? (
                 <>
                   <View style={styles.dailyHeader}>
                     <View style={styles.dailyFlamesContainer}>
-                      <MaterialCommunityIcons name="fire" size={32} color="#8B1538" style={{ opacity: 0.6 }} />
-                      <MaterialCommunityIcons name="fire" size={32} color="#8B1538" style={{ opacity: 0.6 }} />
+                      <MaterialCommunityIcons name="fire" size={36} color="#FFD4E5" style={{ opacity: 0.9 }} />
+                      <MaterialCommunityIcons name="fire" size={36} color="#FFD4E5" style={{ opacity: 0.9 }} />
                     </View>
                     <Text style={styles.dailyTitle}>
-                      {hasCompletedToday ? "Challenge complété ! 🔥" : "Défi du jour"}
+                      {hasCompletedToday ? t("couples.challengeCompleted") : t("couples.dailyChallenge")}
                     </Text>
                     <Text style={styles.dailySubtitle}>
                       {todayChallenge.question}
@@ -753,49 +1230,67 @@ export default function CouplesScreen() {
                     )}
                   </View>
                   {!hasCompletedToday && (
-                    <TouchableOpacity 
-                      style={styles.discoverButton} 
-                      activeOpacity={0.8}
-                      onPress={async () => {
-                        if (!userResponse) {
-                          Alert.prompt(
-                            "Votre réponse",
-                            todayChallenge.question,
-                            [
-                              { text: "Annuler", style: "cancel" },
-                              {
-                                text: "Envoyer",
-                                onPress: async (response) => {
-                                  if (response && response.trim()) {
-                                    await submitResponse(response.trim());
-                                    // Enregistrer l'activité pour le streak
-                                    await recordActivity();
-                                  }
+                    <>
+                      {!isProMember && (
+                        <Text style={styles.freeChallengesRemaining}>
+                          {freeChallengesRemaining > 0 
+                            ? `${freeChallengesRemaining} défi${freeChallengesRemaining > 1 ? 's' : ''} gratuit${freeChallengesRemaining > 1 ? 's' : ''} restant${freeChallengesRemaining > 1 ? 's' : ''}`
+                            : "Limite de défis gratuits atteinte"}
+                        </Text>
+                      )}
+                      <TouchableOpacity 
+                        style={[styles.discoverButton, (!canUseChallenge || !!userResponse) && styles.discoverButtonDisabled]} 
+                        activeOpacity={0.8}
+                        onPress={async () => {
+                          if (!canUseChallenge) {
+                            // Afficher le paywall si la limite est atteinte
+                            showPaywallA();
+                            return;
+                          }
+                          if (!userResponse) {
+                            Alert.prompt(
+                              "Votre réponse",
+                              todayChallenge.question,
+                              [
+                                { text: "Annuler", style: "cancel" },
+                                {
+                                  text: "Envoyer",
+                                  onPress: async (response: string | undefined) => {
+                                    if (response && response.trim()) {
+                                      await submitResponse(response.trim());
+                                      // Enregistrer l'activité pour le streak
+                                      await recordActivity();
+                                    }
+                                  },
                                 },
-                              },
-                            ],
-                            "plain-text"
-                          );
-                        }
-                      }}
-                      disabled={!!userResponse}
-                    >
-                      <Text style={styles.discoverButtonText}>
-                        {userResponse ? "En attente de votre partenaire..." : "Répondre au défi"}
-                      </Text>
-                    </TouchableOpacity>
+                              ],
+                              "plain-text"
+                            );
+                          }
+                        }}
+                        disabled={!!userResponse}
+                      >
+                        <Text style={styles.discoverButtonText}>
+                          {!canUseChallenge 
+                            ? "Passer à Premium pour continuer" 
+                            : userResponse 
+                              ? t("couples.waitingForPartner") 
+                              : t("couples.respondToChallenge")}
+                        </Text>
+                      </TouchableOpacity>
+                    </>
                   )}
                 </>
               ) : (
                 <Text style={styles.dailySubtitle}>
-                  Aucun défi disponible aujourd'hui.
+                  {t("couples.noChallengeAvailable")}
                 </Text>
               )}
             </View>
 
             {/* History Section */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>History</Text>
+              <Text style={styles.sectionTitle}>{t("couples.history")}</Text>
               <View style={styles.historyCard}>
                 <View style={styles.streakContainer}>
                   <View style={styles.streakFlameContainer}>
@@ -811,7 +1306,7 @@ export default function CouplesScreen() {
                     </Text>
                   )}
                   <Text style={styles.streakSubtitle}>
-                    Your daily connection helps{"\n"}your streak grow and strengthens{"\n"}your bond.
+                    {t("couples.dailyConnectionHelp")}
                   </Text>
                 </View>
 
@@ -854,6 +1349,67 @@ export default function CouplesScreen() {
           </View>
         </ScrollView>
       </LinearGradient>
+
+      {/* Modal pour modifier la date de mise en couple */}
+      {showDatePicker && DateTimePicker && (
+        <>
+          {Platform.OS === 'ios' && (
+            <Modal
+              visible={showDatePicker}
+              transparent={true}
+              animationType="slide"
+              onRequestClose={() => setShowDatePicker(false)}
+            >
+              <View style={styles.datePickerModal}>
+                <View style={styles.datePickerContainer}>
+                  <View style={styles.datePickerHeader}>
+                    <TouchableOpacity
+                      onPress={() => setShowDatePicker(false)}
+                      style={styles.datePickerCancelButton}
+                    >
+                      <Text style={styles.datePickerCancelText}>{t("common.cancel")}</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.datePickerTitle}>{t("couples.selectJoinedDate")}</Text>
+                    <TouchableOpacity
+                      onPress={() => {
+                        if (customJoinedDate) {
+                          handleSaveJoinedDate(customJoinedDate);
+                        } else {
+                          setShowDatePicker(false);
+                        }
+                      }}
+                      style={styles.datePickerSaveButton}
+                    >
+                      <Text style={styles.datePickerSaveText}>{t("common.validate")}</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <View style={styles.datePickerWheel}>
+                    <DateTimePicker
+                      value={customJoinedDate || new Date()}
+                      mode="date"
+                      display="spinner"
+                      onChange={onDateChange}
+                      maximumDate={new Date()}
+                      locale="fr_FR"
+                      textColor="white"
+                      themeVariant="dark"
+                    />
+                  </View>
+                </View>
+              </View>
+            </Modal>
+          )}
+          {Platform.OS === 'android' && (
+            <DateTimePicker
+              value={customJoinedDate || new Date()}
+              mode="date"
+              display="default"
+              onChange={onDateChange}
+              maximumDate={new Date()}
+            />
+          )}
+        </>
+      )}
     </View>
   );
 }
@@ -884,10 +1440,24 @@ const styles = StyleSheet.create({
   headerTopActions: {
     position: "absolute",
     top: 60, // Adjust for safe area
-    right: 20,
+    left: 0,
+    right: 0,
     zIndex: 10,
+    paddingHorizontal: 20,
+  },
+  headerActionsRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
   },
   addImageButton: {
+    width: 40,
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  breakCoupleButton: {
     width: 40,
     height: 40,
     justifyContent: "center",
@@ -909,13 +1479,18 @@ const styles = StyleSheet.create({
     textShadowRadius: 4,
   },
   dailyCard: {
-    backgroundColor: "#2D223A", // Theme card color
-    borderRadius: 20,
+    backgroundColor: "rgba(196, 30, 58, 0.25)", // Rouge avec transparence
+    borderRadius: 24,
     padding: 24,
-    borderWidth: 1,
-    borderColor: "rgba(255, 182, 193, 0.1)",
+    borderWidth: 2,
+    borderColor: "rgba(255, 212, 229, 0.4)",
     alignItems: "center",
     marginBottom: 30,
+    shadowColor: "#C41E3A",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   dailyHeader: {
     alignItems: "center",
@@ -927,46 +1502,54 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   dailyTitle: {
-    color: "white",
-    fontSize: 18,
+    color: "#FFD4E5",
+    fontSize: 20,
     fontFamily: "Montserrat-Bold",
-    marginBottom: 8,
+    marginBottom: 10,
     textAlign: "center",
+    textShadowColor: "rgba(196, 30, 58, 0.5)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   dailySubtitle: {
-    color: "rgba(255, 255, 255, 0.7)",
-    fontSize: 14,
-    fontFamily: "Roboto-Regular",
+    color: "rgba(255, 212, 229, 0.9)",
+    fontSize: 15,
+    fontFamily: "Montserrat-Regular",
     textAlign: "center",
-    lineHeight: 20,
+    lineHeight: 22,
   },
   discoverButton: {
-    backgroundColor: "rgba(255, 255, 255, 0.15)",
+    backgroundColor: "rgba(196, 30, 58, 0.4)",
     width: "100%",
-    paddingVertical: 16,
-    borderRadius: 14,
+    paddingVertical: 18,
+    borderRadius: 16,
     alignItems: "center",
-    shadowColor: "#000",
+    shadowColor: "#C41E3A",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.4,
     shadowRadius: 8,
-    elevation: 5,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.3)",
-    backdropFilter: "blur(10px)",
+    elevation: 6,
+    borderWidth: 2,
+    borderColor: "rgba(255, 212, 229, 0.5)",
   },
   discoverButtonText: {
-    color: "#FFFFFF",
+    color: "#FFD4E5",
     fontSize: 16,
     fontFamily: "Montserrat-Bold",
-    letterSpacing: 0.2,
+    letterSpacing: 0.5,
+    textTransform: "uppercase",
   },
   historyCard: {
-    backgroundColor: "#2D223A", // Theme card color
-    borderRadius: 20,
+    backgroundColor: "rgba(196, 30, 58, 0.25)", // Rouge avec transparence
+    borderRadius: 24,
     padding: 24,
-    borderWidth: 1,
-    borderColor: "rgba(255, 182, 193, 0.1)",
+    borderWidth: 2,
+    borderColor: "rgba(255, 212, 229, 0.4)",
+    shadowColor: "#C41E3A",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   streakContainer: {
     alignItems: "center",
@@ -1046,14 +1629,19 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   statLabel: {
-    color: "rgba(255, 255, 255, 0.6)",
-    fontSize: 10,
-    fontFamily: "Roboto-Regular",
+    color: "rgba(255, 212, 229, 0.7)",
+    fontSize: 11,
+    fontFamily: "Montserrat-Regular",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   statValue: {
-    color: "white",
-    fontSize: 14,
+    color: "#FFD4E5",
+    fontSize: 15,
     fontFamily: "Montserrat-Bold",
+    textShadowColor: "rgba(196, 30, 58, 0.4)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   contentContainer: {
     padding: 20,
@@ -1099,10 +1687,15 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   sectionTitle: {
-    color: "white",
-    fontSize: 16,
+    color: "#FFD4E5",
+    fontSize: 18,
     fontFamily: "Montserrat-Bold",
-    marginBottom: 16,
+    marginBottom: 18,
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    textShadowColor: "rgba(196, 30, 58, 0.5)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   widgetsContainer: {
     flexDirection: "row",
@@ -1111,11 +1704,16 @@ const styles = StyleSheet.create({
     height: 180, // Fixed height for alignment
   },
   widgetCard: {
-    backgroundColor: "#2D223A", // Theme card color
+    backgroundColor: "rgba(196, 30, 58, 0.25)", // Rouge avec transparence
     borderRadius: 24,
-    borderWidth: 1,
-    borderColor: "rgba(255, 182, 193, 0.2)",
+    borderWidth: 2,
+    borderColor: "rgba(255, 182, 193, 0.4)",
     overflow: "hidden",
+    shadowColor: "#C41E3A",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   leftWidget: {
     flex: 0.8, // Slightly narrower
@@ -1133,34 +1731,47 @@ const styles = StyleSheet.create({
   },
   heartsIconContainer: {
     flexDirection: "row",
-    marginBottom: 12,
-    height: 40,
+    marginBottom: 16,
+    height: 44,
     alignItems: "center",
     justifyContent: "center",
   },
   heartIconMain: {
     zIndex: 2,
     transform: [{ rotate: "-10deg" }],
+    shadowColor: "#FFB6C1",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
   },
   heartIconSecondary: {
-    marginLeft: -10,
-    marginTop: -10,
-    opacity: 0.8,
+    marginLeft: -12,
+    marginTop: -12,
+    opacity: 0.9,
     transform: [{ rotate: "10deg" }],
+    shadowColor: "#FFB6C1",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 3,
   },
   daysCount: {
-    color: "#FFB6C1", // Light pink/peach
-    fontSize: 32,
+    color: "#FFD4E5", // Rose clair plus visible
+    fontSize: 36,
     fontFamily: "Montserrat-Bold",
-    marginBottom: 4,
+    marginBottom: 6,
     textAlign: "center",
+    textShadowColor: "rgba(196, 30, 58, 0.5)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   daysLabel: {
-    color: "rgba(255, 182, 193, 0.6)",
-    fontSize: 14,
-    fontFamily: "Roboto-Regular",
+    color: "rgba(255, 212, 229, 0.8)",
+    fontSize: 13,
+    fontFamily: "Montserrat-Regular",
     textAlign: "center",
     lineHeight: 18,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   distanceWidgetContent: {
     alignItems: "center",
@@ -1175,29 +1786,40 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   avatarCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "transparent",
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "rgba(196, 30, 58, 0.3)",
     justifyContent: "center",
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: "rgba(255, 182, 193, 0.3)",
+    borderWidth: 2,
+    borderColor: "#FFD4E5",
+    shadowColor: "#C41E3A",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 4,
+    elevation: 3,
   },
   avatarText: {
-    color: "#FFB6C1",
-    fontSize: 16,
-    fontFamily: "Montserrat-Regular",
+    color: "#FFD4E5",
+    fontSize: 18,
+    fontFamily: "Montserrat-Bold",
+    fontWeight: "bold",
   },
   distanceLine: {
     flex: 1,
-    height: 1,
-    backgroundColor: "rgba(255, 182, 193, 0.3)",
-    marginHorizontal: 8,
+    height: 2,
+    backgroundColor: "rgba(255, 212, 229, 0.5)",
+    marginHorizontal: 6,
+    borderRadius: 1,
   },
   centerIcon: {
     alignItems: "center",
     justifyContent: "center",
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: "rgba(196, 30, 58, 0.2)",
   },
   smallHeartIcon: {
     position: "absolute",
@@ -1205,19 +1827,24 @@ const styles = StyleSheet.create({
     right: -2,
   },
   distanceText: {
-    color: "#FFB6C1",
-    fontSize: 24,
+    color: "#FFD4E5",
+    fontSize: 28,
     fontFamily: "Montserrat-Bold",
-    marginBottom: 2,
+    marginBottom: 4,
+    textShadowColor: "rgba(196, 30, 58, 0.5)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   distanceLabel: {
-    color: "rgba(255, 182, 193, 0.6)",
+    color: "rgba(255, 212, 229, 0.8)",
     fontSize: 12,
-    fontFamily: "Roboto-Regular",
+    fontFamily: "Montserrat-Regular",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   widgetSeparator: {
-    height: 1,
-    backgroundColor: "rgba(255, 182, 193, 0.1)",
+    height: 2,
+    backgroundColor: "rgba(255, 212, 229, 0.2)",
     width: "100%",
     marginTop: "auto",
   },
@@ -1226,14 +1853,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     width: "100%",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    backgroundColor: "rgba(0, 0, 0, 0.1)", // Slightly darker bottom area
+    paddingVertical: 14,
+    paddingHorizontal: 18,
+    backgroundColor: "rgba(196, 30, 58, 0.15)", // Rouge plus foncé pour le bouton
   },
   addWidgetText: {
-    color: "#FFB6C1",
-    fontSize: 16,
-    fontFamily: "Montserrat-Regular",
+    color: "#FFD4E5",
+    fontSize: 15,
+    fontFamily: "Montserrat-SemiBold",
+    fontWeight: "600",
   },
   dailySection: {
     backgroundColor: "#3A1A1A", // Darker red background for bottom section
@@ -1286,39 +1914,50 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     marginBottom: 40,
+    paddingHorizontal: 20,
   },
   codeLabel: {
-    fontSize: 16,
-    fontFamily: "Montserrat-Regular",
-    color: "rgba(255, 255, 255, 0.7)",
-    marginBottom: 12,
+    fontSize: 18,
+    fontFamily: "Montserrat-Bold",
+    color: "rgba(255, 255, 255, 0.9)",
+    marginBottom: 16,
     textAlign: "center",
+    textTransform: "uppercase",
+    letterSpacing: 1,
   },
   codeBox: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(196, 30, 58, 0.3)",
-    borderRadius: 16,
-    paddingVertical: 18,
-    paddingHorizontal: 24,
-    borderWidth: 2,
-    borderColor: "rgba(196, 30, 58, 0.5)",
-    gap: 12,
-    minWidth: 200,
+    backgroundColor: "rgba(196, 30, 58, 0.4)",
+    borderRadius: 20,
+    paddingVertical: 20,
+    paddingHorizontal: 32,
+    borderWidth: 3,
+    borderColor: "rgba(196, 30, 58, 0.7)",
+    gap: 16,
+    minWidth: 240,
+    shadowColor: "#C41E3A",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    elevation: 8,
   },
   codeText: {
     color: "white",
-    fontSize: 24,
+    fontSize: 28,
     fontFamily: "Montserrat-Bold",
-    letterSpacing: 4,
+    letterSpacing: 6,
+    textTransform: "uppercase",
   },
   codeHint: {
-    fontSize: 13,
+    fontSize: 14,
     fontFamily: "Montserrat-Regular",
-    color: "rgba(255, 255, 255, 0.6)",
-    marginTop: 12,
+    color: "rgba(255, 255, 255, 0.7)",
+    marginTop: 16,
     textAlign: "center",
+    paddingHorizontal: 20,
+    lineHeight: 20,
   },
   title: {
     fontSize: 22,
@@ -1427,19 +2066,34 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   codeInputContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 32,
+    gap: 8,
   },
-  codeInput: {
-    backgroundColor: "rgba(196, 30, 58, 0.2)",
-    borderRadius: 16,
-    paddingVertical: 18,
-    paddingHorizontal: 20,
-    color: "white",
-    fontSize: 18,
-    fontFamily: "Montserrat-Bold",
+  codeDigitInput: {
+    width: 44,
+    height: 52,
+    borderRadius: 12,
+    backgroundColor: "rgba(26, 26, 46, 0.6)",
+    borderWidth: 2,
+    borderStyle: "dashed",
+    borderColor: "rgba(255, 255, 255, 0.7)",
     textAlign: "center",
-    borderWidth: 1.5,
-    borderColor: "rgba(196, 30, 58, 0.4)",
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#E8B4B8",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  codeDigitInputFilled: {
+    borderColor: "#C41E3A",
+    borderStyle: "solid",
+    backgroundColor: "rgba(196, 30, 58, 0.2)",
+    color: "#fff",
   },
   drawerButtonsContainer: {
     flexDirection: "row",
@@ -1483,6 +2137,14 @@ const styles = StyleSheet.create({
     marginTop: 4,
     textAlign: "center",
   },
+  distanceHint: {
+    color: "rgba(255, 212, 229, 0.6)",
+    fontSize: 10,
+    fontFamily: "Montserrat-Regular",
+    marginTop: 4,
+    textAlign: "center",
+    fontStyle: "italic",
+  },
   responseContainer: {
     marginTop: 16,
     padding: 12,
@@ -1507,5 +2169,78 @@ const styles = StyleSheet.create({
     fontFamily: "Montserrat-Regular",
     marginTop: 4,
     textAlign: "center",
+  },
+  datePickerModal: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    justifyContent: "flex-end",
+  },
+  datePickerContainer: {
+    backgroundColor: "#2A0505",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingBottom: 40,
+    borderWidth: 2,
+    borderBottomWidth: 0,
+    borderColor: "rgba(255, 212, 229, 0.3)",
+    borderLeftColor: "rgba(255, 212, 229, 0.3)",
+    borderRightColor: "rgba(255, 212, 229, 0.3)",
+    borderTopColor: "rgba(255, 212, 229, 0.3)",
+    shadowColor: "#C41E3A",
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 12,
+    elevation: 10,
+  },
+  datePickerHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255, 212, 229, 0.2)",
+  },
+  datePickerCancelButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  datePickerCancelText: {
+    color: "rgba(255, 212, 229, 0.8)",
+    fontSize: 16,
+    fontFamily: "Montserrat-Regular",
+  },
+  datePickerTitle: {
+    color: "#FFD4E5",
+    fontSize: 18,
+    fontFamily: "Montserrat-Bold",
+    flex: 1,
+    textAlign: "center",
+  },
+  datePickerSaveButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  datePickerSaveText: {
+    color: "#FFD4E5",
+    fontSize: 16,
+    fontFamily: "Montserrat-Bold",
+  },
+  datePickerWheel: {
+    backgroundColor: "rgba(196, 30, 58, 0.15)",
+    paddingVertical: 20,
+    minHeight: 200,
+    width: "100%",
+    marginTop: 8,
+  },
+  freeChallengesRemaining: {
+    color: "#FFD4E5",
+    fontSize: 14,
+    fontFamily: "Montserrat-Bold",
+    textAlign: "center",
+    marginBottom: 12,
+  },
+  discoverButtonDisabled: {
+    opacity: 0.5,
   },
 });

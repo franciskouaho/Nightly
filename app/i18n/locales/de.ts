@@ -11,6 +11,7 @@ const de = {
     skip: "Überspringen",
     loading: "Laden...",
     free: "KOSTENLOS",
+    lumicoins: "Lumicoins",
   },
 
   // Sprachbildschirm
@@ -1091,6 +1092,25 @@ const de = {
       codeCopied: "Code kopiert!",
       codeCopiedMessage: "Der Code wurde in die Zwischenablage kopiert.",
     },
+    currentStreak: "Aktuelle Serie",
+    joinedOn: "Paare am",
+    daysTogether: "Tage zusammen",
+    betweenUs: "zwischen uns",
+    widgets: "Widgets",
+    yourDaily: "Deine tägliche Herausforderung",
+    history: "Verlauf",
+    activateGPS: "GPS aktivieren",
+    deactivateGPS: "GPS deaktivieren",
+    activateGPSHint: "Aktiviere GPS, um die Entfernung zu sehen",
+    challengeCompleted: "Herausforderung abgeschlossen! 🔥",
+    dailyChallenge: "Tägliche Herausforderung",
+    respondToChallenge: "Auf Herausforderung antworten",
+    waitingForPartner: "Warten auf deinen Partner...",
+    noChallengeAvailable: "Heute keine Herausforderung verfügbar.",
+    dailyConnectionHelp: "Deine tägliche Verbindung hilft deiner Serie zu wachsen und stärkt eure Bindung.",
+    loadingChallenge: "Laden...",
+    days: "Tage",
+    day: "Tag",
   },
 
   // Login

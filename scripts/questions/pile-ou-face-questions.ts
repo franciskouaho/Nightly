@@ -1,4 +1,4 @@
-export const pileOuFaceQuestions = 
+export const pileOuFaceQuestions = {
     translations: {
       fr: [
         // Questions sympas
@@ -149,44 +149,4 @@ export const pileOuFaceQuestions =
         { type: "mechant", text: "Who is the most superficial person?" },
       ],
     },
-  },
 };
-
-// Initialisation de Firebase et envoi des données
-const uploadQuestionsToFirebase = async () => {
-  try {
-    // Initialiser Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    // Pour chaque jeu, uploadez les questions
-    for (const [gameId, content] of Object.entries(questions)) {
-      // Upload des questions
-      await setDoc(doc(db, "gameQuestions", gameId), {
-        translations: content.translations,
-      });
-
-      // Créer ou mettre à jour l'entrée dans la collection gameReleases
-      const gameRef = doc(db, "gameReleases", gameId);
-      await setDoc(
-        gameRef,
-        {
-          name: gameId, // Vous pouvez ajouter un nom plus convivial si nécessaire
-          notified: false,
-          releaseDate: new Date(),
-          isActive: true,
-        },
-        { merge: true },
-      ); // merge: true permet de mettre à jour sans écraser les autres champs
-
-      console.log(`Questions pour ${gameId} ajoutées avec succès!`);
-    }
-
-    console.log("Upload des questions terminé avec succès!");
-  } catch (error) {
-    console.error("Erreur lors de l'upload des questions:", error);
-  }
-};
-
-// Exécution de la fonction
-uploadQuestionsToFirebase();

@@ -11,6 +11,7 @@ const it = {
     skip: "Salta",
     loading: "Caricamento...",
     free: "GRATIS",
+    lumicoins: "Lumicoins",
   },
 
   // Schermata lingua
@@ -1091,6 +1092,25 @@ const it = {
       codeCopied: "Codice copiato!",
       codeCopiedMessage: "Il codice è stato copiato negli appunti.",
     },
+    currentStreak: "Serie attuale",
+    joinedOn: "Coppie il",
+    daysTogether: "giorni insieme",
+    betweenUs: "tra noi",
+    widgets: "Widgets",
+    yourDaily: "La tua sfida quotidiana",
+    history: "Cronologia",
+    activateGPS: "Attiva GPS",
+    deactivateGPS: "Disattiva GPS",
+    activateGPSHint: "Attiva il GPS per vedere la distanza",
+    challengeCompleted: "Sfida completata! 🔥",
+    dailyChallenge: "Sfida del giorno",
+    respondToChallenge: "Rispondi alla sfida",
+    waitingForPartner: "In attesa del tuo partner...",
+    noChallengeAvailable: "Nessuna sfida disponibile oggi.",
+    dailyConnectionHelp: "La tua connessione quotidiana aiuta la tua serie a crescere e rafforza il vostro legame.",
+    loadingChallenge: "Caricamento...",
+    days: "giorni",
+    day: "giorno",
   },
 
   // Login

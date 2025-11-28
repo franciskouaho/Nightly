@@ -1,4 +1,4 @@
-export const doubleDareQuestions = 
+export const doubleDareQuestions = {
     translations: {
       fr: [
         // HOT 🔥 - VERSUS MODE
@@ -1114,5 +1114,4 @@ export const doubleDareQuestions =
         },
       ],
     },
-  },
 };

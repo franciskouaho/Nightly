@@ -11,6 +11,7 @@ const pt = {
     skip: "Pular",
     loading: "Carregando...",
     free: "GRÁTIS",
+    lumicoins: "Lumicoins",
   },
 
   // Tela de idioma
@@ -1091,6 +1092,25 @@ const pt = {
       codeCopied: "Código copiado!",
       codeCopiedMessage: "O código foi copiado para a área de transferência.",
     },
+    currentStreak: "Sequência atual",
+    joinedOn: "Casais em",
+    daysTogether: "dias juntos",
+    betweenUs: "entre nós",
+    widgets: "Widgets",
+    yourDaily: "Seu desafio diário",
+    history: "Histórico",
+    activateGPS: "Ativar GPS",
+    deactivateGPS: "Desativar GPS",
+    activateGPSHint: "Ative o GPS para ver a distância",
+    challengeCompleted: "Desafio concluído! 🔥",
+    dailyChallenge: "Desafio do dia",
+    respondToChallenge: "Responder ao desafio",
+    waitingForPartner: "Aguardando seu parceiro...",
+    noChallengeAvailable: "Nenhum desafio disponível hoje.",
+    dailyConnectionHelp: "Sua conexão diária ajuda sua sequência a crescer e fortalece seu vínculo.",
+    loadingChallenge: "Carregando...",
+    days: "dias",
+    day: "dia",
   },
 
   // Login

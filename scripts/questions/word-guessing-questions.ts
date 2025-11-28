@@ -1,4 +1,4 @@
-export const wordGuessingQuestions = 
+export const wordGuessingQuestions = {
     translations: {
       fr: [
         // LIEUX
@@ -1472,5 +1472,4 @@ export const wordGuessingQuestions =
         },
       ],
     },
-  },
 };

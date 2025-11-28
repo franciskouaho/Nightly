@@ -1,4 +1,4 @@
-export const neverHaveIEverHotQuestions = 
+export const neverHaveIEverHotQuestions = {
     translations: {
       fr: [
         {
@@ -1415,5 +1415,4 @@ export const neverHaveIEverHotQuestions =
         },
       ],
     },
-  },
 };

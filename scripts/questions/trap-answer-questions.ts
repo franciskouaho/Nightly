@@ -1,4 +1,4 @@
-export const trapAnswerQuestions = 
+export const trapAnswerQuestions = {
     translations: {
       fr: [
         {
@@ -2145,5 +2145,4 @@ export const trapAnswerQuestions =
         },
       ],
     },
-  },
 };

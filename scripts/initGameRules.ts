@@ -1,5 +1,7 @@
-import { initializeApp } from "firebase/app";
-import { doc, getFirestore, setDoc } from "firebase/firestore";
+import admin from "firebase-admin";
+import * as fs from "fs";
+import * as path from "path";
+import { fileURLToPath } from "url";
 import { listen_but_don_t_judge_rules } from "./rules/listen-but-don-t-judge-rules";
 import { truthOrDareRules } from "./rules/truth-or-dare-rules";
 import { geniusOrLiarRules } from "./rules/genius-or-liar-rules";
@@ -14,11 +16,18 @@ import { pileOuFaceRules } from "./rules/pile-ou-face-rules";
 import { dareOrStripRules } from "./rules/dare-or-strip-rules";
 import { blindtestGenerationsRules } from "./rules/blindtest-generations-rules";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCpkwiOl19wTGqD4YO0HEcTuqWyqaXnU5w",
-  authDomain: "nightly-efa29.firebaseapp.com",
-  projectId: "nightly-efa29",
-};
+// Get __dirname equivalent in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load service account
+const serviceAccountPath = path.join(__dirname, "..", "nightly-efa29-firebase-adminsdk-fbsvc-ddf3409693.json");
+const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, "utf8"));
+
+// Initialize Firebase Admin
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
 
 const supportedLanguages = [
   { id: "fr", name: "Français", countryCode: "FR", rtl: false },
@@ -50,23 +59,24 @@ const gameRules = {
 // Initialise Firebase et insère les règles du jeu dans Firestore
 const initGameRules = async () => {
   try {
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    const db = admin.firestore();
 
     // Sauvegarde la configuration des langues
-    await setDoc(doc(db, "config", "languages"), {
+    await db.collection("config").doc("languages").set({
       supportedLanguages,
     });
 
     // Sauvegarde les règles du jeu pour chaque mode
     for (const [gameId, content] of Object.entries(gameRules)) {
-      await setDoc(doc(db, "rules", gameId), content);
-      console.log(`Règles du jeu pour ${gameId} ajoutées avec succès!`);
+      await db.collection("rules").doc(gameId).set(content);
+      console.log(`✅ Règles du jeu pour "${gameId}" ajoutées avec succès!`);
     }
 
-    console.log("Initialisation des règles terminée!");
+    console.log("\n🎉 Initialisation des règles terminée!");
+    console.log(`📋 ${Object.keys(gameRules).length} jeux initialisés`);
   } catch (error) {
-    console.error("Erreur lors de l'initialisation des règles:", error);
+    console.error("❌ Erreur lors de l'initialisation des règles:", error);
+    process.exit(1);
   }
 };
 
