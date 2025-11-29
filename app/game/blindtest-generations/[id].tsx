@@ -205,6 +205,11 @@ export default function BlindTestGenerationsGame() {
   const questionStartTimeRef = useRef<number | null>(null);
   const audioPauseTimeRef = useRef<number | null>(null);
   const gameEndTrackedRef = useRef<boolean>(false);
+  const lastGameDataRef = useRef<BlindTestGameState | null>(null);
+  const lastAudioPausedRef = useRef<boolean | null>(null);
+  const lastListeningUserIdRef = useRef<string | null>(null);
+  const lastShowModalRef = useRef<boolean | null>(null);
+  const lastWrongAnswersRef = useRef<string[]>([]);
 
   useEffect(() => {
     if (!id) return;
@@ -213,8 +218,16 @@ export default function BlindTestGenerationsGame() {
     const unsubscribe = onSnapshot(gameRef, (docSnap) => {
       if (docSnap.exists()) {
         const gameData = docSnap.data() as BlindTestGameState;
-        setGame(gameData);
-        setScores(gameData.scores || {});
+        
+        // Éviter les mises à jour inutiles en comparant avec les données précédentes
+        const hasChanged = !lastGameDataRef.current || 
+          JSON.stringify(lastGameDataRef.current) !== JSON.stringify(gameData);
+        
+        if (hasChanged) {
+          lastGameDataRef.current = gameData;
+          setGame(gameData);
+          setScores(gameData.scores || {});
+        }
         
         // Track game start when game is first loaded
         if (!gameStartTimeRef.current && gameData.phase) {
@@ -223,21 +236,38 @@ export default function BlindTestGenerationsGame() {
             blindTestAnalytics.trackGameStart(id, gameData.players.length);
           }
         }
-        // Synchroniser l'état audio depuis Firestore
-        setAudioPaused((gameData as any).audioPaused || false);
-        setListeningUserId((gameData as any).listeningUserId || null);
         
-        // Synchroniser le modal de bonne réponse
-        if ((gameData as any).showCorrectAnswerModal) {
-          setShowCorrectAnswerModal(true);
-          setCorrectAnswerPlayer((gameData as any).correctAnswerPlayer || null);
-        } else {
-          setShowCorrectAnswerModal(false);
+        // Synchroniser l'état audio depuis Firestore (seulement si changé)
+        const newAudioPaused = (gameData as any).audioPaused || false;
+        if (lastAudioPausedRef.current !== newAudioPaused) {
+          lastAudioPausedRef.current = newAudioPaused;
+          setAudioPaused(newAudioPaused);
         }
         
-        // Synchroniser les mauvaises réponses
+        const newListeningUserId = (gameData as any).listeningUserId || null;
+        if (lastListeningUserIdRef.current !== newListeningUserId) {
+          lastListeningUserIdRef.current = newListeningUserId;
+          setListeningUserId(newListeningUserId);
+        }
+        
+        // Synchroniser le modal de bonne réponse (seulement si changé)
+        const newShowModal = !!(gameData as any).showCorrectAnswerModal;
+        if (lastShowModalRef.current !== newShowModal) {
+          lastShowModalRef.current = newShowModal;
+          setShowCorrectAnswerModal(newShowModal);
+          setCorrectAnswerPlayer((gameData as any).correctAnswerPlayer || null);
+        }
+        
+        // Synchroniser les mauvaises réponses (seulement si changé)
         if ((gameData as any).wrongAnswers) {
-          setWrongAnswers(new Set((gameData as any).wrongAnswers));
+          const newWrongAnswersArray = Array.from((gameData as any).wrongAnswers || []);
+          const lastWrongAnswersArray = lastWrongAnswersRef.current;
+          if (lastWrongAnswersArray.length !== newWrongAnswersArray.length ||
+              !lastWrongAnswersArray.every(id => newWrongAnswersArray.includes(id)) ||
+              !newWrongAnswersArray.every(id => lastWrongAnswersArray.includes(id))) {
+            lastWrongAnswersRef.current = newWrongAnswersArray;
+            setWrongAnswers(new Set(newWrongAnswersArray));
+          }
         }
         
         // Track question start when audio starts playing
@@ -549,7 +579,7 @@ export default function BlindTestGenerationsGame() {
       <View style={styles.loadingContainer}>
         <LinearGradient colors={[GRADIENT_START, GRADIENT_END]} style={StyleSheet.absoluteFill} />
         <ActivityIndicator size="large" color="white" />
-        <Text style={styles.loadingText}>Chargement...</Text>
+        <Text style={styles.loadingText}>{t('game.loading')}</Text>
       </View>
     );
   }
@@ -558,7 +588,7 @@ export default function BlindTestGenerationsGame() {
     return (
       <View style={styles.loadingContainer}>
         <LinearGradient colors={[GRADIENT_START, GRADIENT_END]} style={StyleSheet.absoluteFill} />
-        <Text style={styles.errorText}>Partie introuvable</Text>
+        <Text style={styles.errorText}>{t('game.blindtest.gameNotFound')}</Text>
       </View>
     );
   }
@@ -589,12 +619,12 @@ export default function BlindTestGenerationsGame() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {game.phase !== 'category-selection' && (
           <View style={styles.header}>
-            <Text style={styles.title}>🎵 Blind Test Générations</Text>
+            <Text style={styles.title}>{t('game.blindtest.title')}</Text>
             <Text style={styles.subtitle}>
-              Round {game.currentRound} / {game.totalRounds}
+              {t('game.blindtest.round', { current: game.currentRound, total: game.totalRounds })}
             </Text>
             <View style={styles.scoreContainer}>
-              <Text style={styles.scoreLabel}>Score: {playerScore}</Text>
+              <Text style={styles.scoreLabel}>{t('game.blindtest.score', { score: playerScore })}</Text>
             </View>
           </View>
         )}
@@ -617,8 +647,8 @@ export default function BlindTestGenerationsGame() {
               </View>
               <Text style={styles.cardQuestion}>
                 {isCurrentPlayer
-                  ? 'Choisis une catégorie'
-                  : 'Choix de la catégorie en cours...'}
+                  ? t('game.blindtest.chooseCategory')
+                  : t('game.blindtest.categorySelectionInProgress')}
               </Text>
               <Text style={styles.cardEmoji}>🎄</Text>
             </View>
@@ -634,7 +664,7 @@ export default function BlindTestGenerationsGame() {
             {!isCurrentPlayer && (
               <View style={styles.waitingContainer}>
                 <Text style={styles.waitingText}>
-                  En attente de {currentPlayer?.name || 'Joueur'}...
+                  {t('game.blindtest.waitingForPlayer', { name: currentPlayer?.name || t('game.player') })}
                 </Text>
               </View>
             )}
@@ -645,7 +675,7 @@ export default function BlindTestGenerationsGame() {
           <View style={styles.phaseContainer}>
             <BlindTestAudioPlayer
               audioUrl={game.currentQuestion.audioUrl}
-              title={game.currentQuestion.text || game.currentQuestion.answer || 'Question'}
+              title={game.currentQuestion.text || game.currentQuestion.answer || t('game.blindtest.question')}
               category={categories.find((c) => c.id === game.currentCategory)?.label}
               categoryEmoji={categories.find((c) => c.id === game.currentCategory)?.emoji}
               currentRound={game.currentRound}
@@ -670,8 +700,8 @@ export default function BlindTestGenerationsGame() {
               <View style={styles.wrongAnswersContainer}>
                 <Text style={styles.wrongAnswersText}>
                   {wrongAnswers.size === game.players.length
-                    ? 'Personne n\'a trouvé la réponse...'
-                    : `${wrongAnswers.size} joueur${wrongAnswers.size > 1 ? 's' : ''} a/ont déjà essayé`}
+                    ? t('game.blindtest.noOneFound')
+                    : t('game.blindtest.playersAlreadyTried', { count: wrongAnswers.size })}
                 </Text>
               </View>
             )}
@@ -692,20 +722,20 @@ export default function BlindTestGenerationsGame() {
                 style={styles.modalGradient}
               >
                 <Text style={styles.modalEmoji}>🎉</Text>
-                <Text style={styles.modalTitle}>Bonne réponse !</Text>
+                <Text style={styles.modalTitle}>{t('game.blindtest.correctAnswer')}</Text>
                 {correctAnswerPlayer && (
                   <Text style={styles.modalPlayerName}>
-                    {game.players.find(p => p.id === correctAnswerPlayer)?.name || 'Joueur'} a trouvé !
+                    {t('game.blindtest.playerFound', { name: game.players.find(p => p.id === correctAnswerPlayer)?.name || t('game.player') })}
                   </Text>
                 )}
                 <Text style={styles.modalAnswer}>
-                  {game.currentQuestion?.answer || 'Réponse correcte'}
+                  {game.currentQuestion?.answer || t('game.blindtest.correctAnswer')}
                 </Text>
                 <TouchableOpacity
                   style={styles.modalButton}
                   onPress={handleCloseCorrectAnswerModal}
                 >
-                  <Text style={styles.modalButtonText}>Continuer</Text>
+                  <Text style={styles.modalButtonText}>{t('game.blindtest.continue')}</Text>
                 </TouchableOpacity>
               </LinearGradient>
             </View>

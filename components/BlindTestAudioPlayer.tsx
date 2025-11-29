@@ -6,6 +6,7 @@ import VoiceRecognitionButton from './VoiceRecognitionButton';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import CircularProgress from './CircularProgress';
+import { useTranslation } from 'react-i18next';
 
 const { width } = Dimensions.get('window');
 
@@ -44,11 +45,17 @@ export default function BlindTestAudioPlayer({
   audioPaused,
   listeningUserId,
 }: BlindTestAudioPlayerProps) {
+  const { t } = useTranslation();
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [position, setPosition] = useState(0);
   const [duration, setDuration] = useState(0);
   const [loadError, setLoadError] = useState<string | null>(null);
+
+  // Refs pour éviter les boucles infinies
+  const hasAutoPlayedRef = useRef(false);
+  const isPlayingRef = useRef(false);
+  const lastPlayStateRef = useRef<boolean | null>(null);
 
   // Animation pour la rotation de la cassette
   const rotateAnim = useRef(new Animated.Value(0)).current;
@@ -136,6 +143,7 @@ export default function BlindTestAudioPlayer({
 
   useEffect(() => {
     if (audioUrl) {
+      hasAutoPlayedRef.current = false; // Reset quand l'URL change
       loadSound();
     }
     return () => {
@@ -145,16 +153,20 @@ export default function BlindTestAudioPlayer({
     };
   }, [audioUrl]);
 
-  // Lancer la musique automatiquement quand elle est chargée
+  // Lancer la musique automatiquement quand elle est chargée (une seule fois)
   useEffect(() => {
-    if (sound && !isPlaying && !audioPaused && audioUrl && !loadError) {
+    if (sound && !hasAutoPlayedRef.current && !audioPaused && audioUrl && !loadError) {
+      hasAutoPlayedRef.current = true;
       sound.playAsync().catch((error) => {
         console.error('Erreur lors du démarrage automatique:', error);
+        hasAutoPlayedRef.current = false; // Reset en cas d'erreur
       });
     }
-  }, [sound, isPlaying, audioPaused, audioUrl, loadError]);
+  }, [sound, audioPaused, audioUrl, loadError]);
 
   useEffect(() => {
+    isPlayingRef.current = isPlaying;
+    
     if (isPlaying && !audioPaused) {
       startCassetteRotation();
       startAudioVisualization();
@@ -164,15 +176,21 @@ export default function BlindTestAudioPlayer({
         sound.pauseAsync();
       }
     }
-    onPlayStateChange?.(isPlaying && !audioPaused);
-  }, [isPlaying, audioPaused]);
+    
+    // Éviter les appels inutiles à onPlayStateChange
+    const currentPlayState = isPlaying && !audioPaused;
+    if (lastPlayStateRef.current !== currentPlayState) {
+      lastPlayStateRef.current = currentPlayState;
+      onPlayStateChange?.(currentPlayState);
+    }
+  }, [isPlaying, audioPaused, sound]);
 
   // Arrêter automatiquement si audioPaused change
   useEffect(() => {
-    if (audioPaused && sound && isPlaying) {
+    if (audioPaused && sound && isPlayingRef.current) {
       sound.pauseAsync();
     }
-  }, [audioPaused]);
+  }, [audioPaused, sound]);
 
   // Fonction pour convertir une URL gs:// en URL HTTPS Firebase Storage
   const convertGsUrlToHttps = async (gsUrl: string): Promise<string> => {
@@ -247,11 +265,12 @@ export default function BlindTestAudioPlayer({
 
       const { sound: newSound } = await Audio.Sound.createAsync(
         { uri: convertedUrl },
-        { shouldPlay: true }, // Lancer automatiquement pour tous
+        { shouldPlay: false }, // Ne pas lancer automatiquement ici, le useEffect s'en chargera
         onPlaybackStatusUpdate
       );
       setSound(newSound);
-      console.log('Audio loaded and started automatically');
+      hasAutoPlayedRef.current = false; // Reset pour permettre le démarrage automatique
+      console.log('Audio loaded');
     } catch (error: any) {
       const errorMessage = error?.message || 'Erreur de chargement audio';
       console.error('Error loading sound:', error);
@@ -264,10 +283,17 @@ export default function BlindTestAudioPlayer({
     if (status.isLoaded) {
       setPosition(status.positionMillis);
       setDuration(status.durationMillis || 0);
-      setIsPlaying(status.isPlaying);
+      
+      // Éviter les mises à jour inutiles de isPlaying
+      if (isPlayingRef.current !== status.isPlaying) {
+        isPlayingRef.current = status.isPlaying;
+        setIsPlaying(status.isPlaying);
+      }
 
       if (status.didJustFinish) {
+        isPlayingRef.current = false;
         setIsPlaying(false);
+        hasAutoPlayedRef.current = false; // Reset pour permettre un nouveau démarrage
       }
     }
   };
@@ -337,7 +363,7 @@ export default function BlindTestAudioPlayer({
             <Text style={styles.categoryLabel}>{category}</Text>
           </View>
         )}
-        <Text style={styles.blindTestLabel}>🎵 BLIND TEST</Text>
+        <Text style={styles.blindTestLabel}>{t('game.blindtest.label')}</Text>
       </View>
 
       {/* Interface moderne avec bouton micro central et anneaux colorés - visible pour tous quand musique joue */}
@@ -376,7 +402,7 @@ export default function BlindTestAudioPlayer({
 
                 <View style={styles.tapOverlay}>
                   <MaterialIcons name="touch-app" size={32} color="rgba(255, 255, 255, 0.8)" />
-                  <Text style={styles.tapText}>Tap to Answer</Text>
+                  <Text style={styles.tapText}>{t('game.blindtest.tapToAnswer')}</Text>
                 </View>
               </TouchableOpacity>
             </CircularProgress>
@@ -396,7 +422,7 @@ export default function BlindTestAudioPlayer({
       {/* Interface de reconnaissance vocale quand audio est arrêté - visible pour le joueur qui a cliqué */}
       {audioPaused && listeningUserId === currentUserId && correctAnswer && onVoiceAnswer && (
         <View style={styles.modernMicContainer}>
-          <Text style={styles.listeningText}>Listening</Text>
+          <Text style={styles.listeningText}>{t('game.blindtest.listening')}</Text>
 
           {/* Activation automatique de la reconnaissance vocale */}
           <VoiceRecognitionButton
@@ -422,11 +448,11 @@ export default function BlindTestAudioPlayer({
       {(loadError || !audioUrl) && (
         <View style={styles.noAudioContainer}>
           <Text style={styles.noAudioText}>
-            {loadError || 'Pas d\'extrait audio disponible'}
+            {loadError || t('game.blindtest.noAudioAvailable')}
           </Text>
           {loadError && (
             <Text style={styles.errorHint}>
-              Vérifiez que l'URL audio est valide et accessible
+              {t('game.blindtest.checkAudioUrl')}
             </Text>
           )}
         </View>
