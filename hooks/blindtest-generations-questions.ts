@@ -3,7 +3,7 @@ import { Question } from '@/types/gameTypes';
 import { doc, getDoc, getFirestore } from '@react-native-firebase/firestore';
 import { useEffect, useState } from 'react';
 
-export type BlindTestCategory = 'noel' | 'generiques' | 'tubes-80s-90s-2000s' | 'tiktok' | 'films';
+export type BlindTestCategory = string; // Les catégories sont maintenant dynamiques depuis Firebase
 
 export interface BlindTestQuestion extends Question {
   category: BlindTestCategory;

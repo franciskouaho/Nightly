@@ -24,7 +24,9 @@
         "NSPhotoLibraryUsageDescription": "Allow Nightly to access your photo library to select a couple photo.",
         "NSPhotoLibraryAddUsageDescription": "Allow Nightly to save photos to your photo library.",
         "NSLocationWhenInUseUsageDescription": "Allow Nightly to access your location to show the distance between you and your partner.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "Allow Nightly to access your location to show the distance between you and your partner."
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Allow Nightly to access your location to show the distance between you and your partner.",
+        "NSMicrophoneUsageDescription": "Allow Nightly to access your microphone for voice answers in Blind Test games.",
+        "NSSpeechRecognitionUsageDescription": "Allow Nightly to use speech recognition for voice answers in Blind Test games."
       },
       "requireFullScreen": true
     },
@@ -46,7 +48,8 @@
         "READ_EXTERNAL_STORAGE",
         "READ_MEDIA_IMAGES",
         "ACCESS_COARSE_LOCATION",
-        "ACCESS_FINE_LOCATION"
+        "ACCESS_FINE_LOCATION",
+        "RECORD_AUDIO"
       ],
       "edgeToEdgeEnabled": true
     },

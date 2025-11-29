@@ -15,6 +15,8 @@ import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/contexts/AuthContext';
 import { StatusBar } from 'expo-status-bar';
+import AdminCategoriesPanel from '@/components/admin/AdminCategoriesPanel';
+import AdminBlindTestMusicPanel from '@/components/admin/AdminBlindTestMusicPanel';
 
 const AVAILABLE_GAMES = [
   { id: 'truth-or-dare', name: 'Action ou Vérité', needsType: true },
@@ -202,6 +204,9 @@ export default function AdminPage() {
         </View>
 
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+          <AdminCategoriesPanel />
+          <AdminBlindTestMusicPanel />
+          
           <Text style={styles.sectionTitle}>Ajouter une question</Text>
 
           {/* Sélecteur de jeu */}

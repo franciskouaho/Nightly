@@ -1,9 +1,11 @@
 import GameResults from '@/components/game/GameResults';
+import BlindTestAudioPlayer from '../../../components/BlindTestAudioPlayer';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   BlindTestCategory,
   useBlindTestGenerationsQuestions,
 } from '@/hooks/blindtest-generations-questions';
+import { useBlindTestCategories } from '@/hooks/useBlindTestCategories';
 import { useInAppReview } from '@/hooks/useInAppReview';
 import { usePoints } from '@/hooks/usePoints';
 import { GameState } from '@/types/gameTypes';
@@ -11,12 +13,15 @@ import { doc, getFirestore, onSnapshot, updateDoc } from '@react-native-firebase
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Alert,
   Animated,
+  Dimensions,
+  Modal,
+  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -34,80 +39,143 @@ interface BlindTestGameState extends Omit<GameState, 'phase'> {
   gameMode: 'blindtest-generations';
 }
 
-// Couleurs du thème bleu nuit/turquoise
-const GRADIENT_START = '#2C7A9C';
-const GRADIENT_END = '#40B5D8';
-const ACCENT_COLOR = '#40B5D8';
-const CARD_BG = 'rgba(255, 255, 255, 0.15)';
+// Couleurs du thème Noël
+const GRADIENT_START = '#C41E3A';
+const GRADIENT_END = '#8B1538';
+const ACCENT_COLOR = '#FFD700';
+const CARD_BG = 'rgba(255, 255, 255, 0.12)';
 
-const CATEGORIES: Array<{ id: BlindTestCategory; label: string; emoji: string }> = [
-  { id: 'noel', label: 'Noël', emoji: '🎄' },
-  { id: 'generiques', label: 'Génériques', emoji: '📺' },
-  { id: 'tubes-80s-90s-2000s', label: 'Tubes 80s/90s/2000s', emoji: '🎶' },
-  { id: 'tiktok', label: 'Sons TikTok', emoji: '📱' },
-  { id: 'films', label: 'Musiques de films', emoji: '🎬' },
-];
+const { width } = Dimensions.get('window');
 
-// Composant carte de question
-const QuestionCard = ({
+// Composant de carte de catégorie animée
+const CategoryCard = ({
   category,
-  question,
-  currentRound,
-  totalRounds,
-  isPlaying,
+  onPress,
+  disabled,
+  delay = 0,
 }: {
-  category: BlindTestCategory | null;
-  question: string;
-  currentRound: number;
-  totalRounds: number;
-  isPlaying: boolean;
+  category: {
+    id: string;
+    label: string;
+    emoji: string;
+    gradient: [string, string];
+    description: string;
+  };
+  onPress: () => void;
+  disabled: boolean;
+  delay?: number;
 }) => {
-  const categoryInfo = category ? CATEGORIES.find((c) => c.id === category) : null;
+  const scaleAnim = useRef(new Animated.Value(0)).current;
+  const opacityAnim = useRef(new Animated.Value(0)).current;
+  const pressAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    // Animation d'entrée
+    Animated.parallel([
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        delay,
+        tension: 50,
+        friction: 7,
+        useNativeDriver: true,
+      }),
+      Animated.timing(opacityAnim, {
+        toValue: 1,
+        duration: 300,
+        delay,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
+
+  const handlePressIn = () => {
+    Animated.spring(pressAnim, {
+      toValue: 0.95,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(pressAnim, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+  };
 
   return (
-    <View style={styles.cardContainer}>
-      <LinearGradient
-        colors={[GRADIENT_START + '40', GRADIENT_END + '40']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={StyleSheet.absoluteFill}
-      />
-      <View style={styles.cardHeader}>
-        {categoryInfo && (
-          <View style={styles.categoryBadge}>
-            <Text style={styles.categoryEmoji}>{categoryInfo.emoji}</Text>
-            <Text style={styles.categoryLabel}>{categoryInfo.label}</Text>
+    <Animated.View
+      style={[
+        styles.categoryCardWrapper,
+        {
+          opacity: opacityAnim,
+          transform: [
+            { scale: Animated.multiply(scaleAnim, pressAnim) },
+          ],
+        },
+      ]}
+    >
+      <TouchableOpacity
+        activeOpacity={0.9}
+        onPress={onPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        disabled={disabled}
+        style={styles.categoryCard}
+      >
+        <LinearGradient
+          colors={category.gradient}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.categoryCardGradient}
+        >
+          <View style={styles.categoryCardContent}>
+            <Text style={styles.categoryCardEmoji}>{category.emoji}</Text>
+            <Text style={styles.categoryCardLabel} numberOfLines={2}>{category.label}</Text>
+            <Text style={styles.categoryCardDescription} numberOfLines={1}>{category.description}</Text>
           </View>
-        )}
-        <Text style={styles.blindTestLabel}>🎵 BLIND TEST</Text>
-      </View>
-      <View style={styles.audioVisualizer}>
-        {isPlaying ? (
-          <View style={styles.playingContainer}>
-            <Animated.View style={[styles.bar, { height: 40 }]} />
-            <Animated.View style={[styles.bar, { height: 60 }]} />
-            <Animated.View style={[styles.bar, { height: 50 }]} />
-            <Animated.View style={[styles.bar, { height: 70 }]} />
-            <Animated.View style={[styles.bar, { height: 45 }]} />
-          </View>
-        ) : (
-          <Text style={styles.musicNote}>🎵</Text>
-        )}
-      </View>
-      {question && <Text style={styles.cardQuestion}>{question}</Text>}
-      <View style={styles.progressRow}>
-        <View style={styles.progressBarContainer}>
-          <View
-            style={[styles.progressBar, { width: `${(currentRound / totalRounds) * 100}%` }]}
-          />
-        </View>
-        <Text style={styles.cardProgress}>
-          {currentRound}/{totalRounds}
-        </Text>
-      </View>
+          {disabled && (
+            <View style={styles.categoryCardDisabled}>
+              <ActivityIndicator size="small" color="white" />
+            </View>
+          )}
+        </LinearGradient>
+      </TouchableOpacity>
+    </Animated.View>
+  );
+};
+
+// Composant de grille de catégories
+const CategoryGrid = ({
+  categories,
+  onSelectCategory,
+  isProcessing,
+}: {
+  categories: Array<{
+    id: string;
+    label: string;
+    emoji: string;
+    gradient: [string, string];
+    description: string;
+  }>;
+  onSelectCategory: (category: BlindTestCategory) => void;
+  isProcessing: boolean;
+}) => {
+  return (
+    <View style={styles.categoriesGrid}>
+      {categories.map((category, index) => (
+        <CategoryCard
+          key={category.id}
+          category={category}
+          onPress={() => onSelectCategory(category.id)}
+          disabled={isProcessing}
+          delay={index * 100}
+        />
+      ))}
     </View>
   );
 };
+
+// Plus besoin du composant QuestionCard - on utilise BlindTestAudioPlayer
 
 export default function BlindTestGenerationsGame() {
   const { id: idParam } = useLocalSearchParams();
@@ -118,6 +186,7 @@ export default function BlindTestGenerationsGame() {
   const { awardGamePoints } = usePoints();
   const { t } = useTranslation();
   const { getRandomQuestion, isLoadingQuestions } = useBlindTestGenerationsQuestions();
+  const { categories, loading: loadingCategories } = useBlindTestCategories();
 
   const [game, setGame] = useState<BlindTestGameState | null>(null);
   const [loading, setLoading] = useState(true);
@@ -125,6 +194,11 @@ export default function BlindTestGenerationsGame() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [scores, setScores] = useState<Record<string, number>>({});
+  const [audioPaused, setAudioPaused] = useState(false);
+  const [listeningUserId, setListeningUserId] = useState<string | null>(null);
+  const [showCorrectAnswerModal, setShowCorrectAnswerModal] = useState(false);
+  const [correctAnswerPlayer, setCorrectAnswerPlayer] = useState<string | null>(null);
+  const [wrongAnswers, setWrongAnswers] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (!id) return;
@@ -135,6 +209,22 @@ export default function BlindTestGenerationsGame() {
         const gameData = docSnap.data() as BlindTestGameState;
         setGame(gameData);
         setScores(gameData.scores || {});
+        // Synchroniser l'état audio depuis Firestore
+        setAudioPaused((gameData as any).audioPaused || false);
+        setListeningUserId((gameData as any).listeningUserId || null);
+        
+        // Synchroniser le modal de bonne réponse
+        if ((gameData as any).showCorrectAnswerModal) {
+          setShowCorrectAnswerModal(true);
+          setCorrectAnswerPlayer((gameData as any).correctAnswerPlayer || null);
+        } else {
+          setShowCorrectAnswerModal(false);
+        }
+        
+        // Synchroniser les mauvaises réponses
+        if ((gameData as any).wrongAnswers) {
+          setWrongAnswers(new Set((gameData as any).wrongAnswers));
+        }
       }
       setLoading(false);
     });
@@ -167,7 +257,11 @@ export default function BlindTestGenerationsGame() {
         askedQuestionIds: question
           ? [...(game.askedQuestionIds || []), question.id]
           : game.askedQuestionIds,
+        audioPaused: false,
+        listeningUserId: null,
       });
+      setAudioPaused(false);
+      setListeningUserId(null);
     } catch (error) {
       console.error('Erreur lors de la sélection de catégorie:', error);
       Alert.alert('Erreur', 'Impossible de sélectionner la catégorie');
@@ -176,38 +270,76 @@ export default function BlindTestGenerationsGame() {
     }
   };
 
-  const handlePlayAudio = () => {
-    setIsPlaying(true);
-    // Simuler la lecture audio pendant 5 secondes
-    setTimeout(() => {
-      setIsPlaying(false);
-    }, 5000);
+  // Fonction pour arrêter la musique pour tous les joueurs
+  const handleStopAudioForAll = async () => {
+    if (!game || !user) return;
+
+    try {
+      const db = getFirestore();
+      const gameRef = doc(db, 'games', String(id));
+
+      await updateDoc(gameRef, {
+        audioPaused: true,
+        listeningUserId: user.uid,
+      });
+
+      setAudioPaused(true);
+      setListeningUserId(user.uid);
+    } catch (error) {
+      console.error('Erreur lors de l\'arrêt de la musique:', error);
+    }
   };
 
-  const handleAnswer = async (correct: boolean) => {
+  const handleAnswer = async (correct: boolean, playerId?: string) => {
     if (!game || !user || isProcessing) return;
-
+    
+    const answeringPlayerId = playerId || user.uid;
+    const answeringPlayer = game.players.find(p => p.id === answeringPlayerId);
+    
     setIsProcessing(true);
     try {
       const db = getFirestore();
       const gameRef = doc(db, 'games', String(id));
 
-      const updatedScores = { ...scores };
       if (correct) {
-        updatedScores[user.uid] = (updatedScores[user.uid] || 0) + 1;
+        // Bonne réponse : afficher le modal et mettre à jour les scores
+        const updatedScores = { ...scores };
+        updatedScores[answeringPlayerId] = (updatedScores[answeringPlayerId] || 0) + 1;
+
+        await updateDoc(gameRef, {
+          scores: updatedScores,
+          showCorrectAnswerModal: true,
+          correctAnswerPlayer: answeringPlayerId,
+          phase: 'correct-answer',
+          wrongAnswers: [],
+        });
+
+        setScores(updatedScores);
+        setShowCorrectAnswerModal(true);
+        setCorrectAnswerPlayer(answeringPlayerId);
+        setWrongAnswers(new Set());
+      } else {
+        // Mauvaise réponse : ajouter à la liste des mauvaises réponses et réinitialiser pour permettre à d'autres de répondre
+        const newWrongAnswers = new Set(wrongAnswers);
+        newWrongAnswers.add(answeringPlayerId);
+        setWrongAnswers(newWrongAnswers);
+
+        await updateDoc(gameRef, {
+          wrongAnswers: Array.from(newWrongAnswers),
+          audioPaused: false, // Relancer la musique pour permettre à d'autres de répondre
+          listeningUserId: null, // Réinitialiser pour permettre à d'autres de cliquer
+        });
+
+        setAudioPaused(false);
+        setListeningUserId(null);
+
+        // Si tous les joueurs ont donné une mauvaise réponse, passer à la question suivante après 3 secondes
+        if (newWrongAnswers.size >= game.players.length) {
+          setTimeout(async () => {
+            await nextQuestion();
+          }, 3000);
+        }
       }
-
-      await updateDoc(gameRef, {
-        scores: updatedScores,
-        phase: 'waiting',
-      });
-
-      setScores(updatedScores);
-
-      // Attendre 2 secondes puis passer au tour suivant
-      setTimeout(async () => {
-        await nextRound();
-      }, 2000);
     } catch (error) {
       console.error('Erreur lors de la réponse:', error);
       Alert.alert('Erreur', 'Impossible d\'enregistrer la réponse');
@@ -216,8 +348,30 @@ export default function BlindTestGenerationsGame() {
     }
   };
 
-  const nextRound = async () => {
+  const handleCloseCorrectAnswerModal = async () => {
     if (!game || !user) return;
+    
+    setShowCorrectAnswerModal(false);
+    
+    try {
+      const db = getFirestore();
+      const gameRef = doc(db, 'games', String(id));
+      
+      await updateDoc(gameRef, {
+        showCorrectAnswerModal: false,
+        correctAnswerPlayer: null,
+      });
+      
+      // Passer à la question suivante
+      await nextQuestion();
+    } catch (error) {
+      console.error('Erreur lors de la fermeture du modal:', error);
+    }
+  };
+
+  const nextQuestion = async () => {
+    if (!game || !user) return;
+    
     try {
       const db = getFirestore();
       const gameRef = doc(db, 'games', String(id));
@@ -229,14 +383,22 @@ export default function BlindTestGenerationsGame() {
         await updateDoc(gameRef, {
           phase: 'end',
           currentRound: game.totalRounds,
+          showCorrectAnswerModal: false,
+          correctAnswerPlayer: null,
+          wrongAnswers: [],
         });
         return;
       }
 
-      // Passer au joueur suivant
+      // Passer au joueur suivant pour choisir la catégorie
       const currentIndex = game.players.findIndex((p) => p.id === game.currentPlayerId);
       const nextIndex = (currentIndex + 1) % game.players.length;
       const nextPlayer = game.players[nextIndex];
+
+      if (!nextPlayer) {
+        console.error('Aucun joueur suivant trouvé');
+        return;
+      }
 
       await updateDoc(gameRef, {
         currentRound: nextRound,
@@ -244,16 +406,25 @@ export default function BlindTestGenerationsGame() {
         phase: 'category-selection',
         currentQuestion: null,
         currentCategory: null,
+        audioPaused: false,
+        listeningUserId: null,
+        showCorrectAnswerModal: false,
+        correctAnswerPlayer: null,
+        wrongAnswers: [],
       });
 
       setIsPlaying(false);
+      setAudioPaused(false);
+      setListeningUserId(null);
+      setWrongAnswers(new Set());
     } catch (error) {
-      console.error('Erreur lors du passage au tour suivant:', error);
-      Alert.alert('Erreur', 'Impossible de passer au tour suivant');
+      console.error('Erreur lors du passage à la question suivante:', error);
+      Alert.alert('Erreur', 'Impossible de passer à la question suivante');
     }
   };
 
-  if (loading || isLoadingQuestions) {
+
+  if (loading || isLoadingQuestions || loadingCategories) {
     return (
       <View style={styles.loadingContainer}>
         <LinearGradient colors={[GRADIENT_START, GRADIENT_END]} style={StyleSheet.absoluteFill} />
@@ -292,19 +463,21 @@ export default function BlindTestGenerationsGame() {
   const playerScore = scores[user?.uid || ''] || 0;
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <LinearGradient colors={[GRADIENT_START, GRADIENT_END]} style={StyleSheet.absoluteFill} />
       <StatusBar style="light" />
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
-          <Text style={styles.title}>🎵 Blind Test Générations</Text>
-          <Text style={styles.subtitle}>
-            Round {game.currentRound} / {game.totalRounds}
-          </Text>
-          <View style={styles.scoreContainer}>
-            <Text style={styles.scoreLabel}>Score: {playerScore}</Text>
+        {game.phase !== 'category-selection' && (
+          <View style={styles.header}>
+            <Text style={styles.title}>🎵 Blind Test Générations</Text>
+            <Text style={styles.subtitle}>
+              Round {game.currentRound} / {game.totalRounds}
+            </Text>
+            <View style={styles.scoreContainer}>
+              <Text style={styles.scoreLabel}>Score: {playerScore}</Text>
+            </View>
           </View>
-        </View>
+        )}
 
         {game.phase === 'category-selection' && (
           <View style={styles.phaseContainer}>
@@ -327,32 +500,15 @@ export default function BlindTestGenerationsGame() {
                   ? 'Choisis une catégorie'
                   : 'Choix de la catégorie en cours...'}
               </Text>
-              <View style={styles.progressRow}>
-                <View style={styles.progressBarContainer}>
-                  <View
-                    style={[styles.progressBar, { width: `${(game.currentRound / game.totalRounds) * 100}%` }]}
-                  />
-                </View>
-                <Text style={styles.cardProgress}>
-                  {game.currentRound}/{game.totalRounds}
-                </Text>
-              </View>
+              <Text style={styles.cardEmoji}>🎄</Text>
             </View>
 
             {isCurrentPlayer && (
-              <View style={styles.categoriesContainer}>
-                {CATEGORIES.map((category) => (
-                  <TouchableOpacity
-                    key={category.id}
-                    style={styles.categoryButton}
-                    onPress={() => handleCategorySelection(category.id)}
-                    disabled={isProcessing}
-                  >
-                    <Text style={styles.categoryButtonEmoji}>{category.emoji}</Text>
-                    <Text style={styles.categoryButtonLabel}>{category.label}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
+              <CategoryGrid
+                categories={categories}
+                onSelectCategory={handleCategorySelection}
+                isProcessing={isProcessing}
+              />
             )}
 
             {!isCurrentPlayer && (
@@ -367,63 +523,76 @@ export default function BlindTestGenerationsGame() {
 
         {game.phase === 'question' && game.currentQuestion && (
           <View style={styles.phaseContainer}>
-            <QuestionCard
-              category={game.currentCategory}
-              question={game.currentQuestion.text || ''}
+            <BlindTestAudioPlayer
+              audioUrl={game.currentQuestion.audioUrl}
+              title={game.currentQuestion.text || game.currentQuestion.answer || 'Question'}
+              category={categories.find((c) => c.id === game.currentCategory)?.label}
+              categoryEmoji={categories.find((c) => c.id === game.currentCategory)?.emoji}
               currentRound={game.currentRound}
               totalRounds={game.totalRounds}
-              isPlaying={isPlaying}
+              onPlayStateChange={setIsPlaying}
+              correctAnswer={game.currentQuestion.answer}
+              onVoiceAnswer={(isCorrect: boolean) => {
+                handleAnswer(isCorrect);
+              }}
+              gameId={id}
+              currentUserId={user?.uid}
+              isCurrentPlayer={true} // Permettre à tout le monde de répondre
+              onStopAudioForAll={handleStopAudioForAll}
+              audioPaused={audioPaused}
+              listeningUserId={listeningUserId}
             />
 
-            {isCurrentPlayer && (
-              <View style={styles.actionsContainer}>
-                <TouchableOpacity
-                  style={[styles.button, styles.playButton]}
-                  onPress={handlePlayAudio}
-                  disabled={isPlaying || isProcessing}
-                >
-                  <Text style={styles.buttonText}>
-                    {isPlaying ? '⏸️ En cours...' : '▶️ Lire extrait'}
-                  </Text>
-                </TouchableOpacity>
 
-                <View style={styles.answerButtons}>
-                  <TouchableOpacity
-                    style={[styles.button, styles.correctButton]}
-                    onPress={() => handleAnswer(true)}
-                    disabled={isProcessing}
-                  >
-                    <Text style={styles.buttonText}>✅ Bonne réponse</Text>
-                  </TouchableOpacity>
 
-                  <TouchableOpacity
-                    style={[styles.button, styles.incorrectButton]}
-                    onPress={() => handleAnswer(false)}
-                    disabled={isProcessing}
-                  >
-                    <Text style={styles.buttonText}>❌ Mauvaise réponse</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            )}
-
-            {!isCurrentPlayer && (
-              <View style={styles.waitingContainer}>
-                <Text style={styles.waitingText}>
-                  En attente de {currentPlayer?.name || 'Joueur'}...
+            {/* Afficher qui a déjà répondu (mauvaises réponses) */}
+            {wrongAnswers.size > 0 && (
+              <View style={styles.wrongAnswersContainer}>
+                <Text style={styles.wrongAnswersText}>
+                  {wrongAnswers.size === game.players.length
+                    ? 'Personne n\'a trouvé la réponse...'
+                    : `${wrongAnswers.size} joueur${wrongAnswers.size > 1 ? 's' : ''} a/ont déjà essayé`}
                 </Text>
               </View>
             )}
           </View>
         )}
 
-        {game.phase === 'waiting' && (
-          <View style={styles.waitingContainer}>
-            <Text style={styles.waitingText}>⏳ Passage au tour suivant...</Text>
+        {/* Modal de bonne réponse */}
+        <Modal
+          visible={showCorrectAnswerModal}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={handleCloseCorrectAnswerModal}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <LinearGradient
+                colors={['#4CAF50', '#2E7D32']}
+                style={styles.modalGradient}
+              >
+                <Text style={styles.modalEmoji}>🎉</Text>
+                <Text style={styles.modalTitle}>Bonne réponse !</Text>
+                {correctAnswerPlayer && (
+                  <Text style={styles.modalPlayerName}>
+                    {game.players.find(p => p.id === correctAnswerPlayer)?.name || 'Joueur'} a trouvé !
+                  </Text>
+                )}
+                <Text style={styles.modalAnswer}>
+                  {game.currentQuestion?.answer || 'Réponse correcte'}
+                </Text>
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  onPress={handleCloseCorrectAnswerModal}
+                >
+                  <Text style={styles.modalButtonText}>Continuer</Text>
+                </TouchableOpacity>
+              </LinearGradient>
+            </View>
           </View>
-        )}
+        </Modal>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -449,228 +618,206 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    padding: 20,
+    padding: 16,
+    paddingBottom: 32,
   },
   header: {
     alignItems: 'center',
-    marginBottom: 30,
-    marginTop: 20,
+    marginBottom: 16,
+    marginTop: 8,
   },
   title: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: 'bold',
     color: 'white',
     textAlign: 'center',
-    marginBottom: 8,
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    marginBottom: 6,
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
   },
   subtitle: {
-    fontSize: 18,
+    fontSize: 16,
     color: 'rgba(255, 255, 255, 0.9)',
     fontWeight: '600',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   scoreContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 20,
-    paddingVertical: 8,
-    paddingHorizontal: 20,
-    marginTop: 8,
+    backgroundColor: 'rgba(255, 215, 0, 0.25)',
+    borderRadius: 16,
+    paddingVertical: 6,
+    paddingHorizontal: 16,
+    marginTop: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 215, 0, 0.4)',
   },
   scoreLabel: {
-    color: 'white',
-    fontSize: 18,
+    color: '#FFD700',
+    fontSize: 16,
     fontWeight: 'bold',
   },
   phaseContainer: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
-  },
-  categoriesContainer: {
     width: '100%',
-    maxWidth: 400,
-    gap: 12,
-    marginTop: 20,
   },
-  categoryButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 16,
-    paddingVertical: 18,
-    paddingHorizontal: 24,
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.4)',
+  categoriesGrid: {
+    width: '100%',
+    maxWidth: width - 32,
+    marginTop: 12,
     flexDirection: 'row',
-    justifyContent: 'center',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
     gap: 12,
+    paddingHorizontal: 0,
   },
-  categoryButtonEmoji: {
-    fontSize: 28,
+  categoryCardWrapper: {
+    width: (width - 48) / 2, // 2 colonnes avec padding et gap
+    marginBottom: 8,
   },
-  categoryButtonLabel: {
+  categoryCard: {
+    width: '100%',
+    aspectRatio: 1.05,
+    borderRadius: 18,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+    elevation: 6,
+  },
+  categoryCardGradient: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.25)',
+  },
+  categoryCardContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
+  categoryCardEmoji: {
+    fontSize: 40,
+    marginBottom: 8,
+    textShadowColor: 'rgba(0, 0, 0, 0.4)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
+  categoryCardLabel: {
     color: 'white',
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: 'bold',
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textAlign: 'center',
+    marginBottom: 4,
+    textShadowColor: 'rgba(0, 0, 0, 0.6)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+  },
+  categoryCardDescription: {
+    color: 'rgba(255, 255, 255, 0.95)',
+    fontSize: 11,
+    textAlign: 'center',
+    fontWeight: '500',
+    textShadowColor: 'rgba(0, 0, 0, 0.4)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
   },
+  categoryCardDisabled: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 20,
+  },
   cardContainer: {
     backgroundColor: CARD_BG,
-    borderRadius: 24,
-    padding: 30,
+    borderRadius: 20,
+    padding: 20,
     width: '100%',
-    maxWidth: 400,
-    marginBottom: 30,
+    maxWidth: width - 32,
+    marginBottom: 12,
     overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 215, 0, 0.3)',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 10,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 8,
   },
   cardHeader: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 12,
   },
   playerBadge: {
     backgroundColor: ACCENT_COLOR,
-    borderRadius: 20,
-    paddingVertical: 8,
-    paddingHorizontal: 20,
-    marginBottom: 12,
+    borderRadius: 16,
+    paddingVertical: 6,
+    paddingHorizontal: 16,
+    marginBottom: 8,
+    shadowColor: '#FFD700',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+    elevation: 4,
   },
   playerName: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 20,
-  },
-  categoryBadge: {
-    backgroundColor: ACCENT_COLOR,
-    borderRadius: 20,
-    paddingVertical: 8,
-    paddingHorizontal: 20,
-    marginBottom: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  categoryEmoji: {
-    fontSize: 20,
-  },
-  categoryLabel: {
-    color: 'white',
+    color: '#C62828',
     fontWeight: 'bold',
     fontSize: 16,
   },
   blindTestLabel: {
     color: ACCENT_COLOR,
-    fontSize: 16,
-    fontWeight: '600',
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    fontSize: 14,
+    fontWeight: '700',
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
-  },
-  audioVisualizer: {
-    height: 100,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  playingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    height: 70,
-  },
-  bar: {
-    width: 8,
-    backgroundColor: ACCENT_COLOR,
-    borderRadius: 4,
-  },
-  musicNote: {
-    fontSize: 64,
   },
   cardQuestion: {
-    fontSize: 22,
+    fontSize: 18,
     color: 'white',
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 12,
     fontWeight: '600',
-    lineHeight: 32,
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    lineHeight: 24,
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
     textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    textShadowRadius: 3,
   },
   progressRow: {
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
-    marginTop: 8,
+    marginTop: 4,
   },
   progressBarContainer: {
     flex: 1,
-    height: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    borderRadius: 4,
-    marginRight: 12,
+    height: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 3,
+    marginRight: 10,
     overflow: 'hidden',
   },
   progressBar: {
-    height: 8,
+    height: 6,
     backgroundColor: ACCENT_COLOR,
-    borderRadius: 4,
+    borderRadius: 3,
   },
   cardProgress: {
     color: 'white',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
-    minWidth: 48,
+    minWidth: 40,
   },
-  actionsContainer: {
-    width: '100%',
-    maxWidth: 400,
-    gap: 16,
-  },
-  button: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 16,
-    paddingVertical: 18,
-    paddingHorizontal: 24,
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.4)',
-  },
-  playButton: {
-    backgroundColor: 'rgba(76, 175, 80, 0.3)',
-    borderColor: '#4CAF50',
-  },
-  answerButtons: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  correctButton: {
-    flex: 1,
-    backgroundColor: 'rgba(76, 175, 80, 0.3)',
-    borderColor: '#4CAF50',
-  },
-  incorrectButton: {
-    flex: 1,
-    backgroundColor: 'rgba(244, 67, 54, 0.3)',
-    borderColor: '#F44336',
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+  cardEmoji: {
+    fontSize: 24,
+    textAlign: 'center',
+    marginTop: 8,
   },
   waitingContainer: {
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
@@ -684,6 +831,82 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     textAlign: 'center',
+  },
+  wrongAnswersContainer: {
+    backgroundColor: 'rgba(244, 67, 54, 0.2)',
+    borderRadius: 12,
+    padding: 12,
+    marginTop: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(244, 67, 54, 0.4)',
+  },
+  wrongAnswersText: {
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontSize: 14,
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: '85%',
+    maxWidth: 400,
+    borderRadius: 24,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.5,
+    shadowRadius: 16,
+    elevation: 16,
+  },
+  modalGradient: {
+    padding: 32,
+    alignItems: 'center',
+  },
+  modalEmoji: {
+    fontSize: 64,
+    marginBottom: 16,
+  },
+  modalTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: 'white',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  modalPlayerName: {
+    fontSize: 20,
+    color: 'rgba(255, 255, 255, 0.9)',
+    marginBottom: 16,
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  modalAnswer: {
+    fontSize: 24,
+    color: '#FFD700',
+    marginBottom: 24,
+    textAlign: 'center',
+    fontWeight: 'bold',
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
+  modalButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 32,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+  },
+  modalButtonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
 
