@@ -12,6 +12,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Image, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import ReviewModal from "@/components/ReviewModal";
 
 const PlayerRankDisplay: React.FC<{
   player: Player;
@@ -79,7 +80,14 @@ export default function GameResults({
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { awardLumiCoins } = usePoints();
-  const { requestReview } = useInAppReview();
+  const {
+    requestReview,
+    incrementGamesPlayed,
+    showReviewModal,
+    setShowReviewModal,
+    handleRateNow,
+    handleMaybeLater,
+  } = useInAppReview();
   const { updateUserStats } = useLeaderboard();
   const { onFreeGameCompleted } = useSmartPaywall();
   const { t } = useTranslation();
@@ -119,9 +127,9 @@ export default function GameResults({
   const rank_name = `rang ${currentUserRank}`;
 
   // Flags locaux pour éviter les appels multiples
-  const [reviewRequested, setReviewRequested] = useState(false);
   const [statsUpdated, setStatsUpdated] = useState(false);
   const [lumicoinsAwarded, setLumicoinsAwarded] = useState(false);
+  const [gamesPlayedIncremented, setGamesPlayedIncremented] = useState(false);
 
   // ⚠️ FIX: Mettre à jour les statistiques du leaderboard une seule fois
   useEffect(() => {
@@ -148,12 +156,31 @@ export default function GameResults({
     updateLeaderboardStats();
   }, [userId, scores, currentUserRank, updateUserStats, statsUpdated, leaderboardPoints]);
 
+  // Incrémenter le compteur de jeux joués et demander le review si possible
   useEffect(() => {
-    if (currentUserRank === 1 && !reviewRequested) {
-      requestReview();
-      setReviewRequested(true);
-    }
-  }, [currentUserRank, requestReview, reviewRequested]);
+    let reviewTimer: NodeJS.Timeout | null = null;
+
+    const handleGameEnd = async () => {
+      // Incrémenter le compteur de jeux joués (une seule fois)
+      if (!gamesPlayedIncremented) {
+        await incrementGamesPlayed();
+        setGamesPlayedIncremented(true);
+      }
+
+      // Demander le review après un délai (pour laisser voir les résultats)
+      reviewTimer = setTimeout(async () => {
+        await requestReview(true); // true = afficher la modal custom d'abord
+      }, 3000); // 3 secondes après la fin du jeu
+    };
+
+    handleGameEnd();
+
+    return () => {
+      if (reviewTimer) {
+        clearTimeout(reviewTimer);
+      }
+    };
+  }, [incrementGamesPlayed, requestReview, gamesPlayedIncremented]);
 
   // ⚠️ FIX: Attribution automatique des lumicoins à l'ouverture de l'écran
   useEffect(() => {
@@ -219,7 +246,16 @@ export default function GameResults({
   }, [onFreeGameCompleted]);
 
   return (
-    <LinearGradient colors={colors} style={styles.resultsBg}>
+    <>
+      {/* Modal de review améliorée */}
+      <ReviewModal
+        visible={showReviewModal}
+        onRateNow={handleRateNow}
+        onMaybeLater={handleMaybeLater}
+        onClose={() => setShowReviewModal(false)}
+      />
+      
+      <LinearGradient colors={colors} style={styles.resultsBg}>
       <View
         style={[
           styles.container,
@@ -289,6 +325,7 @@ export default function GameResults({
         </View>
       </View>
     </LinearGradient>
+    </>
   );
 }
 

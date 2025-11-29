@@ -7,6 +7,7 @@ import { useQuizHalloweenQuestions } from '@/hooks/quiz-halloween-questions';
 import { useGame } from '@/hooks/useGame';
 import { useInAppReview } from '@/hooks/useInAppReview';
 import { usePoints } from '@/hooks/usePoints';
+import { useQuizHalloweenAnalytics } from '@/hooks/useQuizHalloweenAnalytics';
 import { GamePhase, Player } from '@/types/gameTypes';
 import { TrapPlayerAnswer, TrapQuestion } from "@/types/types";
 import { MaterialCommunityIcons } from '@expo/vector-icons';

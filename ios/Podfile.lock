@@ -1211,6 +1211,9 @@ PODS:
     - ExpoModulesCore
   - EXApplication (7.0.7):
     - ExpoModulesCore
+  - EXAV (16.0.7):
+    - ExpoModulesCore
+    - ReactCommon/turbomodule/core
   - EXConstants (18.0.10):
     - ExpoModulesCore
   - EXImageLoader (6.0.0):
@@ -3790,6 +3793,7 @@ PODS:
 DEPENDENCIES:
   - "EASClient (from `../node_modules/.bun/expo-eas-client@1.0.7/node_modules/expo-eas-client/ios`)"
   - "EXApplication (from `../node_modules/.bun/expo-application@7.0.7+bf2b57f63776654c/node_modules/expo-application/ios`)"
+  - "EXAV (from `../node_modules/.bun/expo-av@16.0.7+bf2b57f63776654c/node_modules/expo-av/ios`)"
   - "EXConstants (from `../node_modules/.bun/expo-constants@18.0.10+bf2b57f63776654c/node_modules/expo-constants/ios`)"
   - "EXImageLoader (from `../node_modules/.bun/expo-image-loader@6.0.0+bf2b57f63776654c/node_modules/expo-image-loader/ios`)"
   - "EXJSONUtils (from `../node_modules/.bun/expo-json-utils@0.15.0/node_modules/expo-json-utils/ios`)"
@@ -3961,6 +3965,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/.bun/expo-eas-client@1.0.7/node_modules/expo-eas-client/ios"
   EXApplication:
     :path: "../node_modules/.bun/expo-application@7.0.7+bf2b57f63776654c/node_modules/expo-application/ios"
+  EXAV:
+    :path: "../node_modules/.bun/expo-av@16.0.7+bf2b57f63776654c/node_modules/expo-av/ios"
   EXConstants:
     :path: "../node_modules/.bun/expo-constants@18.0.10+bf2b57f63776654c/node_modules/expo-constants/ios"
   EXImageLoader:
@@ -4217,6 +4223,7 @@ SPEC CHECKSUMS:
   BoringSSL-GRPC: dded2a44897e45f28f08ae87a55ee4bcd19bc508
   EASClient: 68127f1248d2b25fdc82dbbfb17be95d1c4700be
   EXApplication: 296622817d459f46b6c5fe8691f4aac44d2b79e7
+  EXAV: e3fefaca88f14624bca01d9a128562a5f8e738f8
   EXConstants: fd688cef4e401dcf798a021cfb5d87c890c30ba3
   EXImageLoader: 189e3476581efe3ad4d1d3fb4735b7179eb26f05
   EXJSONUtils: 1d3e4590438c3ee593684186007028a14b3686cd

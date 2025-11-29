@@ -4,6 +4,7 @@ import { PaywallProvider } from "@/contexts/PaywallContext";
 import { useAppsFlyer } from "@/hooks/useAppsFlyer";
 import { useIsHasUpdates } from "@/hooks/useIsHasUpdates";
 import { usePostHog } from "@/hooks/usePostHog";
+import { useInAppReview } from "@/hooks/useInAppReview";
 import HalloweenNotificationScheduler from "@/services/halloweenNotificationScheduler";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -131,6 +132,7 @@ function AppContent() {
   useAppsFlyer();
   useIsHasUpdates();
   const { track } = usePostHog();
+  const { checkAndRequestReviewOnAppOpen } = useInAppReview();
 
   useEffect(() => {
     // Configuration Android 15 Edge-to-Edge
@@ -149,7 +151,10 @@ function AppContent() {
         });
       }, 1000);
     }
-  }, [track]);
+    
+    // Vérifier le review à chaque ouverture de l'app (si pas voté et pas refusé récemment)
+    checkAndRequestReviewOnAppOpen();
+  }, [track, checkAndRequestReviewOnAppOpen]);
 
   // Ne pas rendre l'app si les polices ne sont pas chargées
   // Utiliser un View vide au lieu de null pour maintenir la cohérence des hooks

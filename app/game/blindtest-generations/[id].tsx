@@ -8,6 +8,7 @@ import {
 import { useBlindTestCategories } from '@/hooks/useBlindTestCategories';
 import { useInAppReview } from '@/hooks/useInAppReview';
 import { usePoints } from '@/hooks/usePoints';
+import { useBlindTestAnalytics } from '@/hooks/useBlindTestAnalytics';
 import { GameState } from '@/types/gameTypes';
 import { doc, getFirestore, onSnapshot, updateDoc } from '@react-native-firebase/firestore';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -187,6 +188,7 @@ export default function BlindTestGenerationsGame() {
   const { t } = useTranslation();
   const { getRandomQuestion, isLoadingQuestions } = useBlindTestGenerationsQuestions();
   const { categories, loading: loadingCategories } = useBlindTestCategories();
+  const blindTestAnalytics = useBlindTestAnalytics();
 
   const [game, setGame] = useState<BlindTestGameState | null>(null);
   const [loading, setLoading] = useState(true);
@@ -199,6 +201,10 @@ export default function BlindTestGenerationsGame() {
   const [showCorrectAnswerModal, setShowCorrectAnswerModal] = useState(false);
   const [correctAnswerPlayer, setCorrectAnswerPlayer] = useState<string | null>(null);
   const [wrongAnswers, setWrongAnswers] = useState<Set<string>>(new Set());
+  const gameStartTimeRef = useRef<number | null>(null);
+  const questionStartTimeRef = useRef<number | null>(null);
+  const audioPauseTimeRef = useRef<number | null>(null);
+  const gameEndTrackedRef = useRef<boolean>(false);
 
   useEffect(() => {
     if (!id) return;
@@ -209,6 +215,14 @@ export default function BlindTestGenerationsGame() {
         const gameData = docSnap.data() as BlindTestGameState;
         setGame(gameData);
         setScores(gameData.scores || {});
+        
+        // Track game start when game is first loaded
+        if (!gameStartTimeRef.current && gameData.phase) {
+          gameStartTimeRef.current = Date.now();
+          if (user && gameData.players) {
+            blindTestAnalytics.trackGameStart(id, gameData.players.length);
+          }
+        }
         // Synchroniser l'état audio depuis Firestore
         setAudioPaused((gameData as any).audioPaused || false);
         setListeningUserId((gameData as any).listeningUserId || null);
@@ -225,19 +239,51 @@ export default function BlindTestGenerationsGame() {
         if ((gameData as any).wrongAnswers) {
           setWrongAnswers(new Set((gameData as any).wrongAnswers));
         }
+        
+        // Track question start when audio starts playing
+        if (gameData.phase === 'question' && gameData.currentQuestion && !questionStartTimeRef.current) {
+          questionStartTimeRef.current = Date.now();
+          if (user && gameData.currentQuestion.id && gameData.currentCategory) {
+            blindTestAnalytics.trackQuestionStart(
+              id,
+              gameData.currentQuestion.id,
+              typeof gameData.currentCategory === 'string' ? gameData.currentCategory : gameData.currentCategory.id,
+              gameData.currentRound
+            );
+          }
+        }
       }
       setLoading(false);
     });
     return () => unsubscribe();
-  }, [id]);
+  }, [id, user, blindTestAnalytics]);
 
   useEffect(() => {
     if (game && (game.currentRound > game.totalRounds || game.phase === 'end')) {
       setIsGameOver(true);
+      
+      // Track game end (only once)
+      if (gameStartTimeRef.current && user && !gameEndTrackedRef.current) {
+        gameEndTrackedRef.current = true;
+        const duration = (Date.now() - gameStartTimeRef.current) / 1000;
+        const winnerId = Object.keys(scores).length > 0
+          ? Object.keys(scores).reduce((a, b) => 
+              (scores[a] || 0) > (scores[b] || 0) ? a : b
+            )
+          : undefined;
+        blindTestAnalytics.trackGameEnd(
+          id,
+          game.totalRounds,
+          duration,
+          scores,
+          winnerId
+        );
+      }
     } else {
       setIsGameOver(false);
+      gameEndTrackedRef.current = false; // Reset if game restarts
     }
-  }, [game]);
+  }, [game, scores, user, id, blindTestAnalytics]);
 
   const handleCategorySelection = async (category: BlindTestCategory) => {
     if (!game || !user || isProcessing) return;
@@ -262,6 +308,15 @@ export default function BlindTestGenerationsGame() {
       });
       setAudioPaused(false);
       setListeningUserId(null);
+      questionStartTimeRef.current = null; // Reset for new question
+      
+      // Track category selection
+      blindTestAnalytics.trackCategorySelected(
+        id,
+        typeof category === 'string' ? category : category.id,
+        typeof category === 'string' ? category : category.label,
+        user.uid
+      );
     } catch (error) {
       console.error('Erreur lors de la sélection de catégorie:', error);
       Alert.alert('Erreur', 'Impossible de sélectionner la catégorie');
@@ -285,6 +340,20 @@ export default function BlindTestGenerationsGame() {
 
       setAudioPaused(true);
       setListeningUserId(user.uid);
+      audioPauseTimeRef.current = Date.now();
+      
+      // Track audio pause
+      const timeElapsed = questionStartTimeRef.current
+        ? (Date.now() - questionStartTimeRef.current) / 1000
+        : 0;
+      if (game.currentQuestion?.id) {
+        blindTestAnalytics.trackAudioPaused(
+          id,
+          user.uid,
+          game.currentQuestion.id,
+          timeElapsed
+        );
+      }
     } catch (error) {
       console.error('Erreur lors de l\'arrêt de la musique:', error);
     }
@@ -318,6 +387,29 @@ export default function BlindTestGenerationsGame() {
         setShowCorrectAnswerModal(true);
         setCorrectAnswerPlayer(answeringPlayerId);
         setWrongAnswers(new Set());
+        
+        // Track correct answer
+        const timeToAnswer = audioPauseTimeRef.current && questionStartTimeRef.current
+          ? (audioPauseTimeRef.current - questionStartTimeRef.current) / 1000
+          : 0;
+        if (game.currentQuestion?.id) {
+          blindTestAnalytics.trackCorrectAnswer(
+            id,
+            answeringPlayerId,
+            game.currentQuestion.id,
+            game.currentQuestion.answer || '',
+            timeToAnswer,
+            game.currentRound
+          );
+          blindTestAnalytics.trackVoiceRecognitionUsed(
+            id,
+            answeringPlayerId,
+            game.currentQuestion.id,
+            true
+          );
+        }
+        questionStartTimeRef.current = null;
+        audioPauseTimeRef.current = null;
       } else {
         // Mauvaise réponse : ajouter à la liste des mauvaises réponses et réinitialiser pour permettre à d'autres de répondre
         const newWrongAnswers = new Set(wrongAnswers);
@@ -332,9 +424,35 @@ export default function BlindTestGenerationsGame() {
 
         setAudioPaused(false);
         setListeningUserId(null);
+        
+        // Track wrong answer
+        if (game.currentQuestion?.id) {
+          blindTestAnalytics.trackWrongAnswer(
+            id,
+            answeringPlayerId,
+            game.currentQuestion.id,
+            'wrong_answer',
+            game.currentRound
+          );
+          blindTestAnalytics.trackVoiceRecognitionUsed(
+            id,
+            answeringPlayerId,
+            game.currentQuestion.id,
+            false
+          );
+        }
 
         // Si tous les joueurs ont donné une mauvaise réponse, passer à la question suivante après 3 secondes
         if (newWrongAnswers.size >= game.players.length) {
+          // Track question skipped
+          if (game.currentQuestion?.id) {
+            blindTestAnalytics.trackQuestionSkipped(
+              id,
+              game.currentQuestion.id,
+              game.currentRound,
+              newWrongAnswers.size
+            );
+          }
           setTimeout(async () => {
             await nextQuestion();
           }, 3000);
@@ -417,6 +535,8 @@ export default function BlindTestGenerationsGame() {
       setAudioPaused(false);
       setListeningUserId(null);
       setWrongAnswers(new Set());
+      questionStartTimeRef.current = null;
+      audioPauseTimeRef.current = null;
     } catch (error) {
       console.error('Erreur lors du passage à la question suivante:', error);
       Alert.alert('Erreur', 'Impossible de passer à la question suivante');
